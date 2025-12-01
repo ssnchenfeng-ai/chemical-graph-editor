@@ -1,0 +1,42 @@
+/* 容器 */
+.editor-container {
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: 0;
+  overflow: hidden;
+  background-color: #f0f2f5;
+}
+
+/* 左侧：组件库 (固定 240px) */
+.stencil-container {
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 240px;
+  background-color: #fff;
+  border-right: 1px solid #dfe3e8;
+  z-index: 10;
+}
+
+/* 中间：画布 (左右两边都让位) */
+.canvas-container {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 240px;  /* 让出左边 */
+  right: 300px; /* 让出右边 (给属性面板) */
+  background-color: #fff;
+  z-index: 1;
+}
+
+/* 右侧：属性面板 (固定 300px) */
+.inspector-container {
+  position: absolute;
+  top: 0; bottom: 0; right: 0;
+  width: 300px;
+  background-color: #fff;
+  border-left: 1px solid #dfe3e8;
+  z-index: 10;
+  overflow-y: auto; /* 内容多了可以滚动 */
+}
+
+/* X6 样式补丁 */
+.x6-widget-stencil { background-color: #fff; }
+.x6-widget-stencil-content { position: relative !important; }
