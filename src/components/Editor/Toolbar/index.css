@@ -1,0 +1,13 @@
+.toolbar-container {
+  position: absolute;
+  top: 20px;
+  left: 260px; /* 躲开左侧 Stencil */
+  z-index: 100;
+  background: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

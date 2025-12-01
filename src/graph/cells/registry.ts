@@ -1,24 +1,17 @@
 import { Graph } from '@antv/x6';
-// 确保这里正确引入了三个 SVG
-import { REACTOR_SVG, PUMP_SVG, VALVE_SVG } from './icons';
+// 恢复正常的引用
+import { REACTOR_SVG, PUMP_SVG, VALVE_SVG, TEE_SVG } from './icons';
 
 const PORT_ATTRS = {
-  circle: {
-    r: 4,
-    magnet: true,
-    stroke: '#31d0c6',
-    strokeWidth: 2,
-    fill: '#fff',
-  },
+  circle: { r: 4, magnet: true, stroke: '#31d0c6', strokeWidth: 2, fill: '#fff' },
 };
 
 export const registerCustomCells = () => {
-  // 1. 注册反应釜
+  // 1. 反应釜
   Graph.registerNode('custom-reactor', {
-    overwrite: true, // <--- 关键：允许覆盖同名节点
+    overwrite: true,
     inherit: 'image',
-    width: 80,
-    height: 120,
+    width: 80, height: 120,
     imageUrl: `data:image/svg+xml;utf8,${encodeURIComponent(REACTOR_SVG)}`,
     ports: {
       groups: {
@@ -38,43 +31,50 @@ export const registerCustomCells = () => {
     data: { type: 'Reactor', spec: 'CSTR-2000L' },
   });
 
-  // 2. 注册离心泵
+  // 2. 泵
   Graph.registerNode('custom-pump', {
-    overwrite: true, // <--- 关键
+    overwrite: true,
     inherit: 'image',
-    width: 60,
-    height: 60,
+    width: 60, height: 60,
     imageUrl: `data:image/svg+xml;utf8,${encodeURIComponent(PUMP_SVG)}`,
     ports: {
-      groups: {
-        in: { position: 'left', attrs: PORT_ATTRS },
-        out: { position: 'top', attrs: PORT_ATTRS },
-      },
-      items: [
-        { id: 'in', group: 'in' },
-        { id: 'out', group: 'out' },
-      ],
+      groups: { in: { position: 'left', attrs: PORT_ATTRS }, out: { position: 'top', attrs: PORT_ATTRS } },
+      items: [ { id: 'in', group: 'in' }, { id: 'out', group: 'out' } ],
     },
     data: { type: 'Pump', spec: 'P-101' },
   });
 
-  // 3. 注册阀门
+  // 3. 阀门
   Graph.registerNode('custom-valve', {
-    overwrite: true, // <--- 关键
+    overwrite: true,
     inherit: 'image',
-    width: 40,
-    height: 40,
+    width: 40, height: 40,
     imageUrl: `data:image/svg+xml;utf8,${encodeURIComponent(VALVE_SVG)}`,
+    ports: {
+      groups: { left: { position: 'left', attrs: PORT_ATTRS }, right: { position: 'right', attrs: PORT_ATTRS } },
+      items: [ { id: 'in', group: 'left' }, { id: 'out', group: 'right' } ],
+    },
+    data: { type: 'Valve', spec: 'DN50' },
+  });
+
+  // 4. 三通
+  Graph.registerNode('custom-tee', {
+    overwrite: true,
+    inherit: 'image',
+    width: 30, height: 30,
+    imageUrl: `data:image/svg+xml;utf8,${encodeURIComponent(TEE_SVG)}`,
     ports: {
       groups: {
         left: { position: 'left', attrs: PORT_ATTRS },
         right: { position: 'right', attrs: PORT_ATTRS },
+        bottom: { position: 'bottom', attrs: PORT_ATTRS },
       },
       items: [
-        { id: 'in', group: 'left' },
-        { id: 'out', group: 'right' },
+        { id: 'p1', group: 'left' },
+        { id: 'p2', group: 'right' },
+        { id: 'p3', group: 'bottom' },
       ],
     },
-    data: { type: 'Valve', spec: 'DN50' },
+    data: { type: 'Fitting', spec: 'Tee' },
   });
 };

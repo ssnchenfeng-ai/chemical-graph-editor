@@ -1,22 +1,31 @@
-import { useState } from 'react';
-import { Button, message, Layout } from 'antd';
-import GraphCanvas from './components/Editor/Canvas'; 
-import { runCypher } from './services/neo4j';
+import { useRef, useState } from 'react';
+import { Button, Layout, message } from 'antd';
+// 1. 确保图标库已安装。如果此处报错，请运行 npm install @ant-design/icons
+import { SaveOutlined, DatabaseOutlined } from '@ant-design/icons';
+
+// 2. 分开导入组件和类型（这是修复白屏的关键）
+import GraphCanvas from './components/Editor/Canvas';
+import type { GraphCanvasRef } from './components/Editor/Canvas';
 
 const { Header, Content } = Layout;
 
 function App() {
-  const [status, setStatus] = useState<string>('未连接');
+  const [saving, setSaving] = useState(false);
+  const graphRef = useRef<GraphCanvasRef>(null);
 
-  const testConnection = async () => {
-    try {
-      const res = await runCypher('CALL dbms.components() YIELD name, versions, edition');
-      setStatus(`连接成功`);
-      message.success('Neo4j 连接成功！');
-    } catch (err) {
-      console.error(err);
-      setStatus('连接失败');
-      message.error('连接失败，请确保 Neo4j 已启动且密码正确');
+  const handleSaveClick = async () => {
+    if (graphRef.current) {
+      setSaving(true);
+      try {
+        await graphRef.current.handleSave();
+      } catch (e) {
+        console.error(e);
+        message.error('保存操作异常');
+      } finally {
+        setSaving(false);
+      }
+    } else {
+        console.warn("GraphRef is null");
     }
   };
 
@@ -24,21 +33,27 @@ function App() {
     <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header style={{ 
         display: 'flex', alignItems: 'center', color: 'white', 
-        height: '50px', padding: '0 20px', flexShrink: 0 
+        height: '50px', padding: '0 20px', flexShrink: 0,
+        justifyContent: 'space-between' 
       }}>
-        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', marginRight: 20 }}>
+        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <DatabaseOutlined />
           🧪 化工 P&ID 编辑器
         </div>
-        <Button ghost size="small" onClick={testConnection}>DB测试</Button>
-        <span style={{ marginLeft: 15, fontSize: '0.8rem', color: '#aaa' }}>{status}</span>
+        
+        <Button 
+          type="primary" 
+          icon={<SaveOutlined />} 
+          loading={saving}
+          onClick={handleSaveClick}
+        >
+          保存图纸到 Neo4j
+        </Button>
       </Header>
       
-      {/* 
-         Content 使用 flex: 1 占满剩余高度
-         display: flex 确保内部子元素 (GraphCanvas) 能撑满宽度
-      */}
       <Content style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex' }}>
-        <GraphCanvas />
+        {/* 确保这里没有多余的 props 导致类型冲突 */}
+        <GraphCanvas ref={graphRef} />
       </Content>
     </Layout>
   );
