@@ -385,8 +385,6 @@ const handleMenuAction = (action: string) => {
     <div className="editor-container">
       {/* 左侧组件库 */}
       <div ref={stencilRef} className="stencil-container" />
-      
-      {/* 顶部悬浮工具栏 */}
       <div className="toolbar-container">
         <div className="toolbar-group">
           <Tooltip title="撤销"><Button type="text" icon={<UndoOutlined />} disabled={!canUndo} onClick={onUndo} /></Tooltip>
