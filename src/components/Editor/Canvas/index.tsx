@@ -420,8 +420,16 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     // === 新增：监听节点旋转，保持标签始终在视觉下方 ===
     graph.on('node:change:angle', ({ node }) => updateNodeLabel(node as Node));
 
-    // 阀门打断
-    const handlePipeSplit = (node: Cell) => {
+    // 阀门打断逻辑 (清理冗余变量版)
+    // 阀门打断逻辑 (修复 getClosestPoint 类型错误)
+    // 阀门打断逻辑 (视图路径采样版 - 终极修复)
+    // 阀门打断逻辑 (修复类型错误 + 高性能版)
+    // 阀门打断逻辑 (手动旋转 + 严格方向匹配版)
+    // 阀门打断逻辑 (精确对齐 + 全角度适配版)
+    // 阀门打断逻辑 (智能避让版：忽略阀门自身，避让其他设备)
+    // 阀门打断逻辑 (终极修复：双向动态排除，支持连续阀门)
+    // 阀门打断逻辑 (智能分类避让版)
+    const handlePipeSplit = (node: Node) => {
       const nodeType = node.getData()?.type;
       if (nodeType !== 'ControlValve' && nodeType !== 'Valve') return;
       
@@ -429,52 +437,169 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       if (connectedEdges.length > 0) return; 
 
       const nodeBBox = node.getBBox();
+      const center = nodeBBox.center;
       const allEdges = graph.getEdges();
 
+      // 1. 寻找相交的管线
       const targetEdge = allEdges.find(edge => {
         if (edge.getData()?.type === 'Signal') return false;
         return edge.getBBox().intersectsWithRect(nodeBBox);
       });
 
       if (targetEdge) {
-        const sourceNode = targetEdge.getSourceNode();
-        const targetNode = targetEdge.getTargetNode();
-        const srcPoint = sourceNode ? sourceNode.getBBox().center : targetEdge.getSourcePoint();
-        const tgtPoint = targetNode ? targetNode.getBBox().center : targetEdge.getTargetPoint();
+        // 2. 获取视图与路由点
+        const targetView = graph.findViewByCell(targetEdge);
+        if (!targetView) return;
 
-        const isHorizontal = Math.abs(srcPoint.y - tgtPoint.y) < 5;
-        const isVertical = Math.abs(srcPoint.x - tgtPoint.x) < 5;
+        // @ts-ignore
+        const closestPoint = targetView.getClosestPoint(center);
+        // @ts-ignore
+        const routePoints = targetView.routePoints || [];
+        
+        const points = [
+          targetEdge.getSourcePoint(),
+          ...routePoints,
+          targetEdge.getTargetPoint()
+        ];
+        
+        // 3. 判断管线分段的方向
+        let isPipeHorizontal = true; 
+        let foundSegment = false;
 
+        for (let i = 0; i < points.length - 1; i++) {
+          const p1 = points[i];
+          const p2 = points[i + 1];
+          
+          const minX = Math.min(p1.x, p2.x) - 2;
+          const maxX = Math.max(p1.x, p2.x) + 2;
+          const minY = Math.min(p1.y, p2.y) - 2;
+          const maxY = Math.max(p1.y, p2.y) + 2;
+
+          if (closestPoint.x >= minX && closestPoint.x <= maxX &&
+              closestPoint.y >= minY && closestPoint.y <= maxY) {
+            
+            if (Math.abs(p1.y - p2.y) < 1) {
+              isPipeHorizontal = true; 
+            } else {
+              isPipeHorizontal = false; 
+            }
+            foundSegment = true;
+            break; 
+          }
+        }
+
+        if (!foundSegment) {
+           const src = targetEdge.getSourcePoint();
+           const tgt = targetEdge.getTargetPoint();
+           isPipeHorizontal = Math.abs(src.x - tgt.x) > Math.abs(src.y - tgt.y);
+        }
+
+        // 4. 校验阀门角度
+        const angle = node.getAngle();
+        const normalizedAngle = (angle % 360 + 360) % 360;
+        const isValveHorizontal = (normalizedAngle < 10 || normalizedAngle > 350) || (normalizedAngle > 170 && normalizedAngle < 190);
+
+        if (isValveHorizontal !== isPipeHorizontal) {
+          return; 
+        }
+
+        // 5. 几何修正
+        const OFFSET = 20; 
         let newX = nodeBBox.x;
         let newY = nodeBBox.y;
 
-        if (isHorizontal) newY = Math.round(nodeBBox.y / 10) * 10; 
-        else if (isVertical) newX = Math.round(nodeBBox.x / 10) * 10;
+        if (isPipeHorizontal) {
+          const pipeY = closestPoint.y;
+          newY = Math.round((pipeY - OFFSET) / 10) * 10; 
+          newX = Math.round(nodeBBox.x / 10) * 10; 
+        } else {
+          const pipeX = closestPoint.x;
+          newX = Math.round((pipeX + OFFSET) / 10) * 10;
+          newY = Math.round(nodeBBox.y / 10) * 10; 
+        }
+        
+        node.setPosition(newX, newY);
 
-        (node as Node).setPosition(newX, newY);
+        // 6. 端口分配
+        const srcPoint = targetEdge.getSourcePoint();
+        const tgtPoint = targetEdge.getTargetPoint();
+        
+        let portForSource = 'in';  
+        let portForTarget = 'out'; 
 
+        if (isPipeHorizontal) {
+          if (srcPoint.x < tgtPoint.x) { 
+            portForSource = 'in'; portForTarget = 'out';
+          } else { 
+            portForSource = 'out'; portForTarget = 'in';
+          }
+        } else {
+          if (srcPoint.y < tgtPoint.y) { 
+            portForSource = 'in'; portForTarget = 'out';
+          } else { 
+            portForSource = 'out'; portForTarget = 'in';
+          }
+        }
+
+        // 7. 执行打断
         const source = targetEdge.getSource();
         const target = targetEdge.getTarget();
         const edgeData = targetEdge.getData();
         const edgeAttrs = targetEdge.getAttrs(); 
 
+        const sourceCellId = (source as any).cell;
+        const targetCellId = (target as any).cell;
+
         graph.removeCell(targetEdge);
 
+        // === 关键修改：定义“在线元件”类型列表 ===
+        // 只有这些类型的设备，才会被路由算法忽略体积，允许直线穿过
+        const INLINE_TYPES = ['ControlValve', 'Valve', 'Fitting', 'TappingPoint'];
+
+        // 辅助函数：判断某个 ID 对应的节点是否为在线元件
+        const isInlineComponent = (id: string) => {
+          if (!id) return false;
+          const cell = graph.getCellById(id);
+          if (!cell || !cell.isNode()) return false;
+          const type = cell.getData()?.type;
+          return INLINE_TYPES.includes(type);
+        };
+
+        // 构建排除列表 1 (Source -> Valve)
+        const exclude1 = ['SHEET_FRAME_A2', node.id];
+        if (isInlineComponent(sourceCellId)) {
+          exclude1.push(sourceCellId); // 如果上游是阀门/管件，排除它（允许直线）
+        }
+
+        // 构建排除列表 2 (Valve -> Target)
+        const exclude2 = ['SHEET_FRAME_A2', node.id];
+        if (isInlineComponent(targetCellId)) {
+          exclude2.push(targetCellId); // 如果下游是阀门/管件，排除它（允许直线）
+        }
+
+        const router1 = { name: 'manhattan', args: { padding: 30, excludeNodes: exclude1 } };
+        const router2 = { name: 'manhattan', args: { padding: 30, excludeNodes: exclude2 } };
+
         const edge1 = graph.createEdge({
-          shape: 'edge', source: source, target: { cell: node.id, port: 'in' },
-          data: { ...edgeData }, attrs: edgeAttrs, labels: []
+          shape: 'edge', 
+          source: source, 
+          target: { cell: node.id, port: portForSource }, 
+          data: { ...edgeData }, attrs: edgeAttrs, labels: [],
+          router: router1 
         });
 
         const edge2 = graph.createEdge({
-          shape: 'edge', source: { cell: node.id, port: 'out' }, target: target,
-          data: { ...edgeData }, attrs: edgeAttrs, labels: []
+          shape: 'edge', 
+          source: { cell: node.id, port: portForTarget }, 
+          target: target,
+          data: { ...edgeData }, attrs: edgeAttrs, labels: [],
+          router: router2 
         });
 
         graph.addCell([edge1, edge2]);
-        message.success('阀门已接入管线 (自动吸附)');
+        message.success('阀门已接入');
       }
     };
-
     // 智能测点
     // 智能测点 (修正方向 + 保留打断逻辑)
     const handleSignalDrop = (args: any) => {
@@ -575,8 +700,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       }
     };
 
-    graph.on('node:added', ({ node }) => setTimeout(() => handlePipeSplit(node), 50));
-    graph.on('node:mouseup', ({ node }) => handlePipeSplit(node));
+    graph.on('node:added', ({ node }) => setTimeout(() => handlePipeSplit(node as Node), 50));
+    graph.on('node:mouseup', ({ node }) => handlePipeSplit(node as Node));
     graph.on('edge:mouseup', handleSignalDrop); 
 
     // --- 核心修复：确保信号线逻辑存在 ---

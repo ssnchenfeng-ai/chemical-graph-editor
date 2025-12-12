@@ -8,6 +8,20 @@ import {
   ExperimentOutlined 
 } from '@ant-design/icons';
 
+const FLUID_COLORS: Record<string, string> = {
+  Water: '#1890ff',       // 工艺水 - 蓝
+  Steam: '#ff4d4f',       // 蒸汽 - 红
+  Air: '#52c41a',         // 空气 - 绿
+  N2: '#13c2c2',          // 氮气 - 青
+  Oil: '#fa8c16',         // 导热油 - 橙
+  Salt: '#722ed1',        // 熔盐 - 紫
+  Naphthalene: '#8c8c8c', // 萘 - 深灰
+  PA: '#eb2f96',          // 苯酐 - 洋红
+  CrudePA: '#f759ab',     // 粗苯酐 - 浅洋红
+  ProductGas: '#faad14',  // 产物气 - 金黄
+  TailGas: '#bfbfbf',     // 尾气 - 浅灰
+};
+
 interface InspectorProps { cell: Cell | null; }
 
 const { Option } = Select;
@@ -83,16 +97,27 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
       if (changedValues.tag !== undefined) {
         cell.setLabelAt(0, { attrs: { label: { text: changedValues.tag } }, position: { distance: 0.5 } });
       }
-      if (changedValues.insulation !== undefined) {
-        const type = changedValues.insulation;
-        if (type && type.startsWith('Jacket')) {
+      // ==================== [修改代码开始] ====================
+      // 监听 fluid 或 insulation 的变化，统一更新样式
+      if (changedValues.fluid !== undefined || changedValues.insulation !== undefined) {
+        const fluid = allValues.fluid;
+        const insulation = allValues.insulation;
+        
+        // 获取当前介质对应的颜色，默认为蓝色
+        const color = FLUID_COLORS[fluid] || '#5F95FF';
+
+        if (insulation && insulation.startsWith('Jacket')) {
+          // 1. 夹套管：强制橙色粗线 (忽略介质颜色)
           cell.setAttrs({ line: { strokeWidth: 4, stroke: '#fa8c16', strokeDasharray: null } });
-        } else if (['ST', 'ET', 'OT'].includes(type)) {
-          cell.setAttrs({ line: { strokeWidth: 2, stroke: '#5F95FF', strokeDasharray: '5 5' } });
+        } else if (['ST', 'ET', 'OT'].includes(insulation)) {
+          // 2. 伴热管：使用介质颜色 + 虚线
+          cell.setAttrs({ line: { strokeWidth: 2, stroke: color, strokeDasharray: '5 5' } });
         } else {
-          cell.setAttrs({ line: { strokeWidth: 2, stroke: '#5F95FF', strokeDasharray: null } });
+          // 3. 普通管：使用介质颜色 + 实线
+          cell.setAttrs({ line: { strokeWidth: 2, stroke: color, strokeDasharray: null } });
         }
       }
+      // ==================== [修改代码结束] ====================
     }
   };
 
@@ -290,12 +315,19 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
             <Divider orientation={"left" as any}>管道规格</Divider>
             <div style={{ display: 'flex', gap: 8 }}>
               <Form.Item label="介质" name="fluid" style={{ flex: 1 }}>
-                <Select>
-                  <Option value="Water">工艺水</Option>
-                  <Option value="Steam">蒸汽</Option>
-                  <Option value="Oil">导热油</Option>
-                  <Option value="Air">空气</Option>
-                  <Option value="N2">氮气</Option>
+                <Select showSearch optionFilterProp="children">
+                  <Option value="Water">工艺水 (Water)</Option>
+                  <Option value="Steam">蒸汽 (Steam)</Option>
+                  <Option value="Air">空气 (Air)</Option>
+                  <Option value="N2">氮气 (N2)</Option>
+                  <Option value="Oil">导热油 (Oil)</Option>
+                  <Option value="Salt">熔盐 (Salt)</Option>
+                  <Divider style={{ margin: '4px 0' }} />
+                  <Option value="Naphthalene">工业萘 (Nap)</Option>
+                  <Option value="ProductGas">产物气 (Gas)</Option>
+                  <Option value="CrudePA">粗苯酐 (Crude PA)</Option>
+                  <Option value="PA">精苯酐 (PA)</Option>
+                  <Option value="TailGas">尾气 (Tail Gas)</Option>
                 </Select>
               </Form.Item>
               <Form.Item label="材质" name="material" style={{ flex: 1 }}>

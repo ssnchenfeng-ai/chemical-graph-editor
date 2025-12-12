@@ -68,8 +68,10 @@ src/
         cv-positioner.svg
         cv-solenoid.svg
         E-13.svg
+        exchanger-vertical.svg
         exchanger.svg
         frame-a2.svg
+        gas-cooler.svg
         inst-local.svg
         inst-panel.svg
         inst-remote.svg
@@ -83,7 +85,10 @@ src/
         pump-liquid.svg
         pump-piston.svg
         pump.svg
+        reactor-fixed-bed.svg
         reactor.svg
+        tank-horizontal.svg
+        tee.svg
       icons.ts
       registry.ts
   services/
@@ -293,6 +298,53 @@ This section contains the contents of the repository's files.
 </svg>
 </file>
 
+<file path="src/graph/cells/svgs/exchanger-vertical.svg">
+<svg viewBox="0 0 100 400" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 主体 (Body) - 保持不变 -->
+  <path d="M10,40 A40,30 0 0,1 90,40" fill="white" />
+  <rect x="10" y="40" width="80" height="320" fill="white" stroke="none" />
+  <line x1="10" y1="40" x2="10" y2="360" />
+  <line x1="90" y1="40" x2="90" y2="360" />
+  <path d="M10,360 A40,30 0 0,0 90,360" fill="white" />
+
+  <!-- 2. 内部管束 (Internal Tubes) - 保持不变 -->
+  <line x1="10" y1="40" x2="90" y2="40" stroke-width="2" />
+  <line x1="10" y1="360" x2="90" y2="360" stroke-width="2" />
+  <g stroke-width="1">
+    <line x1="18" y1="40" x2="18" y2="360" />
+    <line x1="26" y1="40" x2="26" y2="360" />
+    <line x1="34" y1="40" x2="34" y2="360" />
+    <line x1="42" y1="40" x2="42" y2="360" />
+    <line x1="50" y1="40" x2="50" y2="360" />
+    <line x1="58" y1="40" x2="58" y2="360" />
+    <line x1="66" y1="40" x2="66" y2="360" />
+    <line x1="74" y1="40" x2="74" y2="360" />
+    <line x1="82" y1="40" x2="82" y2="360" />
+  </g>
+
+  <!-- 3. 侧面接口 (Side Nozzles) -->
+  
+  <!-- 左上 -->
+  <line x1="0" y1="80" x2="10" y2="80" stroke-width="3" />
+  
+  <!-- 左下 (修改处：改为普通接口) -->
+  <!-- 原来是 rect，现在改为 line，位置 y=320 -->
+  <line x1="0" y1="320" x2="10" y2="320" stroke-width="3" />
+
+  <!-- 右上 -->
+  <line x1="90" y1="60" x2="100" y2="60" stroke-width="3" />
+  <!-- 右下 -->
+  <line x1="90" y1="340" x2="100" y2="340" stroke-width="3" />
+
+  <!-- 4. 封头接口 (Head Nozzles) - 保持不变 -->
+  <line x1="30" y1="10" x2="30" y2="20" stroke-width="2" />
+  <line x1="70" y1="10" x2="70" y2="20" stroke-width="2" />
+  <line x1="30" y1="380" x2="30" y2="390" stroke-width="2" />
+  <line x1="70" y1="380" x2="70" y2="390" stroke-width="2" />
+
+</svg>
+</file>
+
 <file path="src/graph/cells/svgs/exchanger.svg">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 0 340 120" fill="none" stroke="black" stroke-width="2" style="background-color:transparent">
   <!-- 
@@ -393,6 +445,75 @@ This section contains the contents of the repository's files.
   </g>
   
   <text x="110" y="70" class="text" font-size="16">A2 (594x420mm)</text>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/gas-cooler.svg">
+<svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 外框 (Frame) - 保持不变 -->
+  <path d="M20,60 L380,60 L380,240 L60,240 L20,200 Z" fill="white" />
+
+  <!-- 2. 左右连接桩 - 保持不变 -->
+  <line x1="0" y1="150" x2="20" y2="150" stroke-width="3" />
+  <line x1="380" y1="150" x2="400" y2="150" stroke-width="3" />
+
+  <!-- 3. 顶部爆破片法兰 - 保持不变 -->
+  <g>
+    <rect x="25" y="50" width="20" height="10" fill="white" />
+    <line x1="35" y1="50" x2="35" y2="60" />
+  </g>
+  <g>
+    <rect x="355" y="50" width="20" height="10" fill="white" />
+    <line x1="365" y1="50" x2="365" y2="60" />
+  </g>
+
+  <!-- 4. 换热管束 (7组) -->
+  <!-- 修改说明：所有 translate 的 x 坐标增加 15 (半个管束宽) -->
+  <!-- 原坐标: 55, 95, 135, 175, 215, 255, 295 -->
+  <!-- 新坐标: 70, 110, 150, 190, 230, 270, 310 -->
+  
+  <g transform="translate(70, 40)"> <!-- 第1组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(110, 40)"> <!-- 第2组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(150, 40)"> <!-- 第3组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(190, 40)"> <!-- 第4组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(230, 40)"> <!-- 第5组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(270, 40)"> <!-- 第6组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(310, 40)"> <!-- 第7组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
 </svg>
 </file>
 
@@ -569,6 +690,67 @@ This section contains the contents of the repository's files.
 </svg>
 </file>
 
+<file path="src/graph/cells/svgs/reactor-fixed-bed.svg">
+<svg viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 主体 (Body) - 保持加宽尺寸 -->
+  <path d="M50,40 A80,30 0 0,1 210,40" fill="white" />
+  <rect x="50" y="40" width="160" height="220" fill="white" stroke="none" />
+  <line x1="50" y1="40" x2="50" y2="260" />
+  <line x1="210" y1="40" x2="210" y2="260" />
+  <path d="M50,260 A80,30 0 0,0 210,260" fill="white" />
+
+  <!-- 2. 气体接口 (Gas Nozzles) -->
+  <rect x="120" y="0" width="20" height="10" fill="white" />
+  <line x1="125" y1="10" x2="125" y2="25" /> <line x1="135" y1="10" x2="135" y2="25" />
+  <rect x="120" y="290" width="20" height="10" fill="white" />
+  <line x1="125" y1="275" x2="125" y2="290" /> <line x1="135" y1="275" x2="135" y2="290" />
+
+  <!-- 3. 盐环 (Salt Rings) -->
+  <!-- 上盐道 -->
+  <g id="upper-salt-ring">
+    <rect x="34" y="60" width="192" height="25" rx="5" ry="5" fill="white" />
+    <line x1="34" y1="72.5" x2="226" y2="72.5" stroke-width="1" stroke-dasharray="4 2" />
+  </g>
+  <!-- 下盐道 -->
+  <g id="lower-salt-ring">
+    <rect x="34" y="215" width="192" height="25" rx="5" ry="5" fill="white" />
+    <line x1="34" y1="227.5" x2="226" y2="227.5" stroke-width="1" stroke-dasharray="4 2" />
+  </g>
+
+  <!-- 4. 内部管束示意 (10根) -->
+  <g stroke="#999" stroke-width="1" stroke-dasharray="2 2">
+    <line x1="64" y1="90" x2="64" y2="210" /> <line x1="78" y1="90" x2="78" y2="210" />
+    <line x1="92" y1="90" x2="92" y2="210" /> <line x1="106" y1="90" x2="106" y2="210" />
+    <line x1="120" y1="90" x2="120" y2="210" /> <line x1="140" y1="90" x2="140" y2="210" />
+    <line x1="154" y1="90" x2="154" y2="210" /> <line x1="168" y1="90" x2="168" y2="210" />
+    <line x1="182" y1="90" x2="182" y2="210" /> <line x1="196" y1="90" x2="196" y2="210" />
+  </g>
+
+  <!-- 5. 密集连接短管 (Stubs) -->
+  
+  <!-- === 上盐道接口 (Upper) === -->
+  <!-- 左侧 3 个 (x=20~34) -->
+  <line x1="20" y1="65" x2="34" y2="65" stroke-width="2" />   <!-- 上: G-14A -->
+  <line x1="20" y1="72.5" x2="34" y2="72.5" stroke-width="2" /> <!-- 中: C-14 -->
+  <line x1="20" y1="80" x2="34" y2="80" stroke-width="2" />     <!-- 下: E-15 -->
+  
+  <!-- 右侧 2 个 (x=226~240) -->
+  <line x1="226" y1="68" x2="240" y2="68" stroke-width="2" />   <!-- 上: G-14B -->
+  <line x1="226" y1="77" x2="240" y2="77" stroke-width="2" />   <!-- 下: E-14 -->
+
+  <!-- === 下盐道接口 (Lower) === -->
+  <!-- 左侧 3 个 -->
+  <line x1="20" y1="220" x2="34" y2="220" stroke-width="2" />   <!-- 上: G-14A -->
+  <line x1="20" y1="227.5" x2="34" y2="227.5" stroke-width="2" /> <!-- 中: C-14 -->
+  <line x1="20" y1="235" x2="34" y2="235" stroke-width="2" />   <!-- 下: E-15 -->
+
+  <!-- 右侧 2 个 -->
+  <line x1="226" y1="223" x2="240" y2="223" stroke-width="2" />   <!-- 上: G-14B -->
+  <line x1="226" y1="232" x2="240" y2="232" stroke-width="2" />   <!-- 下: E-14 -->
+
+</svg>
+</file>
+
 <file path="src/graph/cells/svgs/reactor.svg">
 <svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
   <!-- 夹套 (灰色背景) -->
@@ -588,6 +770,29 @@ This section contains the contents of the repository's files.
   <circle cx="40" cy="110" r="2" fill="#1890ff"/> <!-- 出料口 -->
   <circle cx="10" cy="50" r="2" fill="#666"/> <!-- 夹套进 -->
   <circle cx="70" cy="80" r="2" fill="#666"/> <!-- 夹套出 -->
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/tank-horizontal.svg">
+<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 罐体 -->
+  <!-- 筒体直线段: x=20 到 x=180 -->
+  <!-- 左右封头: 宽度20的椭圆弧 (Rx=20, Ry=40) -->
+  <!-- 这样总宽度正好是 0(20-20) 到 200(180+20)，不会被裁剪 -->
+  <path d="M20,10 L180,10 A20,40 0 0,1 180,90 L20,90 A20,40 0 0,1 20,10 Z" fill="white" />
+  
+  <!-- 2. 鞍座 -->
+  <!-- 调整鞍座位置以匹配新的筒体比例 -->
+  <path d="M40,90 V100 H60 V90" fill="white" />
+  <path d="M140,90 V100 H160 V90" fill="white" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/tee.svg">
+<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 三通形状：水平线 + 垂直下引线 -->
+  <!-- 线宽 4px (比管线粗)，黑色，端点圆角 -->
+  <path d="M0 15 H40 M20 15 V40" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 </file>
 
@@ -1397,621 +1602,6 @@ export default defineConfig({
 }
 </file>
 
-<file path="src/components/Editor/Canvas/index.tsx">
-import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
-import { Graph, Cell, Edge, Node } from '@antv/x6';
-import { Stencil } from '@antv/x6-plugin-stencil';
-import { Keyboard } from '@antv/x6-plugin-keyboard';
-import { Selection } from '@antv/x6-plugin-selection';
-import { History } from '@antv/x6-plugin-history';
-import { Transform } from '@antv/x6-plugin-transform';
-import '@antv/x6-plugin-transform/dist/index.css';
-import { Button, Tooltip, message, Modal } from 'antd';
-import { 
-  ZoomInOutlined, ZoomOutOutlined, OneToOneOutlined, CompressOutlined, 
-  UndoOutlined, RedoOutlined, ClearOutlined 
-} from '@ant-design/icons';
-
-import Inspector from '../Inspector';
-import ContextMenu, { type MenuState } from '../ContextMenu';
-import './index.css';
-import { registerCustomCells } from '../../../graph/cells/registry';
-import { saveGraphData, loadGraphData } from '../../../services/neo4j';
-
-try { registerCustomCells(); } catch (e) { console.warn(e); }
-
-export interface GraphCanvasRef {
-  handleSave: () => Promise<void>;
-}
-
-const pick = (obj: any, keys: string[]) => {
-  const ret: any = {};
-  keys.forEach(key => {
-    if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
-      ret[key] = obj[key];
-    }
-  });
-  return ret;
-};
-
-const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const stencilRef = useRef<HTMLDivElement>(null);
-  const graphRef = useRef<Graph | null>(null);
-  const historyRef = useRef<History | null>(null);
-  const clipboardRef = useRef<any>(null);
-
-  const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
-  
-  const [menu, setMenu] = useState<MenuState>({ visible: false, x: 0, y: 0, type: null });
-
-  // --- 保存功能 ---
-  useImperativeHandle(ref, () => ({
-    handleSave: async () => {
-      if (!graphRef.current) return;
-      const graph = graphRef.current;
-      
-      // 1. 处理节点
-      const nodes = graph.getNodes()
-        .filter(node => !node.getData()?.isBackground)
-        .map(node => {
-          const data = node.getData() || {};
-          const pos = node.getPosition();
-          const size = node.getSize();
-          const type = data.type || 'Unknown';
-
-          let Tag = data.tag || node.getAttrs()?.label?.text || '';
-          if (type === 'Instrument') {
-            const func = data.tagId || '';
-            const loop = data.loopNum || '';
-            if (func || loop) Tag = `${func}${loop ? '-' + loop : ''}`;
-          }
-
-          const baseProps = {
-            x6Id: node.id, // 使用 x6Id
-            type: type, 
-            Tag: Tag,
-            x: pos.x, y: pos.y, width: size.width, height: size.height, angle: node.getAngle(),
-            desc: data.desc || ''
-          };
-
-          let specificProps = {};
-          if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
-             specificProps = pick(data, ['spec', 'flow', 'head', 'power', 'material']);
-          } else if (['Reactor', 'Tank', 'Evaporator'].includes(type)) {
-             specificProps = pick(data, ['spec', 'volume', 'material', 'designPressure', 'designTemp']);
-          } else if (type === 'Exchanger') {
-             specificProps = pick(data, ['spec', 'area', 'material', 'designPressure', 'tubePressure']);
-          } else if (['ControlValve', 'Valve'].includes(type)) {
-             specificProps = pick(data, ['spec', 'size', 'valveClass', 'failPosition']);
-          } else if (type === 'Instrument') {
-             specificProps = pick(data, ['spec', 'range', 'unit', 'tagId', 'loopNum']);
-          } else {
-             specificProps = pick(data, ['spec', 'material']);
-          }
-
-          return { ...baseProps, ...specificProps };
-        });
-
-      // 2. 处理连线
-      const edges = graph.getEdges().map(edge => {
-        const data = edge.getData() || {};
-        const sourceNode = edge.getSourceNode();
-        const targetNode = edge.getTargetNode();
-        
-        const getPortMeta = (node: Cell | null, portId: string | undefined) => {
-          if (!node || !node.isNode() || !portId) return { group: 'default', desc: 'unknown' };
-          const port = node.getPort(portId);
-          if (!port) return { group: 'default', desc: 'unknown' };
-          return {
-            group: port.group || 'default',
-            desc: port.data?.desc || port.attrs?.circle?.title || port.id
-          };
-        };
-
-        const srcMeta = getPortMeta(sourceNode, edge.getSourcePortId());
-        const tgtMeta = getPortMeta(targetNode, edge.getTargetPortId());
-
-        return {
-          source: edge.getSourceCell()?.id,
-          target: edge.getTargetCell()?.id,
-          sourcePort: edge.getSourcePortId(),
-          targetPort: edge.getTargetPortId(),
-          sourceRegion: srcMeta.group, sourceDesc: srcMeta.desc,
-          targetRegion: tgtMeta.group, targetDesc: tgtMeta.desc,
-          type: data.type || 'Pipe', 
-          material: data.material || 'CS',
-          fluid: data.fluid || 'Water',
-          dn: data.dn || 'DN50',
-          pn: data.pn || 'PN16',
-          insulation: data.insulation || 'None',
-          label: edge.getLabelAt(0)?.attrs?.label?.text || ''
-        };
-      });
-
-      try {
-        await saveGraphData(nodes, edges);
-        message.success(`保存成功！节点: ${nodes.length}, 连线: ${edges.length}`);
-      } catch (error) {
-        console.error(error);
-        message.error('保存失败，请检查数据库连接');
-      }
-    }
-  }));
-
-  // --- 内部操作函数 ---
-  const onUndo = () => historyRef.current?.undo();
-  const onRedo = () => historyRef.current?.redo();
-  const onZoom = (f: number) => graphRef.current?.zoom(f);
-  const onZoomToFit = () => graphRef.current?.zoomToFit({ padding: 20 });
-  const onZoomReset = () => graphRef.current?.zoomTo(1);
-  
-  const onClear = () => {
-    Modal.confirm({
-      title: '清空画布',
-      content: '确定要清空吗？图框将被保留。',
-      okType: 'danger',
-      onOk: () => {
-        if (!graphRef.current) return;
-        const cellsToRemove = graphRef.current.getCells().filter(cell => !cell.getData()?.isBackground);
-        graphRef.current.removeCells(cellsToRemove);
-        setSelectedCell(null);
-      },
-    });
-  };
-
-  const handleMenuAction = (action: string) => {
-    const { cellId } = menu;
-    const graph = graphRef.current;
-    if (!graph) return;
-    const cell = cellId ? graph.getCellById(cellId) : null;
-
-    switch (action) {
-      case 'delete':
-        if (cell && !cell.getData()?.isBackground) {
-          graph.removeCell(cell);
-          setSelectedCell(null);
-        }
-        break;
-      case 'copy':
-        if (cell && cell.isNode() && !cell.getData()?.isBackground) {
-          clipboardRef.current = cell.toJSON();
-          message.success('已复制');
-        }
-        break;
-      case 'paste':
-        if (clipboardRef.current) {
-          const point = graph.clientToLocal({ x: menu.x, y: menu.y });
-          const newNode = graph.createNode({
-            ...clipboardRef.current,
-            x: point.x, y: point.y,
-            id: undefined, zIndex: 10,
-          });
-          graph.addNode(newNode);
-          graph.select(newNode);
-        }
-        break;
-      case 'property':
-        message.success('已定位到属性面板');
-        break;
-      case 'clear':
-        onClear();
-        break;
-      case 'fit':
-        onZoomToFit();
-        break;
-      case 'rotate':
-        if (cell && cell.isNode() && !cell.getData()?.isBackground) {
-          cell.rotate(90);
-        }
-        break;
-    }
-  };
-
-  // --- 初始化 ---
-  useEffect(() => {
-    if (!containerRef.current || !stencilRef.current) return;
-    stencilRef.current.innerHTML = '';
-
-    const graph = new Graph({
-      container: containerRef.current,
-      autoResize: true,
-      grid: { size: 10, visible: true, type: 'doubleMesh', args: [{ color: '#eee' }, { color: '#ddd', factor: 4 }] },
-      panning: { enabled: true, eventTypes: ['rightMouseDown'] },
-      mousewheel: {
-        enabled: true, zoomAtMousePosition: true, modifiers: null, factor: 1.1, maxScale: 3, minScale: 0.1,
-      },
-      interacting: {
-        nodeMovable: (view) => !view.cell.getData()?.isBackground,
-        magnetConnectable: (view) => !view.cell.getData()?.isBackground,
-      },
-      connecting: {
-        router: { 
-          name: 'manhattan', 
-          args: { 
-            padding: 20, 
-            excludeNodes: ['SHEET_FRAME_A2'] 
-          } 
-        },
-        connector: { name: 'rounded', args: { radius: 8 } },
-        anchor: 'center', 
-        connectionPoint: 'anchor', 
-        snap: true, 
-        allowBlank: false, 
-        allowEdge: true,
-        highlight: true,
-        validateConnection: ({ sourceView, targetView, sourceMagnet, targetMagnet }) => {
-          if (!sourceView || !targetView || !sourceMagnet) return false;
-          if (sourceView === targetView) return false;
-
-          if (targetView.isEdgeElement()) {
-            const sourceNode = sourceView.cell as Node;
-            if (sourceNode.getData()?.type === 'Instrument') return true;
-            return false;
-          }
-
-          if (!targetMagnet) return false;
-
-          const sourcePortId = sourceMagnet.getAttribute('port');
-          const targetPortId = targetMagnet.getAttribute('port');
-          if (!sourcePortId || !targetPortId) return false;
-
-          const sourceNode = sourceView.cell as Node;
-          const targetNode = targetView.cell as Node;
-          const sourcePort = sourceNode.getPort(sourcePortId);
-          const targetPort = targetNode.getPort(targetPortId);
-
-          const sDir = sourcePort?.data?.dir || 'bi';
-          const tDir = targetPort?.data?.dir || 'bi';
-
-          const isValidSource = sDir !== 'in'; 
-          const isValidTarget = tDir !== 'out';
-
-          return isValidSource && isValidTarget;
-        },
-        createEdge() {
-          return this.createEdge({
-            shape: 'edge',
-            attrs: { 
-              line: { 
-                stroke: '#5F95FF', 
-                strokeWidth: 2, 
-                targetMarker: { name: 'classic', width: 8, height: 6 }
-              } 
-            },
-            labels: [], 
-            data: { type: 'Pipe', material: 'CS', fluid: 'Water' }
-          });
-        },
-      },
-    });
-    graphRef.current = graph;
-
-    // 阀门打断
-    const handlePipeSplit = (node: Cell) => {
-      const nodeType = node.getData()?.type;
-      if (nodeType !== 'ControlValve' && nodeType !== 'Valve') return;
-      
-      const connectedEdges = graph.getConnectedEdges(node);
-      if (connectedEdges.length > 0) return; 
-
-      const nodeBBox = node.getBBox();
-      const allEdges = graph.getEdges();
-
-      const targetEdge = allEdges.find(edge => {
-        if (edge.getData()?.type === 'Signal') return false;
-        return edge.getBBox().intersectsWithRect(nodeBBox);
-      });
-
-      if (targetEdge) {
-        const sourceNode = targetEdge.getSourceNode();
-        const targetNode = targetEdge.getTargetNode();
-        const srcPoint = sourceNode ? sourceNode.getBBox().center : targetEdge.getSourcePoint();
-        const tgtPoint = targetNode ? targetNode.getBBox().center : targetEdge.getTargetPoint();
-
-        const isHorizontal = Math.abs(srcPoint.y - tgtPoint.y) < 5;
-        const isVertical = Math.abs(srcPoint.x - tgtPoint.x) < 5;
-
-        let newX = nodeBBox.x;
-        let newY = nodeBBox.y;
-
-        if (isHorizontal) newY = Math.round(nodeBBox.y / 10) * 10; 
-        else if (isVertical) newX = Math.round(nodeBBox.x / 10) * 10;
-
-        (node as Node).setPosition(newX, newY);
-
-        const source = targetEdge.getSource();
-        const target = targetEdge.getTarget();
-        const edgeData = targetEdge.getData();
-        const edgeAttrs = targetEdge.getAttrs(); 
-
-        graph.removeCell(targetEdge);
-
-        const edge1 = graph.createEdge({
-          shape: 'edge', source: source, target: { cell: node.id, port: 'in' },
-          data: { ...edgeData }, attrs: edgeAttrs, labels: []
-        });
-
-        const edge2 = graph.createEdge({
-          shape: 'edge', source: { cell: node.id, port: 'out' }, target: target,
-          data: { ...edgeData }, attrs: edgeAttrs, labels: []
-        });
-
-        graph.addCell([edge1, edge2]);
-        message.success('阀门已接入管线 (自动吸附)');
-      }
-    };
-
-    // 智能测点
-    // 智能测点 (修正方向 + 保留打断逻辑)
-    const handleSignalDrop = (args: any) => {
-      const { e, edge } = args;
-      const sourceNode = edge.getSourceNode();
-      
-      // 1. 仅处理从仪表发出的连线
-      if (sourceNode?.getData()?.type !== 'Instrument') return;
-
-      let hitPipe: Edge | null = null;
-      const point = graph.clientToLocal(e.clientX, e.clientY);
-
-      // 2. 检测是否拖拽到了管线上
-      const targetCell = edge.getTargetCell();
-      if (targetCell && targetCell.isEdge()) {
-        hitPipe = targetCell as Edge;
-      } else {
-        if (edge.getTargetNode()) return; // 如果连到了其他节点，不处理
-        const views = graph.findViewsFromPoint(point);
-        // 排除自身和已有的信号线
-        const pipeView = views.find(v => v.isEdgeElement() && v.cell.id !== edge.id && v.cell.getData()?.type !== 'Signal');
-        if (pipeView) {
-          hitPipe = pipeView.cell as Edge;
-        }
-      }
-
-      if (hitPipe) {
-        // --- A. 计算测点位置 (保留原有逻辑，确保吸附在管线上) ---
-        const src = hitPipe.getSourcePoint();
-        const tgt = hitPipe.getTargetPoint();
-
-        let tapX = point.x;
-        let tapY = point.y;
-
-        const isHorizontal = Math.abs(src.y - tgt.y) < 2;
-        const isVertical = Math.abs(src.x - tgt.x) < 2;
-
-        if (isHorizontal) {
-          tapY = src.y; 
-          tapX = Math.round(point.x / 10) * 10;
-        } else if (isVertical) {
-          tapX = src.x;
-          tapY = Math.round(point.y / 10) * 10;
-        } else {
-          tapX = Math.round(point.x / 10) * 10;
-          tapY = Math.round(point.y / 10) * 10;
-        }
-
-        // --- B. 创建测点节点 (保留原有逻辑) ---
-        const tappingPoint = graph.createNode({
-          shape: 'tapping-point',
-          x: tapX - 6, y: tapY - 6, // 居中校正
-          data: { type: 'TappingPoint' }
-        });
-        
-        // --- C. 处理信号线 (修改逻辑：反转方向) ---
-        // 1. 删除用户拖拽的那条临时线 (因为它方向是 仪表->空地)
-        graph.removeCell(edge); 
-
-        // 2. 创建新信号线：测点 -> 仪表
-        const signalEdge = graph.createEdge({
-          shape: 'signal-edge', // 使用注册好的虚线样式
-          source: { cell: tappingPoint.id },
-          target: { cell: sourceNode.id }, // 连回起始仪表
-          data: { type: 'Signal', relationType: 'MEASURES' }
-        });
-
-        // --- D. 打断原有管线 (保留原有逻辑，确保测点嵌入管线) ---
-        const source = hitPipe.getSource();
-        const target = hitPipe.getTarget();
-        const pipeData = hitPipe.getData();
-        const pipeAttrs = hitPipe.getAttrs(); 
-
-        // 删除旧管线
-        graph.removeCell(hitPipe);
-
-        // 创建两段新管线：Source -> 测点 -> Target
-        const pipe1 = graph.createEdge({
-          shape: 'edge', source: source, target: { cell: tappingPoint.id },
-          data: pipeData, attrs: pipeAttrs, labels: []
-        });
-        const pipe2 = graph.createEdge({
-          shape: 'edge', source: { cell: tappingPoint.id }, target: target,
-          data: pipeData, attrs: pipeAttrs, labels: []
-        });
-        
-        // --- E. 批量添加到画布 ---
-        // 注意：先加节点，再加连线，顺序很重要
-        graph.addCell([tappingPoint, pipe1, pipe2, signalEdge]);
-        tappingPoint.toFront(); // 确保测点在最上层
-        
-        message.success('已生成测点 (信号流向: 测点 -> 仪表)');
-      } else {
-        // 如果没拖到管线上，且没连到任何东西，删除这条悬空的线
-        if (!edge.getTargetCell()) {
-          graph.removeCell(edge);
-        }
-      }
-    };
-
-    graph.on('node:added', ({ node }) => setTimeout(() => handlePipeSplit(node), 50));
-    graph.on('node:mouseup', ({ node }) => handlePipeSplit(node));
-    graph.on('edge:mouseup', handleSignalDrop); 
-
-    // --- 核心修复：确保信号线逻辑存在 ---
-    graph.on('edge:connected', ({ edge }) => {
-      const sourceNode = edge.getSourceNode();
-      const targetPortId = edge.getTargetPortId();
-
-      const isSourceInstrument = sourceNode?.getData()?.type === 'Instrument';
-      const isTargetActuator = targetPortId === 'actuator';
-
-      if (isSourceInstrument || isTargetActuator) {
-        edge.setAttrs({
-          line: { 
-            stroke: '#888', 
-            strokeWidth: 1, 
-            strokeDasharray: '4 4', 
-            targetMarker: { name: 'classic', size: 3 } 
-          } 
-        });
-        edge.setData({ 
-          type: 'Signal', 
-          fluid: 'Signal',
-          relationType: isTargetActuator ? 'CONTROLS' : 'MEASURES' 
-        });
-        if (isTargetActuator) {
-           edge.setRouter('manhattan', { padding: 10 });
-        }
-      }
-    });
-
-    graph.use(new Selection({
-      enabled: true, multiple: true, rubberband: true, movable: true, showNodeSelectionBox: true,
-      filter: (cell) => !cell.getData()?.isBackground
-    }));
-    graph.use(new Keyboard({ enabled: true }));
-    graph.use(new Transform({ resizing: { enabled: true }, rotating: { enabled: true, grid: 15 } }));
-    
-    const history = new History({ enabled: true });
-    graph.use(history);
-    historyRef.current = history;
-    graph.on('history:change', () => { setCanUndo(history.canUndo()); setCanRedo(history.canRedo()); });
-
-    graph.bindKey(['backspace', 'delete'], () => {
-      const cells = graph.getSelectedCells().filter(c => !c.getData()?.isBackground);
-      if (cells.length) graph.removeCells(cells);
-    });
-
-    graph.on('cell:click', ({ cell }) => {
-      if (cell.getData()?.isBackground) { setSelectedCell(null); return; }
-      setSelectedCell(cell);
-      if (cell.isEdge()) cell.attr('line/strokeWidth', 3);
-      graph.getEdges().forEach(edge => { if (edge.id !== cell.id) edge.attr('line/strokeWidth', 2); });
-    });
-    
-    graph.on('blank:click', () => {
-      setSelectedCell(null);
-      graph.getEdges().forEach(edge => edge.attr('line/strokeWidth', 2));
-    });
-
-    graph.on('cell:contextmenu', ({ e, cell }) => {
-      if (cell.getData()?.isBackground) return; 
-      setMenu({ visible: true, x: e.clientX, y: e.clientY, type: cell.isNode() ? 'node' : 'edge', cellId: cell.id });
-    });
-    
-    graph.on('blank:contextmenu', ({ e }) => {
-      setMenu({ visible: true, x: e.clientX, y: e.clientY, type: 'blank' });
-    });
-
-    // --- Stencil ---
-    const stencil = new Stencil({
-      title: '组件库', target: graph, stencilGraphWidth: 240, stencilGraphHeight: 0, collapsable: true,
-      search: { visible: true, placeholder: '搜索设备...' },
-      groups: [
-        { title: '主工艺设备', name: 'main_equip', layoutOptions: { columns: 1, columnWidth: 220, rowHeight: 160 } },
-        { title: '泵类设备', name: 'pumps', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 100 } },
-        { title: '仪表控制', name: 'instruments', layoutOptions: { columns: 3, columnWidth: 60, rowHeight: 70 } },
-        { title: '管路附件', name: 'parts', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 120 } }
-      ],
-    });
-    stencilRef.current.appendChild(stencil.container);
-
-    const reactor = graph.createNode({ shape: 'p-reactor', label: '反应釜', data: { type: 'Reactor' } });
-    const exchanger = graph.createNode({ shape: 'p-exchanger', label: '换热器', data: { type: 'Exchanger' } });
-    const e13 = graph.createNode({ shape: 'p-naphthalene-evaporator', label: '萘蒸发器', data: { type: 'Evaporator' } });
-    
-    const pumpList = [
-      graph.createNode({ shape: 'p-pump-liquid', label: '液体泵' }),
-      graph.createNode({ shape: 'p-pump-centrifugal', label: '离心泵' }),
-      graph.createNode({ shape: 'p-pump-diaphragm', label: '隔膜泵' }),
-      graph.createNode({ shape: 'p-pump-piston', label: '活塞泵' }),
-      graph.createNode({ shape: 'p-pump-compressor', label: '压缩机' }),
-      graph.createNode({ shape: 'p-pump-gear', label: '齿轮泵' }),
-      graph.createNode({ shape: 'p-pump-fan', label: '风扇' }),
-      graph.createNode({ shape: 'p-pump-jet', label: '喷射泵' }),
-    ];
-    const valveList = [
-      graph.createNode({ shape: 'p-cv-pneumatic', label: '气动阀' }),
-      graph.createNode({ shape: 'p-cv-positioner', label: '定位器' }),
-      graph.createNode({ shape: 'p-cv-electric', label: '电动阀' }),
-      graph.createNode({ shape: 'p-cv-solenoid', label: '电磁阀' }),
-      graph.createNode({ shape: 'p-cv-manual', label: '手动阀' }),
-      graph.createNode({ shape: 'p-cv-piston', label: '气缸阀' }),
-    ];
-    const instList = [
-      graph.createNode({ shape: 'p-inst-local', label: '就地' }),
-      graph.createNode({ shape: 'p-inst-remote', label: '远传' }),
-      graph.createNode({ shape: 'p-inst-panel', label: '盘装' }),
-    ];
-
-    stencil.load([reactor, exchanger, e13], 'main_equip');
-    stencil.load(pumpList, 'pumps');
-    stencil.load(instList, 'instruments');
-    stencil.load(valveList, 'parts');
-
-    const setupBackgroundFrame = () => {
-      if (graph.getNodes().some(n => n.getData()?.isBackground)) return;
-      graph.addNode({
-        shape: 'drawing-frame-a2', id: 'SHEET_FRAME_A2', x: 0, y: 0, zIndex: -1,
-        movable: false, selectable: false, data: { type: 'Frame', isBackground: true }
-      });
-    };
-
-    const initCanvasData = async () => {
-      setupBackgroundFrame();
-      try {
-        const data = await loadGraphData();
-        if (data && data.nodes.length > 0) {
-          graph.fromJSON(data as any);
-          setupBackgroundFrame();
-          graph.centerContent();
-          message.success('数据已恢复');
-        }
-      } catch (error) {
-        console.error('Data Load Error:', error);
-        message.error('数据加载失败，已重置');
-      }
-    };
-    setTimeout(initCanvasData, 100);
-
-    return () => { graph.dispose(); if (stencilRef.current) stencilRef.current.innerHTML = ''; };
-  }, []);
-
-  return (
-    <div className="editor-container">
-      <div ref={stencilRef} className="stencil-container" />
-      <div className="toolbar-container">
-         <Tooltip title="撤销"><Button type="text" icon={<UndoOutlined />} disabled={!canUndo} onClick={onUndo} /></Tooltip>
-         <Tooltip title="重做"><Button type="text" icon={<RedoOutlined />} disabled={!canRedo} onClick={onRedo} /></Tooltip>
-         <div className="toolbar-sep"></div>
-         <Tooltip title="放大"><Button type="text" icon={<ZoomInOutlined />} onClick={() => onZoom(0.1)} /></Tooltip>
-         <Tooltip title="缩小"><Button type="text" icon={<ZoomOutOutlined />} onClick={() => onZoom(-0.1)} /></Tooltip>
-         <Tooltip title="适应"><Button type="text" icon={<CompressOutlined />} onClick={onZoomToFit} /></Tooltip>
-         <Tooltip title="1:1"><Button type="text" icon={<OneToOneOutlined />} onClick={onZoomReset} /></Tooltip>
-         <div className="toolbar-sep"></div>
-         <Tooltip title="清空"><Button type="text" danger icon={<ClearOutlined />} onClick={onClear} /></Tooltip>
-      </div>
-      <div ref={containerRef} className="canvas-container" />
-      <div className="inspector-container"><Inspector cell={selectedCell} /></div>
-      <ContextMenu visible={menu.visible} x={menu.x} y={menu.y} type={menu.type} onClose={() => setMenu({ ...menu, visible: false })} onAction={handleMenuAction} />
-    </div>
-  );
-});
-
-export default GraphCanvas;
-</file>
-
 <file path="src/components/Editor/Inspector/index.tsx">
 import React, { useEffect } from 'react';
 import { Form, Input, Card, Empty, Select, Divider, Collapse } from 'antd';
@@ -2420,6 +2010,17 @@ import instLocalSvg from './svgs/inst-local.svg?raw';
 import instRemoteSvg from './svgs/inst-remote.svg?raw';
 import instPanelSvg from './svgs/inst-panel.svg?raw';
 
+import teeSvg from './svgs/tee.svg?raw';
+import tankHorizontalSvg from './svgs/tank-horizontal.svg?raw';
+import gasCoolerSvg from './svgs/gas-cooler.svg?raw';
+import reactorFixedBedSvg from './svgs/reactor-fixed-bed.svg?raw';
+import exchangerVerticalSvg from './svgs/exchanger-vertical.svg?raw';
+
+
+
+
+
+
 // 1. 定义端口类型枚举，方便管理
 type PortDir = 'in' | 'out' | 'bi'; // bi 代表双向，如人孔、呼吸阀
 
@@ -2488,6 +2089,7 @@ const VALVE_PORTS = {
       data: { desc: '执行机构', dir: 'in', type: 'signal' } 
     },
   ],
+  
 };
 
 const LABEL_ATTRS = {
@@ -2500,6 +2102,142 @@ const LABEL_ATTRS = {
     fill: '#333',
   }
 };
+const TEE_PORTS = {
+  groups: {
+    all: { position: 'absolute', attrs: PORT_ATTRS },
+  },
+  items: [
+    // 左端口 (对应 SVG y=15, 15/40 = 37.5%)
+    { 
+      id: 'left', 
+      group: 'all', 
+      args: { x: '0%', y: '37.5%' }, 
+      data: { desc: '三通接口', dir: 'bi' } 
+    },
+    // 右端口
+    { 
+      id: 'right', 
+      group: 'all', 
+      args: { x: '100%', y: '37.5%' }, 
+      data: { desc: '三通接口', dir: 'bi' } 
+    },
+    // 下端口
+    { 
+      id: 'bottom', 
+      group: 'all', 
+      args: { x: '50%', y: '100%' }, 
+      data: { desc: '三通接口', dir: 'bi' } 
+    },
+  ],
+};
+// 2. 修改 TANK_PORTS 定义
+const TANK_PORTS = {
+  groups: {
+    top: { position: 'absolute', attrs: PORT_ATTRS },
+    bottom: { position: 'absolute', attrs: PORT_ATTRS },
+    left: { position: 'absolute', attrs: PORT_ATTRS },
+    right: { position: 'absolute', attrs: PORT_ATTRS },
+  },
+  items: [
+    // --- 顶部 5 个 (y: 0% 位于上边缘) ---
+    { group: 'top', args: { x: '20%', y: '0%' }, data: { desc: 'N1' } },
+    { group: 'top', args: { x: '35%', y: '0%' }, data: { desc: 'N2' } },
+    { group: 'top', args: { x: '50%', y: '0%' }, data: { desc: 'N3' } },
+    { group: 'top', args: { x: '65%', y: '0%' }, data: { desc: 'N4' } },
+    { group: 'top', args: { x: '80%', y: '0%' }, data: { desc: 'N5' } },
+    
+    // --- 底部 2 个 (y: 100% 位于下边缘) ---
+    { group: 'bottom', args: { x: '30%', y: '100%' }, data: { desc: 'N6' } },
+    { group: 'bottom', args: { x: '70%', y: '100%' }, data: { desc: 'N7' } },
+
+    // --- 左右各 1 个 ---
+    { group: 'left', args: { x: '0%', y: '50%' }, data: { desc: 'N8' } },
+    { group: 'right', args: { x: '100%', y: '50%' }, data: { desc: 'N9' } },
+  ],
+};
+// 定义气体冷却器端口
+// src/graph/cells/registry.ts
+
+const GAS_COOLER_PORTS = {
+  groups: {
+    main: { position: 'absolute', attrs: PORT_ATTRS },
+    burst: { position: 'absolute', attrs: PORT_ATTRS },
+    top_in: { position: 'absolute', attrs: PORT_ATTRS },
+    top_out: { position: 'absolute', attrs: PORT_ATTRS },
+    bottom_in: { position: 'absolute', attrs: PORT_ATTRS },
+    bottom_out: { position: 'absolute', attrs: PORT_ATTRS },
+  },
+  items: [
+    // 1. 左右连接桩 (保持不变)
+    { group: 'main', args: { x: '0%', y: '58%' }, data: { desc: '壳程入口', dir: 'in' } },
+    { group: 'main', args: { x: '100%', y: '58%' }, data: { desc: '壳程出口', dir: 'out' } },
+
+    // 2. 顶部爆破片法兰 (保持不变)
+    { group: 'burst', args: { x: '8.75%', y: '19%' }, data: { desc: '爆破片接口(左)', dir: 'bi' } },
+    { group: 'burst', args: { x: '91.25%', y: '19%' }, data: { desc: '爆破片接口(右)', dir: 'bi' } },
+
+    // ============================================================
+    // 3. 顶部管束接口 (Top Tubes) - 逻辑分组定义
+    // ============================================================
+    
+    // --- 高温换热段 (High Temp Section): 第 1, 2 组 ---
+    { 
+      group: 'top_in', 
+      args: { x: '21.25%', y: '15%' }, 
+      data: { desc: '高温段', section: 'HighTemp', dir: 'in' } 
+    },
+    { 
+      group: 'top_out', 
+      args: { x: '31.25%', y: '15%' }, 
+      data: { desc: '高温段', section: 'HighTemp', dir: 'out' } 
+    },
+
+    // --- 低温换热段 (Low Temp Section - Common Chamber): 第 3, 4, 5, 6, 7 组 ---
+    // 注意：虽然物理上有多个口，但逻辑上它们属于同一个腔室 (section: 'LowTemp')
+    { 
+      group: 'top_out', 
+      args: { x: '41.25%', y: '15%' }, 
+      data: { desc: '低温段', section: 'LowTemp', dir: 'out' } 
+    },
+    
+    { 
+      group: 'top_in', 
+      args: { x: '81.25%', y: '15%' }, 
+      data: { desc: '低温段', section: 'LowTemp', dir: 'in' } 
+    },
+
+    // ============================================================
+    // 4. 底部管束接口 (Bottom Tubes) - 逻辑分组定义
+    // ============================================================
+
+    // --- 高温换热段 ---
+    { 
+      group: 'bottom_in', 
+      args: { x: '21.25%', y: '92%' }, 
+      data: { desc: '高温段', section: 'HighTemp', dir: 'in' } 
+    },
+    { 
+      group: 'bottom_out', 
+      args: { x: '31.25%', y: '92%' }, 
+      data: { desc: '高温段', section: 'HighTemp', dir: 'out' } 
+    },
+
+    // --- 低温换热段 (公共腔) ---
+    { 
+      group: 'bottom_out', 
+      args: { x: '41.25%', y: '92%' }, 
+      data: { desc: '低温段', section: 'LowTemp', dir: 'out' } 
+    },
+    
+    { 
+      group: 'bottom_in', 
+      args: { x: '81.25%', y: '92%' }, 
+      data: { desc: '低温段', section: 'LowTemp', dir: 'in' } 
+    },
+  ],
+};
+
+
 
 const INSTRUMENT_PORTS = {
   groups: {
@@ -2510,6 +2248,153 @@ const INSTRUMENT_PORTS = {
     { id: 'bottom', group: 'all', args: { x: '50%', y: '100%' } },
     { id: 'left', group: 'all', args: { x: '0%', y: '50%' } },
     { id: 'right', group: 'all', args: { x: '100%', y: '50%' } },
+  ],
+};
+//注册固定床反应器端口
+const FIXED_BED_REACTOR_PORTS = {
+  groups: {
+    gas: { position: 'absolute', attrs: PORT_ATTRS },
+    upper_salt: { position: 'absolute', attrs: PORT_ATTRS },
+    lower_salt: { position: 'absolute', attrs: PORT_ATTRS },
+  },
+  items: [
+    // --- 气体端口 (增加 id) ---
+    { 
+      id: 'gas_in', // <--- 固定 ID
+      group: 'gas', args: { x: '50%', y: '0%' }, 
+      data: { desc: '工艺气入口', region: 'TubeSide', dir: 'in' } 
+    },
+    { 
+      id: 'gas_out', // <--- 固定 ID
+      group: 'gas', args: { x: '50%', y: '100%' }, 
+      data: { desc: '气体出口', region: 'TubeSide', dir: 'out' } 
+    },
+
+    // ============================================================
+    // 上盐道 (Upper Salt Ring) - 增加固定 ID
+    // ============================================================
+    
+    // 左侧 (3个)
+    { 
+      id: 'upper_L1', // <--- 固定 ID
+      group: 'upper_salt', args: { x: '7.7%', y: '21.6%' }, 
+      data: { desc: '上盐道接口-L1', region: 'UpperSaltChannel', dir: 'in' } 
+    },
+    { 
+      id: 'upper_L2', 
+      group: 'upper_salt', args: { x: '7.7%', y: '24.1%' }, 
+      data: { desc: '上盐道接口-L2', region: 'UpperSaltChannel', dir: 'in' } 
+    },
+    { 
+      id: 'upper_L3', 
+      group: 'upper_salt', args: { x: '7.7%', y: '26.6%' }, 
+      data: { desc: '上盐道接口-L3', region: 'UpperSaltChannel', dir: 'out' } 
+    },
+    
+    // 右侧 (2个)
+    { 
+      id: 'upper_R1', 
+      group: 'upper_salt', args: { x: '92.3%', y: '22.6%' }, 
+      data: { desc: '上盐道接口-R1', region: 'UpperSaltChannel', dir: 'in' } 
+    },
+    { 
+      id: 'upper_R2', 
+      group: 'upper_salt', args: { x: '92.3%', y: '25.6%' }, 
+      data: { desc: '上盐道接口-R2', region: 'UpperSaltChannel', dir: 'out' } 
+    },
+
+    // ============================================================
+    // 下盐道 (Lower Salt Ring) - 增加固定 ID
+    // ============================================================
+
+    // 左侧 (3个)
+    { 
+      id: 'lower_L1', 
+      group: 'lower_salt', args: { x: '7.7%', y: '73.3%' }, 
+      data: { desc: '下盐道接口-L1', region: 'LowerSaltChannel', dir: 'in' } 
+    },
+    { 
+      id: 'lower_L2', 
+      group: 'lower_salt', args: { x: '7.7%', y: '75.8%' }, 
+      data: { desc: '下盐道接口-L2', region: 'LowerSaltChannel', dir: 'out' } 
+    },
+    { 
+      id: 'lower_L3', 
+      group: 'lower_salt', args: { x: '7.7%', y: '78.3%' }, 
+      data: { desc: '下盐道接口-L3', region: 'LowerSaltChannel', dir: 'out' } 
+    },
+
+    // 右侧 (2个)
+    { 
+      id: 'lower_R1', 
+      group: 'lower_salt', args: { x: '92.3%', y: '74.3%' }, 
+      data: { desc: '下盐道接口-R1', region: 'LowerSaltChannel', dir: 'in' } 
+    },
+    { 
+      id: 'lower_R2', 
+      group: 'lower_salt', args: { x: '92.3%', y: '77.3%' }, 
+      data: { desc: '下盐道接口-R2', region: 'LowerSaltChannel', dir: 'out' } 
+    },
+  ],
+};
+
+const VERTICAL_EXCHANGER_PORTS = {
+  groups: {
+    side: { position: 'absolute', attrs: PORT_ATTRS },
+    head: { position: 'absolute', attrs: PORT_ATTRS },
+  },
+  items: [
+    // --- 侧面接口 (增加固定 ID) ---
+    // 左上
+    { 
+      id: 'side_left_top', // <--- 固定 ID
+      group: 'side', args: { x: '0%', y: '20%' }, 
+      data: { desc: '壳程接口(左上)', dir: 'bi' } 
+    },
+    // 左下
+    { 
+      id: 'side_left_bottom', 
+      group: 'side', args: { x: '0%', y: '80%' }, 
+      data: { desc: '壳程接口(左下)', dir: 'bi' } 
+    },
+    // 右上
+    { 
+      id: 'side_right_top', 
+      group: 'side', args: { x: '100%', y: '15%' }, 
+      data: { desc: '壳程接口(右上)', dir: 'bi' } 
+    },
+    // 右下
+    { 
+      id: 'side_right_bottom', 
+      group: 'side', args: { x: '100%', y: '85%' }, 
+      data: { desc: '壳程接口(右下)', dir: 'bi' } 
+    },
+
+    // --- 封头接口 (增加固定 ID) ---
+    // 上封头左
+    { 
+      id: 'head_top_left', 
+      group: 'head', args: { x: '30%', y: '2.5%' }, 
+      data: { desc: '管程接口(上左)', dir: 'bi' } 
+    },
+    // 上封头右
+    { 
+      id: 'head_top_right', 
+      group: 'head', args: { x: '70%', y: '2.5%' }, 
+      data: { desc: '管程接口(上右)', dir: 'bi' } 
+    },
+    // 下封头左
+    { 
+      id: 'head_bottom_left', 
+      group: 'head', args: { x: '30%', y: '97.5%' }, 
+      data: { desc: '管程接口(下左)', dir: 'bi' } 
+    },
+    // 下封头右
+    { 
+      id: 'head_bottom_right', 
+      group: 'head', args: { x: '70%', y: '97.5%' }, 
+      data: { desc: '管程接口(下右)', dir: 'bi' } 
+    },
   ],
 };
 
@@ -2772,6 +2657,108 @@ export const registerCustomCells = () => {
       },
     });
   });
+  // 10. 三通 (Tee) - 新增注册
+  Graph.registerNode('p-tee', {
+    inherit: 'image',
+    width: 40,
+    height: 40,
+    imageUrl: svgToDataUrl(teeSvg),
+    ports: TEE_PORTS,
+    attrs: {
+      label: {
+        refY: '100%',
+        refY2: 4,
+        textAnchor: 'middle',
+        textVerticalAnchor: 'top',
+        fontSize: 12,
+        fill: '#333',
+      }
+    },
+    data: { 
+      type: 'Fitting', // 类型设为管件
+      spec: 'Tee',
+      tag: 'TEE'
+    },
+  });
+  Graph.registerNode('p-tank-horizontal', {
+    inherit: 'image',
+    width: 160,
+    height: 80,
+    imageUrl: svgToDataUrl(tankHorizontalSvg),
+    ports: TANK_PORTS, // 这里现在使用的是标准圆点样式
+    attrs: {
+      label: {
+        text: 'V-100',
+        refY: '100%',
+        refY2: 10,
+      }
+    },
+    data: { 
+      type: 'Tank', 
+      spec: 'Horizontal',
+      volume: '5000L'
+    },
+  });
+  // 注册气体冷却器
+  Graph.registerNode('p-gas-cooler', {
+    inherit: 'image',
+    width: 200, // 缩小一半显示，原图400
+    height: 130,
+    imageUrl: svgToDataUrl(gasCoolerSvg),
+    ports: GAS_COOLER_PORTS,
+    attrs: {
+      label: {
+        text: 'E-201',
+        refY: '100%',
+        refY2: 10,
+      }
+    },
+    data: { 
+      type: 'GasCooler', 
+      spec: 'AirCooled',
+      area: '200'
+    },
+  });
+//注册固定床反应器
+  Graph.registerNode('p-fixed-bed-reactor', {
+    inherit: 'image',
+    width: 130,
+    height: 150,
+    imageUrl: svgToDataUrl(reactorFixedBedSvg),
+    ports: FIXED_BED_REACTOR_PORTS,
+    attrs: {
+      label: {
+        text: 'D-14',
+        refY: '100%',
+        refY2: 10,
+      }
+    },
+    data: { 
+      type: 'FixedBedReactor', 
+      spec: '20000 Tubes',
+      catalyst: 'V2O5'
+    },
+  });
+  // 注册立式换热器
+  Graph.registerNode('p-exchanger-vertical', {
+    inherit: 'image',
+    width: 60,  // 较窄
+    height: 200, // 较高
+    imageUrl: svgToDataUrl(exchangerVerticalSvg),
+    ports: VERTICAL_EXCHANGER_PORTS,
+    attrs: {
+      label: {
+        text: 'E-102',
+        refY: '100%',
+        refY2: 10,
+      }
+    },
+    data: { 
+      type: 'VerticalExchanger', // <--- 修改这里，不再是 'Exchanger'
+      spec: 'Vertical',
+      area: '100'
+    },
+  });
 };
 </file>
 
@@ -2924,6 +2911,11 @@ export const loadGraphData = async () => {
         case 'JetPump':      shapeName = 'p-pump-jet'; break;
         case 'ControlValve': shapeName = 'p-cv-pneumatic'; break;
         case 'Valve':        shapeName = 'p-cv-manual'; break;
+        case 'Fitting':      shapeName = 'p-tee'; break; 
+        case 'Tank':         shapeName = 'p-tank-horizontal'; break;
+        case 'GasCooler':    shapeName = 'p-gas-cooler'; break;
+        case 'FixedBedReactor': shapeName = 'p-fixed-bed-reactor'; break;
+        case 'VerticalExchanger': shapeName = 'p-exchanger-vertical'; break;
         case 'Evaporator':   shapeName = 'p-naphthalene-evaporator'; break;
         case 'Instrument':   
           if(props.spec === 'Local') shapeName = 'p-inst-local';
@@ -3113,6 +3105,790 @@ function App() {
 }
 
 export default App;
+</file>
+
+<file path="src/components/Editor/Canvas/index.tsx">
+import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import { Graph, Cell, Edge, Node } from '@antv/x6';
+import { Stencil } from '@antv/x6-plugin-stencil';
+import { Keyboard } from '@antv/x6-plugin-keyboard';
+import { Selection } from '@antv/x6-plugin-selection';
+import { History } from '@antv/x6-plugin-history';
+import { Transform } from '@antv/x6-plugin-transform';
+import '@antv/x6-plugin-transform/dist/index.css';
+import { Button, Tooltip, message, Modal } from 'antd';
+import { 
+  ZoomInOutlined, ZoomOutOutlined, OneToOneOutlined, CompressOutlined, 
+  UndoOutlined, RedoOutlined, ClearOutlined 
+} from '@ant-design/icons';
+
+import Inspector from '../Inspector';
+import ContextMenu, { type MenuState } from '../ContextMenu';
+import './index.css';
+import { registerCustomCells } from '../../../graph/cells/registry';
+import { saveGraphData, loadGraphData } from '../../../services/neo4j';
+
+try { registerCustomCells(); } catch (e) { console.warn(e); }
+
+export interface GraphCanvasRef {
+  handleSave: () => Promise<void>;
+}
+
+const pick = (obj: any, keys: string[]) => {
+  const ret: any = {};
+  keys.forEach(key => {
+    if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
+      ret[key] = obj[key];
+    }
+  });
+  return ret;
+};
+
+const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const stencilRef = useRef<HTMLDivElement>(null);
+  const graphRef = useRef<Graph | null>(null);
+  const historyRef = useRef<History | null>(null);
+  const clipboardRef = useRef<any>(null);
+
+  const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+  
+  const [menu, setMenu] = useState<MenuState>({ visible: false, x: 0, y: 0, type: null });
+
+  // --- 保存功能 ---
+  useImperativeHandle(ref, () => ({
+    handleSave: async () => {
+      if (!graphRef.current) return;
+      const graph = graphRef.current;
+      
+      // 1. 处理节点
+      const nodes = graph.getNodes()
+        .filter(node => !node.getData()?.isBackground)
+        .map(node => {
+          const data = node.getData() || {};
+          const pos = node.getPosition();
+          const size = node.getSize();
+          const type = data.type || 'Unknown';
+
+          let Tag = data.tag || node.getAttrs()?.label?.text || '';
+          if (type === 'Instrument') {
+            const func = data.tagId || '';
+            const loop = data.loopNum || '';
+            if (func || loop) Tag = `${func}${loop ? '-' + loop : ''}`;
+          }
+
+          const baseProps = {
+            x6Id: node.id, // 使用 x6Id
+            type: type, 
+            Tag: Tag,
+            x: pos.x, y: pos.y, width: size.width, height: size.height, angle: node.getAngle(),
+            desc: data.desc || ''
+          };
+
+          let specificProps = {};
+          if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
+             specificProps = pick(data, ['spec', 'flow', 'head', 'power', 'material']);
+          } else if (['Reactor', 'Tank', 'Evaporator'].includes(type)) {
+             specificProps = pick(data, ['spec', 'volume', 'material', 'designPressure', 'designTemp']);
+          } else if (type === 'Exchanger') {
+             specificProps = pick(data, ['spec', 'area', 'material', 'designPressure', 'tubePressure']);
+          } else if (['ControlValve', 'Valve'].includes(type)) {
+             specificProps = pick(data, ['spec', 'size', 'valveClass', 'failPosition']);
+          } else if (type === 'Instrument') {
+             specificProps = pick(data, ['spec', 'range', 'unit', 'tagId', 'loopNum']);
+          } else {
+             specificProps = pick(data, ['spec', 'material']);
+          }
+
+          return { ...baseProps, ...specificProps };
+        });
+
+      // 2. 处理连线
+      const edges = graph.getEdges().map(edge => {
+        const data = edge.getData() || {};
+        const sourceNode = edge.getSourceNode();
+        const targetNode = edge.getTargetNode();
+        
+        const getPortMeta = (node: Cell | null, portId: string | undefined) => {
+          if (!node || !node.isNode() || !portId) return { group: 'default', desc: 'unknown' };
+          const port = node.getPort(portId);
+          if (!port) return { group: 'default', desc: 'unknown' };
+          return {
+            group: port.group || 'default',
+            desc: port.data?.desc || port.attrs?.circle?.title || port.id
+          };
+        };
+
+        const srcMeta = getPortMeta(sourceNode, edge.getSourcePortId());
+        const tgtMeta = getPortMeta(targetNode, edge.getTargetPortId());
+
+        return {
+          source: edge.getSourceCell()?.id,
+          target: edge.getTargetCell()?.id,
+          sourcePort: edge.getSourcePortId(),
+          targetPort: edge.getTargetPortId(),
+          sourceRegion: srcMeta.group, sourceDesc: srcMeta.desc,
+          targetRegion: tgtMeta.group, targetDesc: tgtMeta.desc,
+          type: data.type || 'Pipe', 
+          material: data.material || 'CS',
+          fluid: data.fluid || 'Water',
+          dn: data.dn || 'DN50',
+          pn: data.pn || 'PN16',
+          insulation: data.insulation || 'None',
+          label: edge.getLabelAt(0)?.attrs?.label?.text || ''
+        };
+      });
+
+      try {
+        await saveGraphData(nodes, edges);
+        message.success(`保存成功！节点: ${nodes.length}, 连线: ${edges.length}`);
+      } catch (error) {
+        console.error(error);
+        message.error('保存失败，请检查数据库连接');
+      }
+    }
+  }));
+
+  const updateNodeLabel = (node: Node) => {
+    const angle = node.getAngle();
+    if (angle === 0) {
+      // 恢复默认位置 (底部居中)
+      node.setAttrs({
+        label: {
+          refX: 0.5, refY: '100%', refY2: 10, refX2: 0,
+          textAnchor: 'middle', textVerticalAnchor: 'top',
+          transform: null 
+        }
+      });
+      return;
+    }
+
+    const size = node.getSize();
+    const rad = (angle * Math.PI) / 180;
+    const visualHeight = size.width * Math.abs(Math.sin(rad)) + size.height * Math.abs(Math.cos(rad));
+    const distance = visualHeight / 2 + 15;
+
+    const offsetX = distance * Math.sin(rad);
+    const offsetY = distance * Math.cos(rad);
+
+    node.setAttrs({
+      label: {
+        refX: 0.5, refY: 0.5,
+        refX2: offsetX, refY2: offsetY,
+        textAnchor: 'middle', textVerticalAnchor: 'middle',
+        transform: `rotate(${-angle})`,
+      }
+    });
+  };
+  // ============================================================
+  // [新增] 复制粘贴核心逻辑
+  // ============================================================
+  
+  // 执行复制
+  const performCopy = () => {
+    const graph = graphRef.current;
+    if (!graph) return;
+
+    const cells = graph.getSelectedCells();
+    if (cells.length === 0) return;
+
+    // 过滤掉背景图框，只复制选中的设备和管线
+    const cellsToCopy = cells.filter(cell => !cell.getData()?.isBackground);
+    
+    if (cellsToCopy.length > 0) {
+      // 序列化并存储到 ref 中
+      clipboardRef.current = cellsToCopy.map(cell => cell.toJSON());
+      message.success(`已复制 ${cellsToCopy.length} 个对象`);
+    }
+  };
+
+  // 执行粘贴
+  // offsetPoint: 可选，鼠标右键粘贴时的位置（画布坐标）
+  const performPaste = (offsetPoint?: { x: number, y: number }) => {
+    const graph = graphRef.current;
+    if (!graph || !clipboardRef.current || clipboardRef.current.length === 0) return;
+
+    const cellsJSON = clipboardRef.current;
+    
+    // 1. 计算粘贴位置的偏移量
+    let dx = 20;
+    let dy = 20;
+
+    if (offsetPoint) {
+      // 如果是鼠标右键粘贴，计算从"复制时的中心"到"鼠标位置"的偏移
+      // 这里简化处理：直接取第一个节点的差值，或者简单地将所有节点移动到鼠标附近
+      // 为了体验更好，我们通常保留相对位置，只计算整体偏移
+      const minX = Math.min(...cellsJSON.map((c: any) => c.position?.x || 0));
+      const minY = Math.min(...cellsJSON.map((c: any) => c.position?.y || 0));
+      dx = offsetPoint.x - minX;
+      dy = offsetPoint.y - minY;
+    }
+
+    // 2. 清除选中状态
+    graph.cleanSelection();
+
+    // 3. 创建新节点/连线
+    const newCells: Cell[] = [];
+    
+    // 建立旧 ID 到新 ID 的映射，用于修复连线关系
+    const idMap: Record<string, string> = {};
+
+    // 第一步：先处理节点 (生成新 ID)
+    cellsJSON.forEach((cellData: any) => {
+      if (cellData.shape === 'edge') return; // 先跳过连线
+
+      const oldId = cellData.id;
+      // 删除 ID 以便生成新的，删除 zIndex 以便由 graph 管理
+      const { id, zIndex, ...otherData } = cellData;
+      
+      const newNode = graph.createNode({
+        ...otherData,
+        x: (otherData.position?.x || 0) + dx,
+        y: (otherData.position?.y || 0) + dy,
+      });
+      
+      idMap[oldId] = newNode.id;
+      newCells.push(newNode);
+    });
+
+    // 第二步：处理连线 (修复 source/target ID)
+    cellsJSON.forEach((cellData: any) => {
+      if (cellData.shape !== 'edge') return;
+
+      const { id, zIndex, source, target, ...otherData } = cellData;
+      
+      // 如果连线的端点在这次复制的节点中，就替换为新 ID；否则保持原样（连到原有设备）
+      const newSource = { ...source, cell: idMap[source.cell] || source.cell };
+      const newTarget = { ...target, cell: idMap[target.cell] || target.cell };
+
+      const newEdge = graph.createEdge({
+        ...otherData,
+        source: newSource,
+        target: newTarget,
+      });
+      
+      newCells.push(newEdge);
+    });
+
+    // 4. 添加到画布并选中
+    graph.addCell(newCells);
+    graph.select(newCells);
+    
+    // 如果是键盘粘贴（没有指定位置），更新剪贴板中的坐标，以便下次粘贴能继续偏移
+    if (!offsetPoint) {
+       clipboardRef.current = cellsJSON.map((c: any) => ({
+         ...c,
+         position: c.position ? { x: c.position.x + 20, y: c.position.y + 20 } : undefined
+       }));
+    }
+  };
+
+  // ============================================================
+
+  // --- 内部操作函数 ---
+  const onUndo = () => historyRef.current?.undo();
+  const onRedo = () => historyRef.current?.redo();
+  const onZoom = (f: number) => graphRef.current?.zoom(f);
+  const onZoomToFit = () => graphRef.current?.zoomToFit({ padding: 20 });
+  const onZoomReset = () => graphRef.current?.zoomTo(1);
+  
+  const onClear = () => {
+    Modal.confirm({
+      title: '清空画布',
+      content: '确定要清空吗？图框将被保留。',
+      okType: 'danger',
+      onOk: () => {
+        if (!graphRef.current) return;
+        const cellsToRemove = graphRef.current.getCells().filter(cell => !cell.getData()?.isBackground);
+        graphRef.current.removeCells(cellsToRemove);
+        setSelectedCell(null);
+      },
+    });
+  };
+
+  const handleMenuAction = (action: string) => {
+    const { cellId } = menu;
+    const graph = graphRef.current;
+    if (!graph) return;
+    const cell = cellId ? graph.getCellById(cellId) : null;
+
+    switch (action) {
+      case 'delete':
+        if (cell && !cell.getData()?.isBackground) {
+          graph.removeCell(cell);
+          setSelectedCell(null);
+        }
+        break;
+      case 'copy':
+        if (cell) {
+          graph.resetSelection(cell);
+        }
+        performCopy();
+        break;
+      case 'paste':
+        const point = graph.clientToLocal({ x: menu.x, y: menu.y });
+        performPaste(point);
+        break;
+      case 'property':
+        message.success('已定位到属性面板');
+        break;
+      case 'clear':
+        onClear();
+        break;
+      case 'fit':
+        onZoomToFit();
+        break;
+      case 'rotate':
+        if (cell && cell.isNode() && !cell.getData()?.isBackground) {
+          cell.rotate(90);
+        }
+        break;
+    }
+  };
+
+  // --- 初始化 ---
+  useEffect(() => {
+    if (!containerRef.current || !stencilRef.current) return;
+    stencilRef.current.innerHTML = '';
+
+    const graph = new Graph({
+      container: containerRef.current,
+      autoResize: true,
+      grid: { size: 10, visible: true, type: 'doubleMesh', args: [{ color: '#eee' }, { color: '#ddd', factor: 4 }] },
+      panning: { enabled: true, eventTypes: ['rightMouseDown'] },
+      mousewheel: {
+        enabled: true, zoomAtMousePosition: true, modifiers: null, factor: 1.1, maxScale: 3, minScale: 0.1,
+      },
+      interacting: {
+        nodeMovable: (view) => !view.cell.getData()?.isBackground,
+        magnetConnectable: (view) => !view.cell.getData()?.isBackground,
+      },
+      connecting: {
+        router: { 
+          name: 'manhattan', 
+          args: { 
+            padding: 20, 
+            excludeNodes: ['SHEET_FRAME_A2'] 
+          } 
+        },
+        connector: { name: 'rounded', args: { radius: 8 } },
+        anchor: 'center', 
+        connectionPoint: 'anchor', 
+        snap: true, 
+        allowBlank: false, 
+        allowEdge: true,
+        highlight: true,
+        validateConnection: ({ sourceView, targetView, sourceMagnet, targetMagnet }) => {
+          if (!sourceView || !targetView || !sourceMagnet) return false;
+          if (sourceView === targetView) return false;
+
+          if (targetView.isEdgeElement()) {
+            const sourceNode = sourceView.cell as Node;
+            if (sourceNode.getData()?.type === 'Instrument') return true;
+            return false;
+          }
+
+          if (!targetMagnet) return false;
+
+          const sourcePortId = sourceMagnet.getAttribute('port');
+          const targetPortId = targetMagnet.getAttribute('port');
+          if (!sourcePortId || !targetPortId) return false;
+
+          const sourceNode = sourceView.cell as Node;
+          const targetNode = targetView.cell as Node;
+          const sourcePort = sourceNode.getPort(sourcePortId);
+          const targetPort = targetNode.getPort(targetPortId);
+
+          const sDir = sourcePort?.data?.dir || 'bi';
+          const tDir = targetPort?.data?.dir || 'bi';
+
+          const isValidSource = sDir !== 'in'; 
+          const isValidTarget = tDir !== 'out';
+
+          return isValidSource && isValidTarget;
+        },
+        createEdge() {
+          return this.createEdge({
+            shape: 'edge',
+            attrs: { 
+              line: { 
+                stroke: '#5F95FF', 
+                strokeWidth: 2, 
+                targetMarker: { name: 'classic', width: 8, height: 6 }
+              } 
+            },
+            labels: [], 
+            data: { type: 'Pipe', material: 'CS', fluid: 'Water' }
+          });
+        },
+      },
+    });
+    graphRef.current = graph;
+
+    // === 新增：监听节点旋转，保持标签始终在视觉下方 ===
+    graph.on('node:change:angle', ({ node }) => updateNodeLabel(node as Node));
+
+    // 阀门打断
+    const handlePipeSplit = (node: Cell) => {
+      const nodeType = node.getData()?.type;
+      if (nodeType !== 'ControlValve' && nodeType !== 'Valve') return;
+      
+      const connectedEdges = graph.getConnectedEdges(node);
+      if (connectedEdges.length > 0) return; 
+
+      const nodeBBox = node.getBBox();
+      const allEdges = graph.getEdges();
+
+      const targetEdge = allEdges.find(edge => {
+        if (edge.getData()?.type === 'Signal') return false;
+        return edge.getBBox().intersectsWithRect(nodeBBox);
+      });
+
+      if (targetEdge) {
+        const sourceNode = targetEdge.getSourceNode();
+        const targetNode = targetEdge.getTargetNode();
+        const srcPoint = sourceNode ? sourceNode.getBBox().center : targetEdge.getSourcePoint();
+        const tgtPoint = targetNode ? targetNode.getBBox().center : targetEdge.getTargetPoint();
+
+        const isHorizontal = Math.abs(srcPoint.y - tgtPoint.y) < 5;
+        const isVertical = Math.abs(srcPoint.x - tgtPoint.x) < 5;
+
+        let newX = nodeBBox.x;
+        let newY = nodeBBox.y;
+
+        if (isHorizontal) newY = Math.round(nodeBBox.y / 10) * 10; 
+        else if (isVertical) newX = Math.round(nodeBBox.x / 10) * 10;
+
+        (node as Node).setPosition(newX, newY);
+
+        const source = targetEdge.getSource();
+        const target = targetEdge.getTarget();
+        const edgeData = targetEdge.getData();
+        const edgeAttrs = targetEdge.getAttrs(); 
+
+        graph.removeCell(targetEdge);
+
+        const edge1 = graph.createEdge({
+          shape: 'edge', source: source, target: { cell: node.id, port: 'in' },
+          data: { ...edgeData }, attrs: edgeAttrs, labels: []
+        });
+
+        const edge2 = graph.createEdge({
+          shape: 'edge', source: { cell: node.id, port: 'out' }, target: target,
+          data: { ...edgeData }, attrs: edgeAttrs, labels: []
+        });
+
+        graph.addCell([edge1, edge2]);
+        message.success('阀门已接入管线 (自动吸附)');
+      }
+    };
+
+    // 智能测点
+    // 智能测点 (修正方向 + 保留打断逻辑)
+    const handleSignalDrop = (args: any) => {
+      const { e, edge } = args;
+      const sourceNode = edge.getSourceNode();
+      
+      // 1. 仅处理从仪表发出的连线
+      if (sourceNode?.getData()?.type !== 'Instrument') return;
+
+      let hitPipe: Edge | null = null;
+      const point = graph.clientToLocal(e.clientX, e.clientY);
+
+      // 2. 检测是否拖拽到了管线上
+      const targetCell = edge.getTargetCell();
+      if (targetCell && targetCell.isEdge()) {
+        hitPipe = targetCell as Edge;
+      } else {
+        if (edge.getTargetNode()) return; // 如果连到了其他节点，不处理
+        const views = graph.findViewsFromPoint(point);
+        // 排除自身和已有的信号线
+        const pipeView = views.find(v => v.isEdgeElement() && v.cell.id !== edge.id && v.cell.getData()?.type !== 'Signal');
+        if (pipeView) {
+          hitPipe = pipeView.cell as Edge;
+        }
+      }
+
+      if (hitPipe) {
+        // --- A. 计算测点位置 (保留原有逻辑，确保吸附在管线上) ---
+        const src = hitPipe.getSourcePoint();
+        const tgt = hitPipe.getTargetPoint();
+
+        let tapX = point.x;
+        let tapY = point.y;
+
+        const isHorizontal = Math.abs(src.y - tgt.y) < 2;
+        const isVertical = Math.abs(src.x - tgt.x) < 2;
+
+        if (isHorizontal) {
+          tapY = src.y; 
+          tapX = Math.round(point.x / 10) * 10;
+        } else if (isVertical) {
+          tapX = src.x;
+          tapY = Math.round(point.y / 10) * 10;
+        } else {
+          tapX = Math.round(point.x / 10) * 10;
+          tapY = Math.round(point.y / 10) * 10;
+        }
+
+        // --- B. 创建测点节点 (保留原有逻辑) ---
+        const tappingPoint = graph.createNode({
+          shape: 'tapping-point',
+          x: tapX - 6, y: tapY - 6, // 居中校正
+          data: { type: 'TappingPoint' }
+        });
+        
+        // --- C. 处理信号线 (修改逻辑：反转方向) ---
+        // 1. 删除用户拖拽的那条临时线 (因为它方向是 仪表->空地)
+        graph.removeCell(edge); 
+
+        // 2. 创建新信号线：测点 -> 仪表
+        const signalEdge = graph.createEdge({
+          shape: 'signal-edge', // 使用注册好的虚线样式
+          source: { cell: tappingPoint.id },
+          target: { cell: sourceNode.id }, // 连回起始仪表
+          data: { type: 'Signal', relationType: 'MEASURES' }
+        });
+
+        // --- D. 打断原有管线 (保留原有逻辑，确保测点嵌入管线) ---
+        const source = hitPipe.getSource();
+        const target = hitPipe.getTarget();
+        const pipeData = hitPipe.getData();
+        const pipeAttrs = hitPipe.getAttrs(); 
+
+        // 删除旧管线
+        graph.removeCell(hitPipe);
+
+        // 创建两段新管线：Source -> 测点 -> Target
+        const pipe1 = graph.createEdge({
+          shape: 'edge', source: source, target: { cell: tappingPoint.id },
+          data: pipeData, attrs: pipeAttrs, labels: []
+        });
+        const pipe2 = graph.createEdge({
+          shape: 'edge', source: { cell: tappingPoint.id }, target: target,
+          data: pipeData, attrs: pipeAttrs, labels: []
+        });
+        
+        // --- E. 批量添加到画布 ---
+        // 注意：先加节点，再加连线，顺序很重要
+        graph.addCell([tappingPoint, pipe1, pipe2, signalEdge]);
+        tappingPoint.toFront(); // 确保测点在最上层
+        
+        message.success('已生成测点 (信号流向: 测点 -> 仪表)');
+      } else {
+        // 如果没拖到管线上，且没连到任何东西，删除这条悬空的线
+        if (!edge.getTargetCell()) {
+          graph.removeCell(edge);
+        }
+      }
+    };
+
+    graph.on('node:added', ({ node }) => setTimeout(() => handlePipeSplit(node), 50));
+    graph.on('node:mouseup', ({ node }) => handlePipeSplit(node));
+    graph.on('edge:mouseup', handleSignalDrop); 
+
+    // --- 核心修复：确保信号线逻辑存在 ---
+    graph.on('edge:connected', ({ edge }) => {
+      const sourceNode = edge.getSourceNode();
+      const targetPortId = edge.getTargetPortId();
+
+      const isSourceInstrument = sourceNode?.getData()?.type === 'Instrument';
+      const isTargetActuator = targetPortId === 'actuator';
+
+      if (isSourceInstrument || isTargetActuator) {
+        edge.setAttrs({
+          line: { 
+            stroke: '#888', 
+            strokeWidth: 1, 
+            strokeDasharray: '4 4', 
+            targetMarker: { name: 'classic', size: 3 } 
+          } 
+        });
+        edge.setData({ 
+          type: 'Signal', 
+          fluid: 'Signal',
+          relationType: isTargetActuator ? 'CONTROLS' : 'MEASURES' 
+        });
+        if (isTargetActuator) {
+           edge.setRouter('manhattan', { padding: 10 });
+        }
+      }
+    });
+
+    graph.use(new Selection({
+      enabled: true, multiple: true, rubberband: true, movable: true, showNodeSelectionBox: true,
+      filter: (cell) => !cell.getData()?.isBackground
+    }));
+    graph.use(new Keyboard({ enabled: true }));
+    graph.use(new Transform({ resizing: { enabled: true }, rotating: { enabled: true, grid: 15 } }));
+    
+    const history = new History({ enabled: true });
+    graph.use(history);
+    historyRef.current = history;
+    graph.on('history:change', () => { setCanUndo(history.canUndo()); setCanRedo(history.canRedo()); });
+
+    graph.bindKey(['meta+c', 'ctrl+c'], () => {
+      performCopy();
+      return false; // 阻止默认事件
+    });
+
+    graph.bindKey(['meta+v', 'ctrl+v'], () => {
+      performPaste(); // 键盘粘贴不传坐标，使用默认偏移
+      return false;
+    });
+
+    graph.bindKey(['backspace', 'delete'], () => {
+      const cells = graph.getSelectedCells().filter(c => !c.getData()?.isBackground);
+      if (cells.length) graph.removeCells(cells);
+    });
+
+    graph.on('cell:click', ({ cell }) => {
+      if (cell.getData()?.isBackground) { setSelectedCell(null); return; }
+      setSelectedCell(cell);
+      if (cell.isEdge()) cell.attr('line/strokeWidth', 3);
+      graph.getEdges().forEach(edge => { if (edge.id !== cell.id) edge.attr('line/strokeWidth', 2); });
+    });
+    
+    graph.on('blank:click', () => {
+      setSelectedCell(null);
+      graph.getEdges().forEach(edge => edge.attr('line/strokeWidth', 2));
+    });
+
+    graph.on('cell:contextmenu', ({ e, cell }) => {
+      if (cell.getData()?.isBackground) return; 
+      setMenu({ visible: true, x: e.clientX, y: e.clientY, type: cell.isNode() ? 'node' : 'edge', cellId: cell.id });
+    });
+    
+    graph.on('blank:contextmenu', ({ e }) => {
+      setMenu({ visible: true, x: e.clientX, y: e.clientY, type: 'blank' });
+    });
+
+    // --- Stencil ---
+    const stencil = new Stencil({
+      title: '组件库', target: graph, stencilGraphWidth: 240, stencilGraphHeight: 0, collapsable: true,
+      search: { visible: true, placeholder: '搜索设备...' },
+      groups: [
+        { title: '主工艺设备', name: 'main_equip', layoutOptions: { columns: 1, columnWidth: 220, rowHeight: 160 } },
+        { title: '泵类设备', name: 'pumps', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 100 } },
+        { title: '仪表控制', name: 'instruments', layoutOptions: { columns: 3, columnWidth: 60, rowHeight: 70 } },
+        { title: '管路附件', name: 'parts', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 120 } }
+      ],
+    });
+    stencilRef.current.appendChild(stencil.container);
+
+    const reactor = graph.createNode({ shape: 'p-reactor', label: '反应釜', data: { type: 'Reactor' } });
+    const exchanger = graph.createNode({ shape: 'p-exchanger', label: '换热器', data: { type: 'Exchanger' } });
+    const e13 = graph.createNode({ shape: 'p-naphthalene-evaporator', label: '萘蒸发器', data: { type: 'Evaporator' } });
+    const teeNode = graph.createNode({ shape: 'p-tee' });
+    const tankH = graph.createNode({ shape: 'p-tank-horizontal', label: '卧式储罐', data: { type: 'Tank' } });
+    const gasCooler = graph.createNode({ shape: 'p-gas-cooler', label: '气体冷却器', data: { type: 'GasCooler' } });
+    const d14 = graph.createNode({ shape: 'p-fixed-bed-reactor', label: '固定床反应器', data: { type: 'FixedBedReactor' } });
+    const vExchanger = graph.createNode({ shape: 'p-exchanger-vertical', label: '立式换热器', data: { type: 'VerticalExchanger' } });
+    
+    
+    const pumpList = [
+      graph.createNode({ shape: 'p-pump-liquid', label: '液体泵' }),
+      graph.createNode({ shape: 'p-pump-centrifugal', label: '离心泵' }),
+      graph.createNode({ shape: 'p-pump-diaphragm', label: '隔膜泵' }),
+      graph.createNode({ shape: 'p-pump-piston', label: '活塞泵' }),
+      graph.createNode({ shape: 'p-pump-compressor', label: '压缩机' }),
+      graph.createNode({ shape: 'p-pump-gear', label: '齿轮泵' }),
+      graph.createNode({ shape: 'p-pump-fan', label: '风扇' }),
+      graph.createNode({ shape: 'p-pump-jet', label: '喷射泵' }),
+    ];
+    const valveList = [
+      graph.createNode({ shape: 'p-cv-pneumatic', label: '气动阀' }),
+      graph.createNode({ shape: 'p-cv-positioner', label: '定位器' }),
+      graph.createNode({ shape: 'p-cv-electric', label: '电动阀' }),
+      graph.createNode({ shape: 'p-cv-solenoid', label: '电磁阀' }),
+      graph.createNode({ shape: 'p-cv-manual', label: '手动阀' }),
+      graph.createNode({ shape: 'p-cv-piston', label: '气缸阀' }),
+    ];
+    const instList = [
+      graph.createNode({ shape: 'p-inst-local', label: '就地' }),
+      graph.createNode({ shape: 'p-inst-remote', label: '远传' }),
+      graph.createNode({ shape: 'p-inst-panel', label: '盘装' }),
+    ];
+
+    stencil.load([reactor, exchanger, vExchanger, e13, tankH, gasCooler, d14], 'main_equip');
+    stencil.load(pumpList, 'pumps');
+    stencil.load(instList, 'instruments');
+    stencil.load([...valveList, teeNode], 'parts');
+
+    const setupBackgroundFrame = () => {
+      if (graph.getNodes().some(n => n.getData()?.isBackground)) return;
+      graph.addNode({
+        shape: 'drawing-frame-a2', id: 'SHEET_FRAME_A2', x: 0, y: 0, zIndex: -1,
+        movable: false, selectable: false, data: { type: 'Frame', isBackground: true }
+      });
+    };
+
+    const initCanvasData = async () => {
+      setupBackgroundFrame();
+      try {
+        const data = await loadGraphData();
+        if (data && data.nodes.length > 0) {
+          graph.fromJSON(data as any);
+          
+          // === 新增部分：数据加载后的批量修复 ===
+          graph.batchUpdate(() => {
+            const nodes = graph.getNodes();
+            const edges = graph.getEdges();
+
+            nodes.forEach(node => {
+              if (!node.getData()?.isBackground) {
+                // 1. 修复旋转后的位号位置
+                updateNodeLabel(node); 
+                // 2. 确保设备在管线之上
+                node.setZIndex(2);     
+              }
+            });
+
+            edges.forEach(edge => {
+              // 3. 确保管线在设备之下
+              edge.setZIndex(1);       
+            });
+          });
+          // ===================================
+
+          setupBackgroundFrame();
+          graph.centerContent();
+          message.success('数据已恢复');
+        }
+      } catch (error) {
+        console.error('Data Load Error:', error);
+        message.error('数据加载失败，已重置');
+      }
+    };
+    setTimeout(initCanvasData, 100);
+
+    return () => { graph.dispose(); if (stencilRef.current) stencilRef.current.innerHTML = ''; };
+  }, []);
+
+  return (
+    <div className="editor-container">
+      <div ref={stencilRef} className="stencil-container" />
+      <div className="toolbar-container">
+         <Tooltip title="撤销"><Button type="text" icon={<UndoOutlined />} disabled={!canUndo} onClick={onUndo} /></Tooltip>
+         <Tooltip title="重做"><Button type="text" icon={<RedoOutlined />} disabled={!canRedo} onClick={onRedo} /></Tooltip>
+         <div className="toolbar-sep"></div>
+         <Tooltip title="放大"><Button type="text" icon={<ZoomInOutlined />} onClick={() => onZoom(0.1)} /></Tooltip>
+         <Tooltip title="缩小"><Button type="text" icon={<ZoomOutOutlined />} onClick={() => onZoom(-0.1)} /></Tooltip>
+         <Tooltip title="适应"><Button type="text" icon={<CompressOutlined />} onClick={onZoomToFit} /></Tooltip>
+         <Tooltip title="1:1"><Button type="text" icon={<OneToOneOutlined />} onClick={onZoomReset} /></Tooltip>
+         <div className="toolbar-sep"></div>
+         <Tooltip title="清空"><Button type="text" danger icon={<ClearOutlined />} onClick={onClear} /></Tooltip>
+      </div>
+      <div ref={containerRef} className="canvas-container" />
+      <div className="inspector-container"><Inspector cell={selectedCell} /></div>
+      <ContextMenu visible={menu.visible} x={menu.x} y={menu.y} type={menu.type} onClose={() => setMenu({ ...menu, visible: false })} onAction={handleMenuAction} />
+    </div>
+  );
+});
+
+export default GraphCanvas;
 </file>
 
 </files>

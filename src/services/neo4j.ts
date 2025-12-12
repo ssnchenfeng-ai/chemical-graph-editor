@@ -1,5 +1,22 @@
 import neo4j from 'neo4j-driver';
 
+const FLUID_COLORS: Record<string, string> = {
+  Water: '#1890ff',       // 工艺水 - 蓝
+  Steam: '#ff4d4f',       // 蒸汽 - 红
+  Air: '#52c41a',         // 空气 - 绿
+  N2: '#13c2c2',          // 氮气 - 青
+  Oil: '#fa8c16',         // 导热油 - 橙
+  Salt: '#722ed1',        // 熔盐 - 紫
+  Naphthalene: '#8c8c8c', // 萘 - 深灰
+  PA: '#eb2f96',          // 苯酐 - 洋红
+  CrudePA: '#f759ab',     // 粗苯酐 - 浅洋红
+  ProductGas: '#faad14',  // 产物气 - 金黄
+  TailGas: '#bfbfbf',     // 尾气 - 浅灰
+};
+
+// ==================== [新增] 在线元件类型列表 ====================
+const INLINE_TYPES = ['ControlValve', 'Valve', 'Fitting', 'TappingPoint'];
+
 const driver = neo4j.driver(
   'bolt://localhost:7687', 
   neo4j.auth.basic('neo4j', 'CGrx2526'), 
@@ -66,15 +83,9 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
 
       // 3.2 保存信号线 (Signal)
       if (signals.length) {
-        // 区分控制信号和测量信号
-        // 控制信号：目标端口是 actuator，或者 Canvas 显式标记为 CONTROLS
         const controlSignals = signals.filter((s: any) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
-        
-        // 测量信号：其余的信号线 (通常是 TappingPoint -> Instrument)
         const measureSignals = signals.filter((s: any) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
 
-        // A. 保存控制关系 (Instrument -> Valve)
-        // 方向一致：X6 (Inst->Valve) === Neo4j (Inst->Valve)
         if (controlSignals.length) {
           await tx.run(
             `UNWIND $batch AS r 
@@ -92,15 +103,12 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
           );
         }
 
-        // B. 保存测量关系 (Instrument -> TappingPoint)
-        // 方向反转：X6 (TP->Inst) !== Neo4j (Inst->TP)
-        // 我们需要让 Instrument(r.target) 指向 TappingPoint(r.source)
         if (measureSignals.length) {
           await tx.run(
             `UNWIND $batch AS r 
              MATCH (inst:Equipment {x6Id: r.target}), (tp:Equipment {x6Id: r.source}) 
              CREATE (inst)-[:MEASURES {
-               fromPort:   r.targetPort,  // 端口属性也要反转记录
+               fromPort:   r.targetPort,
                toPort:     r.sourcePort,
                fromRegion: r.targetRegion,
                fromDesc:   r.targetDesc,
@@ -200,13 +208,12 @@ export const loadGraphData = async () => {
       const targetId = record.get('targetId');
       
       let strokeWidth = 2;
-      let strokeColor = '#5F95FF';
+      let strokeColor = FLUID_COLORS[rel.fluid] || '#5F95FF';
       let dashArray = null;
       let targetMarker: any = null; 
       let edgeType = 'Pipe'; 
       let labels: any[] = [];
 
-      // 视觉样式处理
       if (relType === 'MEASURES' || relType === 'CONTROLS') {
         strokeWidth = 1;
         strokeColor = '#888'; 
@@ -230,19 +237,44 @@ export const loadGraphData = async () => {
         });
       }
 
-      // --- 核心逻辑：处理方向反转 ---
       let finalSourceId = sourceId;
       let finalTargetId = targetId;
       let finalSourcePort = rel.fromPort;
       let finalTargetPort = rel.toPort;
 
-      // 如果是测量关系 (MEASURES)，Neo4j 中是 Inst->TP，但 X6 需要 TP->Inst
       if (relType === 'MEASURES') {
-        finalSourceId = targetId; // TappingPoint
-        finalTargetId = sourceId; // Instrument
-        finalSourcePort = rel.toPort;   // 交换端口
-        finalTargetPort = rel.fromPort; // 交换端口
+        finalSourceId = targetId; 
+        finalTargetId = sourceId; 
+        finalSourcePort = rel.toPort;   
+        finalTargetPort = rel.fromPort; 
       }
+
+      // ==================== [新增] 动态计算路由排除列表 ====================
+      let routerConfig = undefined;
+
+      if (edgeType === 'Pipe') {
+        const excludeNodes = ['SHEET_FRAME_A2']; 
+
+        const sourceNode = nodes.find(n => n.id === finalSourceId);
+        const targetNode = nodes.find(n => n.id === finalTargetId);
+
+        if (sourceNode && INLINE_TYPES.includes(sourceNode.data.type)) {
+          excludeNodes.push(finalSourceId);
+        }
+
+        if (targetNode && INLINE_TYPES.includes(targetNode.data.type)) {
+          excludeNodes.push(finalTargetId);
+        }
+
+        routerConfig = {
+          name: 'manhattan',
+          args: {
+            padding: 20,
+            excludeNodes: excludeNodes
+          }
+        };
+      }
+      // =================================================================
 
       return {
         shape: edgeType === 'Signal' ? 'signal-edge' : 'edge',
@@ -258,9 +290,12 @@ export const loadGraphData = async () => {
           } 
         },
         labels: labels,
+        // ==================== [关键修复] 注入 router 配置 ====================
+        router: routerConfig, 
+        // ===================================================================
         data: { 
           type: edgeType, 
-          relationType: relType, // 记录关系类型，方便下次保存时识别
+          relationType: relType, 
           material: rel.material, 
           fluid: rel.fluid,
           dn: rel.dn,
