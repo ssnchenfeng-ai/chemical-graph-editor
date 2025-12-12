@@ -1,0 +1,3118 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+5. Multiple file entries, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+</file_summary>
+
+<directory_structure>
+public/
+  vite.svg
+src/
+  assets/
+    react.svg
+  components/
+    Editor/
+      Canvas/
+        index.css
+        index.tsx
+      ContextMenu/
+        index.css
+        index.tsx
+      Inspector/
+        index.tsx
+      Toolbar/
+        index.css
+        index.tsx
+  graph/
+    cells/
+      svgs/
+        cv-electric.svg
+        cv-manual.svg
+        cv-piston.svg
+        cv-pneumatic.svg
+        cv-positioner.svg
+        cv-solenoid.svg
+        E-13.svg
+        exchanger.svg
+        frame-a2.svg
+        inst-local.svg
+        inst-panel.svg
+        inst-remote.svg
+        pump-centrifugal.svg
+        pump-compressor.svg
+        pump-diaphragm.svg
+        pump-fan.svg
+        pump-gear.svg
+        pump-general.svg
+        pump-jet.svg
+        pump-liquid.svg
+        pump-piston.svg
+        pump.svg
+        reactor.svg
+      icons.ts
+      registry.ts
+  services/
+    neo4j.ts
+  App.css
+  App.tsx
+  index.css
+  main.tsx
+.gitignore
+eslint.config.js
+index.html
+package.json
+README.md
+tsconfig.app.json
+tsconfig.json
+tsconfig.node.json
+vite.config.ts
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path="src/graph/cells/svgs/cv-electric.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  <line x1="30" y1="85" x2="30" y2="40" />
+  <circle cx="30" cy="25" r="15" fill="white" />
+  <!-- 文字 M -->
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">M</text>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/cv-manual.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  <line x1="30" y1="85" x2="30" y2="40" />
+  <circle cx="30" cy="25" r="15" fill="white" />
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">H</text>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/cv-piston.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 阀体 (Bowtie) -->
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  
+  <!-- 阀杆 -->
+  <line x1="30" y1="85" x2="30" y2="40" />
+  
+  <!-- 执行机构：两个大小相同的矩形 -->
+  <!-- 下矩形 -->
+  <rect x="15" y="25" width="30" height="15" fill="white" />
+  <!-- 上矩形 -->
+  <rect x="15" y="10" width="30" height="15" fill="white" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/cv-pneumatic.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 阀体 (Bowtie) -->
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  <!-- 阀杆 -->
+  <line x1="30" y1="85" x2="30" y2="40" />
+  <!-- 执行机构 (圆头) -->
+  <circle cx="30" cy="25" r="15" fill="white" />
+  <!-- 文字 P -->
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">P</text>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/cv-positioner.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 阀体 (底部双三角) -->
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  
+  <!-- 阀杆 -->
+  <line x1="30" y1="85" x2="30" y2="40" />
+  
+  <!-- 执行机构 (圆头) -->
+  <!-- 圆心(30,25), 半径15 -> 顶端y=10 -->
+  <circle cx="30" cy="25" r="15" fill="white" />
+  
+  <!-- 文字 P -->
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">P</text>
+  
+  <!-- 定位器方块 (外接于圆顶) -->
+  <!-- x居中: 30-7=23, y从0开始, 高度10 -> 底部y=10 (刚好接触圆顶) -->
+  <rect x="23" y="0" width="14" height="10" fill="white" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/cv-solenoid.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 阀体 (位于左侧，中心对齐圆 P) -->
+  <!-- 左三角形 -->
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <!-- 右三角形 -->
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  
+  <!-- 阀杆 -->
+  <line x1="30" y1="85" x2="30" y2="40" />
+
+  <!-- 主气动头 P (圆心 x=30, r=15) -->
+  <circle cx="30" cy="25" r="15" fill="white" />
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">P</text>
+
+  <!-- 电磁阀 S (圆心 x=60, r=15) -->
+  <!-- 与 P 水平相接，直径相同 -->
+  <circle cx="60" cy="25" r="15" fill="white" />
+  <text x="60" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">S</text>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/E-13.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="821" height="464" viewBox="0 0 821 464" style="background-color:transparent">
+  <g>
+    <g>
+      <!-- 主壳体 -->
+      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M197.8 5h87v20h-87z" transform="translate(.5 .5)"/>
+      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M183.8 0h111v5h-111z" transform="translate(.5 .5)"/>
+      
+      <!-- 顶部管口 -->
+      <g fill="#ffffff" stroke="#000000" stroke-width="1">
+        <path d="M347.8 7.2h18.5V25h-18.5z" transform="translate(.5 .5)"/>
+        <path d="M341.8 5h30v2.2h-30z" transform="translate(.5 .5)"/>
+      </g>
+      <g fill="#ffffff" stroke="#000000" stroke-width="1">
+        <path d="M497.8 7.2h18.5V25h-18.5z" transform="translate(.5 .5)"/>
+        <path d="M491.8 5h30v2.2h-30z" transform="translate(.5 .5)"/>
+      </g>
+      <g fill="#ffffff" stroke="#000000" stroke-width="1">
+        <path d="M112.8 7.2h18.5V25h-18.5z" transform="translate(.5 .5)"/>
+        <path d="M106.8 5h30v2.2h-30z" transform="translate(.5 .5)"/>
+      </g>
+
+      <!-- 底部支撑/管口 -->
+      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M101.8 405h18.5v17.8h-18.5z" transform="matrix(-1 0 0 -1 222.5 828.3)"/>
+      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M96 422.8h30v5H96z" transform="translate(.5 .5)"/>
+      <ellipse cx="438.8" cy="445.5" fill="#ffffff" stroke="#000000" stroke-width="1" rx="21" ry="17.5" transform="translate(.5 .5)"/>
+
+      <!-- 内部管束结构 -->
+      <g>
+        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M338 272.9h367.8v118.3H338z" transform="translate(.5 .5)"/>
+        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 290.6h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
+        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 310.3h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
+        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 329.6h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
+        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 349.8h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
+        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 369h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
+        
+        <!-- 右侧封头 -->
+        <ellipse cx="773.3" cy="330" fill="#ffffff" stroke="#000000" stroke-width="1" rx="46" ry="59.2" transform="matrix(-1 0 0 -1 1547 660.6)"/>
+        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M724.2 270.9h46v118.3h-46z" transform="matrix(-1 0 0 -1 1495 660.6)"/>
+        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M705.8 262h6.1v136.1h-6.1z" transform="translate(.5 .5)"/>
+        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M718.1 262h6.1v136.1h-6.1z" transform="translate(.5 .5)"/>
+      </g>
+
+      <!-- 主罐体轮廓 -->
+      <ellipse cx="75.2" cy="213" fill="#ffffff" stroke="#000000" stroke-width="1" rx="75.2" ry="189" transform="translate(.5 .5)"/>
+      <ellipse cx="559.2" cy="214" fill="#ffffff" stroke="#000000" stroke-width="1" rx="75.2" ry="189" transform="translate(.5 .5)"/>
+      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M75 24h481.2v378H75z" transform="translate(.5 .5)"/>
+
+      <!-- 内部细节组件 -->
+      <g>
+        <g stroke-miterlimit="10">
+          <path fill="none" stroke="#000000" stroke-width="1" d="M406.5 261.9v19.7" transform="translate(.5 .5)"/>
+          <path fill="#000000" stroke="#000000" stroke-width="1" d="m406.5 282.3-.5-1 .5.3.5-.3Z" transform="translate(.5 .5)"/>
+        </g>
+        <g fill="#ffffff" stroke="#000000" stroke-width="1">
+          <ellipse cx="404.4" cy="257.6" rx="7.6" ry="2.7" transform="rotate(90 404.4 258)"/>
+          <path d="M191.2 250h212.3v15.1H191.2z" transform="translate(.5 .5)"/>
+          <ellipse cx="190.3" cy="257.6" rx="7.6" ry="2.7" transform="rotate(90 190.3 258)"/>
+        </g>
+        <g fill="#ffffff" stroke="#000000" stroke-width="1">
+          <ellipse cx="404.4" cy="287.8" rx="7.6" ry="2.7" transform="rotate(-90 404.9 287.8)"/>
+          <ellipse cx="190.3" cy="287.8" rx="7.6" ry="2.7" transform="rotate(-90 190.8 287.8)"/>
+          <path d="M191.2 280.2h212.3v15.1H191.2z" transform="matrix(-1 0 0 -1 595.1 576.1)"/>
+        </g>
+        <g fill="#ffffff" stroke="#000000" stroke-width="1">
+          <ellipse cx="404.4" cy="318" rx="7.6" ry="2.7" transform="rotate(-90 404.9 318)"/>
+          <ellipse cx="190.3" cy="318" rx="7.6" ry="2.7" transform="rotate(-90 190.8 318)"/>
+          <path d="M191.2 310.5h212.3v15.1H191.2z" transform="matrix(-1 0 0 -1 595.1 636.6)"/>
+        </g>
+        <g fill="#ffffff" stroke="#000000" stroke-width="1">
+          <ellipse cx="404.4" cy="348.3" rx="7.6" ry="2.7" transform="rotate(-90 404.8 348.3)"/>
+          <path d="M191.2 340.7h212.3v15.1H191.2z" transform="matrix(-1 0 0 -1 595.1 697)"/>
+          <ellipse cx="190.3" cy="348.3" rx="7.6" ry="2.7" transform="rotate(-90 190.8 348.3)"/>
+        </g>
+        <g stroke-miterlimit="10">
+          <path fill="none" stroke="#000000" stroke-width="1" d="M407 318v28.4" transform="translate(.5 .5)"/>
+          <path fill="#000000" stroke="#000000" stroke-width="1" d="m407 347.2-.5-1 .5.2.5-.2Z" transform="translate(.5 .5)"/>
+        </g>
+        <g stroke-miterlimit="10">
+          <path fill="none" stroke="#000000" stroke-width="1" d="M187.6 287.8v28.4" transform="translate(.5 .5)"/>
+          <path fill="#000000" stroke="#000000" stroke-width="1" d="m187.6 317-.5-1 .5.2.5-.3Z" transform="translate(.5 .5)"/>
+        </g>
+      </g>
+
+      <!-- 底部方块 -->
+      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M417.8 403h42v42h-42z" transform="translate(.5 .5)"/>
+    </g>
+  </g>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/exchanger.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 0 340 120" fill="none" stroke="black" stroke-width="2" style="background-color:transparent">
+  <!-- 
+     修正策略：调整绘制顺序 (Painter's Algorithm)
+     1. 先画筒体 (白色背景)
+     2. 再画内部管束 (叠在筒体上)
+     3. 再画两端法兰和封头 (叠在最上层以遮挡多余线条)
+  -->
+
+  <!-- 1. 主筒体 (Shell) - 移到最前，作为底图 -->
+  <rect x="50" y="20" width="230" height="80" fill="white" stroke-width="2" />
+
+  <!-- 2. 内部管束 (Tubes) - 现在会显示在白色筒体之上 -->
+  <g stroke="#333" stroke-width="1">
+    <line x1="50" y1="30" x2="280" y2="30" />
+    <line x1="50" y1="40" x2="280" y2="40" />
+    <line x1="50" y1="50" x2="280" y2="50" />
+    <line x1="50" y1="60" x2="280" y2="60" /> <!-- 中心线 -->
+    <line x1="50" y1="70" x2="280" y2="70" />
+    <line x1="50" y1="80" x2="280" y2="80" />
+    <line x1="50" y1="90" x2="280" y2="90" />
+  </g>
+
+  <!-- 3. 左侧结构 (管箱 + 隔板) -->
+  <!-- 左法兰 (直径90) -->
+  <rect x="45" y="15" width="5" height="90" fill="white" />
+  
+  <!-- 左封头 (加长型) -->
+  <path d="M45 20 C -5 20, -5 100, 45 100" fill="white" />
+  
+  <!-- 隔板 (虚线，画在封头之上) -->
+  <line x1="45" y1="60" x2="5" y2="60" stroke-width="2" stroke-dasharray="4,2" />
+
+  <!-- 4. 右侧结构 -->
+  <!-- 右法兰 (直径90) -->
+  <rect x="280" y="15" width="5" height="90" fill="white" />
+  <!-- 右封头 -->
+  <path d="M285 20 C 315 20, 315 100, 285 100" fill="white" />
+
+  <!-- 5. 管口 (Nozzles) -->
+  
+  <!-- N1: 壳程入口 (上) -->
+  <line x1="95" y1="20" x2="95" y2="5" stroke-width="2"/>
+  <line x1="90" y1="5" x2="100" y2="5" stroke-width="2"/>
+
+  <!-- N2: 壳程出口 (下) -->
+  <line x1="235" y1="100" x2="235" y2="115" stroke-width="2"/>
+  <line x1="230" y1="115" x2="240" y2="115" stroke-width="2"/>
+
+  <!-- N4: 管程出口 (左上 - 位于隔板上方) -->
+  <line x1="8" y1="35" x2="-15" y2="35" stroke-width="2"/>
+  <line x1="-15" y1="30" x2="-15" y2="40" stroke-width="2"/>
+
+  <!-- N3: 管程入口 (左下 - 位于隔板下方) -->
+  <line x1="8" y1="85" x2="-15" y2="85" stroke-width="2"/>
+  <line x1="-15" y1="80" x2="-15" y2="90" stroke-width="2"/>
+
+  <!-- N5: 放空 (右上) -->
+  <line x1="303" y1="23" x2="310" y2="15" stroke-width="2"/>
+  <line x1="307" y1="12" x2="313" y2="18" stroke-width="2"/>
+
+  <!-- N6: 排净 (右下) -->
+  <line x1="303" y1="97" x2="310" y2="105" stroke-width="2"/>
+  <line x1="307" y1="108" x2="313" y2="102" stroke-width="2"/>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/frame-a2.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="2245" height="1587" viewBox="0 0 2245 1587">
+  <!-- A2 Size @ 96DPI -->
+  <defs>
+    <style>
+      .border { fill: none; stroke: #000; stroke-width: 2; }
+      .inner { fill: none; stroke: #000; stroke-width: 4; }
+      .text { font-family: sans-serif; font-size: 24px; fill: #666; }
+    </style>
+  </defs>
+  
+  <!-- 1. 纸张边缘 (已修改：fill="none" 实现透明) -->
+  <rect width="100%" height="100%" fill="none" />
+  
+  <!-- 2. 外框 (纸张裁切线) -->
+  <rect x="1" y="1" width="2243" height="1585" class="border" stroke-dasharray="10,10" stroke="#ccc"/>
+  
+  <!-- 3. 内框 (绘图区) -->
+  <rect x="94" y="38" width="2113" height="1511" class="inner" />
+  
+  <!-- 4. 标题栏 -->
+  <g transform="translate(1527, 1399)">
+    <rect width="680" height="150" fill="none" stroke="#000" stroke-width="2"/>
+    <line x1="0" y1="50" x2="680" y2="50" stroke="#000" />
+    <line x1="0" y1="100" x2="680" y2="100" stroke="#000" />
+    <line x1="200" y1="0" x2="200" y2="150" stroke="#000" />
+    <text x="20" y="35" class="text">项目名称: 化工工艺流程图</text>
+    <text x="20" y="85" class="text">图号: PID-001</text>
+    <text x="20" y="135" class="text">设计阶段: 详细设计</text>
+    <text x="220" y="85" class="text" font-size="32" font-weight="bold">智能 P&amp;ID 编辑器</text>
+  </g>
+  
+  <text x="110" y="70" class="text" font-size="16">A2 (594x420mm)</text>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/inst-local.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none" stroke="black" stroke-width="2">
+  <circle cx="25" cy="25" r="23" fill="white" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/inst-panel.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none" stroke="black" stroke-width="2">
+  <circle cx="25" cy="25" r="23" fill="white" />
+  <!-- 中间双横线 (上下各偏移 2px) -->
+  <line x1="2" y1="23" x2="48" y2="23" />
+  <line x1="2" y1="27" x2="48" y2="27" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/inst-remote.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none" stroke="black" stroke-width="2">
+  <circle cx="25" cy="25" r="23" fill="white" />
+  <!-- 中间单横线 -->
+  <line x1="2" y1="25" x2="48" y2="25" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/pump-centrifugal.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <circle cx="50" cy="50" r="48" fill="white" />
+  <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
+  <!-- 中心垂直线 -->
+  <line x1="50" y1="4" x2="50" y2="98" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/pump-compressor.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 外圆 (白底遮挡网格) -->
+  <circle cx="50" cy="50" r="48" fill="white" />
+  
+  <!-- 梯形结构 (修正版) -->
+  <!-- 
+       几何计算基于圆心(50,50) 半径48:
+       - 底部两点 (y=85): x=17, x=83 (更宽，贴合下部圆弧)
+       - 顶部两点 (y=5):  x=33, x=67 (较窄，贴合上部圆弧)
+  -->
+  <line x1="17" y1="85" x2="33" y2="5" stroke-linecap="round" />
+  <line x1="83" y1="85" x2="67" y2="5" stroke-linecap="round" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/pump-diaphragm.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 外圆 (白底遮挡网格) -->
+  <circle cx="50" cy="50" r="48" fill="white" />
+  
+  <!-- 2. 倒V型结构 (三角形的上半部分) -->
+  <!-- 左端点: (4, 50), 顶点: (50, 4), 右端点: (96, 50) -->
+  <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
+  
+  <!-- 3. 隔膜弧线 (修正版) -->
+  <!-- 起点 (4, 50) -> 控制点 (50, 85) -> 终点 (96, 50) -->
+  <!-- 这样弧线就精确连接了倒V型的两个端点 -->
+  <path d="M 4 50 Q 50 85 96 50" stroke-linecap="round" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/pump-fan.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 外圆 (白底遮挡网格) -->
+  <circle cx="50" cy="50" r="48" fill="white" />
+  
+  <!-- 2. 梯形外壳 (直线两端均内接于圆) -->
+  <!-- 经过计算，确保线条内接于半径48的圆，且避开中心扇叶区域 -->
+  <!-- 左线: 顶部(28, 7.5) -> 底部(10, 76.5) -->
+  <line x1="28" y1="7.5" x2="10" y2="76.5" stroke-linecap="round" />
+  <!-- 右线: 顶部(72, 7.5) -> 底部(90, 76.5) -->
+  <line x1="72" y1="7.5" x2="90" y2="76.5" stroke-linecap="round" />
+
+  <!-- 3. 三叶螺旋桨 (柳叶型，不与直线相交) -->
+  <!-- 
+       中心点: (50,50)
+       叶片长度: 28 (小于直线到圆心的距离33，确保不相交)
+       控制点: 宽度适中，形成柳叶状
+  -->
+  <g fill="black" stroke="none" transform="translate(50, 50)">
+    <!-- 叶片1 (朝上 0度) -->
+    <!-- M 0 0 (圆心) -> Q 8 -14 (右控) 0 -28 (叶尖) -> Q -8 -14 (左控) 0 0 (回圆心) -->
+    <path d="M 0 0 Q 8 -14 0 -28 Q -8 -14 0 0" />
+    
+    <!-- 叶片2 (旋转120度) -->
+    <path d="M 0 0 Q 8 -14 0 -28 Q -8 -14 0 0" transform="rotate(120)" />
+    
+    <!-- 叶片3 (旋转240度) -->
+    <path d="M 0 0 Q 8 -14 0 -28 Q -8 -14 0 0" transform="rotate(240)" />
+  </g>
+  
+  <!-- 中心轴点 (白色小圆点缀) -->
+  <circle cx="50" cy="50" r="2" fill="white" stroke="none" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/pump-gear.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <circle cx="50" cy="50" r="48" fill="white" />
+  <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
+  <!-- 两个齿轮 -->
+  <circle cx="35" cy="65" r="14" />
+  <circle cx="65" cy="65" r="14" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/pump-general.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 外圆 -->
+  <circle cx="50" cy="50" r="48" fill="white" />
+  <!-- 倒 V (三角形) -->
+  <path d="M14 70 L50 20 L86 70" fill="none" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/pump-jet.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 外圆 (白底遮挡网格) -->
+  <circle cx="50" cy="50" r="48" fill="white" />
+  
+  <!-- 2. 上部三角形 (倒V型，同液体泵) -->
+  <!-- 左端(4,50) -> 顶端(50,4) -> 右端(96,50) -->
+  <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
+  
+  <!-- 3. 下部收缩弧线 (文丘里管结构) -->
+  <!-- 左侧弧线: 起点在圆周(18,84) -> 向内收缩 -> 终点连接三角形左边(27,27) -->
+  <path d="M 18 84 Q 45 65 27 27" stroke-linecap="round" />
+  
+  <!-- 右侧弧线: 起点在圆周(82,84) -> 向内收缩 -> 终点连接三角形右边(73,27) -->
+  <path d="M 82 84 Q 55 65 73 27" stroke-linecap="round" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/pump-liquid.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 外圆 (白底遮挡网格) -->
+  <circle cx="50" cy="50" r="48" fill="white" />
+  <!-- 倒V型结构 -->
+  <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/pump-piston.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <circle cx="50" cy="50" r="48" fill="white" />
+  <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
+  <!-- 活塞杆 -->
+  <line x1="50" y1="4" x2="50" y2="75" />
+  <!-- 活塞头 -->
+  <line x1="30" y1="75" x2="70" y2="75" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/pump.svg">
+<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <!-- 底座 -->
+  <rect x="10" y="45" width="40" height="5" fill="#999" stroke="#333" stroke-width="1"/>
+  <!-- 泵体 (圆形) -->
+  <circle cx="30" cy="30" r="15" fill="#fff" stroke="#333" stroke-width="2"/>
+  <!-- 出口管 (向上) -->
+  <rect x="25" y="5" width="10" height="15" fill="#fff" stroke="#333" stroke-width="2"/>
+  <!-- 入口管 (向左，视觉上通常画在中心) -->
+  <!-- 电机部分 -->
+  <rect x="45" y="20" width="15" height="20" fill="#e6f7ff" stroke="#1890ff" stroke-width="2"/>
+  <!-- 视觉连接点标记 -->
+  <circle cx="0" cy="30" r="2" fill="#1890ff"/> <!-- 入口 -->
+  <circle cx="30" cy="5" r="2" fill="#1890ff"/> <!-- 出口 -->
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/reactor.svg">
+<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- 夹套 (灰色背景) -->
+  <path d="M10,30 H70 V90 Q70,110 40,110 Q10,110 10,90 Z" fill="#f0f0f0" stroke="#666" stroke-width="2"/>
+  <!-- 釜体 (蓝色主体) -->
+  <path d="M15,30 H65 V90 Q65,105 40,105 Q15,105 15,90 Z" fill="#e6f7ff" stroke="#1890ff" stroke-width="2"/>
+  <!-- 顶盖 -->
+  <path d="M15,30 Q40,10 65,30 Z" fill="#e6f7ff" stroke="#1890ff" stroke-width="2"/>
+  <!-- 搅拌电机 -->
+  <rect x="35" y="0" width="10" height="15" fill="#666"/>
+  <line x1="40" y1="15" x2="40" y2="80" stroke="#666" stroke-width="2" stroke-dasharray="4 2"/>
+  <!-- 搅拌桨 -->
+  <path d="M25,80 L55,80" stroke="#666" stroke-width="3"/>
+  <!-- 端口视觉标记 (仅供参考，不参与逻辑) -->
+  <circle cx="25" cy="22" r="2" fill="#1890ff"/> <!-- 进料口1 -->
+  <circle cx="55" cy="22" r="2" fill="#1890ff"/> <!-- 进料口2 -->
+  <circle cx="40" cy="110" r="2" fill="#1890ff"/> <!-- 出料口 -->
+  <circle cx="10" cy="50" r="2" fill="#666"/> <!-- 夹套进 -->
+  <circle cx="70" cy="80" r="2" fill="#666"/> <!-- 夹套出 -->
+</svg>
+</file>
+
+<file path="public/vite.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+</file>
+
+<file path="src/assets/react.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+</file>
+
+<file path="src/components/Editor/ContextMenu/index.css">
+.context-menu {
+  position: fixed; /* 使用 fixed 避免被画布容器遮挡 */
+  z-index: 9999;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  border: 1px solid #eee;
+  min-width: 120px;
+  user-select: none;
+}
+
+.context-menu-item {
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.context-menu-item:hover {
+  background-color: #f5f5f5;
+  color: #1890ff;
+}
+
+.context-menu-item.danger {
+  color: #ff4d4f;
+}
+
+.context-menu-item.danger:hover {
+  background-color: #fff1f0;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 4px 0;
+}
+</file>
+
+<file path="src/components/Editor/ContextMenu/index.tsx">
+import React from 'react';
+import { 
+  DeleteOutlined, 
+  CopyOutlined, 
+  SnippetsOutlined, 
+  InfoCircleOutlined, 
+  ClearOutlined,
+  RotateRightOutlined // <--- 新增图标
+} from '@ant-design/icons';
+import './index.css';
+
+// ... (MenuState 接口保持不变)
+export interface MenuState {
+  visible: boolean;
+  x: number;
+  y: number;
+  type: 'node' | 'edge' | 'blank' | null;
+  cellId?: string;
+}
+
+// ... (Props 接口保持不变)
+interface ContextMenuProps {
+  visible: boolean;
+  x: number;
+  y: number;
+  type: 'node' | 'edge' | 'blank' | null;
+  onClose: () => void;
+  onAction: (action: string) => void;
+}
+
+const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, type, onClose, onAction }) => {
+  if (!visible) return null;
+
+  const handleItemClick = (action: string) => {
+    onAction(action);
+    onClose();
+  };
+
+  return (
+    <>
+      <div 
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998 }} 
+        onClick={(e) => { e.stopPropagation(); onClose(); }} 
+        onContextMenu={(e) => { e.preventDefault(); onClose(); }}
+      />
+      
+      <div 
+        className="context-menu" 
+        style={{ left: x, top: y }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* --- 选中节点/连线 --- */}
+        {(type === 'node' || type === 'edge') && (
+          <>
+            {/* 仅节点显示旋转和复制 */}
+            {type === 'node' && (
+              <>
+                <div className="context-menu-item" onClick={() => handleItemClick('copy')}>
+                  <CopyOutlined /> 复制
+                </div>
+                <div className="context-menu-item" onClick={() => handleItemClick('rotate')}>
+                  <RotateRightOutlined /> 旋转 90°
+                </div>
+                <div className="context-menu-divider" />
+              </>
+            )}
+            
+            <div className="context-menu-item" onClick={() => handleItemClick('property')}>
+              <InfoCircleOutlined /> 属性详情
+            </div>
+            <div className="context-menu-divider" />
+            <div className="context-menu-item danger" onClick={() => handleItemClick('delete')}>
+              <DeleteOutlined /> 删除
+            </div>
+          </>
+        )}
+
+        {/* --- 空白处 --- */}
+        {type === 'blank' && (
+          <>
+            <div className="context-menu-item" onClick={() => handleItemClick('paste')}>
+              <SnippetsOutlined /> 粘贴
+            </div>
+            <div className="context-menu-divider" />
+            <div className="context-menu-item" onClick={() => handleItemClick('fit')}>
+              <InfoCircleOutlined /> 适应画布
+            </div>
+            <div className="context-menu-item danger" onClick={() => handleItemClick('clear')}>
+              <ClearOutlined /> 清空所有
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default ContextMenu;
+</file>
+
+<file path="src/components/Editor/Toolbar/index.css">
+.toolbar-container {
+  position: absolute;
+  top: 20px;
+  left: 260px; /* 躲开左侧 Stencil */
+  z-index: 100;
+  background: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+</file>
+
+<file path="src/components/Editor/Toolbar/index.tsx">
+import React, { useEffect, useState } from 'react';
+import { Button, Tooltip, Divider } from 'antd';
+import { 
+  ZoomInOutlined, 
+  ZoomOutOutlined, 
+  UndoOutlined, 
+  RedoOutlined, 
+  ExpandOutlined, 
+  CompressOutlined, 
+  DeleteOutlined 
+} from '@ant-design/icons';
+import { Graph } from '@antv/x6';
+import './index.css';
+
+interface ToolbarProps {
+  graph: Graph | null;
+}
+
+const Toolbar: React.FC<ToolbarProps> = ({ graph }) => {
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  useEffect(() => {
+    // 1. 基础检查
+    if (!graph) return;
+
+    // 2. 防御性检查：确保 history 插件已加载
+    // 如果 graph.history 是 undefined，说明插件还没初始化好，直接返回，避免崩溃
+    const { history } = graph;
+    if (!history) {
+      return;
+    }
+
+    const updateState = () => {
+      setCanUndo(history.canUndo());
+      setCanRedo(history.canRedo());
+    };
+
+    // 3. 安全订阅事件
+    history.on('change', updateState);
+    history.on('undo', updateState);
+    history.on('redo', updateState);
+        // 初始化时先执行一次
+    updateState();
+    
+    return () => {
+      history.off('change', updateState);
+      history.off('undo', updateState);
+      history.off('redo', updateState);
+    };
+  }, [graph]);
+
+  if (!graph) return null;
+
+  return (
+    <div className="toolbar-container">
+      <Tooltip title="撤销 (Cmd+Z)">
+        <Button type="text" icon={<UndoOutlined />} disabled={!canUndo} onClick={() => graph?.history?.undo()} />
+      </Tooltip>
+      <Tooltip title="重做 (Cmd+Shift+Z)">
+        <Button type="text" icon={<RedoOutlined />} disabled={!canRedo} onClick={() => graph?.history?.redo()} />
+      </Tooltip>
+      
+      {/* 修复 Antd Divider 警告，去掉 type="vertical"，使用 CSS 或默认即可，这里用 style 模拟 */}
+      <span style={{ width: 1, height: 16, background: '#eee', margin: '0 4px' }} />
+      
+      <Tooltip title="放大">
+        <Button type="text" icon={<ZoomInOutlined />} onClick={() => graph.zoom(0.1)} />
+      </Tooltip>
+      <Tooltip title="缩小">
+        <Button type="text" icon={<ZoomOutOutlined />} onClick={() => graph.zoom(-0.1)} />
+      </Tooltip>
+      <Tooltip title="适应画布">
+        <Button type="text" icon={<CompressOutlined />} onClick={() => graph.zoomToFit({ padding: 20 })} />
+      </Tooltip>
+      <Tooltip title="1:1">
+        <Button type="text" icon={<ExpandOutlined />} onClick={() => graph.zoomTo(1)} />
+      </Tooltip>
+
+      <span style={{ width: 1, height: 16, background: '#eee', margin: '0 4px' }} />
+
+      <Tooltip title="删除选中 (Delete)">
+        <Button 
+          type="text" 
+          danger
+          icon={<DeleteOutlined />} 
+          onClick={() => {
+            const cells = graph.getSelectedCells();
+            if(cells.length) graph.removeCells(cells);
+          }} 
+        />
+      </Tooltip>
+    </div>
+  );
+};
+
+export default Toolbar;
+</file>
+
+<file path="src/index.css">
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* 禁止滚动条 */
+}
+</file>
+
+<file path="src/main.tsx">
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import './index.css'
+import App from './App.tsx'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+</file>
+
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+</file>
+
+<file path="eslint.config.js">
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import tseslint from 'typescript-eslint'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      js.configs.recommended,
+      tseslint.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
+  },
+])
+</file>
+
+<file path="index.html">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>chemical-graph-editor</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+</file>
+
+<file path="package.json">
+{
+  "name": "chemical-graph-editor",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.1.0",
+    "@antv/x6": "^2.19.2",
+    "@antv/x6-plugin-keyboard": "^2.2.3",
+    "@antv/x6-plugin-selection": "^2.2.2",
+    "@antv/x6-plugin-stencil": "^2.1.5",
+    "@antv/x6-plugin-transform": "^2.1.8",
+    "antd": "^6.0.0",
+    "lodash": "^4.17.21",
+    "neo4j-driver": "^6.0.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "sass": "^1.94.2",
+    "uuid": "^13.0.0",
+    "zustand": "^5.0.9"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/lodash": "^4.17.21",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^5.1.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.4",
+    "vite": "npm:rolldown-vite@7.2.5"
+  },
+  "overrides": {
+    "vite": "npm:rolldown-vite@7.2.5"
+  }
+}
+</file>
+
+<file path="README.md">
+# React + TypeScript + Vite
+
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## React Compiler
+
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
+
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
+```
+</file>
+
+<file path="tsconfig.app.json">
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "types": ["vite/client"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["src"]
+}
+</file>
+
+<file path="tsconfig.json">
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ]
+}
+</file>
+
+<file path="tsconfig.node.json">
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.node.tsbuildinfo",
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "types": ["node"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["vite.config.ts"]
+}
+</file>
+
+<file path="vite.config.ts">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+})
+</file>
+
+<file path="src/components/Editor/Canvas/index.css">
+/* =========================================
+   1. 整体布局容器
+   ========================================= */
+.editor-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  background-color: #f0f2f5;
+}
+
+/* =========================================
+   2. 左侧组件库 (Flex 布局改造)
+   ========================================= */
+.stencil-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 240px;
+  background-color: #fff;
+  border-right: 1px solid #dfe3e8;
+  z-index: 10;
+  
+  /* 关键：使用 Flex 布局垂直排列 */
+  display: flex;
+  flex-direction: column;
+}
+
+/* 强制 X6 Stencil 容器填满高度 */
+.x6-widget-stencil {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  position: relative;
+}
+
+/* 搜索框：防止被压缩 */
+.x6-widget-stencil-search {
+  flex-shrink: 0;
+  padding: 10px 12px !important;
+  border-bottom: 1px solid #eee;
+  background: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* 搜索输入框美化 */
+.x6-widget-stencil-search input {
+  border-radius: 4px;
+  border: 1px solid #d9d9d9;
+  padding: 6px 8px;
+  font-size: 13px;
+}
+
+/* 内容区域：核心滚动逻辑 */
+.x6-widget-stencil-content {
+  flex: 1;                 /* 自动占据剩余空间 */
+  height: auto !important; /* 覆盖 X6 的行内高度 */
+  overflow-y: auto !important; /* 强制开启纵向滚动 */
+  overflow-x: hidden !important;
+  position: relative !important;
+}
+
+/* 分组标题美化 */
+.x6-widget-stencil-group-title {
+  background-color: #f9fafb !important;
+  color: #555 !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 10px 12px !important;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+}
+
+/* 滚动条美化 */
+.x6-widget-stencil-content::-webkit-scrollbar {
+  width: 6px;
+}
+.x6-widget-stencil-content::-webkit-scrollbar-thumb {
+  background: #d9d9d9;
+  border-radius: 3px;
+}
+.x6-widget-stencil-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* =========================================
+   3. 中间画布区域
+   ========================================= */
+.canvas-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 240px;
+  right: 300px;
+  background-color: #fff;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* =========================================
+   4. 右侧属性面板
+   ========================================= */
+.inspector-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 300px;
+  background-color: #fff;
+  border-left: 1px solid #dfe3e8;
+  z-index: 10;
+  overflow-y: auto;
+}
+
+/* =========================================
+   5. 顶部悬浮工具栏
+   ========================================= */
+.toolbar-container {
+  position: absolute;
+  top: 10px;
+  left: 260px;
+  right: 320px;
+  height: 40px;
+  background-color: #fff;
+  border: 1px solid #dfe3e8;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 12px;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.toolbar-group:not(:last-child)::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 16px;
+  background-color: #e8e8e8;
+  margin-left: 12px;
+}
+
+/* ... 之前的 CSS ... */
+
+/* =========================================
+   7. 修复侧边栏 UI 细节 (Overlap Fixes)
+   ========================================= */
+
+/* 修复分组标题：折叠图标与文字重叠的问题 */
+.x6-widget-stencil-group-title {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  /* 给文字左侧留出空间，防止盖住图标 */
+  padding-left: 32px !important; 
+  height: 38px !important; /* 稍微增加高度，便于点击 */
+  line-height: 38px !important;
+}
+
+/* 定位折叠图标 (那个圆圈加号) */
+.x6-widget-stencil-group-icon {
+  position: absolute !important;
+  left: 10px !important; /* 固定在左侧 10px 处 */
+  top: 50% !important;
+  transform: translateY(-50%) !important; /* 垂直居中 */
+  margin: 0 !important;
+  width: 16px !important;
+  height: 16px !important;
+  font-size: 12px !important;
+}
+
+/* 可选：微调搜索框的下边距，让布局更紧凑 */
+.x6-widget-stencil-search {
+  border-bottom: 1px solid #e8e8e8;
+  padding-bottom: 8px !important;
+}
+
+/* ... 之前的 CSS 保持不变，请只修改或追加文件末尾的以下内容 ... */
+
+/* =========================================
+   8. 终极空白修复 (The Void Fix)
+   ========================================= */
+
+/* 1. 压榨搜索框底部空间 */
+.x6-widget-stencil-search {
+  /* 确保搜索框底部没有多余的外边距 */
+  margin-bottom: 0 !important;
+  /* 仅保留必要的内边距 */
+  padding-bottom: 10px !important;
+  border-bottom: 1px solid #dfe3e8;
+}
+
+/* 2. 压榨内容区域顶部空间 */
+.x6-widget-stencil-content {
+  top: 0 !important; /* 强制对齐顶部 */
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* 3. 彻底消灭“幽灵”根画布 (关键！) */
+/* 选中 content 下的第一个子元素，如果它不是分组标题，那就是那个讨厌的空白区域 */
+.x6-widget-stencil-content > div:first-child:not(.x6-widget-stencil-group) {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  overflow: hidden !important;
+}
+
+/* 4. 双重保险：针对 X6 生成的特定 graph 容器 */
+.x6-widget-stencil-content .x6-graph {
+  /* 只隐藏不在分组内的 graph */
+  display: none !important;
+}
+/* 恢复分组内的 graph 显示 (防止误伤) */
+.x6-widget-stencil-group .x6-graph {
+  display: block !important;
+}
+</file>
+
+<file path="src/components/Editor/Canvas/index.tsx">
+import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import { Graph, Cell, Edge, Node } from '@antv/x6';
+import { Stencil } from '@antv/x6-plugin-stencil';
+import { Keyboard } from '@antv/x6-plugin-keyboard';
+import { Selection } from '@antv/x6-plugin-selection';
+import { History } from '@antv/x6-plugin-history';
+import { Transform } from '@antv/x6-plugin-transform';
+import '@antv/x6-plugin-transform/dist/index.css';
+import { Button, Tooltip, message, Modal } from 'antd';
+import { 
+  ZoomInOutlined, ZoomOutOutlined, OneToOneOutlined, CompressOutlined, 
+  UndoOutlined, RedoOutlined, ClearOutlined 
+} from '@ant-design/icons';
+
+import Inspector from '../Inspector';
+import ContextMenu, { type MenuState } from '../ContextMenu';
+import './index.css';
+import { registerCustomCells } from '../../../graph/cells/registry';
+import { saveGraphData, loadGraphData } from '../../../services/neo4j';
+
+try { registerCustomCells(); } catch (e) { console.warn(e); }
+
+export interface GraphCanvasRef {
+  handleSave: () => Promise<void>;
+}
+
+const pick = (obj: any, keys: string[]) => {
+  const ret: any = {};
+  keys.forEach(key => {
+    if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
+      ret[key] = obj[key];
+    }
+  });
+  return ret;
+};
+
+const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const stencilRef = useRef<HTMLDivElement>(null);
+  const graphRef = useRef<Graph | null>(null);
+  const historyRef = useRef<History | null>(null);
+  const clipboardRef = useRef<any>(null);
+
+  const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+  
+  const [menu, setMenu] = useState<MenuState>({ visible: false, x: 0, y: 0, type: null });
+
+  // --- 保存功能 ---
+  useImperativeHandle(ref, () => ({
+    handleSave: async () => {
+      if (!graphRef.current) return;
+      const graph = graphRef.current;
+      
+      // 1. 处理节点
+      const nodes = graph.getNodes()
+        .filter(node => !node.getData()?.isBackground)
+        .map(node => {
+          const data = node.getData() || {};
+          const pos = node.getPosition();
+          const size = node.getSize();
+          const type = data.type || 'Unknown';
+
+          let Tag = data.tag || node.getAttrs()?.label?.text || '';
+          if (type === 'Instrument') {
+            const func = data.tagId || '';
+            const loop = data.loopNum || '';
+            if (func || loop) Tag = `${func}${loop ? '-' + loop : ''}`;
+          }
+
+          const baseProps = {
+            x6Id: node.id, // 使用 x6Id
+            type: type, 
+            Tag: Tag,
+            x: pos.x, y: pos.y, width: size.width, height: size.height, angle: node.getAngle(),
+            desc: data.desc || ''
+          };
+
+          let specificProps = {};
+          if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
+             specificProps = pick(data, ['spec', 'flow', 'head', 'power', 'material']);
+          } else if (['Reactor', 'Tank', 'Evaporator'].includes(type)) {
+             specificProps = pick(data, ['spec', 'volume', 'material', 'designPressure', 'designTemp']);
+          } else if (type === 'Exchanger') {
+             specificProps = pick(data, ['spec', 'area', 'material', 'designPressure', 'tubePressure']);
+          } else if (['ControlValve', 'Valve'].includes(type)) {
+             specificProps = pick(data, ['spec', 'size', 'valveClass', 'failPosition']);
+          } else if (type === 'Instrument') {
+             specificProps = pick(data, ['spec', 'range', 'unit', 'tagId', 'loopNum']);
+          } else {
+             specificProps = pick(data, ['spec', 'material']);
+          }
+
+          return { ...baseProps, ...specificProps };
+        });
+
+      // 2. 处理连线
+      const edges = graph.getEdges().map(edge => {
+        const data = edge.getData() || {};
+        const sourceNode = edge.getSourceNode();
+        const targetNode = edge.getTargetNode();
+        
+        const getPortMeta = (node: Cell | null, portId: string | undefined) => {
+          if (!node || !node.isNode() || !portId) return { group: 'default', desc: 'unknown' };
+          const port = node.getPort(portId);
+          if (!port) return { group: 'default', desc: 'unknown' };
+          return {
+            group: port.group || 'default',
+            desc: port.data?.desc || port.attrs?.circle?.title || port.id
+          };
+        };
+
+        const srcMeta = getPortMeta(sourceNode, edge.getSourcePortId());
+        const tgtMeta = getPortMeta(targetNode, edge.getTargetPortId());
+
+        return {
+          source: edge.getSourceCell()?.id,
+          target: edge.getTargetCell()?.id,
+          sourcePort: edge.getSourcePortId(),
+          targetPort: edge.getTargetPortId(),
+          sourceRegion: srcMeta.group, sourceDesc: srcMeta.desc,
+          targetRegion: tgtMeta.group, targetDesc: tgtMeta.desc,
+          type: data.type || 'Pipe', 
+          material: data.material || 'CS',
+          fluid: data.fluid || 'Water',
+          dn: data.dn || 'DN50',
+          pn: data.pn || 'PN16',
+          insulation: data.insulation || 'None',
+          label: edge.getLabelAt(0)?.attrs?.label?.text || ''
+        };
+      });
+
+      try {
+        await saveGraphData(nodes, edges);
+        message.success(`保存成功！节点: ${nodes.length}, 连线: ${edges.length}`);
+      } catch (error) {
+        console.error(error);
+        message.error('保存失败，请检查数据库连接');
+      }
+    }
+  }));
+
+  // --- 内部操作函数 ---
+  const onUndo = () => historyRef.current?.undo();
+  const onRedo = () => historyRef.current?.redo();
+  const onZoom = (f: number) => graphRef.current?.zoom(f);
+  const onZoomToFit = () => graphRef.current?.zoomToFit({ padding: 20 });
+  const onZoomReset = () => graphRef.current?.zoomTo(1);
+  
+  const onClear = () => {
+    Modal.confirm({
+      title: '清空画布',
+      content: '确定要清空吗？图框将被保留。',
+      okType: 'danger',
+      onOk: () => {
+        if (!graphRef.current) return;
+        const cellsToRemove = graphRef.current.getCells().filter(cell => !cell.getData()?.isBackground);
+        graphRef.current.removeCells(cellsToRemove);
+        setSelectedCell(null);
+      },
+    });
+  };
+
+  const handleMenuAction = (action: string) => {
+    const { cellId } = menu;
+    const graph = graphRef.current;
+    if (!graph) return;
+    const cell = cellId ? graph.getCellById(cellId) : null;
+
+    switch (action) {
+      case 'delete':
+        if (cell && !cell.getData()?.isBackground) {
+          graph.removeCell(cell);
+          setSelectedCell(null);
+        }
+        break;
+      case 'copy':
+        if (cell && cell.isNode() && !cell.getData()?.isBackground) {
+          clipboardRef.current = cell.toJSON();
+          message.success('已复制');
+        }
+        break;
+      case 'paste':
+        if (clipboardRef.current) {
+          const point = graph.clientToLocal({ x: menu.x, y: menu.y });
+          const newNode = graph.createNode({
+            ...clipboardRef.current,
+            x: point.x, y: point.y,
+            id: undefined, zIndex: 10,
+          });
+          graph.addNode(newNode);
+          graph.select(newNode);
+        }
+        break;
+      case 'property':
+        message.success('已定位到属性面板');
+        break;
+      case 'clear':
+        onClear();
+        break;
+      case 'fit':
+        onZoomToFit();
+        break;
+      case 'rotate':
+        if (cell && cell.isNode() && !cell.getData()?.isBackground) {
+          cell.rotate(90);
+        }
+        break;
+    }
+  };
+
+  // --- 初始化 ---
+  useEffect(() => {
+    if (!containerRef.current || !stencilRef.current) return;
+    stencilRef.current.innerHTML = '';
+
+    const graph = new Graph({
+      container: containerRef.current,
+      autoResize: true,
+      grid: { size: 10, visible: true, type: 'doubleMesh', args: [{ color: '#eee' }, { color: '#ddd', factor: 4 }] },
+      panning: { enabled: true, eventTypes: ['rightMouseDown'] },
+      mousewheel: {
+        enabled: true, zoomAtMousePosition: true, modifiers: null, factor: 1.1, maxScale: 3, minScale: 0.1,
+      },
+      interacting: {
+        nodeMovable: (view) => !view.cell.getData()?.isBackground,
+        magnetConnectable: (view) => !view.cell.getData()?.isBackground,
+      },
+      connecting: {
+        router: { 
+          name: 'manhattan', 
+          args: { 
+            padding: 20, 
+            excludeNodes: ['SHEET_FRAME_A2'] 
+          } 
+        },
+        connector: { name: 'rounded', args: { radius: 8 } },
+        anchor: 'center', 
+        connectionPoint: 'anchor', 
+        snap: true, 
+        allowBlank: false, 
+        allowEdge: true,
+        highlight: true,
+        validateConnection: ({ sourceView, targetView, sourceMagnet, targetMagnet }) => {
+          if (!sourceView || !targetView || !sourceMagnet) return false;
+          if (sourceView === targetView) return false;
+
+          if (targetView.isEdgeElement()) {
+            const sourceNode = sourceView.cell as Node;
+            if (sourceNode.getData()?.type === 'Instrument') return true;
+            return false;
+          }
+
+          if (!targetMagnet) return false;
+
+          const sourcePortId = sourceMagnet.getAttribute('port');
+          const targetPortId = targetMagnet.getAttribute('port');
+          if (!sourcePortId || !targetPortId) return false;
+
+          const sourceNode = sourceView.cell as Node;
+          const targetNode = targetView.cell as Node;
+          const sourcePort = sourceNode.getPort(sourcePortId);
+          const targetPort = targetNode.getPort(targetPortId);
+
+          const sDir = sourcePort?.data?.dir || 'bi';
+          const tDir = targetPort?.data?.dir || 'bi';
+
+          const isValidSource = sDir !== 'in'; 
+          const isValidTarget = tDir !== 'out';
+
+          return isValidSource && isValidTarget;
+        },
+        createEdge() {
+          return this.createEdge({
+            shape: 'edge',
+            attrs: { 
+              line: { 
+                stroke: '#5F95FF', 
+                strokeWidth: 2, 
+                targetMarker: { name: 'classic', width: 8, height: 6 }
+              } 
+            },
+            labels: [], 
+            data: { type: 'Pipe', material: 'CS', fluid: 'Water' }
+          });
+        },
+      },
+    });
+    graphRef.current = graph;
+
+    // 阀门打断
+    const handlePipeSplit = (node: Cell) => {
+      const nodeType = node.getData()?.type;
+      if (nodeType !== 'ControlValve' && nodeType !== 'Valve') return;
+      
+      const connectedEdges = graph.getConnectedEdges(node);
+      if (connectedEdges.length > 0) return; 
+
+      const nodeBBox = node.getBBox();
+      const allEdges = graph.getEdges();
+
+      const targetEdge = allEdges.find(edge => {
+        if (edge.getData()?.type === 'Signal') return false;
+        return edge.getBBox().intersectsWithRect(nodeBBox);
+      });
+
+      if (targetEdge) {
+        const sourceNode = targetEdge.getSourceNode();
+        const targetNode = targetEdge.getTargetNode();
+        const srcPoint = sourceNode ? sourceNode.getBBox().center : targetEdge.getSourcePoint();
+        const tgtPoint = targetNode ? targetNode.getBBox().center : targetEdge.getTargetPoint();
+
+        const isHorizontal = Math.abs(srcPoint.y - tgtPoint.y) < 5;
+        const isVertical = Math.abs(srcPoint.x - tgtPoint.x) < 5;
+
+        let newX = nodeBBox.x;
+        let newY = nodeBBox.y;
+
+        if (isHorizontal) newY = Math.round(nodeBBox.y / 10) * 10; 
+        else if (isVertical) newX = Math.round(nodeBBox.x / 10) * 10;
+
+        (node as Node).setPosition(newX, newY);
+
+        const source = targetEdge.getSource();
+        const target = targetEdge.getTarget();
+        const edgeData = targetEdge.getData();
+        const edgeAttrs = targetEdge.getAttrs(); 
+
+        graph.removeCell(targetEdge);
+
+        const edge1 = graph.createEdge({
+          shape: 'edge', source: source, target: { cell: node.id, port: 'in' },
+          data: { ...edgeData }, attrs: edgeAttrs, labels: []
+        });
+
+        const edge2 = graph.createEdge({
+          shape: 'edge', source: { cell: node.id, port: 'out' }, target: target,
+          data: { ...edgeData }, attrs: edgeAttrs, labels: []
+        });
+
+        graph.addCell([edge1, edge2]);
+        message.success('阀门已接入管线 (自动吸附)');
+      }
+    };
+
+    // 智能测点
+    // 智能测点 (修正方向 + 保留打断逻辑)
+    const handleSignalDrop = (args: any) => {
+      const { e, edge } = args;
+      const sourceNode = edge.getSourceNode();
+      
+      // 1. 仅处理从仪表发出的连线
+      if (sourceNode?.getData()?.type !== 'Instrument') return;
+
+      let hitPipe: Edge | null = null;
+      const point = graph.clientToLocal(e.clientX, e.clientY);
+
+      // 2. 检测是否拖拽到了管线上
+      const targetCell = edge.getTargetCell();
+      if (targetCell && targetCell.isEdge()) {
+        hitPipe = targetCell as Edge;
+      } else {
+        if (edge.getTargetNode()) return; // 如果连到了其他节点，不处理
+        const views = graph.findViewsFromPoint(point);
+        // 排除自身和已有的信号线
+        const pipeView = views.find(v => v.isEdgeElement() && v.cell.id !== edge.id && v.cell.getData()?.type !== 'Signal');
+        if (pipeView) {
+          hitPipe = pipeView.cell as Edge;
+        }
+      }
+
+      if (hitPipe) {
+        // --- A. 计算测点位置 (保留原有逻辑，确保吸附在管线上) ---
+        const src = hitPipe.getSourcePoint();
+        const tgt = hitPipe.getTargetPoint();
+
+        let tapX = point.x;
+        let tapY = point.y;
+
+        const isHorizontal = Math.abs(src.y - tgt.y) < 2;
+        const isVertical = Math.abs(src.x - tgt.x) < 2;
+
+        if (isHorizontal) {
+          tapY = src.y; 
+          tapX = Math.round(point.x / 10) * 10;
+        } else if (isVertical) {
+          tapX = src.x;
+          tapY = Math.round(point.y / 10) * 10;
+        } else {
+          tapX = Math.round(point.x / 10) * 10;
+          tapY = Math.round(point.y / 10) * 10;
+        }
+
+        // --- B. 创建测点节点 (保留原有逻辑) ---
+        const tappingPoint = graph.createNode({
+          shape: 'tapping-point',
+          x: tapX - 6, y: tapY - 6, // 居中校正
+          data: { type: 'TappingPoint' }
+        });
+        
+        // --- C. 处理信号线 (修改逻辑：反转方向) ---
+        // 1. 删除用户拖拽的那条临时线 (因为它方向是 仪表->空地)
+        graph.removeCell(edge); 
+
+        // 2. 创建新信号线：测点 -> 仪表
+        const signalEdge = graph.createEdge({
+          shape: 'signal-edge', // 使用注册好的虚线样式
+          source: { cell: tappingPoint.id },
+          target: { cell: sourceNode.id }, // 连回起始仪表
+          data: { type: 'Signal', relationType: 'MEASURES' }
+        });
+
+        // --- D. 打断原有管线 (保留原有逻辑，确保测点嵌入管线) ---
+        const source = hitPipe.getSource();
+        const target = hitPipe.getTarget();
+        const pipeData = hitPipe.getData();
+        const pipeAttrs = hitPipe.getAttrs(); 
+
+        // 删除旧管线
+        graph.removeCell(hitPipe);
+
+        // 创建两段新管线：Source -> 测点 -> Target
+        const pipe1 = graph.createEdge({
+          shape: 'edge', source: source, target: { cell: tappingPoint.id },
+          data: pipeData, attrs: pipeAttrs, labels: []
+        });
+        const pipe2 = graph.createEdge({
+          shape: 'edge', source: { cell: tappingPoint.id }, target: target,
+          data: pipeData, attrs: pipeAttrs, labels: []
+        });
+        
+        // --- E. 批量添加到画布 ---
+        // 注意：先加节点，再加连线，顺序很重要
+        graph.addCell([tappingPoint, pipe1, pipe2, signalEdge]);
+        tappingPoint.toFront(); // 确保测点在最上层
+        
+        message.success('已生成测点 (信号流向: 测点 -> 仪表)');
+      } else {
+        // 如果没拖到管线上，且没连到任何东西，删除这条悬空的线
+        if (!edge.getTargetCell()) {
+          graph.removeCell(edge);
+        }
+      }
+    };
+
+    graph.on('node:added', ({ node }) => setTimeout(() => handlePipeSplit(node), 50));
+    graph.on('node:mouseup', ({ node }) => handlePipeSplit(node));
+    graph.on('edge:mouseup', handleSignalDrop); 
+
+    // --- 核心修复：确保信号线逻辑存在 ---
+    graph.on('edge:connected', ({ edge }) => {
+      const sourceNode = edge.getSourceNode();
+      const targetPortId = edge.getTargetPortId();
+
+      const isSourceInstrument = sourceNode?.getData()?.type === 'Instrument';
+      const isTargetActuator = targetPortId === 'actuator';
+
+      if (isSourceInstrument || isTargetActuator) {
+        edge.setAttrs({
+          line: { 
+            stroke: '#888', 
+            strokeWidth: 1, 
+            strokeDasharray: '4 4', 
+            targetMarker: { name: 'classic', size: 3 } 
+          } 
+        });
+        edge.setData({ 
+          type: 'Signal', 
+          fluid: 'Signal',
+          relationType: isTargetActuator ? 'CONTROLS' : 'MEASURES' 
+        });
+        if (isTargetActuator) {
+           edge.setRouter('manhattan', { padding: 10 });
+        }
+      }
+    });
+
+    graph.use(new Selection({
+      enabled: true, multiple: true, rubberband: true, movable: true, showNodeSelectionBox: true,
+      filter: (cell) => !cell.getData()?.isBackground
+    }));
+    graph.use(new Keyboard({ enabled: true }));
+    graph.use(new Transform({ resizing: { enabled: true }, rotating: { enabled: true, grid: 15 } }));
+    
+    const history = new History({ enabled: true });
+    graph.use(history);
+    historyRef.current = history;
+    graph.on('history:change', () => { setCanUndo(history.canUndo()); setCanRedo(history.canRedo()); });
+
+    graph.bindKey(['backspace', 'delete'], () => {
+      const cells = graph.getSelectedCells().filter(c => !c.getData()?.isBackground);
+      if (cells.length) graph.removeCells(cells);
+    });
+
+    graph.on('cell:click', ({ cell }) => {
+      if (cell.getData()?.isBackground) { setSelectedCell(null); return; }
+      setSelectedCell(cell);
+      if (cell.isEdge()) cell.attr('line/strokeWidth', 3);
+      graph.getEdges().forEach(edge => { if (edge.id !== cell.id) edge.attr('line/strokeWidth', 2); });
+    });
+    
+    graph.on('blank:click', () => {
+      setSelectedCell(null);
+      graph.getEdges().forEach(edge => edge.attr('line/strokeWidth', 2));
+    });
+
+    graph.on('cell:contextmenu', ({ e, cell }) => {
+      if (cell.getData()?.isBackground) return; 
+      setMenu({ visible: true, x: e.clientX, y: e.clientY, type: cell.isNode() ? 'node' : 'edge', cellId: cell.id });
+    });
+    
+    graph.on('blank:contextmenu', ({ e }) => {
+      setMenu({ visible: true, x: e.clientX, y: e.clientY, type: 'blank' });
+    });
+
+    // --- Stencil ---
+    const stencil = new Stencil({
+      title: '组件库', target: graph, stencilGraphWidth: 240, stencilGraphHeight: 0, collapsable: true,
+      search: { visible: true, placeholder: '搜索设备...' },
+      groups: [
+        { title: '主工艺设备', name: 'main_equip', layoutOptions: { columns: 1, columnWidth: 220, rowHeight: 160 } },
+        { title: '泵类设备', name: 'pumps', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 100 } },
+        { title: '仪表控制', name: 'instruments', layoutOptions: { columns: 3, columnWidth: 60, rowHeight: 70 } },
+        { title: '管路附件', name: 'parts', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 120 } }
+      ],
+    });
+    stencilRef.current.appendChild(stencil.container);
+
+    const reactor = graph.createNode({ shape: 'p-reactor', label: '反应釜', data: { type: 'Reactor' } });
+    const exchanger = graph.createNode({ shape: 'p-exchanger', label: '换热器', data: { type: 'Exchanger' } });
+    const e13 = graph.createNode({ shape: 'p-naphthalene-evaporator', label: '萘蒸发器', data: { type: 'Evaporator' } });
+    
+    const pumpList = [
+      graph.createNode({ shape: 'p-pump-liquid', label: '液体泵' }),
+      graph.createNode({ shape: 'p-pump-centrifugal', label: '离心泵' }),
+      graph.createNode({ shape: 'p-pump-diaphragm', label: '隔膜泵' }),
+      graph.createNode({ shape: 'p-pump-piston', label: '活塞泵' }),
+      graph.createNode({ shape: 'p-pump-compressor', label: '压缩机' }),
+      graph.createNode({ shape: 'p-pump-gear', label: '齿轮泵' }),
+      graph.createNode({ shape: 'p-pump-fan', label: '风扇' }),
+      graph.createNode({ shape: 'p-pump-jet', label: '喷射泵' }),
+    ];
+    const valveList = [
+      graph.createNode({ shape: 'p-cv-pneumatic', label: '气动阀' }),
+      graph.createNode({ shape: 'p-cv-positioner', label: '定位器' }),
+      graph.createNode({ shape: 'p-cv-electric', label: '电动阀' }),
+      graph.createNode({ shape: 'p-cv-solenoid', label: '电磁阀' }),
+      graph.createNode({ shape: 'p-cv-manual', label: '手动阀' }),
+      graph.createNode({ shape: 'p-cv-piston', label: '气缸阀' }),
+    ];
+    const instList = [
+      graph.createNode({ shape: 'p-inst-local', label: '就地' }),
+      graph.createNode({ shape: 'p-inst-remote', label: '远传' }),
+      graph.createNode({ shape: 'p-inst-panel', label: '盘装' }),
+    ];
+
+    stencil.load([reactor, exchanger, e13], 'main_equip');
+    stencil.load(pumpList, 'pumps');
+    stencil.load(instList, 'instruments');
+    stencil.load(valveList, 'parts');
+
+    const setupBackgroundFrame = () => {
+      if (graph.getNodes().some(n => n.getData()?.isBackground)) return;
+      graph.addNode({
+        shape: 'drawing-frame-a2', id: 'SHEET_FRAME_A2', x: 0, y: 0, zIndex: -1,
+        movable: false, selectable: false, data: { type: 'Frame', isBackground: true }
+      });
+    };
+
+    const initCanvasData = async () => {
+      setupBackgroundFrame();
+      try {
+        const data = await loadGraphData();
+        if (data && data.nodes.length > 0) {
+          graph.fromJSON(data as any);
+          setupBackgroundFrame();
+          graph.centerContent();
+          message.success('数据已恢复');
+        }
+      } catch (error) {
+        console.error('Data Load Error:', error);
+        message.error('数据加载失败，已重置');
+      }
+    };
+    setTimeout(initCanvasData, 100);
+
+    return () => { graph.dispose(); if (stencilRef.current) stencilRef.current.innerHTML = ''; };
+  }, []);
+
+  return (
+    <div className="editor-container">
+      <div ref={stencilRef} className="stencil-container" />
+      <div className="toolbar-container">
+         <Tooltip title="撤销"><Button type="text" icon={<UndoOutlined />} disabled={!canUndo} onClick={onUndo} /></Tooltip>
+         <Tooltip title="重做"><Button type="text" icon={<RedoOutlined />} disabled={!canRedo} onClick={onRedo} /></Tooltip>
+         <div className="toolbar-sep"></div>
+         <Tooltip title="放大"><Button type="text" icon={<ZoomInOutlined />} onClick={() => onZoom(0.1)} /></Tooltip>
+         <Tooltip title="缩小"><Button type="text" icon={<ZoomOutOutlined />} onClick={() => onZoom(-0.1)} /></Tooltip>
+         <Tooltip title="适应"><Button type="text" icon={<CompressOutlined />} onClick={onZoomToFit} /></Tooltip>
+         <Tooltip title="1:1"><Button type="text" icon={<OneToOneOutlined />} onClick={onZoomReset} /></Tooltip>
+         <div className="toolbar-sep"></div>
+         <Tooltip title="清空"><Button type="text" danger icon={<ClearOutlined />} onClick={onClear} /></Tooltip>
+      </div>
+      <div ref={containerRef} className="canvas-container" />
+      <div className="inspector-container"><Inspector cell={selectedCell} /></div>
+      <ContextMenu visible={menu.visible} x={menu.x} y={menu.y} type={menu.type} onClose={() => setMenu({ ...menu, visible: false })} onAction={handleMenuAction} />
+    </div>
+  );
+});
+
+export default GraphCanvas;
+</file>
+
+<file path="src/components/Editor/Inspector/index.tsx">
+import React, { useEffect } from 'react';
+import { Form, Input, Card, Empty, Select, Divider, Collapse } from 'antd';
+import { Cell } from '@antv/x6';
+import { 
+  InfoCircleOutlined, 
+  SettingOutlined, 
+  DashboardOutlined, 
+  ExperimentOutlined 
+} from '@ant-design/icons';
+
+interface InspectorProps { cell: Cell | null; }
+
+const { Option } = Select;
+const { Panel } = Collapse;
+
+const Inspector: React.FC<InspectorProps> = ({ cell }) => {
+  const [form] = Form.useForm();
+
+  // 1. 监听选中 cell 变化，回填表单
+  useEffect(() => {
+    if (!cell) return;
+    const data = cell.getData() || {};
+    const attrs = cell.getAttrs();
+    
+    const formData: any = {
+      type: data.type || 'Unknown',
+      tag: data.tag || attrs?.label?.text || '', 
+      desc: data.desc || '',
+    };
+
+    if (cell.isNode()) {
+      Object.assign(formData, {
+        designPressure: data.designPressure,
+        designTemp: data.designTemp,
+        material: data.material,
+        volume: data.volume,
+        area: data.area,
+        flow: data.flow,
+        head: data.head,
+        power: data.power,
+        size: data.size,
+        valveClass: data.valveClass,
+        failPosition: data.failPosition,
+        tagId: data.tagId,
+        loopNum: data.loopNum,
+        range: data.range,
+        unit: data.unit,
+      });
+    } else if (cell.isEdge()) {
+      const labelObj = cell.getLabelAt(0);
+      const labelText = typeof labelObj === 'string' ? labelObj : (labelObj?.attrs?.label?.text || '');
+      Object.assign(formData, {
+        tag: labelText,
+        fluid: data.fluid || 'Water',
+        material: data.material || 'CS',
+        dn: data.dn || 'DN50',
+        pn: data.pn || 'PN16',
+        insulation: data.insulation || 'None',
+      });
+    }
+
+    form.setFieldsValue(formData);
+  }, [cell, form]);
+
+  // 2. 表单变更处理
+  const handleValuesChange = (changedValues: any, allValues: any) => {
+    if (!cell) return;
+
+    const currentData = cell.getData() || {};
+    cell.setData({ ...currentData, ...allValues });
+
+    // 更新视觉层 (Visual)
+    if (cell.isNode()) {
+      if (currentData.type === 'Instrument') {
+        if (changedValues.tagId !== undefined) cell.attr('topLabel/text', changedValues.tagId);
+        if (changedValues.loopNum !== undefined) cell.attr('bottomLabel/text', changedValues.loopNum);
+      } else {
+        if (changedValues.tag !== undefined) {
+          cell.setAttrs({ label: { text: changedValues.tag } });
+        }
+      }
+    } else if (cell.isEdge()) {
+      if (changedValues.tag !== undefined) {
+        cell.setLabelAt(0, { attrs: { label: { text: changedValues.tag } }, position: { distance: 0.5 } });
+      }
+      if (changedValues.insulation !== undefined) {
+        const type = changedValues.insulation;
+        if (type && type.startsWith('Jacket')) {
+          cell.setAttrs({ line: { strokeWidth: 4, stroke: '#fa8c16', strokeDasharray: null } });
+        } else if (['ST', 'ET', 'OT'].includes(type)) {
+          cell.setAttrs({ line: { strokeWidth: 2, stroke: '#5F95FF', strokeDasharray: '5 5' } });
+        } else {
+          cell.setAttrs({ line: { strokeWidth: 2, stroke: '#5F95FF', strokeDasharray: null } });
+        }
+      }
+    }
+  };
+
+  if (!cell) return <Empty description="请选择对象" style={{ marginTop: 100 }} />;
+
+  const data = cell.getData() || {};
+  const type = data.type;
+  const isNode = cell.isNode();
+  const isEdge = cell.isEdge();
+
+  // --- 渲染辅助函数：根据设备类型渲染不同表单 ---
+  const renderSpecificFields = () => {
+    if (!isNode) return null;
+
+    // 1. 动设备 (泵、风机、压缩机)
+    if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
+      return (
+        <>
+          {/* 修复：使用 {"left" as any} 绕过 TS 类型检查 */}
+          <Divider orientation={"left" as any}><DashboardOutlined /> 性能参数</Divider>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="流量 (m³/h)" name="flow" style={{ flex: 1 }}>
+              <Input placeholder="50" />
+            </Form.Item>
+            <Form.Item label="扬程 (m)" name="head" style={{ flex: 1 }}>
+              <Input placeholder="30" />
+            </Form.Item>
+          </div>
+          <Form.Item label="电机功率 (kW)" name="power">
+            <Input placeholder="15 kW" />
+          </Form.Item>
+          <Form.Item label="材质" name="material">
+            <Select>
+              <Option value="CS">铸钢 (CS)</Option>
+              <Option value="SS304">不锈钢 (304)</Option>
+              <Option value="SS316L">不锈钢 (316L)</Option>
+              <Option value="CastIron">铸铁</Option>
+            </Select>
+          </Form.Item>
+        </>
+      );
+    }
+
+    // 2. 静设备 - 容器/反应釜
+    if (['Reactor', 'Tank', 'Evaporator'].includes(type)) {
+      return (
+        <>
+          <Divider orientation={"left" as any}><ExperimentOutlined /> 设备参数</Divider>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="容积 (L)" name="volume" style={{ flex: 1 }}>
+              <Input placeholder="2000" />
+            </Form.Item>
+            <Form.Item label="材质" name="material" style={{ flex: 1 }}>
+              <Select>
+                <Option value="SS304">S30408</Option>
+                <Option value="SS316L">S31603</Option>
+                <Option value="GL">搪玻璃</Option>
+                <Option value="Ti">钛材</Option>
+              </Select>
+            </Form.Item>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="设计压力(MPa)" name="designPressure" style={{ flex: 1 }}>
+              <Input placeholder="0.6" />
+            </Form.Item>
+            <Form.Item label="设计温度(℃)" name="designTemp" style={{ flex: 1 }}>
+              <Input placeholder="150" />
+            </Form.Item>
+          </div>
+        </>
+      );
+    }
+
+    // 3. 静设备 - 换热器
+    if (['Exchanger'].includes(type)) {
+      return (
+        <>
+          <Divider orientation={"left" as any}><ExperimentOutlined /> 换热参数</Divider>
+          <Form.Item label="换热面积 (㎡)" name="area">
+            <Input placeholder="10" />
+          </Form.Item>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="壳程压力" name="designPressure" style={{ flex: 1 }}>
+              <Input placeholder="1.6" />
+            </Form.Item>
+            <Form.Item label="管程压力" name="tubePressure" style={{ flex: 1 }}>
+              <Input placeholder="1.0" />
+            </Form.Item>
+          </div>
+          <Form.Item label="材质 (壳/管)" name="material">
+            <Input placeholder="CS / SS304" />
+          </Form.Item>
+        </>
+      );
+    }
+
+    // 4. 管路附件 - 阀门
+    if (['ControlValve', 'Valve'].includes(type)) {
+      return (
+        <>
+          <Divider orientation={"left" as any}><SettingOutlined /> 阀门规格</Divider>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="尺寸" name="size" style={{ flex: 1 }}>
+              <Select>
+                <Option value="DN25">DN25</Option>
+                <Option value="DN50">DN50</Option>
+                <Option value="DN80">DN80</Option>
+                <Option value="DN100">DN100</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item label="压力等级" name="valveClass" style={{ flex: 1 }}>
+              <Select>
+                <Option value="PN16">PN16</Option>
+                <Option value="PN40">PN40</Option>
+                <Option value="CL150">CL150</Option>
+                <Option value="CL300">CL300</Option>
+              </Select>
+            </Form.Item>
+          </div>
+          {type === 'ControlValve' && (
+            <Form.Item label="故障位置 (FC/FO)" name="failPosition">
+              <Select>
+                <Option value="FC">气开 (FC)</Option>
+                <Option value="FO">气关 (FO)</Option>
+                <Option value="FL">保位 (FL)</Option>
+              </Select>
+            </Form.Item>
+          )}
+        </>
+      );
+    }
+
+    // 5. 仪表
+    if (['Instrument'].includes(type)) {
+      return (
+        <>
+          <Divider orientation={"left" as any}><DashboardOutlined /> 仪表定义</Divider>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="功能 (Tag)" name="tagId" style={{ flex: 1 }} help="如: PI, TT">
+              <Input />
+            </Form.Item>
+            <Form.Item label="回路 (Loop)" name="loopNum" style={{ flex: 1 }} help="如: 101">
+              <Input />
+            </Form.Item>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="量程" name="range" style={{ flex: 2 }}>
+              <Input placeholder="0-1.6" />
+            </Form.Item>
+            <Form.Item label="单位" name="unit" style={{ flex: 1 }}>
+              <Input placeholder="MPa" />
+            </Form.Item>
+          </div>
+        </>
+      );
+    }
+
+    return <Empty description="无特定参数" image={Empty.PRESENTED_IMAGE_SIMPLE} />;
+  };
+
+  return (
+    <Card 
+      title={
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {isNode ? <SettingOutlined /> : <InfoCircleOutlined />}
+          <span>{isNode ? (data.type === 'Instrument' ? '仪表属性' : '设备属性') : '管线属性'}</span>
+        </div>
+      } 
+      bordered={false} 
+      style={{ height: '100%', overflowY: 'auto' }}
+      bodyStyle={{ padding: '12px 16px' }}
+    >
+      <Form form={form} layout="vertical" onValuesChange={handleValuesChange} size="small">
+        
+        {/* === 1. 基础信息 (所有对象都有) === */}
+        <Collapse defaultActiveKey={['1']} ghost>
+          <Panel header="基础信息" key="1">
+            {type !== 'Instrument' && (
+              <Form.Item label={isNode ? "位号 (Tag No.)" : "管段号 (Line No.)"} name="tag">
+                <Input placeholder={isNode ? "R-101" : "PL-1001-50-CS"} />
+              </Form.Item>
+            )}
+            <Form.Item label="描述" name="desc">
+              <Input.TextArea rows={2} placeholder="设备或管线的功能描述" />
+            </Form.Item>
+          </Panel>
+        </Collapse>
+
+        {/* === 2. 特定设备参数 (动态渲染) === */}
+        {isNode && renderSpecificFields()}
+
+        {/* === 3. 管线参数 (仅 Edge 显示) === */}
+        {isEdge && (
+          <>
+            <Divider orientation={"left" as any}>管道规格</Divider>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Form.Item label="介质" name="fluid" style={{ flex: 1 }}>
+                <Select>
+                  <Option value="Water">工艺水</Option>
+                  <Option value="Steam">蒸汽</Option>
+                  <Option value="Oil">导热油</Option>
+                  <Option value="Air">空气</Option>
+                  <Option value="N2">氮气</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item label="材质" name="material" style={{ flex: 1 }}>
+                <Select>
+                  <Option value="CS">碳钢</Option>
+                  <Option value="SS304">SS304</Option>
+                  <Option value="SS316L">SS316L</Option>
+                </Select>
+              </Form.Item>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Form.Item label="管径" name="dn" style={{ flex: 1 }}>
+                <Select showSearch>
+                  {['DN15','DN25','DN50','DN80','DN100','DN150','DN200'].map(d => <Option key={d} value={d}>{d}</Option>)}
+                </Select>
+              </Form.Item>
+              <Form.Item label="等级" name="pn" style={{ flex: 1 }}>
+                <Select>
+                  <Option value="PN10">PN10</Option>
+                  <Option value="PN16">PN16</Option>
+                  <Option value="CL150">CL150</Option>
+                </Select>
+              </Form.Item>
+            </div>
+            <Form.Item label="保温/伴热" name="insulation">
+              <Select>
+                <Option value="None">无</Option>
+                <Option value="H">保温 (H)</Option>
+                <Option value="C">保冷 (C)</Option>
+                <Option value="ST">蒸汽伴热</Option>
+                <Option value="ET">电伴热</Option>
+                <Option value="Jacket-Steam">蒸汽夹套</Option>
+              </Select>
+            </Form.Item>
+          </>
+        )}
+
+        <div style={{ marginTop: 20, fontSize: 12, color: '#999', textAlign: 'center' }}>
+          ID: {cell.id.slice(0, 8)}...
+        </div>
+      </Form>
+    </Card>
+  );
+};
+
+export default Inspector;
+</file>
+
+<file path="src/graph/cells/icons.ts">
+export const REACTOR_SVG = `
+<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10 30 V90 C10 110 70 110 70 90 V30 H10 Z" fill="#EFF4FF" stroke="#5F95FF" stroke-width="2"/>
+  <path d="M10 30 C10 10 70 10 70 30" fill="none" stroke="#5F95FF" stroke-width="2"/>
+  <rect x="35" y="0" width="10" height="20" fill="#fff" stroke="#5F95FF" stroke-width="2"/>
+  <line x1="10" y1="45" x2="70" y2="45" stroke="#5F95FF" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M20 70 Q40 90 60 70" fill="none" stroke="#5F95FF" stroke-width="2"/>
+</svg>
+`;
+
+export const PUMP_SVG = `
+<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="30" cy="35" r="20" fill="#EFF4FF" stroke="#5F95FF" stroke-width="2"/>
+  <path d="M30 15 V0 M50 35 H60" stroke="#5F95FF" stroke-width="2"/>
+  <path d="M30 35 L45 25 L45 45 Z" fill="#5F95FF"/>
+</svg>
+`;
+
+export const VALVE_SVG = `
+<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0 10 L40 30 V10 L0 30 Z" fill="#EFF4FF" stroke="#5F95FF" stroke-width="2"/>
+  <line x1="20" y1="20" x2="20" y2="0" stroke="#5F95FF" stroke-width="2"/>
+  <line x1="10" y1="0" x2="30" y2="0" stroke="#5F95FF" stroke-width="2"/>
+</svg>
+`;
+
+export const TEE_SVG = `
+<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0 20 H40 M20 20 V40" stroke="#5F95FF" stroke-width="4" stroke-linecap="round"/>
+</svg>
+`;
+</file>
+
+<file path="src/graph/cells/registry.ts">
+import { Graph } from '@antv/x6';
+import frameA2Svg from './svgs/frame-a2.svg?raw';
+import reactorSvg from './svgs/reactor.svg?raw';
+import exchangerSvg from './svgs/exchanger.svg?raw';
+import e13Svg from './svgs/E-13.svg?raw';
+
+import pumpLiquidSvg from './svgs/pump-liquid.svg?raw';
+import pumpCentrifugalSvg from './svgs/pump-centrifugal.svg?raw';
+import pumpDiaphragmSvg from './svgs/pump-diaphragm.svg?raw';
+import pumpPistonSvg from './svgs/pump-piston.svg?raw';
+import pumpCompressorSvg from './svgs/pump-compressor.svg?raw';
+import pumpGearSvg from './svgs/pump-gear.svg?raw';
+import pumpFanSvg from './svgs/pump-fan.svg?raw';
+import pumpJetSvg from './svgs/pump-jet.svg?raw';
+
+import cvPneumaticSvg from './svgs/cv-pneumatic.svg?raw';
+import cvPositionerSvg from './svgs/cv-positioner.svg?raw';
+import cvElectricSvg from './svgs/cv-electric.svg?raw';
+import cvSolenoidSvg from './svgs/cv-solenoid.svg?raw';
+import cvManualSvg from './svgs/cv-manual.svg?raw';
+import cvPistonSvg from './svgs/cv-piston.svg?raw';
+
+import instLocalSvg from './svgs/inst-local.svg?raw';
+import instRemoteSvg from './svgs/inst-remote.svg?raw';
+import instPanelSvg from './svgs/inst-panel.svg?raw';
+
+// 1. 定义端口类型枚举，方便管理
+type PortDir = 'in' | 'out' | 'bi'; // bi 代表双向，如人孔、呼吸阀
+
+const svgToDataUrl = (svgStr: string) => `data:image/svg+xml;utf8,${encodeURIComponent(svgStr)}`;
+
+// 1. 样式配置
+const PORT_ATTRS = {
+  circle: {
+    r: 3,
+    magnet: true,
+    stroke: '#FFFFFF',
+    strokeWidth: 1,
+    fill: '#e3dedeff',
+  },
+};
+
+// --- 改造 1: 通用泵端口 (明确 dir) ---
+const COMMON_PUMP_PORTS = {
+  groups: {
+    in: { position: 'absolute', attrs: PORT_ATTRS },
+    out: { position: 'absolute', attrs: PORT_ATTRS },
+  },
+  items: [
+    { 
+      id: 'in', group: 'in', args: { x: '50%', y: '100%' },
+      attrs: { circle: { title: '入口 (Inlet)', cursor: 'help' } },
+      // 增加 dir: 'in'
+      data: { desc: '泵入口', dir: 'in' } 
+    },
+    { 
+      id: 'out', group: 'out', args: { x: '50%', y: '0%' },
+      attrs: { circle: { title: '出口 (Outlet)', cursor: 'help' } },
+      // 增加 dir: 'out'
+      data: { desc: '泵出口', dir: 'out' } 
+    },
+  ],
+};
+
+
+// 1. 定义阀门端口配置
+const VALVE_PORTS = {
+  groups: {
+    left: { position: 'absolute', attrs: PORT_ATTRS },
+    right: { position: 'absolute', attrs: PORT_ATTRS },
+    actuator: { position: 'absolute', attrs: PORT_ATTRS }, // 专用执行机构组
+  },
+  items: [
+    { id: 'in', group: 'left', args: { x: '0%', y: '83.33%' }, data: { desc: '阀门入口', dir: 'bi' } },
+    { id: 'out', group: 'right', args: { x: '100%', y: '83.33%' }, data: { desc: '阀门出口', dir: 'bi' } },
+    
+    // --- 关键修改：明确执行机构端口 ---
+    { 
+      id: 'actuator', 
+      group: 'actuator', 
+      args: { x: '50%', y: '0%' }, // 位于阀门顶部中心
+      attrs: { 
+        circle: { 
+          r: 4,
+          magnet: true,
+          stroke: '#fa8c16', // 橙色边框，提示这是信号接口
+          strokeWidth: 1,
+          fill: '#fff'
+        } 
+      },
+      // 语义数据：类型为 signal，方向为 in (接收控制信号)
+      data: { desc: '执行机构', dir: 'in', type: 'signal' } 
+    },
+  ],
+};
+
+const LABEL_ATTRS = {
+  label: {
+    refY: '100%',
+    refY2: 8,
+    textAnchor: 'middle',
+    textVerticalAnchor: 'top',
+    fontSize: 12,
+    fill: '#333',
+  }
+};
+
+const INSTRUMENT_PORTS = {
+  groups: {
+    all: { position: 'absolute', attrs: PORT_ATTRS },
+  },
+  items: [
+    { id: 'top', group: 'all', args: { x: '50%', y: '0%' } },
+    { id: 'bottom', group: 'all', args: { x: '50%', y: '100%' } },
+    { id: 'left', group: 'all', args: { x: '0%', y: '50%' } },
+    { id: 'right', group: 'all', args: { x: '100%', y: '50%' } },
+  ],
+};
+
+export const registerCustomCells = () => {
+  // 1. 注册仪表信号线
+  Graph.registerEdge('signal-edge', {
+    inherit: 'edge',
+    attrs: {
+      line: {
+        stroke: '#888',
+        strokeWidth: 1,
+        strokeDasharray: '4 4',
+        targetMarker: { name: 'classic', size: 3 },
+      },
+    },
+    data: { type: 'Signal', fluid: 'Signal' },
+  });
+
+  // 2. 注册测点 (Tapping Point)
+  Graph.registerNode('tapping-point', {
+    width: 12, 
+    height: 12,
+    markup: [
+      { tagName: 'circle', selector: 'hitArea' }, 
+      { tagName: 'circle', selector: 'body' },    
+    ],
+    attrs: {
+      hitArea: {
+        r: 10, 
+        fill: 'transparent',
+        stroke: 'none',
+        magnet: false, 
+        cursor: 'move',
+        pointerEvents: 'all', 
+      },
+      body: {
+        r: 3,
+        fill: '#333',
+        stroke: 'none',
+        pointerEvents: 'none', 
+      },
+    },
+    ports: { items: [] },
+    data: { type: 'TappingPoint', desc: '测量点' },
+  });
+
+  // 3. A2 图框 (恢复注册)
+  Graph.registerNode('drawing-frame-a2', {
+    inherit: 'image',
+    width: 2245,
+    height: 1587,
+    imageUrl: `data:image/svg+xml;utf8,${encodeURIComponent(frameA2Svg)}`,
+    ports: { items: [] }, 
+    attrs: {
+      image: { style: { pointerEvents: 'none' } },
+    },
+    data: { type: 'Frame', isBackground: true }
+  });
+  
+  // 4. 反应釜
+  Graph.registerNode('p-reactor', {
+    inherit: 'image',
+    width: 80, height: 120,
+    imageUrl: svgToDataUrl(reactorSvg),
+    ports: {
+      groups: {
+        feed:   { position: 'absolute', attrs: PORT_ATTRS },
+        bottom: { position: 'absolute', attrs: PORT_ATTRS },
+        jacket: { position: 'absolute', attrs: PORT_ATTRS },
+      },
+      items: [
+        { id: 'in_1', group: 'feed', args: { x: '31.25%', y: '0%' } },
+        { id: 'in_2', group: 'feed', args: { x: '68.75%', y: '0%' } },
+        { id: 'out_1', group: 'bottom', args: { x: '50%', y: '100%' } }, 
+        { id: 'j_in', group: 'jacket', args: { x: '0%', y: '41.6%' } },
+        { id: 'j_out', group: 'jacket', args: { x: '100%', y: '66.6%' } },
+      ],
+    },
+    attrs: LABEL_ATTRS,
+    data: { 
+      type: 'Reactor', 
+      tag: 'R-101',
+      spec: 'STD-2000L',
+      volume: '2000',
+      material: 'SS304',
+      designPressure: '0.6',
+      designTemp: '150'
+    },
+  });
+
+  // --- 改造 3: 换热器 (关键修改) ---
+  Graph.registerNode('p-exchanger', {
+    inherit: 'image',
+    width: 200, height: 80,
+    imageUrl: svgToDataUrl(exchangerSvg),
+    ports: {
+      groups: {
+        shell: { position: 'absolute', attrs: PORT_ATTRS },
+        tube_left: { position: 'absolute', attrs: PORT_ATTRS },
+        tube_right: { position: 'absolute', attrs: PORT_ATTRS },
+      },
+      items: [
+        {
+          id: 'n1', group: 'shell', args: { x: '35%', y: '0%' },
+          attrs: { circle: { title: 'N1 (入口)', cursor: 'help' } },
+          // N1 是壳程入口
+          data: { desc: '壳程入口(N1)', dir: 'in' }
+        },
+        {
+          id: 'n2', group: 'shell', args: { x: '75%', y: '100%' },
+          attrs: { circle: { title: 'N2 (出口)', cursor: 'help' } },
+          // N2 是壳程出口
+          data: { desc: '壳程出口(N2)', dir: 'out' }
+        },
+        {
+          id: 'n4', group: 'tube_left', args: { x: '0%', y: '32.5%' },
+          attrs: { circle: { title: 'N4 (出口)', cursor: 'help' } },
+          // N4 是管程出口
+          data: { desc: '管程出口(N4)', dir: 'out' }
+        },
+        {
+          id: 'n3', group: 'tube_left', args: { x: '0%', y: '67.5%' },
+          attrs: { circle: { title: 'N3 (入口)', cursor: 'help' } },
+          // N3 是管程入口
+          data: { desc: '管程入口(N3)', dir: 'in' }
+        },
+        // 封头管口通常作为备用或排净，可设为 bi 或 out
+        { id: 'n5', group: 'tube_right', args: { x: '98%', y: '12%' }, data: { desc: '放空(N5)', dir: 'out' } },
+        { id: 'n6', group: 'tube_right', args: { x: '98%', y: '88%' }, data: { desc: '排净(N6)', dir: 'out' } },
+      ],
+    },
+    attrs: LABEL_ATTRS,
+    data: { 
+      type: 'Exchanger', 
+      tag: 'E-101',
+      spec: 'BES-50',
+      area: '50',
+      material: 'CS/SS304',
+      designPressure: '1.6'
+    },
+  });
+
+  // 6. 萘蒸发器
+  Graph.registerNode('p-naphthalene-evaporator', {
+    inherit: 'image', width: 200, height: 120,
+    imageUrl: svgToDataUrl(e13Svg),
+    ports: {
+      groups: { 
+        shell: { position: 'absolute', attrs: PORT_ATTRS }, 
+        tube: { position: 'absolute', attrs: PORT_ATTRS } 
+      },
+      items: [
+        { id: 'nap_out', group: 'shell', args: { x: '61.5%', y: '0%' }, data: { desc: '萘蒸汽出口' } },
+        { id: 'nap_in', group: 'shell', args: { x: '13.5%', y: '100%' }, data: { desc: '工业萘入口' } },
+        { id: 'steam_in', group: 'tube', args: { x: '100%', y: '63%' }, data: { desc: '蒸汽入口' } },
+        { id: 'cond_out', group: 'tube', args: { x: '100%', y: '78%' }, data: { desc: '冷凝液出口' } },
+      ],
+    },
+    attrs: LABEL_ATTRS, data: { type: 'Evaporator', spec: 'E-13' },
+  });
+
+  // 7. 泵类
+  const pumps = [
+    { key: 'p-pump-liquid', name: '液体泵', svg: pumpLiquidSvg, type: 'LiquidPump' },
+    { key: 'p-pump-centrifugal', name: '离心泵', svg: pumpCentrifugalSvg, type: 'CentrifugalPump' },
+    { key: 'p-pump-diaphragm', name: '隔膜泵', svg: pumpDiaphragmSvg, type: 'DiaphragmPump' },
+    { key: 'p-pump-piston', name: '活塞泵', svg: pumpPistonSvg, type: 'PistonPump' },
+    { key: 'p-pump-compressor', name: '压缩机', svg: pumpCompressorSvg, type: 'Compressor' },
+    { key: 'p-pump-gear', name: '齿轮泵', svg: pumpGearSvg, type: 'GearPump' },
+    { key: 'p-pump-fan', name: '风扇', svg: pumpFanSvg, type: 'Fan' },
+    { key: 'p-pump-jet', name: '喷射泵', svg: pumpJetSvg, type: 'JetPump' },
+  ];
+
+  pumps.forEach(item => {
+    Graph.registerNode(item.key, {
+      inherit: 'image',
+      width: 60,
+      height: 60,
+      imageUrl: `data:image/svg+xml;utf8,${encodeURIComponent(item.svg)}`,
+      ports: COMMON_PUMP_PORTS,
+      attrs: LABEL_ATTRS,
+      data: { 
+        type: item.type,
+        tag: 'P-101',
+        spec: 'IH50-32-160',
+        flow: '25',
+        head: '30',
+        power: '7.5',
+        material: 'SS304'
+      },
+    });
+  });
+
+  // 8. 阀门 (高度修正为 60)
+  const valves = [
+    { key: 'p-cv-pneumatic', name: '气动调节阀', svg: cvPneumaticSvg, type: 'ControlValve' },
+    { key: 'p-cv-positioner', name: '带定位器阀', svg: cvPositionerSvg, type: 'ControlValve' },
+    { key: 'p-cv-electric', name: '电动调节阀', svg: cvElectricSvg, type: 'ControlValve' },
+    { key: 'p-cv-solenoid', name: '带电磁阀', svg: cvSolenoidSvg, type: 'ControlValve' },
+    { key: 'p-cv-manual', name: '手动调节阀', svg: cvManualSvg, type: 'ControlValve' },
+    { key: 'p-cv-piston', name: '气缸调节阀', svg: cvPistonSvg, type: 'ControlValve' },
+  ];
+
+  valves.forEach(v => {
+    Graph.registerNode(v.key, {
+      inherit: 'image',
+      width: 40,   
+      height: 60,  // 修正高度
+      imageUrl: `data:image/svg+xml;utf8,${encodeURIComponent(v.svg)}`,
+      ports: VALVE_PORTS, 
+      attrs: LABEL_ATTRS,
+      data: { 
+        type: v.type || 'ControlValve',
+        tag: 'FV-101',
+        size: 'DN50',
+        valveClass: 'PN16',
+        failPosition: 'FC'
+      },
+    });
+  });
+
+  // 9. 仪表
+  const instruments = [
+    { key: 'p-inst-local', name: '就地仪表', svg: instLocalSvg, type: 'Instrument' },
+    { key: 'p-inst-remote', name: '远传仪表', svg: instRemoteSvg, type: 'Instrument' },
+    { key: 'p-inst-panel', name: '就地盘仪表', svg: instPanelSvg, type: 'Instrument' },
+  ];
+
+  instruments.forEach(inst => {
+    Graph.registerNode(inst.key, {
+      width: 50,
+      height: 50,
+      markup: [
+        { tagName: 'image', selector: 'body' },
+        { tagName: 'text', selector: 'topLabel' },
+        { tagName: 'text', selector: 'bottomLabel' }
+      ],
+      attrs: {
+        body: {
+          refWidth: '100%',
+          refHeight: '100%',
+          xlinkHref: `data:image/svg+xml;utf8,${encodeURIComponent(inst.svg)}`,
+        },
+        topLabel: {
+          refX: 0.5, refY: 0.35, textAnchor: 'middle', textVerticalAnchor: 'middle',
+          fontSize: 10, fontWeight: 'bold', fill: '#000', text: 'PI',
+        },
+        bottomLabel: {
+          refX: 0.5, refY: 0.65, textAnchor: 'middle', textVerticalAnchor: 'middle',
+          fontSize: 10, fontWeight: 'bold', fill: '#000', text: '101',
+        },
+      },
+      ports: INSTRUMENT_PORTS,
+      data: { 
+        type: inst.type, 
+        tagId: 'PI',    
+        loopNum: '101',
+        range: '0-1.6',
+        unit: 'MPa'
+      },
+    });
+  });
+};
+</file>
+
+<file path="src/services/neo4j.ts">
+import neo4j from 'neo4j-driver';
+
+const driver = neo4j.driver(
+  'bolt://localhost:7687', 
+  neo4j.auth.basic('neo4j', 'CGrx2526'), 
+  { encrypted: 'ENCRYPTION_OFF', disableLosslessIntegers: true }
+);
+
+export const runCypher = async (cypher: string, params = {}) => {
+  const session = driver.session();
+  try {
+    const result = await session.run(cypher, params);
+    return result.records;
+  } catch (error) {
+    console.error('Neo4j Execution Error:', error);
+    throw error;
+  } finally {
+    await session.close();
+  }
+};
+
+export const saveGraphData = async (nodes: any[], edges: any[]) => {
+  const session = driver.session();
+  const tx = session.beginTransaction();
+  try {
+    // 1. 清空旧数据
+    await tx.run(`MATCH (n:Equipment) DETACH DELETE n`);
+
+    // 2. 保存节点
+    if (nodes.length) {
+      await tx.run(
+        `UNWIND $nodes AS n 
+         CREATE (e:Equipment {x6Id: n.x6Id}) 
+         SET e += n`, 
+        { nodes }
+      );
+    }
+
+    // 3. 保存连线
+    if (edges.length) {
+      const pipes = edges.filter(e => e.type !== 'Signal');
+      const signals = edges.filter(e => e.type === 'Signal');
+
+      // 3.1 保存工艺管线 (PIPE)
+      if (pipes.length) {
+        await tx.run(
+          `UNWIND $pipes AS r 
+           MATCH (s:Equipment {x6Id: r.source}), (t:Equipment {x6Id: r.target}) 
+           CREATE (s)-[:PIPE {
+             fromPort:   r.sourcePort, 
+             toPort:     r.targetPort,
+             tag:        r.label,
+             material:   r.material,
+             fluid:      r.fluid,
+             dn:         r.dn,
+             pn:         r.pn,
+             insulation: r.insulation,
+             fromRegion: r.sourceRegion, 
+             fromDesc:   r.sourceDesc,
+             toRegion:   r.targetRegion,
+             toDesc:     r.targetDesc
+           }]->(t)`, 
+          { pipes }
+        );
+      }
+
+      // 3.2 保存信号线 (Signal)
+      if (signals.length) {
+        // 区分控制信号和测量信号
+        // 控制信号：目标端口是 actuator，或者 Canvas 显式标记为 CONTROLS
+        const controlSignals = signals.filter((s: any) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
+        
+        // 测量信号：其余的信号线 (通常是 TappingPoint -> Instrument)
+        const measureSignals = signals.filter((s: any) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
+
+        // A. 保存控制关系 (Instrument -> Valve)
+        // 方向一致：X6 (Inst->Valve) === Neo4j (Inst->Valve)
+        if (controlSignals.length) {
+          await tx.run(
+            `UNWIND $batch AS r 
+             MATCH (s:Equipment {x6Id: r.source}), (t:Equipment {x6Id: r.target}) 
+             CREATE (s)-[:CONTROLS {
+               fromPort:   r.sourcePort, 
+               toPort:     r.targetPort,
+               fromRegion: r.sourceRegion, 
+               fromDesc:   r.sourceDesc,
+               toRegion:   r.targetRegion,
+               toDesc:     r.targetDesc,
+               fluid:      'Signal' 
+             }]->(t)`, 
+            { batch: controlSignals }
+          );
+        }
+
+        // B. 保存测量关系 (Instrument -> TappingPoint)
+        // 方向反转：X6 (TP->Inst) !== Neo4j (Inst->TP)
+        // 我们需要让 Instrument(r.target) 指向 TappingPoint(r.source)
+        if (measureSignals.length) {
+          await tx.run(
+            `UNWIND $batch AS r 
+             MATCH (inst:Equipment {x6Id: r.target}), (tp:Equipment {x6Id: r.source}) 
+             CREATE (inst)-[:MEASURES {
+               fromPort:   r.targetPort,  // 端口属性也要反转记录
+               toPort:     r.sourcePort,
+               fromRegion: r.targetRegion,
+               fromDesc:   r.targetDesc,
+               toRegion:   r.sourceRegion,
+               toDesc:     r.sourceDesc,
+               fluid:      'Signal' 
+             }]->(tp)`, 
+            { batch: measureSignals }
+          );
+        }
+      }
+    }
+
+    await tx.commit();
+  } catch (e) {
+    await tx.rollback();
+    throw e;
+  } finally {
+    await session.close();
+  }
+};
+
+export const loadGraphData = async () => {
+  const session = driver.session();
+  try {
+    // 1. 加载节点
+    const nodesResult = await session.run(`MATCH (n:Equipment) RETURN n`);
+    const nodes = nodesResult.records.map(record => {
+      const props = record.get('n').properties;
+      
+      let shapeName = 'p-valve'; 
+      switch (props.type) {
+        case 'Reactor':      shapeName = 'p-reactor'; break;
+        case 'Exchanger':    shapeName = 'p-exchanger'; break;
+        case 'Pump':         shapeName = 'p-pump'; break;
+        case 'LiquidPump':   shapeName = 'p-pump-liquid'; break;
+        case 'CentrifugalPump': shapeName = 'p-pump-centrifugal'; break;
+        case 'DiaphragmPump': shapeName = 'p-pump-diaphragm'; break;
+        case 'PistonPump':   shapeName = 'p-pump-piston'; break;
+        case 'Compressor':   shapeName = 'p-pump-compressor'; break;
+        case 'GearPump':     shapeName = 'p-pump-gear'; break;
+        case 'Fan':          shapeName = 'p-pump-fan'; break;
+        case 'JetPump':      shapeName = 'p-pump-jet'; break;
+        case 'ControlValve': shapeName = 'p-cv-pneumatic'; break;
+        case 'Valve':        shapeName = 'p-cv-manual'; break;
+        case 'Evaporator':   shapeName = 'p-naphthalene-evaporator'; break;
+        case 'Instrument':   
+          if(props.spec === 'Local') shapeName = 'p-inst-local';
+          else if(props.spec === 'Panel') shapeName = 'p-inst-panel';
+          else shapeName = 'p-inst-remote';
+          break;
+        case 'TappingPoint': shapeName = 'tapping-point'; break;
+        default: break;
+      }
+
+      const safeNumber = (val: any) => {
+        if (typeof val === 'number') return val;
+        if (val && val.low !== undefined) return val.low; 
+        if (val && !isNaN(Number(val))) return Number(val); 
+        return undefined; 
+      };
+
+      const data = { ...props };
+      
+      return {
+        id: props.x6Id,
+        shape: shapeName, 
+        x: props.x,
+        y: props.y,
+        width: safeNumber(props.width), 
+        height: safeNumber(props.height),
+        angle: safeNumber(props.angle) || 0,
+        data: data,
+        attrs: { 
+          label: { text: props.Tag || props.label },
+          topLabel: props.tagId ? { text: props.tagId } : undefined,
+          bottomLabel: props.loopNum ? { text: props.loopNum } : undefined,
+        }
+      };
+    });
+
+    // 2. 加载连线
+    const edgesResult = await session.run(`
+      MATCH (s:Equipment)-[r:PIPE|MEASURES|CONTROLS]->(t:Equipment) 
+      RETURN s.x6Id as sourceId, t.x6Id as targetId, r, type(r) as relType
+    `);
+    
+    const edges = edgesResult.records.map(record => {
+      const rel = record.get('r').properties;
+      const relType = record.get('relType'); 
+      const sourceId = record.get('sourceId');
+      const targetId = record.get('targetId');
+      
+      let strokeWidth = 2;
+      let strokeColor = '#5F95FF';
+      let dashArray = null;
+      let targetMarker: any = null; 
+      let edgeType = 'Pipe'; 
+      let labels: any[] = [];
+
+      // 视觉样式处理
+      if (relType === 'MEASURES' || relType === 'CONTROLS') {
+        strokeWidth = 1;
+        strokeColor = '#888'; 
+        dashArray = '4 4';    
+        targetMarker = { name: 'classic', width: 10, height: 6 }; 
+        edgeType = 'Signal';
+      } else {
+        targetMarker = { name: 'classic', width: 8, height: 6 }; 
+        if (rel.insulation && rel.insulation.startsWith('Jacket')) {
+          strokeWidth = 4;
+          strokeColor = '#fa8c16'; 
+        } else if (['ST', 'ET', 'OT'].includes(rel.insulation)) {
+          dashArray = '5 5'; 
+        }
+      }
+
+      if (relType === 'PIPE' && rel.tag) {
+        labels.push({
+          attrs: { label: { text: rel.tag }, body: { fill: '#fff', stroke: '#333' } },
+          position: { distance: 0.5, args: { y: -15 } } 
+        });
+      }
+
+      // --- 核心逻辑：处理方向反转 ---
+      let finalSourceId = sourceId;
+      let finalTargetId = targetId;
+      let finalSourcePort = rel.fromPort;
+      let finalTargetPort = rel.toPort;
+
+      // 如果是测量关系 (MEASURES)，Neo4j 中是 Inst->TP，但 X6 需要 TP->Inst
+      if (relType === 'MEASURES') {
+        finalSourceId = targetId; // TappingPoint
+        finalTargetId = sourceId; // Instrument
+        finalSourcePort = rel.toPort;   // 交换端口
+        finalTargetPort = rel.fromPort; // 交换端口
+      }
+
+      return {
+        shape: edgeType === 'Signal' ? 'signal-edge' : 'edge',
+        source: { cell: finalSourceId, port: finalSourcePort || undefined },
+        target: { cell: finalTargetId, port: finalTargetPort || undefined },
+        
+        attrs: { 
+          line: { 
+            stroke: strokeColor,
+            strokeWidth: strokeWidth,
+            strokeDasharray: dashArray,
+            targetMarker: targetMarker
+          } 
+        },
+        labels: labels,
+        data: { 
+          type: edgeType, 
+          relationType: relType, // 记录关系类型，方便下次保存时识别
+          material: rel.material, 
+          fluid: rel.fluid,
+          dn: rel.dn,
+          pn: rel.pn,
+          insulation: rel.insulation
+        }
+      };
+    });
+
+    return { nodes, edges };
+  } finally {
+    await session.close();
+  }
+};
+</file>
+
+<file path="src/App.tsx">
+import { useRef, useState } from 'react';
+import { Button, Layout, message } from 'antd';
+// 1. 确保图标库已安装。如果此处报错，请运行 npm install @ant-design/icons
+import { SaveOutlined, DatabaseOutlined } from '@ant-design/icons';
+
+// 2. 分开导入组件和类型（这是修复白屏的关键）
+import GraphCanvas from './components/Editor/Canvas';
+import type { GraphCanvasRef } from './components/Editor/Canvas';
+
+const { Header, Content } = Layout;
+
+function App() {
+  const [saving, setSaving] = useState(false);
+  const graphRef = useRef<GraphCanvasRef>(null);
+
+  const handleSaveClick = async () => {
+    if (graphRef.current) {
+      setSaving(true);
+      try {
+        await graphRef.current.handleSave();
+      } catch (e) {
+        console.error(e);
+        message.error('保存操作异常');
+      } finally {
+        setSaving(false);
+      }
+    } else {
+        console.warn("GraphRef is null");
+    }
+  };
+
+  return (
+    <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Header style={{ 
+        display: 'flex', alignItems: 'center', color: 'white', 
+        height: '50px', padding: '0 20px', flexShrink: 0,
+        justifyContent: 'space-between' 
+      }}>
+        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <DatabaseOutlined />
+          🧪 化工 P&ID 编辑器
+        </div>
+        
+        <Button 
+          type="primary" 
+          icon={<SaveOutlined />} 
+          loading={saving}
+          onClick={handleSaveClick}
+        >
+          保存图纸到 Neo4j
+        </Button>
+      </Header>
+      
+      <Content style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex' }}>
+        {/* 确保这里没有多余的 props 导致类型冲突 */}
+        <GraphCanvas ref={graphRef} />
+      </Content>
+    </Layout>
+  );
+}
+
+export default App;
+</file>
+
+</files>

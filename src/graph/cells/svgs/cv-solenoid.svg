@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 阀体 (位于左侧，中心对齐圆 P) -->
+  <!-- 左三角形 -->
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <!-- 右三角形 -->
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  
+  <!-- 阀杆 -->
+  <line x1="30" y1="85" x2="30" y2="40" />
+
+  <!-- 主气动头 P (圆心 x=30, r=15) -->
+  <circle cx="30" cy="25" r="15" fill="white" />
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">P</text>
+
+  <!-- 电磁阀 S (圆心 x=60, r=15) -->
+  <!-- 与 P 水平相接，直径相同 -->
+  <circle cx="60" cy="25" r="15" fill="white" />
+  <text x="60" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">S</text>
+</svg>

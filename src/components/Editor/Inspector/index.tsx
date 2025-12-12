@@ -1,157 +1,342 @@
 import React, { useEffect } from 'react';
-import { Form, Input, Card, Empty, Tag, Select, Button, Modal } from 'antd';
-import { DeleteOutlined } from '@ant-design/icons';
+import { Form, Input, Card, Empty, Select, Divider, Collapse } from 'antd';
 import { Cell } from '@antv/x6';
+import { 
+  InfoCircleOutlined, 
+  SettingOutlined, 
+  DashboardOutlined, 
+  ExperimentOutlined 
+} from '@ant-design/icons';
 
-interface InspectorProps {
-  cell: Cell | null;
-}
+interface InspectorProps { cell: Cell | null; }
+
+const { Option } = Select;
+const { Panel } = Collapse;
 
 const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   const [form] = Form.useForm();
 
-  // 监听选中 cell 变化，回显数据
+  // 1. 监听选中 cell 变化，回填表单
   useEffect(() => {
     if (!cell) return;
-
     const data = cell.getData() || {};
+    const attrs = cell.getAttrs();
     
+    const formData: any = {
+      type: data.type || 'Unknown',
+      tag: data.tag || attrs?.label?.text || '', 
+      desc: data.desc || '',
+    };
+
     if (cell.isNode()) {
-      // --- 设备节点回显 ---
-      form.setFieldsValue({
-        entity: 'node',
-        label: cell.getAttrs()?.label?.text || '',
-        type: data.type || 'Unknown',
-        spec: data.spec || ''
+      Object.assign(formData, {
+        designPressure: data.designPressure,
+        designTemp: data.designTemp,
+        material: data.material,
+        volume: data.volume,
+        area: data.area,
+        flow: data.flow,
+        head: data.head,
+        power: data.power,
+        size: data.size,
+        valveClass: data.valveClass,
+        failPosition: data.failPosition,
+        tagId: data.tagId,
+        loopNum: data.loopNum,
+        range: data.range,
+        unit: data.unit,
       });
     } else if (cell.isEdge()) {
-      // --- 管线连线回显 ---
-      // 获取连线上的标签文字
       const labelObj = cell.getLabelAt(0);
       const labelText = typeof labelObj === 'string' ? labelObj : (labelObj?.attrs?.label?.text || '');
-      
-      form.setFieldsValue({
-        entity: 'edge',
-        label: labelText,
+      Object.assign(formData, {
+        tag: labelText,
+        fluid: data.fluid || 'Water',
         material: data.material || 'CS',
-        fluid: data.fluid || 'Water'
+        dn: data.dn || 'DN50',
+        pn: data.pn || 'PN16',
+        insulation: data.insulation || 'None',
       });
     }
+
+    form.setFieldsValue(formData);
   }, [cell, form]);
 
-  // 表单修改处理
+  // 2. 表单变更处理
   const handleValuesChange = (changedValues: any, allValues: any) => {
     if (!cell) return;
 
+    const currentData = cell.getData() || {};
+    cell.setData({ ...currentData, ...allValues });
+
+    // 更新视觉层 (Visual)
     if (cell.isNode()) {
-      // 更新节点
-      cell.setData({ ...cell.getData(), spec: allValues.spec });
-      if (changedValues.label !== undefined) {
-        cell.setAttrs({ label: { text: changedValues.label } });
+      if (currentData.type === 'Instrument') {
+        if (changedValues.tagId !== undefined) cell.attr('topLabel/text', changedValues.tagId);
+        if (changedValues.loopNum !== undefined) cell.attr('bottomLabel/text', changedValues.loopNum);
+      } else {
+        if (changedValues.tag !== undefined) {
+          cell.setAttrs({ label: { text: changedValues.tag } });
+        }
       }
     } else if (cell.isEdge()) {
-      // 更新管线
-      cell.setData({ 
-        ...cell.getData(), 
-        material: allValues.material, 
-        fluid: allValues.fluid 
-      });
-
-      // 更新管线文字标签
-      if (changedValues.label !== undefined) {
-        if (!changedValues.label) {
-          cell.removeLabelAt(0);
+      if (changedValues.tag !== undefined) {
+        cell.setLabelAt(0, { attrs: { label: { text: changedValues.tag } }, position: { distance: 0.5 } });
+      }
+      if (changedValues.insulation !== undefined) {
+        const type = changedValues.insulation;
+        if (type && type.startsWith('Jacket')) {
+          cell.setAttrs({ line: { strokeWidth: 4, stroke: '#fa8c16', strokeDasharray: null } });
+        } else if (['ST', 'ET', 'OT'].includes(type)) {
+          cell.setAttrs({ line: { strokeWidth: 2, stroke: '#5F95FF', strokeDasharray: '5 5' } });
         } else {
-          cell.setLabelAt(0, {
-            attrs: {
-              label: { text: changedValues.label },
-              body: { fill: '#fff', stroke: '#333', strokeWidth: 1, rx: 4, ry: 4 },
-            },
-            position: { distance: 0.5 },
-          });
+          cell.setAttrs({ line: { strokeWidth: 2, stroke: '#5F95FF', strokeDasharray: null } });
         }
       }
-      
-      // 更新管线颜色
-      if (changedValues.fluid === 'Steam') cell.setAttrs({ line: { stroke: '#ff4d4f' } });
-      else if (changedValues.fluid === 'Water') cell.setAttrs({ line: { stroke: '#5F95FF' } });
     }
   };
 
-  // 删除按钮逻辑
-  const handleDelete = () => {
-    if (cell) {
-      Modal.confirm({
-        title: '确认删除',
-        content: '确定要删除选中的对象吗？',
-        okType: 'danger',
-        onOk: () => {
-          cell.remove();
-          // 注意：这里删除后，App 层的 selectedCell 还没置空，
-          // 但 X6 的 selection:changed 事件通常会处理它。
-          // 更好的做法是通过 props 回调通知父组件，但这里直接操作 cell 也可以。
-        }
-      });
-    }
-  };
+  if (!cell) return <Empty description="请选择对象" style={{ marginTop: 100 }} />;
 
-  if (!cell) return <Empty description="请点击选择对象" style={{ marginTop: 50 }} />;
-
+  const data = cell.getData() || {};
+  const type = data.type;
   const isNode = cell.isNode();
-  const title = isNode ? "设备属性" : "管线属性";
+  const isEdge = cell.isEdge();
+
+  // --- 渲染辅助函数：根据设备类型渲染不同表单 ---
+  const renderSpecificFields = () => {
+    if (!isNode) return null;
+
+    // 1. 动设备 (泵、风机、压缩机)
+    if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
+      return (
+        <>
+          {/* 修复：使用 {"left" as any} 绕过 TS 类型检查 */}
+          <Divider orientation={"left" as any}><DashboardOutlined /> 性能参数</Divider>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="流量 (m³/h)" name="flow" style={{ flex: 1 }}>
+              <Input placeholder="50" />
+            </Form.Item>
+            <Form.Item label="扬程 (m)" name="head" style={{ flex: 1 }}>
+              <Input placeholder="30" />
+            </Form.Item>
+          </div>
+          <Form.Item label="电机功率 (kW)" name="power">
+            <Input placeholder="15 kW" />
+          </Form.Item>
+          <Form.Item label="材质" name="material">
+            <Select>
+              <Option value="CS">铸钢 (CS)</Option>
+              <Option value="SS304">不锈钢 (304)</Option>
+              <Option value="SS316L">不锈钢 (316L)</Option>
+              <Option value="CastIron">铸铁</Option>
+            </Select>
+          </Form.Item>
+        </>
+      );
+    }
+
+    // 2. 静设备 - 容器/反应釜
+    if (['Reactor', 'Tank', 'Evaporator'].includes(type)) {
+      return (
+        <>
+          <Divider orientation={"left" as any}><ExperimentOutlined /> 设备参数</Divider>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="容积 (L)" name="volume" style={{ flex: 1 }}>
+              <Input placeholder="2000" />
+            </Form.Item>
+            <Form.Item label="材质" name="material" style={{ flex: 1 }}>
+              <Select>
+                <Option value="SS304">S30408</Option>
+                <Option value="SS316L">S31603</Option>
+                <Option value="GL">搪玻璃</Option>
+                <Option value="Ti">钛材</Option>
+              </Select>
+            </Form.Item>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="设计压力(MPa)" name="designPressure" style={{ flex: 1 }}>
+              <Input placeholder="0.6" />
+            </Form.Item>
+            <Form.Item label="设计温度(℃)" name="designTemp" style={{ flex: 1 }}>
+              <Input placeholder="150" />
+            </Form.Item>
+          </div>
+        </>
+      );
+    }
+
+    // 3. 静设备 - 换热器
+    if (['Exchanger'].includes(type)) {
+      return (
+        <>
+          <Divider orientation={"left" as any}><ExperimentOutlined /> 换热参数</Divider>
+          <Form.Item label="换热面积 (㎡)" name="area">
+            <Input placeholder="10" />
+          </Form.Item>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="壳程压力" name="designPressure" style={{ flex: 1 }}>
+              <Input placeholder="1.6" />
+            </Form.Item>
+            <Form.Item label="管程压力" name="tubePressure" style={{ flex: 1 }}>
+              <Input placeholder="1.0" />
+            </Form.Item>
+          </div>
+          <Form.Item label="材质 (壳/管)" name="material">
+            <Input placeholder="CS / SS304" />
+          </Form.Item>
+        </>
+      );
+    }
+
+    // 4. 管路附件 - 阀门
+    if (['ControlValve', 'Valve'].includes(type)) {
+      return (
+        <>
+          <Divider orientation={"left" as any}><SettingOutlined /> 阀门规格</Divider>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="尺寸" name="size" style={{ flex: 1 }}>
+              <Select>
+                <Option value="DN25">DN25</Option>
+                <Option value="DN50">DN50</Option>
+                <Option value="DN80">DN80</Option>
+                <Option value="DN100">DN100</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item label="压力等级" name="valveClass" style={{ flex: 1 }}>
+              <Select>
+                <Option value="PN16">PN16</Option>
+                <Option value="PN40">PN40</Option>
+                <Option value="CL150">CL150</Option>
+                <Option value="CL300">CL300</Option>
+              </Select>
+            </Form.Item>
+          </div>
+          {type === 'ControlValve' && (
+            <Form.Item label="故障位置 (FC/FO)" name="failPosition">
+              <Select>
+                <Option value="FC">气开 (FC)</Option>
+                <Option value="FO">气关 (FO)</Option>
+                <Option value="FL">保位 (FL)</Option>
+              </Select>
+            </Form.Item>
+          )}
+        </>
+      );
+    }
+
+    // 5. 仪表
+    if (['Instrument'].includes(type)) {
+      return (
+        <>
+          <Divider orientation={"left" as any}><DashboardOutlined /> 仪表定义</Divider>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="功能 (Tag)" name="tagId" style={{ flex: 1 }} help="如: PI, TT">
+              <Input />
+            </Form.Item>
+            <Form.Item label="回路 (Loop)" name="loopNum" style={{ flex: 1 }} help="如: 101">
+              <Input />
+            </Form.Item>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="量程" name="range" style={{ flex: 2 }}>
+              <Input placeholder="0-1.6" />
+            </Form.Item>
+            <Form.Item label="单位" name="unit" style={{ flex: 1 }}>
+              <Input placeholder="MPa" />
+            </Form.Item>
+          </div>
+        </>
+      );
+    }
+
+    return <Empty description="无特定参数" image={Empty.PRESENTED_IMAGE_SIMPLE} />;
+  };
 
   return (
     <Card 
-      title={title} 
+      title={
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {isNode ? <SettingOutlined /> : <InfoCircleOutlined />}
+          <span>{isNode ? (data.type === 'Instrument' ? '仪表属性' : '设备属性') : '管线属性'}</span>
+        </div>
+      } 
       bordered={false} 
-      style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
-      bodyStyle={{ flex: 1, overflowY: 'auto' }} // 让表单区域可滚动
+      style={{ height: '100%', overflowY: 'auto' }}
+      bodyStyle={{ padding: '12px 16px' }}
     >
-      <Form form={form} layout="vertical" onValuesChange={handleValuesChange}>
-        <Form.Item name="entity" hidden><Input /></Form.Item>
+      <Form form={form} layout="vertical" onValuesChange={handleValuesChange} size="small">
+        
+        {/* === 1. 基础信息 (所有对象都有) === */}
+        <Collapse defaultActiveKey={['1']} ghost>
+          <Panel header="基础信息" key="1">
+            {type !== 'Instrument' && (
+              <Form.Item label={isNode ? "位号 (Tag No.)" : "管段号 (Line No.)"} name="tag">
+                <Input placeholder={isNode ? "R-101" : "PL-1001-50-CS"} />
+              </Form.Item>
+            )}
+            <Form.Item label="描述" name="desc">
+              <Input.TextArea rows={2} placeholder="设备或管线的功能描述" />
+            </Form.Item>
+          </Panel>
+        </Collapse>
 
-        {/* 动态渲染表单项 */}
-        <Form.Item noStyle shouldUpdate={(prev, curr) => prev.entity !== curr.entity}>
-          {({ getFieldValue }) => 
-            getFieldValue('entity') === 'node' ? (
-              <>
-                <Form.Item label="设备类型" name="type"><Input disabled /></Form.Item>
-                <Form.Item label="位号 (Tag ID)" name="label"><Input /></Form.Item>
-                <Form.Item label="规格型号" name="spec"><Input /></Form.Item>
-              </>
-            ) : (
-              <>
-                <Form.Item label="管线号" name="label"><Input placeholder="如: PL-101" /></Form.Item>
-                <Form.Item label="材质" name="material">
-                  <Select>
-                    <Select.Option value="CS">碳钢 (CS)</Select.Option>
-                    <Select.Option value="SS304">不锈钢 (304)</Select.Option>
-                    <Select.Option value="PVC">塑料 (PVC)</Select.Option>
-                  </Select>
-                </Form.Item>
-                <Form.Item label="介质" name="fluid">
-                  <Select>
-                    <Select.Option value="Water">工艺水 (Water)</Select.Option>
-                    <Select.Option value="Steam">蒸汽 (Steam)</Select.Option>
-                    <Select.Option value="Oil">导热油 (Oil)</Select.Option>
-                  </Select>
-                </Form.Item>
-              </>
-            )
-          }
-        </Form.Item>
+        {/* === 2. 特定设备参数 (动态渲染) === */}
+        {isNode && renderSpecificFields()}
 
-        <div style={{ marginTop: 20 }}>
-          <Tag color={isNode ? "blue" : "orange"}>ID: {cell.id.slice(0, 8)}</Tag>
+        {/* === 3. 管线参数 (仅 Edge 显示) === */}
+        {isEdge && (
+          <>
+            <Divider orientation={"left" as any}>管道规格</Divider>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Form.Item label="介质" name="fluid" style={{ flex: 1 }}>
+                <Select>
+                  <Option value="Water">工艺水</Option>
+                  <Option value="Steam">蒸汽</Option>
+                  <Option value="Oil">导热油</Option>
+                  <Option value="Air">空气</Option>
+                  <Option value="N2">氮气</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item label="材质" name="material" style={{ flex: 1 }}>
+                <Select>
+                  <Option value="CS">碳钢</Option>
+                  <Option value="SS304">SS304</Option>
+                  <Option value="SS316L">SS316L</Option>
+                </Select>
+              </Form.Item>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Form.Item label="管径" name="dn" style={{ flex: 1 }}>
+                <Select showSearch>
+                  {['DN15','DN25','DN50','DN80','DN100','DN150','DN200'].map(d => <Option key={d} value={d}>{d}</Option>)}
+                </Select>
+              </Form.Item>
+              <Form.Item label="等级" name="pn" style={{ flex: 1 }}>
+                <Select>
+                  <Option value="PN10">PN10</Option>
+                  <Option value="PN16">PN16</Option>
+                  <Option value="CL150">CL150</Option>
+                </Select>
+              </Form.Item>
+            </div>
+            <Form.Item label="保温/伴热" name="insulation">
+              <Select>
+                <Option value="None">无</Option>
+                <Option value="H">保温 (H)</Option>
+                <Option value="C">保冷 (C)</Option>
+                <Option value="ST">蒸汽伴热</Option>
+                <Option value="ET">电伴热</Option>
+                <Option value="Jacket-Steam">蒸汽夹套</Option>
+              </Select>
+            </Form.Item>
+          </>
+        )}
+
+        <div style={{ marginTop: 20, fontSize: 12, color: '#999', textAlign: 'center' }}>
+          ID: {cell.id.slice(0, 8)}...
         </div>
       </Form>
-
-      {/* 底部删除按钮 */}
-      <div style={{ marginTop: 'auto', paddingTop: 20, borderTop: '1px solid #eee' }}>
-        <Button danger block icon={<DeleteOutlined />} onClick={handleDelete}>
-          删除{isNode ? '设备' : '管线'}
-        </Button>
-      </div>
     </Card>
   );
 };

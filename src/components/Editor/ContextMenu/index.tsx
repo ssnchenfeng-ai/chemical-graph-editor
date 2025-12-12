@@ -1,8 +1,15 @@
 import React from 'react';
-import { DeleteOutlined, CopyOutlined, SnippetsOutlined, InfoCircleOutlined, ClearOutlined } from '@ant-design/icons';
+import { 
+  DeleteOutlined, 
+  CopyOutlined, 
+  SnippetsOutlined, 
+  InfoCircleOutlined, 
+  ClearOutlined,
+  RotateRightOutlined // <--- 新增图标
+} from '@ant-design/icons';
 import './index.css';
 
-// 导出 MenuState 类型
+// ... (MenuState 接口保持不变)
 export interface MenuState {
   visible: boolean;
   x: number;
@@ -11,6 +18,7 @@ export interface MenuState {
   cellId?: string;
 }
 
+// ... (Props 接口保持不变)
 interface ContextMenuProps {
   visible: boolean;
   x: number;
@@ -44,11 +52,19 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, type, onClose,
         {/* --- 选中节点/连线 --- */}
         {(type === 'node' || type === 'edge') && (
           <>
+            {/* 仅节点显示旋转和复制 */}
             {type === 'node' && (
-              <div className="context-menu-item" onClick={() => handleItemClick('copy')}>
-                <CopyOutlined /> 复制
-              </div>
+              <>
+                <div className="context-menu-item" onClick={() => handleItemClick('copy')}>
+                  <CopyOutlined /> 复制
+                </div>
+                <div className="context-menu-item" onClick={() => handleItemClick('rotate')}>
+                  <RotateRightOutlined /> 旋转 90°
+                </div>
+                <div className="context-menu-divider" />
+              </>
             )}
+            
             <div className="context-menu-item" onClick={() => handleItemClick('property')}>
               <InfoCircleOutlined /> 属性详情
             </div>
@@ -59,7 +75,7 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, type, onClose,
           </>
         )}
 
-        {/* --- 空白处 (新增粘贴) --- */}
+        {/* --- 空白处 --- */}
         {type === 'blank' && (
           <>
             <div className="context-menu-item" onClick={() => handleItemClick('paste')}>

@@ -1,0 +1,19 @@
+<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
+  <!-- 夹套 (灰色背景) -->
+  <path d="M10,30 H70 V90 Q70,110 40,110 Q10,110 10,90 Z" fill="#f0f0f0" stroke="#666" stroke-width="2"/>
+  <!-- 釜体 (蓝色主体) -->
+  <path d="M15,30 H65 V90 Q65,105 40,105 Q15,105 15,90 Z" fill="#e6f7ff" stroke="#1890ff" stroke-width="2"/>
+  <!-- 顶盖 -->
+  <path d="M15,30 Q40,10 65,30 Z" fill="#e6f7ff" stroke="#1890ff" stroke-width="2"/>
+  <!-- 搅拌电机 -->
+  <rect x="35" y="0" width="10" height="15" fill="#666"/>
+  <line x1="40" y1="15" x2="40" y2="80" stroke="#666" stroke-width="2" stroke-dasharray="4 2"/>
+  <!-- 搅拌桨 -->
+  <path d="M25,80 L55,80" stroke="#666" stroke-width="3"/>
+  <!-- 端口视觉标记 (仅供参考，不参与逻辑) -->
+  <circle cx="25" cy="22" r="2" fill="#1890ff"/> <!-- 进料口1 -->
+  <circle cx="55" cy="22" r="2" fill="#1890ff"/> <!-- 进料口2 -->
+  <circle cx="40" cy="110" r="2" fill="#1890ff"/> <!-- 出料口 -->
+  <circle cx="10" cy="50" r="2" fill="#666"/> <!-- 夹套进 -->
+  <circle cx="70" cy="80" r="2" fill="#666"/> <!-- 夹套出 -->
+</svg>

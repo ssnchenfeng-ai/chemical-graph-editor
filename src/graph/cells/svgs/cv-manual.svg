@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  <line x1="30" y1="85" x2="30" y2="40" />
+  <circle cx="30" cy="25" r="15" fill="white" />
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">H</text>
+</svg>

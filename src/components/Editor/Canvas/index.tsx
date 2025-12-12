@@ -1,89 +1,139 @@
-import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
-import { Graph, Cell } from '@antv/x6';
+import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import { Graph, Cell, Edge, Node } from '@antv/x6';
 import { Stencil } from '@antv/x6-plugin-stencil';
 import { Keyboard } from '@antv/x6-plugin-keyboard';
 import { Selection } from '@antv/x6-plugin-selection';
 import { History } from '@antv/x6-plugin-history';
+import { Transform } from '@antv/x6-plugin-transform';
+import '@antv/x6-plugin-transform/dist/index.css';
 import { Button, Tooltip, message, Modal } from 'antd';
 import { 
   ZoomInOutlined, ZoomOutOutlined, OneToOneOutlined, CompressOutlined, 
   UndoOutlined, RedoOutlined, ClearOutlined 
 } from '@ant-design/icons';
 
-// 自定义组件与服务
 import Inspector from '../Inspector';
-import ContextMenu, { type MenuState } from '../ContextMenu'; // 引入右键菜单
+import ContextMenu, { type MenuState } from '../ContextMenu';
 import './index.css';
 import { registerCustomCells } from '../../../graph/cells/registry';
-import { saveGraphData, loadGraphData } from '../../../services/neo4j'; 
+import { saveGraphData, loadGraphData } from '../../../services/neo4j';
 
-// 注册自定义图元
 try { registerCustomCells(); } catch (e) { console.warn(e); }
 
 export interface GraphCanvasRef {
   handleSave: () => Promise<void>;
 }
 
+const pick = (obj: any, keys: string[]) => {
+  const ret: any = {};
+  keys.forEach(key => {
+    if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
+      ret[key] = obj[key];
+    }
+  });
+  return ret;
+};
+
 const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
-  // --- Refs ---
   const containerRef = useRef<HTMLDivElement>(null);
   const stencilRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<Graph | null>(null);
   const historyRef = useRef<History | null>(null);
-    // 1. 新增一个 Ref 用于剪贴板
-const clipboardRef = useRef<any>(null); // 存储被复制的节点数据
+  const clipboardRef = useRef<any>(null);
 
-  // --- State ---
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   
-  // 右键菜单状态
   const [menu, setMenu] = useState<MenuState>({ visible: false, x: 0, y: 0, type: null });
 
-
-
-  // --- 暴露给父组件的方法 (如保存) ---
+  // --- 保存功能 ---
   useImperativeHandle(ref, () => ({
     handleSave: async () => {
       if (!graphRef.current) return;
       const graph = graphRef.current;
       
-      // 1. 提取节点数据
-      const nodes = graph.getNodes().map(node => {
-        const data = node.getData() || {};
-        const pos = node.getPosition();
-        return {
-          id: node.id,
-          label: node.getAttrs()?.label?.text || '',
-          type: data.type || 'Unknown',
-          spec: data.spec || '',
-          x: pos.x, y: pos.y
-        };
-      });
+      // 1. 处理节点
+      const nodes = graph.getNodes()
+        .filter(node => !node.getData()?.isBackground)
+        .map(node => {
+          const data = node.getData() || {};
+          const pos = node.getPosition();
+          const size = node.getSize();
+          const type = data.type || 'Unknown';
 
-      // 2. 提取连线数据 (包含管线属性)
+          let Tag = data.tag || node.getAttrs()?.label?.text || '';
+          if (type === 'Instrument') {
+            const func = data.tagId || '';
+            const loop = data.loopNum || '';
+            if (func || loop) Tag = `${func}${loop ? '-' + loop : ''}`;
+          }
+
+          const baseProps = {
+            x6Id: node.id, // 使用 x6Id
+            type: type, 
+            Tag: Tag,
+            x: pos.x, y: pos.y, width: size.width, height: size.height, angle: node.getAngle(),
+            desc: data.desc || ''
+          };
+
+          let specificProps = {};
+          if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
+             specificProps = pick(data, ['spec', 'flow', 'head', 'power', 'material']);
+          } else if (['Reactor', 'Tank', 'Evaporator'].includes(type)) {
+             specificProps = pick(data, ['spec', 'volume', 'material', 'designPressure', 'designTemp']);
+          } else if (type === 'Exchanger') {
+             specificProps = pick(data, ['spec', 'area', 'material', 'designPressure', 'tubePressure']);
+          } else if (['ControlValve', 'Valve'].includes(type)) {
+             specificProps = pick(data, ['spec', 'size', 'valveClass', 'failPosition']);
+          } else if (type === 'Instrument') {
+             specificProps = pick(data, ['spec', 'range', 'unit', 'tagId', 'loopNum']);
+          } else {
+             specificProps = pick(data, ['spec', 'material']);
+          }
+
+          return { ...baseProps, ...specificProps };
+        });
+
+      // 2. 处理连线
       const edges = graph.getEdges().map(edge => {
         const data = edge.getData() || {};
-        // 获取连线 Label 文字
-        const labelObj = edge.getLabelAt(0);
-        const labelText = typeof labelObj === 'string' ? labelObj : (labelObj?.attrs?.label?.text || '');
+        const sourceNode = edge.getSourceNode();
+        const targetNode = edge.getTargetNode();
+        
+        const getPortMeta = (node: Cell | null, portId: string | undefined) => {
+          if (!node || !node.isNode() || !portId) return { group: 'default', desc: 'unknown' };
+          const port = node.getPort(portId);
+          if (!port) return { group: 'default', desc: 'unknown' };
+          return {
+            group: port.group || 'default',
+            desc: port.data?.desc || port.attrs?.circle?.title || port.id
+          };
+        };
+
+        const srcMeta = getPortMeta(sourceNode, edge.getSourcePortId());
+        const tgtMeta = getPortMeta(targetNode, edge.getTargetPortId());
 
         return {
           source: edge.getSourceCell()?.id,
           target: edge.getTargetCell()?.id,
           sourcePort: edge.getSourcePortId(),
           targetPort: edge.getTargetPortId(),
-          // 持久化管线属性
+          sourceRegion: srcMeta.group, sourceDesc: srcMeta.desc,
+          targetRegion: tgtMeta.group, targetDesc: tgtMeta.desc,
+          type: data.type || 'Pipe', 
           material: data.material || 'CS',
           fluid: data.fluid || 'Water',
-          label: labelText
+          dn: data.dn || 'DN50',
+          pn: data.pn || 'PN16',
+          insulation: data.insulation || 'None',
+          label: edge.getLabelAt(0)?.attrs?.label?.text || ''
         };
       });
 
       try {
         await saveGraphData(nodes, edges);
-        message.success(`保存成功！存档: ${nodes.length} 设备, ${edges.length} 管线`);
+        message.success(`保存成功！节点: ${nodes.length}, 连线: ${edges.length}`);
       } catch (error) {
         console.error(error);
         message.error('保存失败，请检查数据库连接');
@@ -91,333 +141,639 @@ const clipboardRef = useRef<any>(null); // 存储被复制的节点数据
     }
   }));
 
-  // --- 工具栏动作 ---
+  const updateNodeLabel = (node: Node) => {
+    const angle = node.getAngle();
+    if (angle === 0) {
+      // 恢复默认位置 (底部居中)
+      node.setAttrs({
+        label: {
+          refX: 0.5, refY: '100%', refY2: 10, refX2: 0,
+          textAnchor: 'middle', textVerticalAnchor: 'top',
+          transform: null 
+        }
+      });
+      return;
+    }
+
+    const size = node.getSize();
+    const rad = (angle * Math.PI) / 180;
+    const visualHeight = size.width * Math.abs(Math.sin(rad)) + size.height * Math.abs(Math.cos(rad));
+    const distance = visualHeight / 2 + 15;
+
+    const offsetX = distance * Math.sin(rad);
+    const offsetY = distance * Math.cos(rad);
+
+    node.setAttrs({
+      label: {
+        refX: 0.5, refY: 0.5,
+        refX2: offsetX, refY2: offsetY,
+        textAnchor: 'middle', textVerticalAnchor: 'middle',
+        transform: `rotate(${-angle})`,
+      }
+    });
+  };
+  // ============================================================
+  // [新增] 复制粘贴核心逻辑
+  // ============================================================
+  
+  // 执行复制
+  const performCopy = () => {
+    const graph = graphRef.current;
+    if (!graph) return;
+
+    const cells = graph.getSelectedCells();
+    if (cells.length === 0) return;
+
+    // 过滤掉背景图框，只复制选中的设备和管线
+    const cellsToCopy = cells.filter(cell => !cell.getData()?.isBackground);
+    
+    if (cellsToCopy.length > 0) {
+      // 序列化并存储到 ref 中
+      clipboardRef.current = cellsToCopy.map(cell => cell.toJSON());
+      message.success(`已复制 ${cellsToCopy.length} 个对象`);
+    }
+  };
+
+  // 执行粘贴
+  // offsetPoint: 可选，鼠标右键粘贴时的位置（画布坐标）
+  const performPaste = (offsetPoint?: { x: number, y: number }) => {
+    const graph = graphRef.current;
+    if (!graph || !clipboardRef.current || clipboardRef.current.length === 0) return;
+
+    const cellsJSON = clipboardRef.current;
+    
+    // 1. 计算粘贴位置的偏移量
+    let dx = 20;
+    let dy = 20;
+
+    if (offsetPoint) {
+      // 如果是鼠标右键粘贴，计算从"复制时的中心"到"鼠标位置"的偏移
+      // 这里简化处理：直接取第一个节点的差值，或者简单地将所有节点移动到鼠标附近
+      // 为了体验更好，我们通常保留相对位置，只计算整体偏移
+      const minX = Math.min(...cellsJSON.map((c: any) => c.position?.x || 0));
+      const minY = Math.min(...cellsJSON.map((c: any) => c.position?.y || 0));
+      dx = offsetPoint.x - minX;
+      dy = offsetPoint.y - minY;
+    }
+
+    // 2. 清除选中状态
+    graph.cleanSelection();
+
+    // 3. 创建新节点/连线
+    const newCells: Cell[] = [];
+    
+    // 建立旧 ID 到新 ID 的映射，用于修复连线关系
+    const idMap: Record<string, string> = {};
+
+    // 第一步：先处理节点 (生成新 ID)
+    cellsJSON.forEach((cellData: any) => {
+      if (cellData.shape === 'edge') return; // 先跳过连线
+
+      const oldId = cellData.id;
+      // 删除 ID 以便生成新的，删除 zIndex 以便由 graph 管理
+      const { id, zIndex, ...otherData } = cellData;
+      
+      const newNode = graph.createNode({
+        ...otherData,
+        x: (otherData.position?.x || 0) + dx,
+        y: (otherData.position?.y || 0) + dy,
+      });
+      
+      idMap[oldId] = newNode.id;
+      newCells.push(newNode);
+    });
+
+    // 第二步：处理连线 (修复 source/target ID)
+    cellsJSON.forEach((cellData: any) => {
+      if (cellData.shape !== 'edge') return;
+
+      const { id, zIndex, source, target, ...otherData } = cellData;
+      
+      // 如果连线的端点在这次复制的节点中，就替换为新 ID；否则保持原样（连到原有设备）
+      const newSource = { ...source, cell: idMap[source.cell] || source.cell };
+      const newTarget = { ...target, cell: idMap[target.cell] || target.cell };
+
+      const newEdge = graph.createEdge({
+        ...otherData,
+        source: newSource,
+        target: newTarget,
+      });
+      
+      newCells.push(newEdge);
+    });
+
+    // 4. 添加到画布并选中
+    graph.addCell(newCells);
+    graph.select(newCells);
+    
+    // 如果是键盘粘贴（没有指定位置），更新剪贴板中的坐标，以便下次粘贴能继续偏移
+    if (!offsetPoint) {
+       clipboardRef.current = cellsJSON.map((c: any) => ({
+         ...c,
+         position: c.position ? { x: c.position.x + 20, y: c.position.y + 20 } : undefined
+       }));
+    }
+  };
+
+  // ============================================================
+
+  // --- 内部操作函数 ---
   const onUndo = () => historyRef.current?.undo();
   const onRedo = () => historyRef.current?.redo();
   const onZoom = (f: number) => graphRef.current?.zoom(f);
   const onZoomToFit = () => graphRef.current?.zoomToFit({ padding: 20 });
   const onZoomReset = () => graphRef.current?.zoomTo(1);
+  
   const onClear = () => {
     Modal.confirm({
       title: '清空画布',
-      content: '确定要清空吗？此操作无法撤销。',
+      content: '确定要清空吗？图框将被保留。',
       okType: 'danger',
       onOk: () => {
-        graphRef.current?.clearCells();
+        if (!graphRef.current) return;
+        const cellsToRemove = graphRef.current.getCells().filter(cell => !cell.getData()?.isBackground);
+        graphRef.current.removeCells(cellsToRemove);
         setSelectedCell(null);
       },
     });
   };
 
-  // --- 右键菜单动作处理 ---
-const handleMenuAction = (action: string) => {
-  const { cellId, x, y } = menu; // 注意：这里需要确保 menu 状态里存了点击时的 x, y
-  const graph = graphRef.current;
-  if (!graph) return;
+  const handleMenuAction = (action: string) => {
+    const { cellId } = menu;
+    const graph = graphRef.current;
+    if (!graph) return;
+    const cell = cellId ? graph.getCellById(cellId) : null;
 
-  switch (action) {
-    case 'delete':
-      if (cellId) {
-        const cell = graph.getCellById(cellId);
-        if (cell) {
+    switch (action) {
+      case 'delete':
+        if (cell && !cell.getData()?.isBackground) {
           graph.removeCell(cell);
-          setSelectedCell(null); // 删除后清空选中
+          setSelectedCell(null);
         }
-      }
-      break;
-
-    case 'copy':
-      if (cellId) {
-        const cell = graph.getCellById(cellId);
-        if (cell && cell.isNode()) {
-          // 简单的克隆数据
-          clipboardRef.current = cell.toJSON();
-          message.success('已复制');
+        break;
+      case 'copy':
+        if (cell) {
+          graph.resetSelection(cell);
         }
-      }
-      break;
-
-    case 'paste':
-      if (clipboardRef.current) {
-        // 1. 反序列化
-        const nodeData = clipboardRef.current;
-        // 2. 将点击屏幕的坐标 (Screen Coords) 转换为画布坐标 (Graph Coords)
+        performCopy();
+        break;
+      case 'paste':
         const point = graph.clientToLocal({ x: menu.x, y: menu.y });
-        
-        // 3. 创建新节点
-        const newNode = graph.createNode({
-          ...nodeData,
-          x: point.x,
-          y: point.y,
-          id: undefined, // 必须清除 ID，让 X6 生成新的
-          zIndex: 10,
-        });
-        
-        graph.addNode(newNode);
-        // 粘贴后自动选中它
-        graph.cleanSelection();
-        graph.select(newNode);
-        setSelectedCell(newNode);
-      } else {
-        message.warning('剪贴板为空');
-      }
-      break;
+        performPaste(point);
+        break;
+      case 'property':
+        message.success('已定位到属性面板');
+        break;
+      case 'clear':
+        onClear();
+        break;
+      case 'fit':
+        onZoomToFit();
+        break;
+      case 'rotate':
+        if (cell && cell.isNode() && !cell.getData()?.isBackground) {
+          cell.rotate(90);
+        }
+        break;
+    }
+  };
 
-    case 'property':
-      message.success('已定位到属性面板');
-      break;
-    case 'clear':
-      onClear();
-      break;
-    case 'fit':
-      onZoomToFit();
-      break;
-    default:
-      break;
-  }
-};
-
-  // --- 核心初始化逻辑 ---
+  // --- 初始化 ---
   useEffect(() => {
     if (!containerRef.current || !stencilRef.current) return;
-
-    // 🛑 React 18 严格模式补丁：强制清空容器防止重复渲染
     stencilRef.current.innerHTML = '';
 
-    // 1. 初始化 Graph
     const graph = new Graph({
       container: containerRef.current,
       autoResize: true,
       grid: { size: 10, visible: true, type: 'doubleMesh', args: [{ color: '#eee' }, { color: '#ddd', factor: 4 }] },
-      panning: { enabled: true, eventTypes: ['rightMouseDown'] }, // 右键平移
+      panning: { enabled: true, eventTypes: ['rightMouseDown'] },
       mousewheel: {
-        enabled: true,
-        zoomAtMousePosition: true,
-        modifiers: null, // 直接滚轮缩放
-        factor: 1.1,
-        maxScale: 3,
-        minScale: 0.5,
+        enabled: true, zoomAtMousePosition: true, modifiers: null, factor: 1.1, maxScale: 3, minScale: 0.1,
+      },
+      interacting: {
+        nodeMovable: (view) => !view.cell.getData()?.isBackground,
+        magnetConnectable: (view) => !view.cell.getData()?.isBackground,
       },
       connecting: {
-        router: 'manhattan',
-        connector: { name: 'rounded', args: { radius: 8 } },
-        anchor: 'center',
-        connectionPoint: 'anchor',
-        snap: true,
-        allowBlank: false,
-        highlight: true,
-        // 连线校验：Out -> In
-        validateConnection: ({ sourceMagnet, targetMagnet }: any) => {
-          if (!sourceMagnet || !targetMagnet) return false;
-          const sPort = sourceMagnet.getAttribute('port');
-          const tPort = targetMagnet.getAttribute('port');
-          if (sPort && tPort) return sPort.includes('out') && tPort.includes('in');
-          return false;
+        router: { 
+          name: 'manhattan', 
+          args: { 
+            padding: 20, 
+            excludeNodes: ['SHEET_FRAME_A2'] 
+          } 
         },
-        // 创建连线时的默认样式与数据
+        connector: { name: 'rounded', args: { radius: 8 } },
+        anchor: 'center', 
+        connectionPoint: 'anchor', 
+        snap: true, 
+        allowBlank: false, 
+        allowEdge: true,
+        highlight: true,
+        validateConnection: ({ sourceView, targetView, sourceMagnet, targetMagnet }) => {
+          if (!sourceView || !targetView || !sourceMagnet) return false;
+          if (sourceView === targetView) return false;
+
+          if (targetView.isEdgeElement()) {
+            const sourceNode = sourceView.cell as Node;
+            if (sourceNode.getData()?.type === 'Instrument') return true;
+            return false;
+          }
+
+          if (!targetMagnet) return false;
+
+          const sourcePortId = sourceMagnet.getAttribute('port');
+          const targetPortId = targetMagnet.getAttribute('port');
+          if (!sourcePortId || !targetPortId) return false;
+
+          const sourceNode = sourceView.cell as Node;
+          const targetNode = targetView.cell as Node;
+          const sourcePort = sourceNode.getPort(sourcePortId);
+          const targetPort = targetNode.getPort(targetPortId);
+
+          const sDir = sourcePort?.data?.dir || 'bi';
+          const tDir = targetPort?.data?.dir || 'bi';
+
+          const isValidSource = sDir !== 'in'; 
+          const isValidTarget = tDir !== 'out';
+
+          return isValidSource && isValidTarget;
+        },
         createEdge() {
           return this.createEdge({
             shape: 'edge',
-            attrs: {
+            attrs: { 
               line: { 
                 stroke: '#5F95FF', 
                 strokeWidth: 2, 
-                targetMarker: { name: 'block', width: 12, height: 8 } 
-              },
+                targetMarker: { name: 'classic', width: 8, height: 6 }
+              } 
             },
-            data: { material: 'CS', fluid: 'Water' } // 默认数据
+            labels: [], 
+            data: { type: 'Pipe', material: 'CS', fluid: 'Water' }
           });
         },
       },
     });
     graphRef.current = graph;
 
-    // 2. 插件注册
+    // === 新增：监听节点旋转，保持标签始终在视觉下方 ===
+    graph.on('node:change:angle', ({ node }) => updateNodeLabel(node as Node));
+
+    // 阀门打断
+    const handlePipeSplit = (node: Cell) => {
+      const nodeType = node.getData()?.type;
+      if (nodeType !== 'ControlValve' && nodeType !== 'Valve') return;
+      
+      const connectedEdges = graph.getConnectedEdges(node);
+      if (connectedEdges.length > 0) return; 
+
+      const nodeBBox = node.getBBox();
+      const allEdges = graph.getEdges();
+
+      const targetEdge = allEdges.find(edge => {
+        if (edge.getData()?.type === 'Signal') return false;
+        return edge.getBBox().intersectsWithRect(nodeBBox);
+      });
+
+      if (targetEdge) {
+        const sourceNode = targetEdge.getSourceNode();
+        const targetNode = targetEdge.getTargetNode();
+        const srcPoint = sourceNode ? sourceNode.getBBox().center : targetEdge.getSourcePoint();
+        const tgtPoint = targetNode ? targetNode.getBBox().center : targetEdge.getTargetPoint();
+
+        const isHorizontal = Math.abs(srcPoint.y - tgtPoint.y) < 5;
+        const isVertical = Math.abs(srcPoint.x - tgtPoint.x) < 5;
+
+        let newX = nodeBBox.x;
+        let newY = nodeBBox.y;
+
+        if (isHorizontal) newY = Math.round(nodeBBox.y / 10) * 10; 
+        else if (isVertical) newX = Math.round(nodeBBox.x / 10) * 10;
+
+        (node as Node).setPosition(newX, newY);
+
+        const source = targetEdge.getSource();
+        const target = targetEdge.getTarget();
+        const edgeData = targetEdge.getData();
+        const edgeAttrs = targetEdge.getAttrs(); 
+
+        graph.removeCell(targetEdge);
+
+        const edge1 = graph.createEdge({
+          shape: 'edge', source: source, target: { cell: node.id, port: 'in' },
+          data: { ...edgeData }, attrs: edgeAttrs, labels: []
+        });
+
+        const edge2 = graph.createEdge({
+          shape: 'edge', source: { cell: node.id, port: 'out' }, target: target,
+          data: { ...edgeData }, attrs: edgeAttrs, labels: []
+        });
+
+        graph.addCell([edge1, edge2]);
+        message.success('阀门已接入管线 (自动吸附)');
+      }
+    };
+
+    // 智能测点
+    // 智能测点 (修正方向 + 保留打断逻辑)
+    const handleSignalDrop = (args: any) => {
+      const { e, edge } = args;
+      const sourceNode = edge.getSourceNode();
+      
+      // 1. 仅处理从仪表发出的连线
+      if (sourceNode?.getData()?.type !== 'Instrument') return;
+
+      let hitPipe: Edge | null = null;
+      const point = graph.clientToLocal(e.clientX, e.clientY);
+
+      // 2. 检测是否拖拽到了管线上
+      const targetCell = edge.getTargetCell();
+      if (targetCell && targetCell.isEdge()) {
+        hitPipe = targetCell as Edge;
+      } else {
+        if (edge.getTargetNode()) return; // 如果连到了其他节点，不处理
+        const views = graph.findViewsFromPoint(point);
+        // 排除自身和已有的信号线
+        const pipeView = views.find(v => v.isEdgeElement() && v.cell.id !== edge.id && v.cell.getData()?.type !== 'Signal');
+        if (pipeView) {
+          hitPipe = pipeView.cell as Edge;
+        }
+      }
+
+      if (hitPipe) {
+        // --- A. 计算测点位置 (保留原有逻辑，确保吸附在管线上) ---
+        const src = hitPipe.getSourcePoint();
+        const tgt = hitPipe.getTargetPoint();
+
+        let tapX = point.x;
+        let tapY = point.y;
+
+        const isHorizontal = Math.abs(src.y - tgt.y) < 2;
+        const isVertical = Math.abs(src.x - tgt.x) < 2;
+
+        if (isHorizontal) {
+          tapY = src.y; 
+          tapX = Math.round(point.x / 10) * 10;
+        } else if (isVertical) {
+          tapX = src.x;
+          tapY = Math.round(point.y / 10) * 10;
+        } else {
+          tapX = Math.round(point.x / 10) * 10;
+          tapY = Math.round(point.y / 10) * 10;
+        }
+
+        // --- B. 创建测点节点 (保留原有逻辑) ---
+        const tappingPoint = graph.createNode({
+          shape: 'tapping-point',
+          x: tapX - 6, y: tapY - 6, // 居中校正
+          data: { type: 'TappingPoint' }
+        });
+        
+        // --- C. 处理信号线 (修改逻辑：反转方向) ---
+        // 1. 删除用户拖拽的那条临时线 (因为它方向是 仪表->空地)
+        graph.removeCell(edge); 
+
+        // 2. 创建新信号线：测点 -> 仪表
+        const signalEdge = graph.createEdge({
+          shape: 'signal-edge', // 使用注册好的虚线样式
+          source: { cell: tappingPoint.id },
+          target: { cell: sourceNode.id }, // 连回起始仪表
+          data: { type: 'Signal', relationType: 'MEASURES' }
+        });
+
+        // --- D. 打断原有管线 (保留原有逻辑，确保测点嵌入管线) ---
+        const source = hitPipe.getSource();
+        const target = hitPipe.getTarget();
+        const pipeData = hitPipe.getData();
+        const pipeAttrs = hitPipe.getAttrs(); 
+
+        // 删除旧管线
+        graph.removeCell(hitPipe);
+
+        // 创建两段新管线：Source -> 测点 -> Target
+        const pipe1 = graph.createEdge({
+          shape: 'edge', source: source, target: { cell: tappingPoint.id },
+          data: pipeData, attrs: pipeAttrs, labels: []
+        });
+        const pipe2 = graph.createEdge({
+          shape: 'edge', source: { cell: tappingPoint.id }, target: target,
+          data: pipeData, attrs: pipeAttrs, labels: []
+        });
+        
+        // --- E. 批量添加到画布 ---
+        // 注意：先加节点，再加连线，顺序很重要
+        graph.addCell([tappingPoint, pipe1, pipe2, signalEdge]);
+        tappingPoint.toFront(); // 确保测点在最上层
+        
+        message.success('已生成测点 (信号流向: 测点 -> 仪表)');
+      } else {
+        // 如果没拖到管线上，且没连到任何东西，删除这条悬空的线
+        if (!edge.getTargetCell()) {
+          graph.removeCell(edge);
+        }
+      }
+    };
+
+    graph.on('node:added', ({ node }) => setTimeout(() => handlePipeSplit(node), 50));
+    graph.on('node:mouseup', ({ node }) => handlePipeSplit(node));
+    graph.on('edge:mouseup', handleSignalDrop); 
+
+    // --- 核心修复：确保信号线逻辑存在 ---
+    graph.on('edge:connected', ({ edge }) => {
+      const sourceNode = edge.getSourceNode();
+      const targetPortId = edge.getTargetPortId();
+
+      const isSourceInstrument = sourceNode?.getData()?.type === 'Instrument';
+      const isTargetActuator = targetPortId === 'actuator';
+
+      if (isSourceInstrument || isTargetActuator) {
+        edge.setAttrs({
+          line: { 
+            stroke: '#888', 
+            strokeWidth: 1, 
+            strokeDasharray: '4 4', 
+            targetMarker: { name: 'classic', size: 3 } 
+          } 
+        });
+        edge.setData({ 
+          type: 'Signal', 
+          fluid: 'Signal',
+          relationType: isTargetActuator ? 'CONTROLS' : 'MEASURES' 
+        });
+        if (isTargetActuator) {
+           edge.setRouter('manhattan', { padding: 10 });
+        }
+      }
+    });
+
     graph.use(new Selection({
       enabled: true, multiple: true, rubberband: true, movable: true, showNodeSelectionBox: true,
+      filter: (cell) => !cell.getData()?.isBackground
     }));
     graph.use(new Keyboard({ enabled: true }));
+    graph.use(new Transform({ resizing: { enabled: true }, rotating: { enabled: true, grid: 15 } }));
     
-    const historyInstance = new History({ 
-      enabled: true, ignoreAdd: false, ignoreRemove: false, ignoreChange: false,
-    });
-    graph.use(historyInstance);
-    historyRef.current = historyInstance;
+    const history = new History({ enabled: true });
+    graph.use(history);
+    historyRef.current = history;
+    graph.on('history:change', () => { setCanUndo(history.canUndo()); setCanRedo(history.canRedo()); });
 
-    // 3. 事件监听
-    graph.on('history:change', () => {
-      setCanUndo(historyInstance.canUndo());
-      setCanRedo(historyInstance.canRedo());
+    graph.bindKey(['meta+c', 'ctrl+c'], () => {
+      performCopy();
+      return false; // 阻止默认事件
     });
 
-    // 快捷键删除
+    graph.bindKey(['meta+v', 'ctrl+v'], () => {
+      performPaste(); // 键盘粘贴不传坐标，使用默认偏移
+      return false;
+    });
+
     graph.bindKey(['backspace', 'delete'], () => {
-      const cells = graph.getSelectedCells();
-      if (cells.length) {
-        graph.removeCells(cells);
-        setSelectedCell(null);
-      }
+      const cells = graph.getSelectedCells().filter(c => !c.getData()?.isBackground);
+      if (cells.length) graph.removeCells(cells);
     });
 
-    // 选中事件 (处理视觉反馈)
     graph.on('cell:click', ({ cell }) => {
+      if (cell.getData()?.isBackground) { setSelectedCell(null); return; }
       setSelectedCell(cell);
-      // 简单的视觉高亮：如果是连线，加粗
-      if (cell.isEdge()) {
-        cell.attr('line/strokeWidth', 3);
-      }
-      // 重置其他连线
-      graph.getEdges().forEach(edge => {
-        if (edge.id !== cell.id) edge.attr('line/strokeWidth', 2);
-      });
+      if (cell.isEdge()) cell.attr('line/strokeWidth', 3);
+      graph.getEdges().forEach(edge => { if (edge.id !== cell.id) edge.attr('line/strokeWidth', 2); });
     });
-
+    
     graph.on('blank:click', () => {
       setSelectedCell(null);
-      // 重置所有连线样式
       graph.getEdges().forEach(edge => edge.attr('line/strokeWidth', 2));
     });
 
-    // --- 右键菜单事件拦截 ---
-    graph.on('cell:contextmenu', ({ e, x, y, cell }) => {
-      setSelectedCell(cell); // 右键同时也选中
-      setMenu({
-        visible: true,
-        x: e.clientX,
-        y: e.clientY,
-        type: cell.isNode() ? 'node' : 'edge',
-        cellId: cell.id
-      });
+    graph.on('cell:contextmenu', ({ e, cell }) => {
+      if (cell.getData()?.isBackground) return; 
+      setMenu({ visible: true, x: e.clientX, y: e.clientY, type: cell.isNode() ? 'node' : 'edge', cellId: cell.id });
     });
-
+    
     graph.on('blank:contextmenu', ({ e }) => {
-      setMenu({
-        visible: true,
-        x: e.clientX,
-        y: e.clientY,
-        type: 'blank'
-      });
+      setMenu({ visible: true, x: e.clientX, y: e.clientY, type: 'blank' });
     });
 
-    // 4. Stencil (组件库)
+    // --- Stencil ---
     const stencil = new Stencil({
-      title: '组件库',
-      target: graph,
-      stencilGraphWidth: 240,
-      stencilGraphHeight: 0,
-      collapsable: true,
+      title: '组件库', target: graph, stencilGraphWidth: 240, stencilGraphHeight: 0, collapsable: true,
       search: { visible: true, placeholder: '搜索设备...' },
       groups: [
-        { 
-          title: '主工艺设备', 
-          name: 'main_equip',
-          layoutOptions: { columns: 1, columnWidth: 220, rowHeight: 170 } 
-        }, 
-        { 
-          title: '管路附件', 
-          name: 'parts',
-          layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 110 } 
-        }
+        { title: '主工艺设备', name: 'main_equip', layoutOptions: { columns: 1, columnWidth: 220, rowHeight: 160 } },
+        { title: '泵类设备', name: 'pumps', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 100 } },
+        { title: '仪表控制', name: 'instruments', layoutOptions: { columns: 3, columnWidth: 60, rowHeight: 70 } },
+        { title: '管路附件', name: 'parts', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 120 } }
       ],
     });
     stencilRef.current.appendChild(stencil.container);
 
-    // 5. 生成预设组件
-    const reactors = ['500L', '1000L', '2000L', '5000L', 'Glass-Lined'].map(spec => 
-      graph.createNode({
-        shape: 'custom-reactor',
-        label: `反应釜\n${spec}`,
-        data: { type: 'Reactor', spec: spec },
-      })
-    );
-    const pumps = ['P-101', 'P-102'].map(p => 
-      graph.createNode({
-        shape: 'custom-pump',
-        label: `泵 ${p}`,
-        data: { type: 'Pump', spec: p },
-      })
-    );
-    const valves = Array.from({length: 12}, (_, i) => 
-      graph.createNode({
-        shape: 'custom-valve',
-        label: `阀门-${i+1}`,
-        data: { type: 'Valve', spec: `DN${(i+1)*10}` },
-      })
-    );
+    const reactor = graph.createNode({ shape: 'p-reactor', label: '反应釜', data: { type: 'Reactor' } });
+    const exchanger = graph.createNode({ shape: 'p-exchanger', label: '换热器', data: { type: 'Exchanger' } });
+    const e13 = graph.createNode({ shape: 'p-naphthalene-evaporator', label: '萘蒸发器', data: { type: 'Evaporator' } });
+    const teeNode = graph.createNode({ shape: 'p-tee' });
+    const tankH = graph.createNode({ shape: 'p-tank-horizontal', label: '卧式储罐', data: { type: 'Tank' } });
+    const gasCooler = graph.createNode({ shape: 'p-gas-cooler', label: '气体冷却器', data: { type: 'GasCooler' } });
+    const d14 = graph.createNode({ shape: 'p-fixed-bed-reactor', label: '固定床反应器', data: { type: 'FixedBedReactor' } });
+    const vExchanger = graph.createNode({ shape: 'p-exchanger-vertical', label: '立式换热器', data: { type: 'VerticalExchanger' } });
     
-    stencil.load([...reactors, ...pumps], 'main_equip');
-    stencil.load(valves, 'parts');
+    
+    const pumpList = [
+      graph.createNode({ shape: 'p-pump-liquid', label: '液体泵' }),
+      graph.createNode({ shape: 'p-pump-centrifugal', label: '离心泵' }),
+      graph.createNode({ shape: 'p-pump-diaphragm', label: '隔膜泵' }),
+      graph.createNode({ shape: 'p-pump-piston', label: '活塞泵' }),
+      graph.createNode({ shape: 'p-pump-compressor', label: '压缩机' }),
+      graph.createNode({ shape: 'p-pump-gear', label: '齿轮泵' }),
+      graph.createNode({ shape: 'p-pump-fan', label: '风扇' }),
+      graph.createNode({ shape: 'p-pump-jet', label: '喷射泵' }),
+    ];
+    const valveList = [
+      graph.createNode({ shape: 'p-cv-pneumatic', label: '气动阀' }),
+      graph.createNode({ shape: 'p-cv-positioner', label: '定位器' }),
+      graph.createNode({ shape: 'p-cv-electric', label: '电动阀' }),
+      graph.createNode({ shape: 'p-cv-solenoid', label: '电磁阀' }),
+      graph.createNode({ shape: 'p-cv-manual', label: '手动阀' }),
+      graph.createNode({ shape: 'p-cv-piston', label: '气缸阀' }),
+    ];
+    const instList = [
+      graph.createNode({ shape: 'p-inst-local', label: '就地' }),
+      graph.createNode({ shape: 'p-inst-remote', label: '远传' }),
+      graph.createNode({ shape: 'p-inst-panel', label: '盘装' }),
+    ];
 
-    // 6. 数据加载 (Demo or DB)
+    stencil.load([reactor, exchanger, vExchanger, e13, tankH, gasCooler, d14], 'main_equip');
+    stencil.load(pumpList, 'pumps');
+    stencil.load(instList, 'instruments');
+    stencil.load([...valveList, teeNode], 'parts');
+
+    const setupBackgroundFrame = () => {
+      if (graph.getNodes().some(n => n.getData()?.isBackground)) return;
+      graph.addNode({
+        shape: 'drawing-frame-a2', id: 'SHEET_FRAME_A2', x: 0, y: 0, zIndex: -1,
+        movable: false, selectable: false, data: { type: 'Frame', isBackground: true }
+      });
+    };
+
     const initCanvasData = async () => {
+      setupBackgroundFrame();
       try {
         const data = await loadGraphData();
         if (data && data.nodes.length > 0) {
-          graph.fromJSON(data);
+          graph.fromJSON(data as any);
+          
+          // === 新增部分：数据加载后的批量修复 ===
+          graph.batchUpdate(() => {
+            const nodes = graph.getNodes();
+            const edges = graph.getEdges();
+
+            nodes.forEach(node => {
+              if (!node.getData()?.isBackground) {
+                // 1. 修复旋转后的位号位置
+                updateNodeLabel(node); 
+                // 2. 确保设备在管线之上
+                node.setZIndex(2);     
+              }
+            });
+
+            edges.forEach(edge => {
+              // 3. 确保管线在设备之下
+              edge.setZIndex(1);       
+            });
+          });
+          // ===================================
+
+          setupBackgroundFrame();
           graph.centerContent();
-        } else {
-          // 如果数据库为空，加载演示数据
-          const demoReactor = graph.createNode({ 
-            shape: 'custom-reactor', label: 'R-101', x: 200, y: 150, 
-            data: { type: 'Reactor', spec: 'Demo' } 
-          });
-          const demoPump = graph.createNode({ 
-            shape: 'custom-pump', label: 'P-201', x: 500, y: 300, 
-            data: { type: 'Pump', spec: 'Demo' } 
-          });
-          graph.addCell([demoReactor, demoPump]);
+          message.success('数据已恢复');
         }
       } catch (error) {
-        console.error('加载数据失败:', error);
+        console.error('Data Load Error:', error);
+        message.error('数据加载失败，已重置');
       }
     };
-    // 延迟执行以确保容器渲染完毕
     setTimeout(initCanvasData, 100);
 
-    // 7. 清理函数
-    return () => {
-      graph.dispose();
-      if (stencilRef.current) stencilRef.current.innerHTML = '';
-    };
+    return () => { graph.dispose(); if (stencilRef.current) stencilRef.current.innerHTML = ''; };
   }, []);
 
   return (
     <div className="editor-container">
-      {/* 左侧组件库 */}
       <div ref={stencilRef} className="stencil-container" />
       <div className="toolbar-container">
-        <div className="toolbar-group">
-          <Tooltip title="撤销"><Button type="text" icon={<UndoOutlined />} disabled={!canUndo} onClick={onUndo} /></Tooltip>
-          <Tooltip title="重做"><Button type="text" icon={<RedoOutlined />} disabled={!canRedo} onClick={onRedo} /></Tooltip>
-        </div>
-        <div className="toolbar-group">
-          <Tooltip title="放大"><Button type="text" icon={<ZoomInOutlined />} onClick={() => onZoom(0.1)} /></Tooltip>
-          <Tooltip title="缩小"><Button type="text" icon={<ZoomOutOutlined />} onClick={() => onZoom(-0.1)} /></Tooltip>
-          <Tooltip title="适应"><Button type="text" icon={<CompressOutlined />} onClick={onZoomToFit} /></Tooltip>
-          <Tooltip title="1:1"><Button type="text" icon={<OneToOneOutlined />} onClick={onZoomReset} /></Tooltip>
-        </div>
-        <div className="toolbar-group">
-           <Tooltip title="清空"><Button type="text" danger icon={<ClearOutlined />} onClick={onClear} /></Tooltip>
-        </div>
+         <Tooltip title="撤销"><Button type="text" icon={<UndoOutlined />} disabled={!canUndo} onClick={onUndo} /></Tooltip>
+         <Tooltip title="重做"><Button type="text" icon={<RedoOutlined />} disabled={!canRedo} onClick={onRedo} /></Tooltip>
+         <div className="toolbar-sep"></div>
+         <Tooltip title="放大"><Button type="text" icon={<ZoomInOutlined />} onClick={() => onZoom(0.1)} /></Tooltip>
+         <Tooltip title="缩小"><Button type="text" icon={<ZoomOutOutlined />} onClick={() => onZoom(-0.1)} /></Tooltip>
+         <Tooltip title="适应"><Button type="text" icon={<CompressOutlined />} onClick={onZoomToFit} /></Tooltip>
+         <Tooltip title="1:1"><Button type="text" icon={<OneToOneOutlined />} onClick={onZoomReset} /></Tooltip>
+         <div className="toolbar-sep"></div>
+         <Tooltip title="清空"><Button type="text" danger icon={<ClearOutlined />} onClick={onClear} /></Tooltip>
       </div>
-
-      {/* 中心画布 */}
       <div ref={containerRef} className="canvas-container" />
-      
-      {/* 右侧属性面板 */}
-      <div className="inspector-container">
-        <Inspector cell={selectedCell} />
-      </div>
-
-      {/* 右键菜单 (全局层级) */}
-      <ContextMenu 
-        visible={menu.visible}
-        x={menu.x}
-        y={menu.y}
-        type={menu.type}
-        onClose={() => setMenu({ ...menu, visible: false })}
-        onAction={handleMenuAction}
-      />
+      <div className="inspector-container"><Inspector cell={selectedCell} /></div>
+      <ContextMenu visible={menu.visible} x={menu.x} y={menu.y} type={menu.type} onClose={() => setMenu({ ...menu, visible: false })} onAction={handleMenuAction} />
     </div>
   );
 });

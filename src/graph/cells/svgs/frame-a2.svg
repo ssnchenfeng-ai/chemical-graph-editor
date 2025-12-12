@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2245" height="1587" viewBox="0 0 2245 1587">
+  <!-- A2 Size @ 96DPI -->
+  <defs>
+    <style>
+      .border { fill: none; stroke: #000; stroke-width: 2; }
+      .inner { fill: none; stroke: #000; stroke-width: 4; }
+      .text { font-family: sans-serif; font-size: 24px; fill: #666; }
+    </style>
+  </defs>
+  
+  <!-- 1. 纸张边缘 (已修改：fill="none" 实现透明) -->
+  <rect width="100%" height="100%" fill="none" />
+  
+  <!-- 2. 外框 (纸张裁切线) -->
+  <rect x="1" y="1" width="2243" height="1585" class="border" stroke-dasharray="10,10" stroke="#ccc"/>
+  
+  <!-- 3. 内框 (绘图区) -->
+  <rect x="94" y="38" width="2113" height="1511" class="inner" />
+  
+  <!-- 4. 标题栏 -->
+  <g transform="translate(1527, 1399)">
+    <rect width="680" height="150" fill="none" stroke="#000" stroke-width="2"/>
+    <line x1="0" y1="50" x2="680" y2="50" stroke="#000" />
+    <line x1="0" y1="100" x2="680" y2="100" stroke="#000" />
+    <line x1="200" y1="0" x2="200" y2="150" stroke="#000" />
+    <text x="20" y="35" class="text">项目名称: 化工工艺流程图</text>
+    <text x="20" y="85" class="text">图号: PID-001</text>
+    <text x="20" y="135" class="text">设计阶段: 详细设计</text>
+    <text x="220" y="85" class="text" font-size="32" font-weight="bold">智能 P&amp;ID 编辑器</text>
+  </g>
+  
+  <text x="110" y="70" class="text" font-size="16">A2 (594x420mm)</text>
+</svg>

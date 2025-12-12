@@ -1,0 +1,44 @@
+<svg viewBox="0 0 100 400" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 主体 (Body) - 保持不变 -->
+  <path d="M10,40 A40,30 0 0,1 90,40" fill="white" />
+  <rect x="10" y="40" width="80" height="320" fill="white" stroke="none" />
+  <line x1="10" y1="40" x2="10" y2="360" />
+  <line x1="90" y1="40" x2="90" y2="360" />
+  <path d="M10,360 A40,30 0 0,0 90,360" fill="white" />
+
+  <!-- 2. 内部管束 (Internal Tubes) - 保持不变 -->
+  <line x1="10" y1="40" x2="90" y2="40" stroke-width="2" />
+  <line x1="10" y1="360" x2="90" y2="360" stroke-width="2" />
+  <g stroke-width="1">
+    <line x1="18" y1="40" x2="18" y2="360" />
+    <line x1="26" y1="40" x2="26" y2="360" />
+    <line x1="34" y1="40" x2="34" y2="360" />
+    <line x1="42" y1="40" x2="42" y2="360" />
+    <line x1="50" y1="40" x2="50" y2="360" />
+    <line x1="58" y1="40" x2="58" y2="360" />
+    <line x1="66" y1="40" x2="66" y2="360" />
+    <line x1="74" y1="40" x2="74" y2="360" />
+    <line x1="82" y1="40" x2="82" y2="360" />
+  </g>
+
+  <!-- 3. 侧面接口 (Side Nozzles) -->
+  
+  <!-- 左上 -->
+  <line x1="0" y1="80" x2="10" y2="80" stroke-width="3" />
+  
+  <!-- 左下 (修改处：改为普通接口) -->
+  <!-- 原来是 rect，现在改为 line，位置 y=320 -->
+  <line x1="0" y1="320" x2="10" y2="320" stroke-width="3" />
+
+  <!-- 右上 -->
+  <line x1="90" y1="60" x2="100" y2="60" stroke-width="3" />
+  <!-- 右下 -->
+  <line x1="90" y1="340" x2="100" y2="340" stroke-width="3" />
+
+  <!-- 4. 封头接口 (Head Nozzles) - 保持不变 -->
+  <line x1="30" y1="10" x2="30" y2="20" stroke-width="2" />
+  <line x1="70" y1="10" x2="70" y2="20" stroke-width="2" />
+  <line x1="30" y1="380" x2="30" y2="390" stroke-width="2" />
+  <line x1="70" y1="380" x2="70" y2="390" stroke-width="2" />
+
+</svg>

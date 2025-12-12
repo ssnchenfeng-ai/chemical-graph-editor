@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none" stroke="black" stroke-width="2">
+  <circle cx="25" cy="25" r="23" fill="white" />
+  <!-- 中间单横线 -->
+  <line x1="2" y1="25" x2="48" y2="25" />
+</svg>

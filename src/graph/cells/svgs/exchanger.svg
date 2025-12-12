@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 0 340 120" fill="none" stroke="black" stroke-width="2" style="background-color:transparent">
+  <!-- 
+     修正策略：调整绘制顺序 (Painter's Algorithm)
+     1. 先画筒体 (白色背景)
+     2. 再画内部管束 (叠在筒体上)
+     3. 再画两端法兰和封头 (叠在最上层以遮挡多余线条)
+  -->
+
+  <!-- 1. 主筒体 (Shell) - 移到最前，作为底图 -->
+  <rect x="50" y="20" width="230" height="80" fill="white" stroke-width="2" />
+
+  <!-- 2. 内部管束 (Tubes) - 现在会显示在白色筒体之上 -->
+  <g stroke="#333" stroke-width="1">
+    <line x1="50" y1="30" x2="280" y2="30" />
+    <line x1="50" y1="40" x2="280" y2="40" />
+    <line x1="50" y1="50" x2="280" y2="50" />
+    <line x1="50" y1="60" x2="280" y2="60" /> <!-- 中心线 -->
+    <line x1="50" y1="70" x2="280" y2="70" />
+    <line x1="50" y1="80" x2="280" y2="80" />
+    <line x1="50" y1="90" x2="280" y2="90" />
+  </g>
+
+  <!-- 3. 左侧结构 (管箱 + 隔板) -->
+  <!-- 左法兰 (直径90) -->
+  <rect x="45" y="15" width="5" height="90" fill="white" />
+  
+  <!-- 左封头 (加长型) -->
+  <path d="M45 20 C -5 20, -5 100, 45 100" fill="white" />
+  
+  <!-- 隔板 (虚线，画在封头之上) -->
+  <line x1="45" y1="60" x2="5" y2="60" stroke-width="2" stroke-dasharray="4,2" />
+
+  <!-- 4. 右侧结构 -->
+  <!-- 右法兰 (直径90) -->
+  <rect x="280" y="15" width="5" height="90" fill="white" />
+  <!-- 右封头 -->
+  <path d="M285 20 C 315 20, 315 100, 285 100" fill="white" />
+
+  <!-- 5. 管口 (Nozzles) -->
+  
+  <!-- N1: 壳程入口 (上) -->
+  <line x1="95" y1="20" x2="95" y2="5" stroke-width="2"/>
+  <line x1="90" y1="5" x2="100" y2="5" stroke-width="2"/>
+
+  <!-- N2: 壳程出口 (下) -->
+  <line x1="235" y1="100" x2="235" y2="115" stroke-width="2"/>
+  <line x1="230" y1="115" x2="240" y2="115" stroke-width="2"/>
+
+  <!-- N4: 管程出口 (左上 - 位于隔板上方) -->
+  <line x1="8" y1="35" x2="-15" y2="35" stroke-width="2"/>
+  <line x1="-15" y1="30" x2="-15" y2="40" stroke-width="2"/>
+
+  <!-- N3: 管程入口 (左下 - 位于隔板下方) -->
+  <line x1="8" y1="85" x2="-15" y2="85" stroke-width="2"/>
+  <line x1="-15" y1="80" x2="-15" y2="90" stroke-width="2"/>
+
+  <!-- N5: 放空 (右上) -->
+  <line x1="303" y1="23" x2="310" y2="15" stroke-width="2"/>
+  <line x1="307" y1="12" x2="313" y2="18" stroke-width="2"/>
+
+  <!-- N6: 排净 (右下) -->
+  <line x1="303" y1="97" x2="310" y2="105" stroke-width="2"/>
+  <line x1="307" y1="108" x2="313" y2="102" stroke-width="2"/>
+</svg>

@@ -1,0 +1,58 @@
+<svg viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 主体 (Body) - 保持加宽尺寸 -->
+  <path d="M50,40 A80,30 0 0,1 210,40" fill="white" />
+  <rect x="50" y="40" width="160" height="220" fill="white" stroke="none" />
+  <line x1="50" y1="40" x2="50" y2="260" />
+  <line x1="210" y1="40" x2="210" y2="260" />
+  <path d="M50,260 A80,30 0 0,0 210,260" fill="white" />
+
+  <!-- 2. 气体接口 (Gas Nozzles) -->
+  <rect x="120" y="0" width="20" height="10" fill="white" />
+  <line x1="125" y1="10" x2="125" y2="25" /> <line x1="135" y1="10" x2="135" y2="25" />
+  <rect x="120" y="290" width="20" height="10" fill="white" />
+  <line x1="125" y1="275" x2="125" y2="290" /> <line x1="135" y1="275" x2="135" y2="290" />
+
+  <!-- 3. 盐环 (Salt Rings) -->
+  <!-- 上盐道 -->
+  <g id="upper-salt-ring">
+    <rect x="34" y="60" width="192" height="25" rx="5" ry="5" fill="white" />
+    <line x1="34" y1="72.5" x2="226" y2="72.5" stroke-width="1" stroke-dasharray="4 2" />
+  </g>
+  <!-- 下盐道 -->
+  <g id="lower-salt-ring">
+    <rect x="34" y="215" width="192" height="25" rx="5" ry="5" fill="white" />
+    <line x1="34" y1="227.5" x2="226" y2="227.5" stroke-width="1" stroke-dasharray="4 2" />
+  </g>
+
+  <!-- 4. 内部管束示意 (10根) -->
+  <g stroke="#999" stroke-width="1" stroke-dasharray="2 2">
+    <line x1="64" y1="90" x2="64" y2="210" /> <line x1="78" y1="90" x2="78" y2="210" />
+    <line x1="92" y1="90" x2="92" y2="210" /> <line x1="106" y1="90" x2="106" y2="210" />
+    <line x1="120" y1="90" x2="120" y2="210" /> <line x1="140" y1="90" x2="140" y2="210" />
+    <line x1="154" y1="90" x2="154" y2="210" /> <line x1="168" y1="90" x2="168" y2="210" />
+    <line x1="182" y1="90" x2="182" y2="210" /> <line x1="196" y1="90" x2="196" y2="210" />
+  </g>
+
+  <!-- 5. 密集连接短管 (Stubs) -->
+  
+  <!-- === 上盐道接口 (Upper) === -->
+  <!-- 左侧 3 个 (x=20~34) -->
+  <line x1="20" y1="65" x2="34" y2="65" stroke-width="2" />   <!-- 上: G-14A -->
+  <line x1="20" y1="72.5" x2="34" y2="72.5" stroke-width="2" /> <!-- 中: C-14 -->
+  <line x1="20" y1="80" x2="34" y2="80" stroke-width="2" />     <!-- 下: E-15 -->
+  
+  <!-- 右侧 2 个 (x=226~240) -->
+  <line x1="226" y1="68" x2="240" y2="68" stroke-width="2" />   <!-- 上: G-14B -->
+  <line x1="226" y1="77" x2="240" y2="77" stroke-width="2" />   <!-- 下: E-14 -->
+
+  <!-- === 下盐道接口 (Lower) === -->
+  <!-- 左侧 3 个 -->
+  <line x1="20" y1="220" x2="34" y2="220" stroke-width="2" />   <!-- 上: G-14A -->
+  <line x1="20" y1="227.5" x2="34" y2="227.5" stroke-width="2" /> <!-- 中: C-14 -->
+  <line x1="20" y1="235" x2="34" y2="235" stroke-width="2" />   <!-- 下: E-15 -->
+
+  <!-- 右侧 2 个 -->
+  <line x1="226" y1="223" x2="240" y2="223" stroke-width="2" />   <!-- 上: G-14B -->
+  <line x1="226" y1="232" x2="240" y2="232" stroke-width="2" />   <!-- 下: E-14 -->
+
+</svg>

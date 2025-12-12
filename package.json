@@ -15,6 +15,7 @@
     "@antv/x6-plugin-keyboard": "^2.2.3",
     "@antv/x6-plugin-selection": "^2.2.2",
     "@antv/x6-plugin-stencil": "^2.1.5",
+    "@antv/x6-plugin-transform": "^2.1.8",
     "antd": "^6.0.0",
     "lodash": "^4.17.21",
     "neo4j-driver": "^6.0.1",
