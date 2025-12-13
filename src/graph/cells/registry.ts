@@ -29,6 +29,7 @@ import tankHorizontalSvg from './svgs/tank-horizontal.svg?raw';
 import gasCoolerSvg from './svgs/gas-cooler.svg?raw';
 import reactorFixedBedSvg from './svgs/reactor-fixed-bed.svg?raw';
 import exchangerVerticalSvg from './svgs/exchanger-vertical.svg?raw';
+import trapSvg from './svgs/trap.svg?raw';
 
 // ==================== 1. 类型定义 ====================
 
@@ -232,6 +233,37 @@ const VERTICAL_EXCHANGER_PORTS = {
     { id: 'head_top_right', group: 'head', args: { x: '70%', y: '2.5%' }, data: { desc: '管程接口(上右)', dir: 'bi' } as PortData },
     { id: 'head_bottom_left', group: 'head', args: { x: '30%', y: '97.5%' }, data: { desc: '管程接口(下左)', dir: 'bi' } as PortData },
     { id: 'head_bottom_right', group: 'head', args: { x: '70%', y: '97.5%' }, data: { desc: '管程接口(下右)', dir: 'bi' } as PortData },
+  ],
+};
+// 2. 定义捕集器端口配置
+const TRAP_PORTS = {
+  groups: {
+    top_in: { position: 'absolute', attrs: PORT_ATTRS },
+    top_out: { position: 'absolute', attrs: PORT_ATTRS },
+    side: { position: 'absolute', attrs: PORT_ATTRS },
+  },
+  items: [
+    // N1: 右上入口 (对应 SVG x=88) -> 88/120 ≈ 73%
+    { 
+      id: 'n1', 
+      group: 'top_in', 
+      args: { x: '73.3%', y: '10%' }, 
+      data: { desc: '入口(N1)', dir: 'in' } as PortData 
+    },
+    // N2: 左上出口 (对应 SVG x=38) -> 38/120 ≈ 31.6%
+    { 
+      id: 'n2', 
+      group: 'top_out', 
+      args: { x: '31.6%', y: '10%' }, 
+      data: { desc: '出口(N2)', dir: 'out' } as PortData 
+    },
+    // M1: 左侧接口 (对应 SVG y=56) -> 56/100 = 56%
+    { 
+      id: 'm1', 
+      group: 'side', 
+      args: { x: '8.3%', y: '56%' }, 
+      data: { desc: '排净/人孔(M1)', dir: 'bi' } as PortData 
+    },
   ],
 };
 
@@ -597,6 +629,31 @@ export const registerCustomCells = () => {
       type: 'VerticalExchanger',
       spec: 'Vertical',
       area: '100'
+    },
+  });
+  // [新增] 捕集器 (Trap)
+  Graph.registerNode('p-trap', {
+    inherit: 'image',
+    width: 120,
+    height: 100,
+    imageUrl: `data:image/svg+xml;utf8,${encodeURIComponent(trapSvg)}`,
+    ports: TRAP_PORTS,
+    attrs: {
+      label: {
+        text: 'V-102', // 默认位号
+        refY: '100%',
+        refY2: 10,
+        textAnchor: 'middle',
+        textVerticalAnchor: 'top',
+        fontSize: 12,
+        fill: '#333',
+      }
+    },
+    data: { 
+      type: 'Trap', 
+      spec: 'Gravity',
+      material: 'SS304',
+      volume: '500L'
     },
   });
 };

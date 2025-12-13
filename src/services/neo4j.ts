@@ -157,6 +157,7 @@ export const loadGraphData = async () => {
         case 'Fitting':      shapeName = 'p-tee'; break; 
         case 'Tank':         shapeName = 'p-tank-horizontal'; break;
         case 'GasCooler':    shapeName = 'p-gas-cooler'; break;
+        case 'Trap':         shapeName = 'p-trap'; break;
         case 'FixedBedReactor': shapeName = 'p-fixed-bed-reactor'; break;
         case 'VerticalExchanger': shapeName = 'p-exchanger-vertical'; break;
         case 'Evaporator':   shapeName = 'p-naphthalene-evaporator'; break;
