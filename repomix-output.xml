@@ -111,6 +111,174 @@ vite.config.ts
 <files>
 This section contains the contents of the repository's files.
 
+<file path="public/vite.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+</file>
+
+<file path="src/assets/react.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+</file>
+
+<file path="src/components/Editor/ContextMenu/index.css">
+.context-menu {
+  position: fixed; /* 使用 fixed 避免被画布容器遮挡 */
+  z-index: 9999;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  border: 1px solid #eee;
+  min-width: 120px;
+  user-select: none;
+}
+
+.context-menu-item {
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.context-menu-item:hover {
+  background-color: #f5f5f5;
+  color: #1890ff;
+}
+
+.context-menu-item.danger {
+  color: #ff4d4f;
+}
+
+.context-menu-item.danger:hover {
+  background-color: #fff1f0;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 4px 0;
+}
+</file>
+
+<file path="src/components/Editor/Toolbar/index.css">
+.toolbar-container {
+  position: absolute;
+  top: 20px;
+  left: 260px; /* 躲开左侧 Stencil */
+  z-index: 100;
+  background: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+</file>
+
+<file path="src/components/Editor/Toolbar/index.tsx">
+import React, { useEffect, useState } from 'react';
+import { Button, Tooltip, Divider } from 'antd';
+import { 
+  ZoomInOutlined, 
+  ZoomOutOutlined, 
+  UndoOutlined, 
+  RedoOutlined, 
+  ExpandOutlined, 
+  CompressOutlined, 
+  DeleteOutlined 
+} from '@ant-design/icons';
+import { Graph } from '@antv/x6';
+import './index.css';
+
+interface ToolbarProps {
+  graph: Graph | null;
+}
+
+const Toolbar: React.FC<ToolbarProps> = ({ graph }) => {
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  useEffect(() => {
+    // 1. 基础检查
+    if (!graph) return;
+
+    // 2. 防御性检查：确保 history 插件已加载
+    // 如果 graph.history 是 undefined，说明插件还没初始化好，直接返回，避免崩溃
+    const { history } = graph;
+    if (!history) {
+      return;
+    }
+
+    const updateState = () => {
+      setCanUndo(history.canUndo());
+      setCanRedo(history.canRedo());
+    };
+
+    // 3. 安全订阅事件
+    history.on('change', updateState);
+    history.on('undo', updateState);
+    history.on('redo', updateState);
+        // 初始化时先执行一次
+    updateState();
+    
+    return () => {
+      history.off('change', updateState);
+      history.off('undo', updateState);
+      history.off('redo', updateState);
+    };
+  }, [graph]);
+
+  if (!graph) return null;
+
+  return (
+    <div className="toolbar-container">
+      <Tooltip title="撤销 (Cmd+Z)">
+        <Button type="text" icon={<UndoOutlined />} disabled={!canUndo} onClick={() => graph?.history?.undo()} />
+      </Tooltip>
+      <Tooltip title="重做 (Cmd+Shift+Z)">
+        <Button type="text" icon={<RedoOutlined />} disabled={!canRedo} onClick={() => graph?.history?.redo()} />
+      </Tooltip>
+      
+      {/* 修复 Antd Divider 警告，去掉 type="vertical"，使用 CSS 或默认即可，这里用 style 模拟 */}
+      <span style={{ width: 1, height: 16, background: '#eee', margin: '0 4px' }} />
+      
+      <Tooltip title="放大">
+        <Button type="text" icon={<ZoomInOutlined />} onClick={() => graph.zoom(0.1)} />
+      </Tooltip>
+      <Tooltip title="缩小">
+        <Button type="text" icon={<ZoomOutOutlined />} onClick={() => graph.zoom(-0.1)} />
+      </Tooltip>
+      <Tooltip title="适应画布">
+        <Button type="text" icon={<CompressOutlined />} onClick={() => graph.zoomToFit({ padding: 20 })} />
+      </Tooltip>
+      <Tooltip title="1:1">
+        <Button type="text" icon={<ExpandOutlined />} onClick={() => graph.zoomTo(1)} />
+      </Tooltip>
+
+      <span style={{ width: 1, height: 16, background: '#eee', margin: '0 4px' }} />
+
+      <Tooltip title="删除选中 (Delete)">
+        <Button 
+          type="text" 
+          danger
+          icon={<DeleteOutlined />} 
+          onClick={() => {
+            const cells = graph.getSelectedCells();
+            if(cells.length) graph.removeCells(cells);
+          }} 
+        />
+      </Tooltip>
+    </div>
+  );
+};
+
+export default Toolbar;
+</file>
+
 <file path="src/graph/cells/svgs/cv-electric.svg">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
   <polygon points="5,75 30,85 5,95" fill="white" />
@@ -796,275 +964,6 @@ This section contains the contents of the repository's files.
 </svg>
 </file>
 
-<file path="public/vite.svg">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
-</file>
-
-<file path="src/assets/react.svg">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
-</file>
-
-<file path="src/components/Editor/ContextMenu/index.css">
-.context-menu {
-  position: fixed; /* 使用 fixed 避免被画布容器遮挡 */
-  z-index: 9999;
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  padding: 4px 0;
-  border: 1px solid #eee;
-  min-width: 120px;
-  user-select: none;
-}
-
-.context-menu-item {
-  padding: 6px 12px;
-  cursor: pointer;
-  font-size: 13px;
-  color: #333;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background 0.2s;
-}
-
-.context-menu-item:hover {
-  background-color: #f5f5f5;
-  color: #1890ff;
-}
-
-.context-menu-item.danger {
-  color: #ff4d4f;
-}
-
-.context-menu-item.danger:hover {
-  background-color: #fff1f0;
-}
-
-.context-menu-divider {
-  height: 1px;
-  background-color: #eee;
-  margin: 4px 0;
-}
-</file>
-
-<file path="src/components/Editor/ContextMenu/index.tsx">
-import React from 'react';
-import { 
-  DeleteOutlined, 
-  CopyOutlined, 
-  SnippetsOutlined, 
-  InfoCircleOutlined, 
-  ClearOutlined,
-  RotateRightOutlined // <--- 新增图标
-} from '@ant-design/icons';
-import './index.css';
-
-// ... (MenuState 接口保持不变)
-export interface MenuState {
-  visible: boolean;
-  x: number;
-  y: number;
-  type: 'node' | 'edge' | 'blank' | null;
-  cellId?: string;
-}
-
-// ... (Props 接口保持不变)
-interface ContextMenuProps {
-  visible: boolean;
-  x: number;
-  y: number;
-  type: 'node' | 'edge' | 'blank' | null;
-  onClose: () => void;
-  onAction: (action: string) => void;
-}
-
-const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, type, onClose, onAction }) => {
-  if (!visible) return null;
-
-  const handleItemClick = (action: string) => {
-    onAction(action);
-    onClose();
-  };
-
-  return (
-    <>
-      <div 
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998 }} 
-        onClick={(e) => { e.stopPropagation(); onClose(); }} 
-        onContextMenu={(e) => { e.preventDefault(); onClose(); }}
-      />
-      
-      <div 
-        className="context-menu" 
-        style={{ left: x, top: y }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* --- 选中节点/连线 --- */}
-        {(type === 'node' || type === 'edge') && (
-          <>
-            {/* 仅节点显示旋转和复制 */}
-            {type === 'node' && (
-              <>
-                <div className="context-menu-item" onClick={() => handleItemClick('copy')}>
-                  <CopyOutlined /> 复制
-                </div>
-                <div className="context-menu-item" onClick={() => handleItemClick('rotate')}>
-                  <RotateRightOutlined /> 旋转 90°
-                </div>
-                <div className="context-menu-divider" />
-              </>
-            )}
-            
-            <div className="context-menu-item" onClick={() => handleItemClick('property')}>
-              <InfoCircleOutlined /> 属性详情
-            </div>
-            <div className="context-menu-divider" />
-            <div className="context-menu-item danger" onClick={() => handleItemClick('delete')}>
-              <DeleteOutlined /> 删除
-            </div>
-          </>
-        )}
-
-        {/* --- 空白处 --- */}
-        {type === 'blank' && (
-          <>
-            <div className="context-menu-item" onClick={() => handleItemClick('paste')}>
-              <SnippetsOutlined /> 粘贴
-            </div>
-            <div className="context-menu-divider" />
-            <div className="context-menu-item" onClick={() => handleItemClick('fit')}>
-              <InfoCircleOutlined /> 适应画布
-            </div>
-            <div className="context-menu-item danger" onClick={() => handleItemClick('clear')}>
-              <ClearOutlined /> 清空所有
-            </div>
-          </>
-        )}
-      </div>
-    </>
-  );
-};
-
-export default ContextMenu;
-</file>
-
-<file path="src/components/Editor/Toolbar/index.css">
-.toolbar-container {
-  position: absolute;
-  top: 20px;
-  left: 260px; /* 躲开左侧 Stencil */
-  z-index: 100;
-  background: #fff;
-  padding: 4px 12px;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-</file>
-
-<file path="src/components/Editor/Toolbar/index.tsx">
-import React, { useEffect, useState } from 'react';
-import { Button, Tooltip, Divider } from 'antd';
-import { 
-  ZoomInOutlined, 
-  ZoomOutOutlined, 
-  UndoOutlined, 
-  RedoOutlined, 
-  ExpandOutlined, 
-  CompressOutlined, 
-  DeleteOutlined 
-} from '@ant-design/icons';
-import { Graph } from '@antv/x6';
-import './index.css';
-
-interface ToolbarProps {
-  graph: Graph | null;
-}
-
-const Toolbar: React.FC<ToolbarProps> = ({ graph }) => {
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
-
-  useEffect(() => {
-    // 1. 基础检查
-    if (!graph) return;
-
-    // 2. 防御性检查：确保 history 插件已加载
-    // 如果 graph.history 是 undefined，说明插件还没初始化好，直接返回，避免崩溃
-    const { history } = graph;
-    if (!history) {
-      return;
-    }
-
-    const updateState = () => {
-      setCanUndo(history.canUndo());
-      setCanRedo(history.canRedo());
-    };
-
-    // 3. 安全订阅事件
-    history.on('change', updateState);
-    history.on('undo', updateState);
-    history.on('redo', updateState);
-        // 初始化时先执行一次
-    updateState();
-    
-    return () => {
-      history.off('change', updateState);
-      history.off('undo', updateState);
-      history.off('redo', updateState);
-    };
-  }, [graph]);
-
-  if (!graph) return null;
-
-  return (
-    <div className="toolbar-container">
-      <Tooltip title="撤销 (Cmd+Z)">
-        <Button type="text" icon={<UndoOutlined />} disabled={!canUndo} onClick={() => graph?.history?.undo()} />
-      </Tooltip>
-      <Tooltip title="重做 (Cmd+Shift+Z)">
-        <Button type="text" icon={<RedoOutlined />} disabled={!canRedo} onClick={() => graph?.history?.redo()} />
-      </Tooltip>
-      
-      {/* 修复 Antd Divider 警告，去掉 type="vertical"，使用 CSS 或默认即可，这里用 style 模拟 */}
-      <span style={{ width: 1, height: 16, background: '#eee', margin: '0 4px' }} />
-      
-      <Tooltip title="放大">
-        <Button type="text" icon={<ZoomInOutlined />} onClick={() => graph.zoom(0.1)} />
-      </Tooltip>
-      <Tooltip title="缩小">
-        <Button type="text" icon={<ZoomOutOutlined />} onClick={() => graph.zoom(-0.1)} />
-      </Tooltip>
-      <Tooltip title="适应画布">
-        <Button type="text" icon={<CompressOutlined />} onClick={() => graph.zoomToFit({ padding: 20 })} />
-      </Tooltip>
-      <Tooltip title="1:1">
-        <Button type="text" icon={<ExpandOutlined />} onClick={() => graph.zoomTo(1)} />
-      </Tooltip>
-
-      <span style={{ width: 1, height: 16, background: '#eee', margin: '0 4px' }} />
-
-      <Tooltip title="删除选中 (Delete)">
-        <Button 
-          type="text" 
-          danger
-          icon={<DeleteOutlined />} 
-          onClick={() => {
-            const cells = graph.getSelectedCells();
-            if(cells.length) graph.removeCells(cells);
-          }} 
-        />
-      </Tooltip>
-    </div>
-  );
-};
-
-export default Toolbar;
-</file>
-
 <file path="src/index.css">
 html, body, #root {
   width: 100%;
@@ -1155,56 +1054,6 @@ export default defineConfig([
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-</file>
-
-<file path="package.json">
-{
-  "name": "chemical-graph-editor",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
-  "dependencies": {
-    "@ant-design/icons": "^6.1.0",
-    "@antv/x6": "^2.19.2",
-    "@antv/x6-plugin-keyboard": "^2.2.3",
-    "@antv/x6-plugin-selection": "^2.2.2",
-    "@antv/x6-plugin-stencil": "^2.1.5",
-    "@antv/x6-plugin-transform": "^2.1.8",
-    "antd": "^6.0.0",
-    "lodash": "^4.17.21",
-    "neo4j-driver": "^6.0.1",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "sass": "^1.94.2",
-    "uuid": "^13.0.0",
-    "zustand": "^5.0.9"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.39.1",
-    "@types/lodash": "^4.17.21",
-    "@types/node": "^24.10.1",
-    "@types/react": "^19.2.5",
-    "@types/react-dom": "^19.2.3",
-    "@types/uuid": "^10.0.0",
-    "@vitejs/plugin-react": "^5.1.1",
-    "eslint": "^9.39.1",
-    "eslint-plugin-react-hooks": "^7.0.1",
-    "eslint-plugin-react-refresh": "^0.4.24",
-    "globals": "^16.5.0",
-    "typescript": "~5.9.3",
-    "typescript-eslint": "^8.46.4",
-    "vite": "npm:rolldown-vite@7.2.5"
-  },
-  "overrides": {
-    "vite": "npm:rolldown-vite@7.2.5"
-  }
-}
 </file>
 
 <file path="README.md">
@@ -1602,6 +1451,256 @@ export default defineConfig({
 }
 </file>
 
+<file path="src/components/Editor/ContextMenu/index.tsx">
+import React from 'react';
+import { 
+  DeleteOutlined, 
+  CopyOutlined, 
+  SnippetsOutlined, 
+  InfoCircleOutlined, 
+  ClearOutlined,
+  RotateRightOutlined // <--- 新增图标
+} from '@ant-design/icons';
+import './index.css';
+
+// ... (MenuState 接口保持不变)
+export interface MenuState {
+  visible: boolean;
+  x: number;
+  y: number;
+  type: 'node' | 'edge' | 'blank' | null;
+  cellId?: string;
+}
+
+// ... (Props 接口保持不变)
+interface ContextMenuProps {
+  visible: boolean;
+  x: number;
+  y: number;
+  type: 'node' | 'edge' | 'blank' | null;
+  onClose: () => void;
+  onAction: (action: string) => void;
+}
+
+const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, type, onClose, onAction }) => {
+  if (!visible) return null;
+
+  const handleItemClick = (action: string) => {
+    onAction(action);
+    onClose();
+  };
+
+  return (
+    <>
+      <div 
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998 }} 
+        onClick={(e) => { e.stopPropagation(); onClose(); }} 
+        onContextMenu={(e) => { e.preventDefault(); onClose(); }}
+      />
+      
+      <div 
+        className="context-menu" 
+        style={{ left: x, top: y }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* --- 选中节点/连线 --- */}
+        {(type === 'node' || type === 'edge') && (
+          <>
+            {/* 仅节点显示旋转和复制 */}
+            {type === 'node' && (
+              <>
+                <div className="context-menu-item" onClick={() => handleItemClick('copy')}>
+                  <CopyOutlined /> 复制
+                </div>
+                <div className="context-menu-item" onClick={() => handleItemClick('rotate')}>
+                  <RotateRightOutlined /> 旋转 90°
+                </div>
+                <div className="context-menu-divider" />
+              </>
+            )}
+            
+            <div className="context-menu-item" onClick={() => handleItemClick('property')}>
+              <InfoCircleOutlined /> 属性详情
+            </div>
+            <div className="context-menu-divider" />
+            <div className="context-menu-item danger" onClick={() => handleItemClick('delete')}>
+              <DeleteOutlined /> 删除
+            </div>
+          </>
+        )}
+
+        {/* --- 空白处 --- */}
+        {type === 'blank' && (
+          <>
+            <div className="context-menu-item" onClick={() => handleItemClick('paste')}>
+              <SnippetsOutlined /> 粘贴
+            </div>
+            <div className="context-menu-divider" />
+            <div className="context-menu-item" onClick={() => handleItemClick('fit')}>
+              <InfoCircleOutlined /> 适应画布
+            </div>
+            <div className="context-menu-item danger" onClick={() => handleItemClick('clear')}>
+              <ClearOutlined /> 清空所有
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default ContextMenu;
+</file>
+
+<file path="src/graph/cells/icons.ts">
+export const REACTOR_SVG = `
+<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10 30 V90 C10 110 70 110 70 90 V30 H10 Z" fill="#EFF4FF" stroke="#5F95FF" stroke-width="2"/>
+  <path d="M10 30 C10 10 70 10 70 30" fill="none" stroke="#5F95FF" stroke-width="2"/>
+  <rect x="35" y="0" width="10" height="20" fill="#fff" stroke="#5F95FF" stroke-width="2"/>
+  <line x1="10" y1="45" x2="70" y2="45" stroke="#5F95FF" stroke-width="1" stroke-dasharray="3 3"/>
+  <path d="M20 70 Q40 90 60 70" fill="none" stroke="#5F95FF" stroke-width="2"/>
+</svg>
+`;
+
+export const PUMP_SVG = `
+<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="30" cy="35" r="20" fill="#EFF4FF" stroke="#5F95FF" stroke-width="2"/>
+  <path d="M30 15 V0 M50 35 H60" stroke="#5F95FF" stroke-width="2"/>
+  <path d="M30 35 L45 25 L45 45 Z" fill="#5F95FF"/>
+</svg>
+`;
+
+export const VALVE_SVG = `
+<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0 10 L40 30 V10 L0 30 Z" fill="#EFF4FF" stroke="#5F95FF" stroke-width="2"/>
+  <line x1="20" y1="20" x2="20" y2="0" stroke="#5F95FF" stroke-width="2"/>
+  <line x1="10" y1="0" x2="30" y2="0" stroke="#5F95FF" stroke-width="2"/>
+</svg>
+`;
+
+export const TEE_SVG = `
+<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0 20 H40 M20 20 V40" stroke="#5F95FF" stroke-width="4" stroke-linecap="round"/>
+</svg>
+`;
+</file>
+
+<file path="src/App.tsx">
+import { useRef, useState } from 'react';
+import { Button, Layout, message } from 'antd';
+// 1. 确保图标库已安装。如果此处报错，请运行 npm install @ant-design/icons
+import { SaveOutlined, DatabaseOutlined } from '@ant-design/icons';
+
+// 2. 分开导入组件和类型（这是修复白屏的关键）
+import GraphCanvas from './components/Editor/Canvas';
+import type { GraphCanvasRef } from './components/Editor/Canvas';
+
+const { Header, Content } = Layout;
+
+function App() {
+  const [saving, setSaving] = useState(false);
+  const graphRef = useRef<GraphCanvasRef>(null);
+
+  const handleSaveClick = async () => {
+    if (graphRef.current) {
+      setSaving(true);
+      try {
+        await graphRef.current.handleSave();
+      } catch (e) {
+        console.error(e);
+        message.error('保存操作异常');
+      } finally {
+        setSaving(false);
+      }
+    } else {
+        console.warn("GraphRef is null");
+    }
+  };
+
+  return (
+    <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Header style={{ 
+        display: 'flex', alignItems: 'center', color: 'white', 
+        height: '50px', padding: '0 20px', flexShrink: 0,
+        justifyContent: 'space-between' 
+      }}>
+        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 10 }}>
+          <DatabaseOutlined />
+          🧪 化工 P&ID 编辑器
+        </div>
+        
+        <Button 
+          type="primary" 
+          icon={<SaveOutlined />} 
+          loading={saving}
+          onClick={handleSaveClick}
+        >
+          保存图纸到 Neo4j
+        </Button>
+      </Header>
+      
+      <Content style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex' }}>
+        {/* 确保这里没有多余的 props 导致类型冲突 */}
+        <GraphCanvas ref={graphRef} />
+      </Content>
+    </Layout>
+  );
+}
+
+export default App;
+</file>
+
+<file path="package.json">
+{
+  "name": "chemical-graph-editor",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.1.0",
+    "@antv/x6": "^2.19.2",
+    "@antv/x6-plugin-keyboard": "^2.2.3",
+    "@antv/x6-plugin-selection": "^2.2.2",
+    "@antv/x6-plugin-stencil": "^2.1.5",
+    "@antv/x6-plugin-transform": "^2.1.8",
+    "antd": "^6.0.0",
+    "lodash": "^4.17.21",
+    "neo4j-driver": "^6.0.1",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "sass": "^1.94.2",
+    "uuid": "^13.0.0",
+    "zustand": "^5.0.9"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@types/lodash": "^4.17.21",
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^5.1.1",
+    "eslint": "^9.39.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.46.4",
+    "vite": "npm:rolldown-vite@7.2.5"
+  },
+  "overrides": {
+    "vite": "npm:rolldown-vite@7.2.5"
+  }
+}
+</file>
+
 <file path="src/components/Editor/Inspector/index.tsx">
 import React, { useEffect } from 'react';
 import { Form, Input, Card, Empty, Select, Divider, Collapse } from 'antd';
@@ -1612,6 +1711,20 @@ import {
   DashboardOutlined, 
   ExperimentOutlined 
 } from '@ant-design/icons';
+
+const FLUID_COLORS: Record<string, string> = {
+  Water: '#1890ff',       // 工艺水 - 蓝
+  Steam: '#ff4d4f',       // 蒸汽 - 红
+  Air: '#52c41a',         // 空气 - 绿
+  N2: '#13c2c2',          // 氮气 - 青
+  Oil: '#fa8c16',         // 导热油 - 橙
+  Salt: '#722ed1',        // 熔盐 - 紫
+  Naphthalene: '#8c8c8c', // 萘 - 深灰
+  PA: '#eb2f96',          // 苯酐 - 洋红
+  CrudePA: '#f759ab',     // 粗苯酐 - 浅洋红
+  ProductGas: '#faad14',  // 产物气 - 金黄
+  TailGas: '#bfbfbf',     // 尾气 - 浅灰
+};
 
 interface InspectorProps { cell: Cell | null; }
 
@@ -1688,16 +1801,27 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
       if (changedValues.tag !== undefined) {
         cell.setLabelAt(0, { attrs: { label: { text: changedValues.tag } }, position: { distance: 0.5 } });
       }
-      if (changedValues.insulation !== undefined) {
-        const type = changedValues.insulation;
-        if (type && type.startsWith('Jacket')) {
+      // ==================== [修改代码开始] ====================
+      // 监听 fluid 或 insulation 的变化，统一更新样式
+      if (changedValues.fluid !== undefined || changedValues.insulation !== undefined) {
+        const fluid = allValues.fluid;
+        const insulation = allValues.insulation;
+        
+        // 获取当前介质对应的颜色，默认为蓝色
+        const color = FLUID_COLORS[fluid] || '#5F95FF';
+
+        if (insulation && insulation.startsWith('Jacket')) {
+          // 1. 夹套管：强制橙色粗线 (忽略介质颜色)
           cell.setAttrs({ line: { strokeWidth: 4, stroke: '#fa8c16', strokeDasharray: null } });
-        } else if (['ST', 'ET', 'OT'].includes(type)) {
-          cell.setAttrs({ line: { strokeWidth: 2, stroke: '#5F95FF', strokeDasharray: '5 5' } });
+        } else if (['ST', 'ET', 'OT'].includes(insulation)) {
+          // 2. 伴热管：使用介质颜色 + 虚线
+          cell.setAttrs({ line: { strokeWidth: 2, stroke: color, strokeDasharray: '5 5' } });
         } else {
-          cell.setAttrs({ line: { strokeWidth: 2, stroke: '#5F95FF', strokeDasharray: null } });
+          // 3. 普通管：使用介质颜色 + 实线
+          cell.setAttrs({ line: { strokeWidth: 2, stroke: color, strokeDasharray: null } });
         }
       }
+      // ==================== [修改代码结束] ====================
     }
   };
 
@@ -1895,12 +2019,19 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
             <Divider orientation={"left" as any}>管道规格</Divider>
             <div style={{ display: 'flex', gap: 8 }}>
               <Form.Item label="介质" name="fluid" style={{ flex: 1 }}>
-                <Select>
-                  <Option value="Water">工艺水</Option>
-                  <Option value="Steam">蒸汽</Option>
-                  <Option value="Oil">导热油</Option>
-                  <Option value="Air">空气</Option>
-                  <Option value="N2">氮气</Option>
+                <Select showSearch optionFilterProp="children">
+                  <Option value="Water">工艺水 (Water)</Option>
+                  <Option value="Steam">蒸汽 (Steam)</Option>
+                  <Option value="Air">空气 (Air)</Option>
+                  <Option value="N2">氮气 (N2)</Option>
+                  <Option value="Oil">导热油 (Oil)</Option>
+                  <Option value="Salt">熔盐 (Salt)</Option>
+                  <Divider style={{ margin: '4px 0' }} />
+                  <Option value="Naphthalene">工业萘 (Nap)</Option>
+                  <Option value="ProductGas">产物气 (Gas)</Option>
+                  <Option value="CrudePA">粗苯酐 (Crude PA)</Option>
+                  <Option value="PA">精苯酐 (PA)</Option>
+                  <Option value="TailGas">尾气 (Tail Gas)</Option>
                 </Select>
               </Form.Item>
               <Form.Item label="材质" name="material" style={{ flex: 1 }}>
@@ -1949,40 +2080,6 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
 export default Inspector;
 </file>
 
-<file path="src/graph/cells/icons.ts">
-export const REACTOR_SVG = `
-<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10 30 V90 C10 110 70 110 70 90 V30 H10 Z" fill="#EFF4FF" stroke="#5F95FF" stroke-width="2"/>
-  <path d="M10 30 C10 10 70 10 70 30" fill="none" stroke="#5F95FF" stroke-width="2"/>
-  <rect x="35" y="0" width="10" height="20" fill="#fff" stroke="#5F95FF" stroke-width="2"/>
-  <line x1="10" y1="45" x2="70" y2="45" stroke="#5F95FF" stroke-width="1" stroke-dasharray="3 3"/>
-  <path d="M20 70 Q40 90 60 70" fill="none" stroke="#5F95FF" stroke-width="2"/>
-</svg>
-`;
-
-export const PUMP_SVG = `
-<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="30" cy="35" r="20" fill="#EFF4FF" stroke="#5F95FF" stroke-width="2"/>
-  <path d="M30 15 V0 M50 35 H60" stroke="#5F95FF" stroke-width="2"/>
-  <path d="M30 35 L45 25 L45 45 Z" fill="#5F95FF"/>
-</svg>
-`;
-
-export const VALVE_SVG = `
-<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-  <path d="M0 10 L40 30 V10 L0 30 Z" fill="#EFF4FF" stroke="#5F95FF" stroke-width="2"/>
-  <line x1="20" y1="20" x2="20" y2="0" stroke="#5F95FF" stroke-width="2"/>
-  <line x1="10" y1="0" x2="30" y2="0" stroke="#5F95FF" stroke-width="2"/>
-</svg>
-`;
-
-export const TEE_SVG = `
-<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M0 20 H40 M20 20 V40" stroke="#5F95FF" stroke-width="4" stroke-linecap="round"/>
-</svg>
-`;
-</file>
-
 <file path="src/graph/cells/registry.ts">
 import { Graph } from '@antv/x6';
 import frameA2Svg from './svgs/frame-a2.svg?raw';
@@ -2016,17 +2113,20 @@ import gasCoolerSvg from './svgs/gas-cooler.svg?raw';
 import reactorFixedBedSvg from './svgs/reactor-fixed-bed.svg?raw';
 import exchangerVerticalSvg from './svgs/exchanger-vertical.svg?raw';
 
+// ==================== 1. 类型定义 ====================
 
+// 核心方向定义 (严格约束)
+export type PortDir = 'in' | 'out' | 'bi';
 
-
-
-
-// 1. 定义端口类型枚举，方便管理
-type PortDir = 'in' | 'out' | 'bi'; // bi 代表双向，如人孔、呼吸阀
+// 端口数据接口 (灵活模式：只严格检查 dir，其他字段随意)
+export interface PortData {
+  dir?: PortDir;      // 只能是 'in' | 'out' | 'bi'
+  [key: string]: any; // 允许 desc, region, type 等任意字段
+}
 
 const svgToDataUrl = (svgStr: string) => `data:image/svg+xml;utf8,${encodeURIComponent(svgStr)}`;
 
-// 1. 样式配置
+// ==================== 2. 样式配置 ====================
 const PORT_ATTRS = {
   circle: {
     r: 3,
@@ -2035,61 +2135,6 @@ const PORT_ATTRS = {
     strokeWidth: 1,
     fill: '#e3dedeff',
   },
-};
-
-// --- 改造 1: 通用泵端口 (明确 dir) ---
-const COMMON_PUMP_PORTS = {
-  groups: {
-    in: { position: 'absolute', attrs: PORT_ATTRS },
-    out: { position: 'absolute', attrs: PORT_ATTRS },
-  },
-  items: [
-    { 
-      id: 'in', group: 'in', args: { x: '50%', y: '100%' },
-      attrs: { circle: { title: '入口 (Inlet)', cursor: 'help' } },
-      // 增加 dir: 'in'
-      data: { desc: '泵入口', dir: 'in' } 
-    },
-    { 
-      id: 'out', group: 'out', args: { x: '50%', y: '0%' },
-      attrs: { circle: { title: '出口 (Outlet)', cursor: 'help' } },
-      // 增加 dir: 'out'
-      data: { desc: '泵出口', dir: 'out' } 
-    },
-  ],
-};
-
-
-// 1. 定义阀门端口配置
-const VALVE_PORTS = {
-  groups: {
-    left: { position: 'absolute', attrs: PORT_ATTRS },
-    right: { position: 'absolute', attrs: PORT_ATTRS },
-    actuator: { position: 'absolute', attrs: PORT_ATTRS }, // 专用执行机构组
-  },
-  items: [
-    { id: 'in', group: 'left', args: { x: '0%', y: '83.33%' }, data: { desc: '阀门入口', dir: 'bi' } },
-    { id: 'out', group: 'right', args: { x: '100%', y: '83.33%' }, data: { desc: '阀门出口', dir: 'bi' } },
-    
-    // --- 关键修改：明确执行机构端口 ---
-    { 
-      id: 'actuator', 
-      group: 'actuator', 
-      args: { x: '50%', y: '0%' }, // 位于阀门顶部中心
-      attrs: { 
-        circle: { 
-          r: 4,
-          magnet: true,
-          stroke: '#fa8c16', // 橙色边框，提示这是信号接口
-          strokeWidth: 1,
-          fill: '#fff'
-        } 
-      },
-      // 语义数据：类型为 signal，方向为 in (接收控制信号)
-      data: { desc: '执行机构', dir: 'in', type: 'signal' } 
-    },
-  ],
-  
 };
 
 const LABEL_ATTRS = {
@@ -2102,35 +2147,64 @@ const LABEL_ATTRS = {
     fill: '#333',
   }
 };
+
+// ==================== 3. 端口定义 (已添加 as PortData) ====================
+
+// --- 通用泵端口 ---
+const COMMON_PUMP_PORTS = {
+  groups: {
+    in: { position: 'absolute', attrs: PORT_ATTRS },
+    out: { position: 'absolute', attrs: PORT_ATTRS },
+  },
+  items: [
+    { 
+      id: 'in', group: 'in', args: { x: '50%', y: '100%' },
+      attrs: { circle: { title: '入口 (Inlet)', cursor: 'help' } },
+      data: { desc: '泵入口', dir: 'in' } as PortData
+    },
+    { 
+      id: 'out', group: 'out', args: { x: '50%', y: '0%' },
+      attrs: { circle: { title: '出口 (Outlet)', cursor: 'help' } },
+      data: { desc: '泵出口', dir: 'out' } as PortData
+    },
+  ],
+};
+
+// --- 阀门端口 ---
+const VALVE_PORTS = {
+  groups: {
+    left: { position: 'absolute', attrs: PORT_ATTRS },
+    right: { position: 'absolute', attrs: PORT_ATTRS },
+    actuator: { position: 'absolute', attrs: PORT_ATTRS },
+  },
+  items: [
+    { id: 'in', group: 'left', args: { x: '0%', y: '83.33%' }, data: { desc: '阀门入口', dir: 'bi' } as PortData },
+    { id: 'out', group: 'right', args: { x: '100%', y: '83.33%' }, data: { desc: '阀门出口', dir: 'bi' } as PortData },
+    { 
+      id: 'actuator', 
+      group: 'actuator', 
+      args: { x: '50%', y: '0%' }, 
+      attrs: { 
+        circle: { r: 4, magnet: true, stroke: '#fa8c16', strokeWidth: 1, fill: '#fff' } 
+      },
+      data: { desc: '执行机构', dir: 'in', type: 'signal' } as PortData
+    },
+  ],
+};
+
+// --- 三通端口 ---
 const TEE_PORTS = {
   groups: {
     all: { position: 'absolute', attrs: PORT_ATTRS },
   },
   items: [
-    // 左端口 (对应 SVG y=15, 15/40 = 37.5%)
-    { 
-      id: 'left', 
-      group: 'all', 
-      args: { x: '0%', y: '37.5%' }, 
-      data: { desc: '三通接口', dir: 'bi' } 
-    },
-    // 右端口
-    { 
-      id: 'right', 
-      group: 'all', 
-      args: { x: '100%', y: '37.5%' }, 
-      data: { desc: '三通接口', dir: 'bi' } 
-    },
-    // 下端口
-    { 
-      id: 'bottom', 
-      group: 'all', 
-      args: { x: '50%', y: '100%' }, 
-      data: { desc: '三通接口', dir: 'bi' } 
-    },
+    { id: 'left', group: 'all', args: { x: '0%', y: '37.5%' }, data: { desc: '三通接口', dir: 'bi' } as PortData },
+    { id: 'right', group: 'all', args: { x: '100%', y: '37.5%' }, data: { desc: '三通接口', dir: 'bi' } as PortData },
+    { id: 'bottom', group: 'all', args: { x: '50%', y: '100%' }, data: { desc: '三通接口', dir: 'bi' } as PortData },
   ],
 };
-// 2. 修改 TANK_PORTS 定义
+
+// --- 储罐端口 ---
 const TANK_PORTS = {
   groups: {
     top: { position: 'absolute', attrs: PORT_ATTRS },
@@ -2139,25 +2213,19 @@ const TANK_PORTS = {
     right: { position: 'absolute', attrs: PORT_ATTRS },
   },
   items: [
-    // --- 顶部 5 个 (y: 0% 位于上边缘) ---
-    { group: 'top', args: { x: '20%', y: '0%' }, data: { desc: 'N1' } },
-    { group: 'top', args: { x: '35%', y: '0%' }, data: { desc: 'N2' } },
-    { group: 'top', args: { x: '50%', y: '0%' }, data: { desc: 'N3' } },
-    { group: 'top', args: { x: '65%', y: '0%' }, data: { desc: 'N4' } },
-    { group: 'top', args: { x: '80%', y: '0%' }, data: { desc: 'N5' } },
-    
-    // --- 底部 2 个 (y: 100% 位于下边缘) ---
-    { group: 'bottom', args: { x: '30%', y: '100%' }, data: { desc: 'N6' } },
-    { group: 'bottom', args: { x: '70%', y: '100%' }, data: { desc: 'N7' } },
-
-    // --- 左右各 1 个 ---
-    { group: 'left', args: { x: '0%', y: '50%' }, data: { desc: 'N8' } },
-    { group: 'right', args: { x: '100%', y: '50%' }, data: { desc: 'N9' } },
+    { group: 'top', args: { x: '20%', y: '0%' }, data: { desc: 'N1' } as PortData },
+    { group: 'top', args: { x: '35%', y: '0%' }, data: { desc: 'N2' } as PortData },
+    { group: 'top', args: { x: '50%', y: '0%' }, data: { desc: 'N3' } as PortData },
+    { group: 'top', args: { x: '65%', y: '0%' }, data: { desc: 'N4' } as PortData },
+    { group: 'top', args: { x: '80%', y: '0%' }, data: { desc: 'N5' } as PortData },
+    { group: 'bottom', args: { x: '30%', y: '100%' }, data: { desc: 'N6' } as PortData },
+    { group: 'bottom', args: { x: '70%', y: '100%' }, data: { desc: 'N7' } as PortData },
+    { group: 'left', args: { x: '0%', y: '50%' }, data: { desc: 'N8' } as PortData },
+    { group: 'right', args: { x: '100%', y: '50%' }, data: { desc: 'N9' } as PortData },
   ],
 };
-// 定义气体冷却器端口
-// src/graph/cells/registry.ts
 
+// --- 气体冷却器端口 ---
 const GAS_COOLER_PORTS = {
   groups: {
     main: { position: 'absolute', attrs: PORT_ATTRS },
@@ -2168,81 +2236,28 @@ const GAS_COOLER_PORTS = {
     bottom_out: { position: 'absolute', attrs: PORT_ATTRS },
   },
   items: [
-    // 1. 左右连接桩 (保持不变)
-    { group: 'main', args: { x: '0%', y: '58%' }, data: { desc: '壳程入口', dir: 'in' } },
-    { group: 'main', args: { x: '100%', y: '58%' }, data: { desc: '壳程出口', dir: 'out' } },
-
-    // 2. 顶部爆破片法兰 (保持不变)
-    { group: 'burst', args: { x: '8.75%', y: '19%' }, data: { desc: '爆破片接口(左)', dir: 'bi' } },
-    { group: 'burst', args: { x: '91.25%', y: '19%' }, data: { desc: '爆破片接口(右)', dir: 'bi' } },
-
-    // ============================================================
-    // 3. 顶部管束接口 (Top Tubes) - 逻辑分组定义
-    // ============================================================
+    { group: 'main', args: { x: '0%', y: '58%' }, data: { desc: '壳程入口', dir: 'in' } as PortData },
+    { group: 'main', args: { x: '100%', y: '58%' }, data: { desc: '壳程出口', dir: 'out' } as PortData },
+    { group: 'burst', args: { x: '8.75%', y: '19%' }, data: { desc: '爆破片接口(左)', dir: 'bi' } as PortData },
+    { group: 'burst', args: { x: '91.25%', y: '19%' }, data: { desc: '爆破片接口(右)', dir: 'bi' } as PortData },
     
-    // --- 高温换热段 (High Temp Section): 第 1, 2 组 ---
-    { 
-      group: 'top_in', 
-      args: { x: '21.25%', y: '15%' }, 
-      data: { desc: '高温段', section: 'HighTemp', dir: 'in' } 
-    },
-    { 
-      group: 'top_out', 
-      args: { x: '31.25%', y: '15%' }, 
-      data: { desc: '高温段', section: 'HighTemp', dir: 'out' } 
-    },
+    // Top Tubes
+    { group: 'top_in', args: { x: '21.25%', y: '15%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'in' } as PortData },
+    { group: 'top_out', args: { x: '31.25%', y: '15%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'out' } as PortData },
+    { group: 'top_out', args: { x: '41.25%', y: '15%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'out' } as PortData },
+    { group: 'top_in', args: { x: '81.25%', y: '15%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'in' } as PortData },
 
-    // --- 低温换热段 (Low Temp Section - Common Chamber): 第 3, 4, 5, 6, 7 组 ---
-    // 注意：虽然物理上有多个口，但逻辑上它们属于同一个腔室 (section: 'LowTemp')
-    { 
-      group: 'top_out', 
-      args: { x: '41.25%', y: '15%' }, 
-      data: { desc: '低温段', section: 'LowTemp', dir: 'out' } 
-    },
-    
-    { 
-      group: 'top_in', 
-      args: { x: '81.25%', y: '15%' }, 
-      data: { desc: '低温段', section: 'LowTemp', dir: 'in' } 
-    },
-
-    // ============================================================
-    // 4. 底部管束接口 (Bottom Tubes) - 逻辑分组定义
-    // ============================================================
-
-    // --- 高温换热段 ---
-    { 
-      group: 'bottom_in', 
-      args: { x: '21.25%', y: '92%' }, 
-      data: { desc: '高温段', section: 'HighTemp', dir: 'in' } 
-    },
-    { 
-      group: 'bottom_out', 
-      args: { x: '31.25%', y: '92%' }, 
-      data: { desc: '高温段', section: 'HighTemp', dir: 'out' } 
-    },
-
-    // --- 低温换热段 (公共腔) ---
-    { 
-      group: 'bottom_out', 
-      args: { x: '41.25%', y: '92%' }, 
-      data: { desc: '低温段', section: 'LowTemp', dir: 'out' } 
-    },
-    
-    { 
-      group: 'bottom_in', 
-      args: { x: '81.25%', y: '92%' }, 
-      data: { desc: '低温段', section: 'LowTemp', dir: 'in' } 
-    },
+    // Bottom Tubes
+    { group: 'bottom_in', args: { x: '21.25%', y: '92%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'in' } as PortData },
+    { group: 'bottom_out', args: { x: '31.25%', y: '92%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'out' } as PortData },
+    { group: 'bottom_out', args: { x: '41.25%', y: '92%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'out' } as PortData },
+    { group: 'bottom_in', args: { x: '81.25%', y: '92%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'in' } as PortData },
   ],
 };
 
-
-
+// --- 仪表端口 ---
 const INSTRUMENT_PORTS = {
-  groups: {
-    all: { position: 'absolute', attrs: PORT_ATTRS },
-  },
+  groups: { all: { position: 'absolute', attrs: PORT_ATTRS } },
   items: [
     { id: 'top', group: 'all', args: { x: '50%', y: '0%' } },
     { id: 'bottom', group: 'all', args: { x: '50%', y: '100%' } },
@@ -2250,7 +2265,8 @@ const INSTRUMENT_PORTS = {
     { id: 'right', group: 'all', args: { x: '100%', y: '50%' } },
   ],
 };
-//注册固定床反应器端口
+
+// --- 固定床反应器端口 ---
 const FIXED_BED_REACTOR_PORTS = {
   groups: {
     gas: { position: 'absolute', attrs: PORT_ATTRS },
@@ -2258,145 +2274,44 @@ const FIXED_BED_REACTOR_PORTS = {
     lower_salt: { position: 'absolute', attrs: PORT_ATTRS },
   },
   items: [
-    // --- 气体端口 (增加 id) ---
-    { 
-      id: 'gas_in', // <--- 固定 ID
-      group: 'gas', args: { x: '50%', y: '0%' }, 
-      data: { desc: '工艺气入口', region: 'TubeSide', dir: 'in' } 
-    },
-    { 
-      id: 'gas_out', // <--- 固定 ID
-      group: 'gas', args: { x: '50%', y: '100%' }, 
-      data: { desc: '气体出口', region: 'TubeSide', dir: 'out' } 
-    },
-
-    // ============================================================
-    // 上盐道 (Upper Salt Ring) - 增加固定 ID
-    // ============================================================
+    { id: 'gas_in', group: 'gas', args: { x: '50%', y: '0%' }, data: { desc: '工艺气入口', region: 'TubeSide', dir: 'in' } as PortData },
+    { id: 'gas_out', group: 'gas', args: { x: '50%', y: '100%' }, data: { desc: '气体出口', region: 'TubeSide', dir: 'out' } as PortData },
     
-    // 左侧 (3个)
-    { 
-      id: 'upper_L1', // <--- 固定 ID
-      group: 'upper_salt', args: { x: '7.7%', y: '21.6%' }, 
-      data: { desc: '上盐道接口-L1', region: 'UpperSaltChannel', dir: 'in' } 
-    },
-    { 
-      id: 'upper_L2', 
-      group: 'upper_salt', args: { x: '7.7%', y: '24.1%' }, 
-      data: { desc: '上盐道接口-L2', region: 'UpperSaltChannel', dir: 'in' } 
-    },
-    { 
-      id: 'upper_L3', 
-      group: 'upper_salt', args: { x: '7.7%', y: '26.6%' }, 
-      data: { desc: '上盐道接口-L3', region: 'UpperSaltChannel', dir: 'out' } 
-    },
-    
-    // 右侧 (2个)
-    { 
-      id: 'upper_R1', 
-      group: 'upper_salt', args: { x: '92.3%', y: '22.6%' }, 
-      data: { desc: '上盐道接口-R1', region: 'UpperSaltChannel', dir: 'in' } 
-    },
-    { 
-      id: 'upper_R2', 
-      group: 'upper_salt', args: { x: '92.3%', y: '25.6%' }, 
-      data: { desc: '上盐道接口-R2', region: 'UpperSaltChannel', dir: 'out' } 
-    },
+    // Upper Salt
+    { id: 'upper_L1', group: 'upper_salt', args: { x: '7.7%', y: '21.6%' }, data: { desc: '上盐道接口-L1', region: 'UpperSaltChannel', dir: 'in' } as PortData },
+    { id: 'upper_L2', group: 'upper_salt', args: { x: '7.7%', y: '24.1%' }, data: { desc: '上盐道接口-L2', region: 'UpperSaltChannel', dir: 'in' } as PortData },
+    { id: 'upper_L3', group: 'upper_salt', args: { x: '7.7%', y: '26.6%' }, data: { desc: '上盐道接口-L3', region: 'UpperSaltChannel', dir: 'out' } as PortData },
+    { id: 'upper_R1', group: 'upper_salt', args: { x: '92.3%', y: '22.6%' }, data: { desc: '上盐道接口-R1', region: 'UpperSaltChannel', dir: 'in' } as PortData },
+    { id: 'upper_R2', group: 'upper_salt', args: { x: '92.3%', y: '25.6%' }, data: { desc: '上盐道接口-R2', region: 'UpperSaltChannel', dir: 'out' } as PortData },
 
-    // ============================================================
-    // 下盐道 (Lower Salt Ring) - 增加固定 ID
-    // ============================================================
-
-    // 左侧 (3个)
-    { 
-      id: 'lower_L1', 
-      group: 'lower_salt', args: { x: '7.7%', y: '73.3%' }, 
-      data: { desc: '下盐道接口-L1', region: 'LowerSaltChannel', dir: 'in' } 
-    },
-    { 
-      id: 'lower_L2', 
-      group: 'lower_salt', args: { x: '7.7%', y: '75.8%' }, 
-      data: { desc: '下盐道接口-L2', region: 'LowerSaltChannel', dir: 'out' } 
-    },
-    { 
-      id: 'lower_L3', 
-      group: 'lower_salt', args: { x: '7.7%', y: '78.3%' }, 
-      data: { desc: '下盐道接口-L3', region: 'LowerSaltChannel', dir: 'out' } 
-    },
-
-    // 右侧 (2个)
-    { 
-      id: 'lower_R1', 
-      group: 'lower_salt', args: { x: '92.3%', y: '74.3%' }, 
-      data: { desc: '下盐道接口-R1', region: 'LowerSaltChannel', dir: 'in' } 
-    },
-    { 
-      id: 'lower_R2', 
-      group: 'lower_salt', args: { x: '92.3%', y: '77.3%' }, 
-      data: { desc: '下盐道接口-R2', region: 'LowerSaltChannel', dir: 'out' } 
-    },
+    // Lower Salt
+    { id: 'lower_L1', group: 'lower_salt', args: { x: '7.7%', y: '73.3%' }, data: { desc: '下盐道接口-L1', region: 'LowerSaltChannel', dir: 'in' } as PortData },
+    { id: 'lower_L2', group: 'lower_salt', args: { x: '7.7%', y: '75.8%' }, data: { desc: '下盐道接口-L2', region: 'LowerSaltChannel', dir: 'out' } as PortData },
+    { id: 'lower_L3', group: 'lower_salt', args: { x: '7.7%', y: '78.3%' }, data: { desc: '下盐道接口-L3', region: 'LowerSaltChannel', dir: 'out' } as PortData },
+    { id: 'lower_R1', group: 'lower_salt', args: { x: '92.3%', y: '74.3%' }, data: { desc: '下盐道接口-R1', region: 'LowerSaltChannel', dir: 'in' } as PortData },
+    { id: 'lower_R2', group: 'lower_salt', args: { x: '92.3%', y: '77.3%' }, data: { desc: '下盐道接口-R2', region: 'LowerSaltChannel', dir: 'out' } as PortData },
   ],
 };
 
+// --- 立式换热器端口 ---
 const VERTICAL_EXCHANGER_PORTS = {
   groups: {
     side: { position: 'absolute', attrs: PORT_ATTRS },
     head: { position: 'absolute', attrs: PORT_ATTRS },
   },
   items: [
-    // --- 侧面接口 (增加固定 ID) ---
-    // 左上
-    { 
-      id: 'side_left_top', // <--- 固定 ID
-      group: 'side', args: { x: '0%', y: '20%' }, 
-      data: { desc: '壳程接口(左上)', dir: 'bi' } 
-    },
-    // 左下
-    { 
-      id: 'side_left_bottom', 
-      group: 'side', args: { x: '0%', y: '80%' }, 
-      data: { desc: '壳程接口(左下)', dir: 'bi' } 
-    },
-    // 右上
-    { 
-      id: 'side_right_top', 
-      group: 'side', args: { x: '100%', y: '15%' }, 
-      data: { desc: '壳程接口(右上)', dir: 'bi' } 
-    },
-    // 右下
-    { 
-      id: 'side_right_bottom', 
-      group: 'side', args: { x: '100%', y: '85%' }, 
-      data: { desc: '壳程接口(右下)', dir: 'bi' } 
-    },
-
-    // --- 封头接口 (增加固定 ID) ---
-    // 上封头左
-    { 
-      id: 'head_top_left', 
-      group: 'head', args: { x: '30%', y: '2.5%' }, 
-      data: { desc: '管程接口(上左)', dir: 'bi' } 
-    },
-    // 上封头右
-    { 
-      id: 'head_top_right', 
-      group: 'head', args: { x: '70%', y: '2.5%' }, 
-      data: { desc: '管程接口(上右)', dir: 'bi' } 
-    },
-    // 下封头左
-    { 
-      id: 'head_bottom_left', 
-      group: 'head', args: { x: '30%', y: '97.5%' }, 
-      data: { desc: '管程接口(下左)', dir: 'bi' } 
-    },
-    // 下封头右
-    { 
-      id: 'head_bottom_right', 
-      group: 'head', args: { x: '70%', y: '97.5%' }, 
-      data: { desc: '管程接口(下右)', dir: 'bi' } 
-    },
+    { id: 'side_left_top', group: 'side', args: { x: '0%', y: '20%' }, data: { desc: '壳程接口(左上)', dir: 'bi' } as PortData },
+    { id: 'side_left_bottom', group: 'side', args: { x: '0%', y: '80%' }, data: { desc: '壳程接口(左下)', dir: 'bi' } as PortData },
+    { id: 'side_right_top', group: 'side', args: { x: '100%', y: '15%' }, data: { desc: '壳程接口(右上)', dir: 'bi' } as PortData },
+    { id: 'side_right_bottom', group: 'side', args: { x: '100%', y: '85%' }, data: { desc: '壳程接口(右下)', dir: 'bi' } as PortData },
+    { id: 'head_top_left', group: 'head', args: { x: '30%', y: '2.5%' }, data: { desc: '管程接口(上左)', dir: 'bi' } as PortData },
+    { id: 'head_top_right', group: 'head', args: { x: '70%', y: '2.5%' }, data: { desc: '管程接口(上右)', dir: 'bi' } as PortData },
+    { id: 'head_bottom_left', group: 'head', args: { x: '30%', y: '97.5%' }, data: { desc: '管程接口(下左)', dir: 'bi' } as PortData },
+    { id: 'head_bottom_right', group: 'head', args: { x: '70%', y: '97.5%' }, data: { desc: '管程接口(下右)', dir: 'bi' } as PortData },
   ],
 };
+
+// ==================== 4. 注册函数 ====================
 
 export const registerCustomCells = () => {
   // 1. 注册仪表信号线
@@ -2441,7 +2356,7 @@ export const registerCustomCells = () => {
     data: { type: 'TappingPoint', desc: '测量点' },
   });
 
-  // 3. A2 图框 (恢复注册)
+  // 3. A2 图框
   Graph.registerNode('drawing-frame-a2', {
     inherit: 'image',
     width: 2245,
@@ -2485,7 +2400,7 @@ export const registerCustomCells = () => {
     },
   });
 
-  // --- 改造 3: 换热器 (关键修改) ---
+  // 5. 换热器
   Graph.registerNode('p-exchanger', {
     inherit: 'image',
     width: 200, height: 80,
@@ -2500,30 +2415,25 @@ export const registerCustomCells = () => {
         {
           id: 'n1', group: 'shell', args: { x: '35%', y: '0%' },
           attrs: { circle: { title: 'N1 (入口)', cursor: 'help' } },
-          // N1 是壳程入口
-          data: { desc: '壳程入口(N1)', dir: 'in' }
+          data: { desc: '壳程入口(N1)', dir: 'in' } as PortData
         },
         {
           id: 'n2', group: 'shell', args: { x: '75%', y: '100%' },
           attrs: { circle: { title: 'N2 (出口)', cursor: 'help' } },
-          // N2 是壳程出口
-          data: { desc: '壳程出口(N2)', dir: 'out' }
+          data: { desc: '壳程出口(N2)', dir: 'out' } as PortData
         },
         {
           id: 'n4', group: 'tube_left', args: { x: '0%', y: '32.5%' },
           attrs: { circle: { title: 'N4 (出口)', cursor: 'help' } },
-          // N4 是管程出口
-          data: { desc: '管程出口(N4)', dir: 'out' }
+          data: { desc: '管程出口(N4)', dir: 'out' } as PortData
         },
         {
           id: 'n3', group: 'tube_left', args: { x: '0%', y: '67.5%' },
           attrs: { circle: { title: 'N3 (入口)', cursor: 'help' } },
-          // N3 是管程入口
-          data: { desc: '管程入口(N3)', dir: 'in' }
+          data: { desc: '管程入口(N3)', dir: 'in' } as PortData
         },
-        // 封头管口通常作为备用或排净，可设为 bi 或 out
-        { id: 'n5', group: 'tube_right', args: { x: '98%', y: '12%' }, data: { desc: '放空(N5)', dir: 'out' } },
-        { id: 'n6', group: 'tube_right', args: { x: '98%', y: '88%' }, data: { desc: '排净(N6)', dir: 'out' } },
+        { id: 'n5', group: 'tube_right', args: { x: '98%', y: '12%' }, data: { desc: '放空(N5)', dir: 'out' } as PortData },
+        { id: 'n6', group: 'tube_right', args: { x: '98%', y: '88%' }, data: { desc: '排净(N6)', dir: 'out' } as PortData },
       ],
     },
     attrs: LABEL_ATTRS,
@@ -2547,10 +2457,10 @@ export const registerCustomCells = () => {
         tube: { position: 'absolute', attrs: PORT_ATTRS } 
       },
       items: [
-        { id: 'nap_out', group: 'shell', args: { x: '61.5%', y: '0%' }, data: { desc: '萘蒸汽出口' } },
-        { id: 'nap_in', group: 'shell', args: { x: '13.5%', y: '100%' }, data: { desc: '工业萘入口' } },
-        { id: 'steam_in', group: 'tube', args: { x: '100%', y: '63%' }, data: { desc: '蒸汽入口' } },
-        { id: 'cond_out', group: 'tube', args: { x: '100%', y: '78%' }, data: { desc: '冷凝液出口' } },
+        { id: 'nap_out', group: 'shell', args: { x: '61.5%', y: '0%' }, data: { desc: '萘蒸汽出口' } as PortData },
+        { id: 'nap_in', group: 'shell', args: { x: '13.5%', y: '100%' }, data: { desc: '工业萘入口' } as PortData },
+        { id: 'steam_in', group: 'tube', args: { x: '100%', y: '63%' }, data: { desc: '蒸汽入口' } as PortData },
+        { id: 'cond_out', group: 'tube', args: { x: '100%', y: '78%' }, data: { desc: '冷凝液出口' } as PortData },
       ],
     },
     attrs: LABEL_ATTRS, data: { type: 'Evaporator', spec: 'E-13' },
@@ -2588,7 +2498,7 @@ export const registerCustomCells = () => {
     });
   });
 
-  // 8. 阀门 (高度修正为 60)
+  // 8. 阀门
   const valves = [
     { key: 'p-cv-pneumatic', name: '气动调节阀', svg: cvPneumaticSvg, type: 'ControlValve' },
     { key: 'p-cv-positioner', name: '带定位器阀', svg: cvPositionerSvg, type: 'ControlValve' },
@@ -2602,7 +2512,7 @@ export const registerCustomCells = () => {
     Graph.registerNode(v.key, {
       inherit: 'image',
       width: 40,   
-      height: 60,  // 修正高度
+      height: 60,
       imageUrl: `data:image/svg+xml;utf8,${encodeURIComponent(v.svg)}`,
       ports: VALVE_PORTS, 
       attrs: LABEL_ATTRS,
@@ -2657,7 +2567,8 @@ export const registerCustomCells = () => {
       },
     });
   });
-  // 10. 三通 (Tee) - 新增注册
+
+  // 10. 三通
   Graph.registerNode('p-tee', {
     inherit: 'image',
     width: 40,
@@ -2675,17 +2586,19 @@ export const registerCustomCells = () => {
       }
     },
     data: { 
-      type: 'Fitting', // 类型设为管件
+      type: 'Fitting',
       spec: 'Tee',
       tag: 'TEE'
     },
   });
+
+  // 11. 卧式储罐
   Graph.registerNode('p-tank-horizontal', {
     inherit: 'image',
     width: 160,
     height: 80,
     imageUrl: svgToDataUrl(tankHorizontalSvg),
-    ports: TANK_PORTS, // 这里现在使用的是标准圆点样式
+    ports: TANK_PORTS,
     attrs: {
       label: {
         text: 'V-100',
@@ -2699,10 +2612,11 @@ export const registerCustomCells = () => {
       volume: '5000L'
     },
   });
-  // 注册气体冷却器
+
+  // 12. 气体冷却器
   Graph.registerNode('p-gas-cooler', {
     inherit: 'image',
-    width: 200, // 缩小一半显示，原图400
+    width: 200,
     height: 130,
     imageUrl: svgToDataUrl(gasCoolerSvg),
     ports: GAS_COOLER_PORTS,
@@ -2719,7 +2633,8 @@ export const registerCustomCells = () => {
       area: '200'
     },
   });
-//注册固定床反应器
+
+  // 13. 固定床反应器
   Graph.registerNode('p-fixed-bed-reactor', {
     inherit: 'image',
     width: 130,
@@ -2739,11 +2654,12 @@ export const registerCustomCells = () => {
       catalyst: 'V2O5'
     },
   });
-  // 注册立式换热器
+
+  // 14. 立式换热器
   Graph.registerNode('p-exchanger-vertical', {
     inherit: 'image',
-    width: 60,  // 较窄
-    height: 200, // 较高
+    width: 60,
+    height: 200,
     imageUrl: svgToDataUrl(exchangerVerticalSvg),
     ports: VERTICAL_EXCHANGER_PORTS,
     attrs: {
@@ -2754,7 +2670,7 @@ export const registerCustomCells = () => {
       }
     },
     data: { 
-      type: 'VerticalExchanger', // <--- 修改这里，不再是 'Exchanger'
+      type: 'VerticalExchanger',
       spec: 'Vertical',
       area: '100'
     },
@@ -2764,6 +2680,23 @@ export const registerCustomCells = () => {
 
 <file path="src/services/neo4j.ts">
 import neo4j from 'neo4j-driver';
+
+const FLUID_COLORS: Record<string, string> = {
+  Water: '#1890ff',       // 工艺水 - 蓝
+  Steam: '#ff4d4f',       // 蒸汽 - 红
+  Air: '#52c41a',         // 空气 - 绿
+  N2: '#13c2c2',          // 氮气 - 青
+  Oil: '#fa8c16',         // 导热油 - 橙
+  Salt: '#722ed1',        // 熔盐 - 紫
+  Naphthalene: '#8c8c8c', // 萘 - 深灰
+  PA: '#eb2f96',          // 苯酐 - 洋红
+  CrudePA: '#f759ab',     // 粗苯酐 - 浅洋红
+  ProductGas: '#faad14',  // 产物气 - 金黄
+  TailGas: '#bfbfbf',     // 尾气 - 浅灰
+};
+
+// ==================== [新增] 在线元件类型列表 ====================
+const INLINE_TYPES = ['ControlValve', 'Valve', 'Fitting', 'TappingPoint'];
 
 const driver = neo4j.driver(
   'bolt://localhost:7687', 
@@ -2831,15 +2764,9 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
 
       // 3.2 保存信号线 (Signal)
       if (signals.length) {
-        // 区分控制信号和测量信号
-        // 控制信号：目标端口是 actuator，或者 Canvas 显式标记为 CONTROLS
         const controlSignals = signals.filter((s: any) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
-        
-        // 测量信号：其余的信号线 (通常是 TappingPoint -> Instrument)
         const measureSignals = signals.filter((s: any) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
 
-        // A. 保存控制关系 (Instrument -> Valve)
-        // 方向一致：X6 (Inst->Valve) === Neo4j (Inst->Valve)
         if (controlSignals.length) {
           await tx.run(
             `UNWIND $batch AS r 
@@ -2857,15 +2784,12 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
           );
         }
 
-        // B. 保存测量关系 (Instrument -> TappingPoint)
-        // 方向反转：X6 (TP->Inst) !== Neo4j (Inst->TP)
-        // 我们需要让 Instrument(r.target) 指向 TappingPoint(r.source)
         if (measureSignals.length) {
           await tx.run(
             `UNWIND $batch AS r 
              MATCH (inst:Equipment {x6Id: r.target}), (tp:Equipment {x6Id: r.source}) 
              CREATE (inst)-[:MEASURES {
-               fromPort:   r.targetPort,  // 端口属性也要反转记录
+               fromPort:   r.targetPort,
                toPort:     r.sourcePort,
                fromRegion: r.targetRegion,
                fromDesc:   r.targetDesc,
@@ -2965,13 +2889,12 @@ export const loadGraphData = async () => {
       const targetId = record.get('targetId');
       
       let strokeWidth = 2;
-      let strokeColor = '#5F95FF';
+      let strokeColor = FLUID_COLORS[rel.fluid] || '#5F95FF';
       let dashArray = null;
       let targetMarker: any = null; 
       let edgeType = 'Pipe'; 
       let labels: any[] = [];
 
-      // 视觉样式处理
       if (relType === 'MEASURES' || relType === 'CONTROLS') {
         strokeWidth = 1;
         strokeColor = '#888'; 
@@ -2995,19 +2918,44 @@ export const loadGraphData = async () => {
         });
       }
 
-      // --- 核心逻辑：处理方向反转 ---
       let finalSourceId = sourceId;
       let finalTargetId = targetId;
       let finalSourcePort = rel.fromPort;
       let finalTargetPort = rel.toPort;
 
-      // 如果是测量关系 (MEASURES)，Neo4j 中是 Inst->TP，但 X6 需要 TP->Inst
       if (relType === 'MEASURES') {
-        finalSourceId = targetId; // TappingPoint
-        finalTargetId = sourceId; // Instrument
-        finalSourcePort = rel.toPort;   // 交换端口
-        finalTargetPort = rel.fromPort; // 交换端口
+        finalSourceId = targetId; 
+        finalTargetId = sourceId; 
+        finalSourcePort = rel.toPort;   
+        finalTargetPort = rel.fromPort; 
       }
+
+      // ==================== [新增] 动态计算路由排除列表 ====================
+      let routerConfig = undefined;
+
+      if (edgeType === 'Pipe') {
+        const excludeNodes = ['SHEET_FRAME_A2']; 
+
+        const sourceNode = nodes.find(n => n.id === finalSourceId);
+        const targetNode = nodes.find(n => n.id === finalTargetId);
+
+        if (sourceNode && INLINE_TYPES.includes(sourceNode.data.type)) {
+          excludeNodes.push(finalSourceId);
+        }
+
+        if (targetNode && INLINE_TYPES.includes(targetNode.data.type)) {
+          excludeNodes.push(finalTargetId);
+        }
+
+        routerConfig = {
+          name: 'manhattan',
+          args: {
+            padding: 20,
+            excludeNodes: excludeNodes
+          }
+        };
+      }
+      // =================================================================
 
       return {
         shape: edgeType === 'Signal' ? 'signal-edge' : 'edge',
@@ -3023,9 +2971,12 @@ export const loadGraphData = async () => {
           } 
         },
         labels: labels,
+        // ==================== [关键修复] 注入 router 配置 ====================
+        router: routerConfig, 
+        // ===================================================================
         data: { 
           type: edgeType, 
-          relationType: relType, // 记录关系类型，方便下次保存时识别
+          relationType: relType, 
           material: rel.material, 
           fluid: rel.fluid,
           dn: rel.dn,
@@ -3040,71 +2991,6 @@ export const loadGraphData = async () => {
     await session.close();
   }
 };
-</file>
-
-<file path="src/App.tsx">
-import { useRef, useState } from 'react';
-import { Button, Layout, message } from 'antd';
-// 1. 确保图标库已安装。如果此处报错，请运行 npm install @ant-design/icons
-import { SaveOutlined, DatabaseOutlined } from '@ant-design/icons';
-
-// 2. 分开导入组件和类型（这是修复白屏的关键）
-import GraphCanvas from './components/Editor/Canvas';
-import type { GraphCanvasRef } from './components/Editor/Canvas';
-
-const { Header, Content } = Layout;
-
-function App() {
-  const [saving, setSaving] = useState(false);
-  const graphRef = useRef<GraphCanvasRef>(null);
-
-  const handleSaveClick = async () => {
-    if (graphRef.current) {
-      setSaving(true);
-      try {
-        await graphRef.current.handleSave();
-      } catch (e) {
-        console.error(e);
-        message.error('保存操作异常');
-      } finally {
-        setSaving(false);
-      }
-    } else {
-        console.warn("GraphRef is null");
-    }
-  };
-
-  return (
-    <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Header style={{ 
-        display: 'flex', alignItems: 'center', color: 'white', 
-        height: '50px', padding: '0 20px', flexShrink: 0,
-        justifyContent: 'space-between' 
-      }}>
-        <div style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <DatabaseOutlined />
-          🧪 化工 P&ID 编辑器
-        </div>
-        
-        <Button 
-          type="primary" 
-          icon={<SaveOutlined />} 
-          loading={saving}
-          onClick={handleSaveClick}
-        >
-          保存图纸到 Neo4j
-        </Button>
-      </Header>
-      
-      <Content style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex' }}>
-        {/* 确保这里没有多余的 props 导致类型冲突 */}
-        <GraphCanvas ref={graphRef} />
-      </Content>
-    </Layout>
-  );
-}
-
-export default App;
 </file>
 
 <file path="src/components/Editor/Canvas/index.tsx">
@@ -3530,8 +3416,16 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     // === 新增：监听节点旋转，保持标签始终在视觉下方 ===
     graph.on('node:change:angle', ({ node }) => updateNodeLabel(node as Node));
 
-    // 阀门打断
-    const handlePipeSplit = (node: Cell) => {
+    // 阀门打断逻辑 (清理冗余变量版)
+    // 阀门打断逻辑 (修复 getClosestPoint 类型错误)
+    // 阀门打断逻辑 (视图路径采样版 - 终极修复)
+    // 阀门打断逻辑 (修复类型错误 + 高性能版)
+    // 阀门打断逻辑 (手动旋转 + 严格方向匹配版)
+    // 阀门打断逻辑 (精确对齐 + 全角度适配版)
+    // 阀门打断逻辑 (智能避让版：忽略阀门自身，避让其他设备)
+    // 阀门打断逻辑 (终极修复：双向动态排除，支持连续阀门)
+    // 阀门打断逻辑 (智能分类避让版)
+    const handlePipeSplit = (node: Node) => {
       const nodeType = node.getData()?.type;
       if (nodeType !== 'ControlValve' && nodeType !== 'Valve') return;
       
@@ -3539,52 +3433,169 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       if (connectedEdges.length > 0) return; 
 
       const nodeBBox = node.getBBox();
+      const center = nodeBBox.center;
       const allEdges = graph.getEdges();
 
+      // 1. 寻找相交的管线
       const targetEdge = allEdges.find(edge => {
         if (edge.getData()?.type === 'Signal') return false;
         return edge.getBBox().intersectsWithRect(nodeBBox);
       });
 
       if (targetEdge) {
-        const sourceNode = targetEdge.getSourceNode();
-        const targetNode = targetEdge.getTargetNode();
-        const srcPoint = sourceNode ? sourceNode.getBBox().center : targetEdge.getSourcePoint();
-        const tgtPoint = targetNode ? targetNode.getBBox().center : targetEdge.getTargetPoint();
+        // 2. 获取视图与路由点
+        const targetView = graph.findViewByCell(targetEdge);
+        if (!targetView) return;
 
-        const isHorizontal = Math.abs(srcPoint.y - tgtPoint.y) < 5;
-        const isVertical = Math.abs(srcPoint.x - tgtPoint.x) < 5;
+        // @ts-ignore
+        const closestPoint = targetView.getClosestPoint(center);
+        // @ts-ignore
+        const routePoints = targetView.routePoints || [];
+        
+        const points = [
+          targetEdge.getSourcePoint(),
+          ...routePoints,
+          targetEdge.getTargetPoint()
+        ];
+        
+        // 3. 判断管线分段的方向
+        let isPipeHorizontal = true; 
+        let foundSegment = false;
 
+        for (let i = 0; i < points.length - 1; i++) {
+          const p1 = points[i];
+          const p2 = points[i + 1];
+          
+          const minX = Math.min(p1.x, p2.x) - 2;
+          const maxX = Math.max(p1.x, p2.x) + 2;
+          const minY = Math.min(p1.y, p2.y) - 2;
+          const maxY = Math.max(p1.y, p2.y) + 2;
+
+          if (closestPoint.x >= minX && closestPoint.x <= maxX &&
+              closestPoint.y >= minY && closestPoint.y <= maxY) {
+            
+            if (Math.abs(p1.y - p2.y) < 1) {
+              isPipeHorizontal = true; 
+            } else {
+              isPipeHorizontal = false; 
+            }
+            foundSegment = true;
+            break; 
+          }
+        }
+
+        if (!foundSegment) {
+           const src = targetEdge.getSourcePoint();
+           const tgt = targetEdge.getTargetPoint();
+           isPipeHorizontal = Math.abs(src.x - tgt.x) > Math.abs(src.y - tgt.y);
+        }
+
+        // 4. 校验阀门角度
+        const angle = node.getAngle();
+        const normalizedAngle = (angle % 360 + 360) % 360;
+        const isValveHorizontal = (normalizedAngle < 10 || normalizedAngle > 350) || (normalizedAngle > 170 && normalizedAngle < 190);
+
+        if (isValveHorizontal !== isPipeHorizontal) {
+          return; 
+        }
+
+        // 5. 几何修正
+        const OFFSET = 20; 
         let newX = nodeBBox.x;
         let newY = nodeBBox.y;
 
-        if (isHorizontal) newY = Math.round(nodeBBox.y / 10) * 10; 
-        else if (isVertical) newX = Math.round(nodeBBox.x / 10) * 10;
+        if (isPipeHorizontal) {
+          const pipeY = closestPoint.y;
+          newY = Math.round((pipeY - OFFSET) / 10) * 10; 
+          newX = Math.round(nodeBBox.x / 10) * 10; 
+        } else {
+          const pipeX = closestPoint.x;
+          newX = Math.round((pipeX + OFFSET) / 10) * 10;
+          newY = Math.round(nodeBBox.y / 10) * 10; 
+        }
+        
+        node.setPosition(newX, newY);
 
-        (node as Node).setPosition(newX, newY);
+        // 6. 端口分配
+        const srcPoint = targetEdge.getSourcePoint();
+        const tgtPoint = targetEdge.getTargetPoint();
+        
+        let portForSource = 'in';  
+        let portForTarget = 'out'; 
 
+        if (isPipeHorizontal) {
+          if (srcPoint.x < tgtPoint.x) { 
+            portForSource = 'in'; portForTarget = 'out';
+          } else { 
+            portForSource = 'out'; portForTarget = 'in';
+          }
+        } else {
+          if (srcPoint.y < tgtPoint.y) { 
+            portForSource = 'in'; portForTarget = 'out';
+          } else { 
+            portForSource = 'out'; portForTarget = 'in';
+          }
+        }
+
+        // 7. 执行打断
         const source = targetEdge.getSource();
         const target = targetEdge.getTarget();
         const edgeData = targetEdge.getData();
         const edgeAttrs = targetEdge.getAttrs(); 
 
+        const sourceCellId = (source as any).cell;
+        const targetCellId = (target as any).cell;
+
         graph.removeCell(targetEdge);
 
+        // === 关键修改：定义“在线元件”类型列表 ===
+        // 只有这些类型的设备，才会被路由算法忽略体积，允许直线穿过
+        const INLINE_TYPES = ['ControlValve', 'Valve', 'Fitting', 'TappingPoint'];
+
+        // 辅助函数：判断某个 ID 对应的节点是否为在线元件
+        const isInlineComponent = (id: string) => {
+          if (!id) return false;
+          const cell = graph.getCellById(id);
+          if (!cell || !cell.isNode()) return false;
+          const type = cell.getData()?.type;
+          return INLINE_TYPES.includes(type);
+        };
+
+        // 构建排除列表 1 (Source -> Valve)
+        const exclude1 = ['SHEET_FRAME_A2', node.id];
+        if (isInlineComponent(sourceCellId)) {
+          exclude1.push(sourceCellId); // 如果上游是阀门/管件，排除它（允许直线）
+        }
+
+        // 构建排除列表 2 (Valve -> Target)
+        const exclude2 = ['SHEET_FRAME_A2', node.id];
+        if (isInlineComponent(targetCellId)) {
+          exclude2.push(targetCellId); // 如果下游是阀门/管件，排除它（允许直线）
+        }
+
+        const router1 = { name: 'manhattan', args: { padding: 30, excludeNodes: exclude1 } };
+        const router2 = { name: 'manhattan', args: { padding: 30, excludeNodes: exclude2 } };
+
         const edge1 = graph.createEdge({
-          shape: 'edge', source: source, target: { cell: node.id, port: 'in' },
-          data: { ...edgeData }, attrs: edgeAttrs, labels: []
+          shape: 'edge', 
+          source: source, 
+          target: { cell: node.id, port: portForSource }, 
+          data: { ...edgeData }, attrs: edgeAttrs, labels: [],
+          router: router1 
         });
 
         const edge2 = graph.createEdge({
-          shape: 'edge', source: { cell: node.id, port: 'out' }, target: target,
-          data: { ...edgeData }, attrs: edgeAttrs, labels: []
+          shape: 'edge', 
+          source: { cell: node.id, port: portForTarget }, 
+          target: target,
+          data: { ...edgeData }, attrs: edgeAttrs, labels: [],
+          router: router2 
         });
 
         graph.addCell([edge1, edge2]);
-        message.success('阀门已接入管线 (自动吸附)');
+        message.success('阀门已接入');
       }
     };
-
     // 智能测点
     // 智能测点 (修正方向 + 保留打断逻辑)
     const handleSignalDrop = (args: any) => {
@@ -3685,8 +3696,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       }
     };
 
-    graph.on('node:added', ({ node }) => setTimeout(() => handlePipeSplit(node), 50));
-    graph.on('node:mouseup', ({ node }) => handlePipeSplit(node));
+    graph.on('node:added', ({ node }) => setTimeout(() => handlePipeSplit(node as Node), 50));
+    graph.on('node:mouseup', ({ node }) => handlePipeSplit(node as Node));
     graph.on('edge:mouseup', handleSignalDrop); 
 
     // --- 核心修复：确保信号线逻辑存在 ---
