@@ -1,5 +1,9 @@
-<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- 三通形状：水平线 + 垂直下引线 -->
-  <!-- 线宽 4px (比管线粗)，黑色，端点圆角 -->
-  <path d="M0 15 H40 M20 15 V40" stroke="black" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+<svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 
+    ViewBox 改为 30x30
+    横线：从 (0,15) 到 (30,15) -> 垂直居中
+    竖线：从 (15,15) 到 (15,30) -> 水平居中
+    线宽：3px (比管线稍粗，突出管件)
+  -->
+  <path d="M0 15 H30 M15 15 V30" stroke="black" stroke-width="3" stroke-linecap="butt" stroke-linejoin="round"/>
 </svg>

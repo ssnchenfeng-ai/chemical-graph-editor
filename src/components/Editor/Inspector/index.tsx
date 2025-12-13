@@ -167,7 +167,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
         <>
           <Divider orientation={"left" as any}><ExperimentOutlined /> 设备参数</Divider>
           <div style={{ display: 'flex', gap: 8 }}>
-            <Form.Item label="容积 (L)" name="volume" style={{ flex: 1 }}>
+            <Form.Item label="容积 (m³)" name="volume" style={{ flex: 1 }}>
               <Input placeholder="2000" />
             </Form.Item>
             <Form.Item label="材质" name="material" style={{ flex: 1 }}>

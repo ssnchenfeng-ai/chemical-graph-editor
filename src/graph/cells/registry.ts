@@ -349,7 +349,7 @@ export const registerCustomCells = () => {
       type: 'Reactor', 
       tag: 'R-101',
       spec: 'STD-2000L',
-      volume: '2000',
+      volume: '2.0',
       material: 'SS304',
       designPressure: '0.6',
       designTemp: '150'
@@ -527,10 +527,21 @@ export const registerCustomCells = () => {
   // 10. 三通
   Graph.registerNode('p-tee', {
     inherit: 'image',
-    width: 40,
-    height: 40,
+    width: 30,  // [修改] 缩小尺寸，更精致
+    height: 30, // [修改] 缩小尺寸
     imageUrl: svgToDataUrl(teeSvg),
-    ports: TEE_PORTS,
+    ports: {
+      groups: {
+        all: { position: 'absolute', attrs: PORT_ATTRS },
+      },
+      items: [
+        // [修改] y 坐标改为 50%，确保水平对齐
+        { id: 'left', group: 'all', args: { x: '0%', y: '50%' }, data: { desc: '三通接口', dir: 'bi' } as PortData },
+        { id: 'right', group: 'all', args: { x: '100%', y: '50%' }, data: { desc: '三通接口', dir: 'bi' } as PortData },
+        // 底部端口保持不变
+        { id: 'bottom', group: 'all', args: { x: '50%', y: '100%' }, data: { desc: '三通接口', dir: 'bi' } as PortData },
+      ],
+    },
     attrs: {
       label: {
         refY: '100%',
@@ -544,7 +555,7 @@ export const registerCustomCells = () => {
     data: { 
       type: 'Fitting',
       spec: 'Tee',
-      tag: 'TEE'
+      tag: '' // 三通通常不需要默认 Tag
     },
   });
 
@@ -565,7 +576,7 @@ export const registerCustomCells = () => {
     data: { 
       type: 'Tank', 
       spec: 'Horizontal',
-      volume: '5000L'
+      volume: '5.0'
     },
   });
 

@@ -75,7 +75,8 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
              fromRegion: r.sourceRegion, 
              fromDesc:   r.sourceDesc,
              toRegion:   r.targetRegion,
-             toDesc:     r.targetDesc
+             toDesc:     r.targetDesc,
+             vertices:   r.vertices
            }]->(t)`, 
           { pipes }
         );
@@ -97,7 +98,8 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
                fromDesc:   r.sourceDesc,
                toRegion:   r.targetRegion,
                toDesc:     r.targetDesc,
-               fluid:      'Signal' 
+               fluid:      'Signal' ,
+               vertices: r.vertices 
              }]->(t)`, 
             { batch: controlSignals }
           );
@@ -114,7 +116,8 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
                fromDesc:   r.targetDesc,
                toRegion:   r.sourceRegion,
                toDesc:     r.sourceDesc,
-               fluid:      'Signal' 
+               fluid:      'Signal' ,
+               vertices:   r.vertices
              }]->(tp)`, 
             { batch: measureSignals }
           );
@@ -214,6 +217,14 @@ export const loadGraphData = async () => {
       let targetMarker: any = null; 
       let edgeType = 'Pipe'; 
       let labels: any[] = [];
+      let vertices = [];
+      if (rel.vertices) {
+        try {
+          vertices = JSON.parse(rel.vertices);
+        } catch (e) {
+          console.warn('Failed to parse vertices', e);
+        }
+      }
 
       if (relType === 'MEASURES' || relType === 'CONTROLS') {
         strokeWidth = 1;
@@ -281,6 +292,7 @@ export const loadGraphData = async () => {
         shape: edgeType === 'Signal' ? 'signal-edge' : 'edge',
         source: { cell: finalSourceId, port: finalSourcePort || undefined },
         target: { cell: finalTargetId, port: finalTargetPort || undefined },
+        vertices: vertices, 
         
         attrs: { 
           line: { 

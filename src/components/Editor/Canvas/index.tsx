@@ -33,6 +33,20 @@ const pick = (obj: any, keys: string[]) => {
   });
   return ret;
 };
+// ==================== [新增] 介质颜色定义 (用于新建连线时立即生效) ====================
+const FLUID_COLORS: Record<string, string> = {
+  Water: '#1890ff',       // 工艺水 - 蓝
+  Steam: '#ff4d4f',       // 蒸汽 - 红
+  Air: '#52c41a',         // 空气 - 绿
+  N2: '#13c2c2',          // 氮气 - 青
+  Oil: '#fa8c16',         // 导热油 - 橙
+  Salt: '#722ed1',        // 熔盐 - 紫
+  Naphthalene: '#8c8c8c', // 萘 - 深灰
+  PA: '#eb2f96',          // 苯酐 - 洋红
+  CrudePA: '#f759ab',     // 粗苯酐 - 浅洋红
+  ProductGas: '#faad14',  // 产物气 - 金黄
+  TailGas: '#bfbfbf',     // 尾气 - 浅灰
+};
 
 const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -100,6 +114,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         const data = edge.getData() || {};
         const sourceNode = edge.getSourceNode();
         const targetNode = edge.getTargetNode();
+        const vertices = edge.getVertices(); 
         
         const getPortMeta = (node: Cell | null, portId: string | undefined) => {
           if (!node || !node.isNode() || !portId) return { group: 'default', desc: 'unknown' };
@@ -127,7 +142,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
           dn: data.dn || 'DN50',
           pn: data.pn || 'PN16',
           insulation: data.insulation || 'None',
-          label: edge.getLabelAt(0)?.attrs?.label?.text || ''
+          label: edge.getLabelAt(0)?.attrs?.label?.text || '',
+          vertices: JSON.stringify(vertices) 
         };
       });
 
@@ -399,23 +415,72 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
 
           return isValidSource && isValidTarget;
         },
-        createEdge() {
+        // ==================== [修改] 智能继承 createEdge 逻辑 ====================
+        createEdge(args) {
+          // 1. 定义默认值
+          let data = { 
+            type: 'Pipe', 
+            material: 'CS', 
+            fluid: 'Water', 
+            dn: 'DN50', 
+            pn: 'PN16', 
+            insulation: 'None' 
+          };
+
+          // 2. 尝试从源节点继承属性
+          if (args.sourceCell) {
+            const cell = args.sourceCell;
+            // 获取连接到该源节点的所有连线
+            const connectedEdges = this.getConnectedEdges(cell);
+            
+            // 过滤出类型为 Pipe 的连线 (排除 Signal)
+            const pipes = connectedEdges.filter(e => e.getData()?.type === 'Pipe');
+
+            if (pipes.length > 0) {
+              // 取最后一条连线作为参考 (通常是最近操作的)
+              const lastPipe = pipes[pipes.length - 1];
+              const lastData = lastPipe.getData() || {};
+
+              // 继承关键规格参数
+              data = {
+                ...data,
+                material: lastData.material || data.material,
+                fluid: lastData.fluid || data.fluid,
+                dn: lastData.dn || data.dn,
+                pn: lastData.pn || data.pn,
+                insulation: lastData.insulation || data.insulation
+              };
+            }
+          }
+
+          // 3. 根据当前(继承后)的介质，决定初始颜色
+          const color = FLUID_COLORS[data.fluid] || '#5F95FF';
+
           return this.createEdge({
             shape: 'edge',
             attrs: { 
               line: { 
-                stroke: '#5F95FF', 
+                stroke: color, // 立即应用正确的颜色
                 strokeWidth: 2, 
                 targetMarker: { name: 'classic', width: 8, height: 6 }
               } 
             },
             labels: [], 
-            data: { type: 'Pipe', material: 'CS', fluid: 'Water' }
+            data: data
           });
         },
+        // ==================== [修改结束] ====================
       },
     });
     graphRef.current = graph;
+    // ==================== [新增] 管线交互工具逻辑 ====================
+    
+    
+
+    
+
+    // ==================== [新增结束] ====================
+
 
     // === 新增：监听节点旋转，保持标签始终在视觉下方 ===
     graph.on('node:change:angle', ({ node }) => updateNodeLabel(node as Node));
@@ -760,15 +825,57 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     });
 
     graph.on('cell:click', ({ cell }) => {
-      if (cell.getData()?.isBackground) { setSelectedCell(null); return; }
+      // 1. 如果是背景图框，取消选中
+      if (cell.getData()?.isBackground) { 
+        setSelectedCell(null); 
+        // 清除所有工具
+        graph.getEdges().forEach(edge => edge.removeTools());
+        return; 
+      }
+
+      // 2. 设置当前选中项 (用于属性面板)
       setSelectedCell(cell);
-      if (cell.isEdge()) cell.attr('line/strokeWidth', 3);
-      graph.getEdges().forEach(edge => { if (edge.id !== cell.id) edge.attr('line/strokeWidth', 2); });
+
+      // 3. 视觉反馈：加粗选中项，恢复其他项
+      if (cell.isEdge()) {
+        cell.attr('line/strokeWidth', 3);
+      }
+      graph.getEdges().forEach(edge => { 
+        if (edge.id !== cell.id) {
+          edge.attr('line/strokeWidth', 2);
+          edge.removeTools(); // 移除其他管线的工具
+        }
+      });
+
+      // 4. [核心修改] 如果选中了工艺管线，添加编辑工具
+      if (cell.isEdge() && cell.getData()?.type === 'Pipe') {
+        cell.addTools([
+          {
+            name: 'vertices', // 1. 显示拐点 (圆点)，允许拖拽拐角
+            args: {
+              attrs: { fill: '#666' }, // 拐点颜色
+            },
+          },
+          {
+            name: 'segments', // 2. 显示线段 (横杠)，允许拖拽平移
+            args: {
+              snapRadius: 20,
+              attrs: {
+                fill: '#444', // 手柄颜色
+              },
+            },
+          },
+        ]);
+      }
     });
     
     graph.on('blank:click', () => {
       setSelectedCell(null);
-      graph.getEdges().forEach(edge => edge.attr('line/strokeWidth', 2));
+      // 恢复所有管线样式并移除工具
+      graph.getEdges().forEach(edge => {
+        edge.attr('line/strokeWidth', 2);
+        edge.removeTools(); // <--- 关键：点击空白处隐藏所有拖拽手柄
+      });
     });
 
     graph.on('cell:contextmenu', ({ e, cell }) => {
