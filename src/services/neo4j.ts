@@ -113,6 +113,14 @@ export const loadGraphData = async () => {
     const nodes = nodesResult.records.map(record => {
       const props = record.get('n').properties;
       
+      if (props.Tag) {
+        props.tag = props.Tag;
+      }
+      const isTee = props.type === 'Fitting';
+      if (isTee) {
+        props.tag = 'TEE';
+        props.Tag = 'TEE';
+      }
       // ... (Shape 映射逻辑保持不变，此处省略以节省篇幅) ...
       let shapeName = 'p-valve'; 
       switch (props.type) {
@@ -162,7 +170,11 @@ export const loadGraphData = async () => {
         angle: safeNumber(props.angle) || 0,
         data: { ...props },
         attrs: { 
-          label: { text: props.Tag || props.label },
+          label: { 
+            text: isTee ? '' : (props.Tag || props.tag || props.label),
+            display: isTee ? 'none' : undefined
+          },
+          // =
           topLabel: props.tagId ? { text: props.tagId } : undefined,
           bottomLabel: props.loopNum ? { text: props.loopNum } : undefined,
         }

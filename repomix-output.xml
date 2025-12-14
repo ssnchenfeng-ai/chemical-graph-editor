@@ -113,50 +113,6 @@ vite.config.ts
 <files>
 This section contains the contents of the repository's files.
 
-<file path="src/config/rules.ts">
-// src/config/rules.ts
-// ============================================================================
-// 全局业务规则配置
-// ============================================================================
-
-// 1. 当前图纸 ID (为多页系统做准备，目前暂定为 Draft_V1)
-export const CURRENT_DRAWING_ID = 'Draft_V1';
-
-// 2. 介质颜色定义
-export const FLUID_COLORS: Record<string, string> = {
-  Water: '#1890ff',       // 工艺水 - 蓝
-  Steam: '#ff4d4f',       // 蒸汽 - 红
-  Air: '#52c41a',         // 空气 - 绿
-  N2: '#13c2c2',          // 氮气 - 青
-  Oil: '#fa8c16',         // 导热油 - 橙
-  Salt: '#722ed1',        // 熔盐 - 紫
-  Naphthalene: '#8c8c8c', // 萘 - 深灰
-  PA: '#eb2f96',          // 苯酐 - 洋红
-  CrudePA: '#f759ab',     // 粗苯酐 - 浅洋红
-  ProductGas: '#faad14',  // 产物气 - 金黄
-  TailGas: '#bfbfbf',     // 尾气 - 浅灰
-  Signal: '#888888',      // 信号线 - 灰
-};
-
-// 3. 在线元件列表
-// 这些设备被视为"管线的一部分"，路由算法会忽略它们的体积，允许直线穿过
-export const INLINE_TYPES = [
-  'ControlValve', 
-  'Valve', 
-  'Fitting', 
-  'TappingPoint'
-];
-
-// 4. 路由默认配置
-export const DEFAULT_ROUTER = {
-  name: 'manhattan',
-  args: {
-    padding: 20,
-    excludeNodes: ['SHEET_FRAME_A2'], // 默认排除背景框
-  },
-};
-</file>
-
 <file path="public/vite.svg">
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
 </file>
@@ -323,6 +279,50 @@ const Toolbar: React.FC<ToolbarProps> = ({ graph }) => {
 };
 
 export default Toolbar;
+</file>
+
+<file path="src/config/rules.ts">
+// src/config/rules.ts
+// ============================================================================
+// 全局业务规则配置
+// ============================================================================
+
+// 1. 当前图纸 ID (为多页系统做准备，目前暂定为 Draft_V1)
+export const CURRENT_DRAWING_ID = 'Draft_V1';
+
+// 2. 介质颜色定义
+export const FLUID_COLORS: Record<string, string> = {
+  Water: '#1890ff',       // 工艺水 - 蓝
+  Steam: '#ff4d4f',       // 蒸汽 - 红
+  Air: '#52c41a',         // 空气 - 绿
+  N2: '#13c2c2',          // 氮气 - 青
+  Oil: '#fa8c16',         // 导热油 - 橙
+  Salt: '#722ed1',        // 熔盐 - 紫
+  Naphthalene: '#8c8c8c', // 萘 - 深灰
+  PA: '#eb2f96',          // 苯酐 - 洋红
+  CrudePA: '#f759ab',     // 粗苯酐 - 浅洋红
+  ProductGas: '#faad14',  // 产物气 - 金黄
+  TailGas: '#bfbfbf',     // 尾气 - 浅灰
+  Signal: '#888888',      // 信号线 - 灰
+};
+
+// 3. 在线元件列表
+// 这些设备被视为"管线的一部分"，路由算法会忽略它们的体积，允许直线穿过
+export const INLINE_TYPES = [
+  'ControlValve', 
+  'Valve', 
+  'Fitting', 
+  'TappingPoint'
+];
+
+// 4. 路由默认配置
+export const DEFAULT_ROUTER = {
+  name: 'manhattan',
+  args: {
+    padding: 20,
+    excludeNodes: ['SHEET_FRAME_A2'], // 默认排除背景框
+  },
+};
 </file>
 
 <file path="src/graph/cells/svgs/cv-electric.svg">
@@ -1457,107 +1457,6 @@ export default defineConfig({
 }
 </file>
 
-<file path="src/components/Editor/ContextMenu/index.tsx">
-import React from 'react';
-import { 
-  DeleteOutlined, 
-  CopyOutlined, 
-  SnippetsOutlined, 
-  InfoCircleOutlined, 
-  ClearOutlined,
-  RotateRightOutlined // <--- 新增图标
-} from '@ant-design/icons';
-import './index.css';
-
-// ... (MenuState 接口保持不变)
-export interface MenuState {
-  visible: boolean;
-  x: number;
-  y: number;
-  type: 'node' | 'edge' | 'blank' | null;
-  cellId?: string;
-}
-
-// ... (Props 接口保持不变)
-interface ContextMenuProps {
-  visible: boolean;
-  x: number;
-  y: number;
-  type: 'node' | 'edge' | 'blank' | null;
-  onClose: () => void;
-  onAction: (action: string) => void;
-}
-
-const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, type, onClose, onAction }) => {
-  if (!visible) return null;
-
-  const handleItemClick = (action: string) => {
-    onAction(action);
-    onClose();
-  };
-
-  return (
-    <>
-      <div 
-        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998 }} 
-        onClick={(e) => { e.stopPropagation(); onClose(); }} 
-        onContextMenu={(e) => { e.preventDefault(); onClose(); }}
-      />
-      
-      <div 
-        className="context-menu" 
-        style={{ left: x, top: y }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* --- 选中节点/连线 --- */}
-        {(type === 'node' || type === 'edge') && (
-          <>
-            {/* 仅节点显示旋转和复制 */}
-            {type === 'node' && (
-              <>
-                <div className="context-menu-item" onClick={() => handleItemClick('copy')}>
-                  <CopyOutlined /> 复制
-                </div>
-                <div className="context-menu-item" onClick={() => handleItemClick('rotate')}>
-                  <RotateRightOutlined /> 旋转 90°
-                </div>
-                <div className="context-menu-divider" />
-              </>
-            )}
-            
-            <div className="context-menu-item" onClick={() => handleItemClick('property')}>
-              <InfoCircleOutlined /> 属性详情
-            </div>
-            <div className="context-menu-divider" />
-            <div className="context-menu-item danger" onClick={() => handleItemClick('delete')}>
-              <DeleteOutlined /> 删除
-            </div>
-          </>
-        )}
-
-        {/* --- 空白处 --- */}
-        {type === 'blank' && (
-          <>
-            <div className="context-menu-item" onClick={() => handleItemClick('paste')}>
-              <SnippetsOutlined /> 粘贴
-            </div>
-            <div className="context-menu-divider" />
-            <div className="context-menu-item" onClick={() => handleItemClick('fit')}>
-              <InfoCircleOutlined /> 适应画布
-            </div>
-            <div className="context-menu-item danger" onClick={() => handleItemClick('clear')}>
-              <ClearOutlined /> 清空所有
-            </div>
-          </>
-        )}
-      </div>
-    </>
-  );
-};
-
-export default ContextMenu;
-</file>
-
 <file path="src/graph/cells/svgs/tank-horizontal.svg">
 <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
   <!-- 1. 罐体 -->
@@ -1760,6 +1659,118 @@ export default App;
     "vite": "npm:rolldown-vite@7.2.5"
   }
 }
+</file>
+
+<file path="src/components/Editor/ContextMenu/index.tsx">
+import React from 'react';
+import { 
+  DeleteOutlined, 
+  CopyOutlined, 
+  SnippetsOutlined, 
+  InfoCircleOutlined, 
+  ClearOutlined,
+  RotateRightOutlined 
+} from '@ant-design/icons';
+import './index.css';
+
+export interface MenuState {
+  visible: boolean;
+  x: number;
+  y: number;
+  type: 'node' | 'edge' | 'blank' | null;
+  cellId?: string;
+}
+
+interface ContextMenuProps {
+  visible: boolean;
+  x: number;
+  y: number;
+  type: 'node' | 'edge' | 'blank' | null;
+  onClose: () => void;
+  onAction: (action: string) => void;
+}
+
+const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, type, onClose, onAction }) => {
+  if (!visible) return null;
+
+  const handleItemClick = (action: string) => {
+    // 使用 try-catch 包裹 action 执行，防止报错阻止菜单关闭
+    try {
+      onAction(action);
+    } catch (e) {
+      console.error('Menu action failed:', e);
+    } finally {
+      // 无论成功失败，都延迟关闭菜单
+      setTimeout(() => {
+        onClose();
+      }, 100);
+    }
+  };
+
+  return (
+    <>
+      <div 
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9998 }} 
+        onClick={(e) => { e.stopPropagation(); onClose(); }} 
+        onContextMenu={(e) => { e.preventDefault(); onClose(); }}
+      />
+      
+      <div 
+        className="context-menu" 
+        style={{ left: x, top: y }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* --- 选中节点/连线 --- */}
+        {(type === 'node' || type === 'edge') && (
+          <>
+            <div className="context-menu-item" onClick={() => handleItemClick('copy')}>
+              <CopyOutlined /> 复制
+            </div>
+
+            {/* 仅节点显示粘贴和旋转 */}
+            {type === 'node' && (
+              <>
+                <div className="context-menu-item" onClick={() => handleItemClick('paste')}>
+                  <SnippetsOutlined /> 粘贴
+                </div>
+                <div className="context-menu-item" onClick={() => handleItemClick('rotate')}>
+                  <RotateRightOutlined /> 旋转 90°
+                </div>
+              </>
+            )}
+            
+            <div className="context-menu-divider" />
+            
+            <div className="context-menu-item" onClick={() => handleItemClick('property')}>
+              <InfoCircleOutlined /> 属性详情
+            </div>
+            <div className="context-menu-item danger" onClick={() => handleItemClick('delete')}>
+              <DeleteOutlined /> 删除
+            </div>
+          </>
+        )}
+
+        {/* --- 空白处 --- */}
+        {type === 'blank' && (
+          <>
+            <div className="context-menu-item" onClick={() => handleItemClick('paste')}>
+              <SnippetsOutlined /> 粘贴
+            </div>
+            <div className="context-menu-divider" />
+            <div className="context-menu-item" onClick={() => handleItemClick('fit')}>
+              <InfoCircleOutlined /> 适应画布
+            </div>
+            <div className="context-menu-item danger" onClick={() => handleItemClick('clear')}>
+              <ClearOutlined /> 清空所有
+            </div>
+          </>
+        )}
+      </div>
+    </>
+  );
+};
+
+export default ContextMenu;
 </file>
 
 <file path="src/components/Editor/Inspector/index.tsx">
@@ -2556,97 +2567,166 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
   };
 
   // ============================================================
-  // [修复] 复制粘贴逻辑
+  // [修复] 复制粘贴逻辑 (手动序列化，解决管线报错问题)
   // ============================================================
-  const performCopy = () => {
+  const performCopy = (targetCell?: Cell) => {
     const graph = graphRef.current;
     if (!graph) return;
-    const cells = graph.getSelectedCells();
-    if (cells.length === 0) return;
-    const cellsToCopy = cells.filter(cell => !cell.getData()?.isBackground);
-    if (cellsToCopy.length > 0) {
-      clipboardRef.current = cellsToCopy.map(cell => cell.toJSON());
-      message.success(`已复制 ${cellsToCopy.length} 个对象`);
+    
+    try {
+      let cells = graph.getSelectedCells();
+      
+      // 如果当前没有选中任何东西，但传入了目标对象（右键菜单触发），则使用目标对象
+      if (cells.length === 0 && targetCell) {
+        cells = [targetCell];
+        graph.select(targetCell);
+      }
+
+      if (cells.length === 0) {
+        message.info('请先选中要复制的对象');
+        return;
+      }
+
+      // [核心修改] 过滤掉背景图框 AND 过滤掉管线 (只复制设备节点)
+      const cellsToCopy = cells.filter(cell => 
+        !cell.getData()?.isBackground && cell.isNode()
+      );
+
+      if (cellsToCopy.length === 0) {
+        message.warning('没有可复制的设备对象 (管线已忽略)');
+        return;
+      }
+
+      // 手动序列化
+      const jsonList = cellsToCopy.map(cell => {
+        try {
+          // 尝试深拷贝 data，防止引用问题
+          const safeData = cell.getData() ? JSON.parse(JSON.stringify(cell.getData())) : {};
+          
+          // 只处理 Node，因为上面已经 filter 过了
+          if (cell.isNode()) {
+            return {
+              id: cell.id,
+              shape: cell.shape,
+              position: cell.getPosition(),
+              size: cell.getSize(),
+              angle: cell.getAngle(),
+              zIndex: cell.getZIndex(),
+              attrs: cell.getAttrs(),
+              data: safeData,
+              ports: cell.getPorts(), // 必须保留端口信息
+            };
+          }
+          return null;
+        } catch (err) {
+          console.error(`Failed to serialize cell ${cell.id}:`, err);
+          return null;
+        }
+      }).filter(item => item !== null);
+
+      if (jsonList.length > 0) {
+        clipboardRef.current = jsonList;
+        message.destroy();
+        message.success(`已复制 ${jsonList.length} 个设备`);
+      } else {
+        message.error('复制失败：无法提取对象数据');
+      }
+    } catch (e) {
+      console.error('Copy critical error:', e);
+      message.error('复制操作失败');
     }
   };
 
+  // ============================================================
+  // [修复] 粘贴逻辑 (增加数据清洗，防止 History 报错)
+  // ============================================================
   const performPaste = (offsetPoint?: { x: number, y: number }) => {
     const graph = graphRef.current;
     if (!graph || !clipboardRef.current || clipboardRef.current.length === 0) return;
 
-    const cellsJSON = clipboardRef.current;
-    let dx = 20;
-    let dy = 20;
+    try {
+      const cellsJSON = clipboardRef.current;
+      console.log('Paste Start. Clipboard items:', cellsJSON.length);
 
-    if (offsetPoint) {
-      const minX = Math.min(...cellsJSON.map((c: any) => c.position?.x || 0));
-      const minY = Math.min(...cellsJSON.map((c: any) => c.position?.y || 0));
-      dx = offsetPoint.x - minX;
-      dy = offsetPoint.y - minY;
-    }
+      let dx = 20;
+      let dy = 20;
 
-    graph.cleanSelection();
-    const newCells: Cell[] = [];
-    const idMap: Record<string, string> = {};
-
-    // 1. 粘贴节点
-    cellsJSON.forEach((cellData: any) => {
-      if (cellData.shape === 'edge') return;
-      const oldId = cellData.id;
-      const { id, zIndex, ...otherData } = cellData;
-      const newNode = graph.createNode({
-        ...otherData,
-        x: (otherData.position?.x || 0) + dx,
-        y: (otherData.position?.y || 0) + dy,
-      });
-      idMap[oldId] = newNode.id;
-      newCells.push(newNode);
-    });
-
-    // 2. 粘贴连线
-    cellsJSON.forEach((cellData: any) => {
-      if (cellData.shape !== 'edge') return;
-      const { id, zIndex, source, target, ...otherData } = cellData;
-      
-      let newSource = { ...source };
-      let newTarget = { ...target };
-
-      if (source.cell && idMap[source.cell]) {
-        newSource.cell = idMap[source.cell];
-      } else if (source.cell) {
-        const originalSourceCell = graph.getCellById(source.cell);
-        if (originalSourceCell && originalSourceCell.isNode()) {
-           const bbox = originalSourceCell.getBBox();
-           newSource = { x: bbox.center.x + dx, y: bbox.center.y + dy };
+      if (offsetPoint) {
+        const nodesOnly = cellsJSON.filter((c: any) => c.position && typeof c.position.x === 'number');
+        if (nodesOnly.length > 0) {
+          const minX = Math.min(...nodesOnly.map((c: any) => c.position.x));
+          const minY = Math.min(...nodesOnly.map((c: any) => c.position.y));
+          dx = offsetPoint.x - minX;
+          dy = offsetPoint.y - minY;
         }
       }
 
-      if (target.cell && idMap[target.cell]) {
-        newTarget.cell = idMap[target.cell];
-      } else if (target.cell) {
-        const originalTargetCell = graph.getCellById(target.cell);
-        if (originalTargetCell && originalTargetCell.isNode()) {
-           const bbox = originalTargetCell.getBBox();
-           newTarget = { x: bbox.center.x + dx, y: bbox.center.y + dy };
+      graph.cleanSelection();
+      const newCells: Cell[] = [];
+      const idMap: Record<string, string> = {};
+
+      // 辅助函数：深度清洗对象，移除 undefined/null
+      const cleanData = (obj: any): any => {
+        if (obj === null || obj === undefined) return {};
+        if (typeof obj !== 'object') return obj;
+        if (Array.isArray(obj)) return obj.map(cleanData);
+        
+        const res: any = {};
+        for (const key in obj) {
+          if (obj[key] !== undefined && obj[key] !== null) {
+            res[key] = cleanData(obj[key]);
+          }
         }
+        return res;
+      };
+
+      // 1. 粘贴节点
+      cellsJSON.forEach((cellData: any) => {
+        if (!cellData.position) return;
+        
+        try {
+          const oldId = cellData.id;
+          const { id, zIndex, ...otherData } = cellData;
+          
+          // 确保 data 和 attrs 是纯净对象
+          const safeData = cleanData(otherData.data || {});
+          const safeAttrs = cleanData(otherData.attrs || {});
+          
+          const newNode = graph.createNode({
+            ...otherData,
+            data: safeData,
+            attrs: safeAttrs,
+            x: (otherData.position.x) + dx,
+            y: (otherData.position.y) + dy,
+            zIndex: (zIndex || 2) + 1
+          });
+          
+          idMap[oldId] = newNode.id;
+          newCells.push(newNode);
+        } catch (nodeErr) {
+          console.error('Failed to create node:', nodeErr);
+        }
+      });
+
+      // (已移除连线粘贴逻辑，因为复制时已经过滤掉了)
+
+      if (newCells.length > 0) {
+        graph.addCell(newCells);
+        graph.select(newCells);
+        message.success(`已粘贴 ${newCells.length} 个设备`);
       }
 
-      const newEdge = graph.createEdge({
-        ...otherData,
-        source: newSource,
-        target: newTarget,
-      });
-      newCells.push(newEdge);
-    });
-
-    graph.addCell(newCells);
-    graph.select(newCells);
-    
-    if (!offsetPoint) {
-       clipboardRef.current = cellsJSON.map((c: any) => ({
-         ...c,
-         position: c.position ? { x: c.position.x + 20, y: c.position.y + 20 } : undefined
-       }));
+      if (!offsetPoint) {
+         clipboardRef.current = cellsJSON.map((c: any) => {
+           if (c.position) {
+             return { ...c, position: { x: c.position.x + 20, y: c.position.y + 20 } };
+           }
+           return c;
+         });
+      }
+    } catch (e) {
+      console.error('Paste critical error:', e);
+      message.error('粘贴操作异常');
     }
   };
 
@@ -2666,19 +2746,38 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       },
     });
   };
+
   const handleMenuAction = (action: string) => {
     const { cellId } = menu;
     const graph = graphRef.current;
     if (!graph) return;
+    
     const cell = cellId ? graph.getCellById(cellId) : null;
+    
     switch (action) {
-      case 'delete': if (cell && !cell.getData()?.isBackground) { graph.removeCell(cell); setSelectedCell(null); } break;
-      case 'copy': if (cell) { graph.resetSelection(cell); } performCopy(); break;
-      case 'paste': const point = graph.clientToLocal({ x: menu.x, y: menu.y }); performPaste(point); break;
+      case 'copy': 
+        if (cell && !graph.isSelected(cell)) {
+          graph.resetSelection(cell); 
+        }
+        performCopy(cell || undefined); 
+        break;
+      case 'paste': 
+        const point = graph.clientToLocal({ x: menu.x, y: menu.y }); 
+        performPaste(point); 
+        break;
       case 'property': message.success('已定位到属性面板'); break;
       case 'clear': onClear(); break;
       case 'fit': onZoomToFit(); break;
-      case 'rotate': if (cell && cell.isNode() && !cell.getData()?.isBackground) { cell.rotate(90); } break;
+      case 'delete': 
+        const selected = graph.getSelectedCells();
+        if (selected.length > 0) {
+          graph.removeCells(selected);
+        } else if (cell) {
+          graph.removeCell(cell);
+        }
+        break;
+      case 'rotate': 
+        if (cell && cell.isNode() && !cell.getData()?.isBackground) { cell.rotate(90); } break;
     }
   };
 

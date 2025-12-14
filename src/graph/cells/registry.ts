@@ -72,51 +72,72 @@ const VALVE_PORTS = {
 const TEE_PORTS = {
   groups: { all: { position: 'absolute', attrs: PORT_ATTRS } },
   items: [
-    { id: 'left', group: 'all', args: { x: '0%', y: '50%' }, data: { desc: '三通接口', dir: 'bi' } as PortData },
-    { id: 'right', group: 'all', args: { x: '100%', y: '50%' }, data: { desc: '三通接口', dir: 'bi' } as PortData },
-    { id: 'bottom', group: 'all', args: { x: '50%', y: '100%' }, data: { desc: '三通接口', dir: 'bi' } as PortData },
+    { id: 'p1', group: 'all', args: { x: '0%', y: '50%' }, data: { desc: '三通接口-1', dir: 'bi' } as PortData },
+    { id: 'p2', group: 'all', args: { x: '100%', y: '50%' }, data: { desc: '三通接口-2', dir: 'bi' } as PortData },
+    { id: 'p3', group: 'all', args: { x: '50%', y: '100%' }, data: { desc: '三通接口-3', dir: 'bi' } as PortData },
   ],
 };
 
 const TANK_PORTS = {
-  groups: { top: { position: 'absolute', attrs: PORT_ATTRS }, bottom: { position: 'absolute', attrs: PORT_ATTRS }, left: { position: 'absolute', attrs: PORT_ATTRS }, right: { position: 'absolute', attrs: PORT_ATTRS } },
+  groups: { 
+    top: { position: 'absolute', attrs: PORT_ATTRS }, 
+    bottom: { position: 'absolute', attrs: PORT_ATTRS }, 
+    left: { position: 'absolute', attrs: PORT_ATTRS }, 
+    right: { position: 'absolute', attrs: PORT_ATTRS } 
+  },
   items: [
-    { group: 'top', args: { x: '20%', y: '0%' }, data: { desc: 'N1' } as PortData },
-    { group: 'top', args: { x: '35%', y: '0%' }, data: { desc: 'N2' } as PortData },
-    { group: 'top', args: { x: '50%', y: '0%' }, data: { desc: 'N3' } as PortData },
-    { group: 'top', args: { x: '65%', y: '0%' }, data: { desc: 'N4' } as PortData },
-    { group: 'top', args: { x: '80%', y: '0%' }, data: { desc: 'N5' } as PortData },
-    { group: 'bottom', args: { x: '20%', y: '100%' }, data: { desc: 'N6' } as PortData },
-    { group: 'bottom', args: { x: '35%', y: '100%' }, data: { desc: 'N7' } as PortData },
-    { group: 'bottom', args: { x: '50%', y: '100%' }, data: { desc: 'N8' } as PortData },
-    { group: 'bottom', args: { x: '65%', y: '100%' }, data: { desc: 'N9' } as PortData },
-    { group: 'bottom', args: { x: '80%', y: '100%' }, data: { desc: 'N=10' } as PortData },
-    { group: 'left', args: { x: '0%', y: '25%' }, data: { desc: 'N11' } as PortData },
-    { group: 'left', args: { x: '0%', y: '50%' }, data: { desc: 'N12' } as PortData },
-    { group: 'left', args: { x: '0%', y: '75%' }, data: { desc: 'N13' } as PortData },
-    { group: 'right', args: { x: '100%', y: '25%' }, data: { desc: 'N14' } as PortData },
-    { group: 'right', args: { x: '100%', y: '50%' }, data: { desc: 'N15' } as PortData },
-    { group: 'right', args: { x: '100%', y: '75%' }, data: { desc: 'N16' } as PortData },
+    // 顶部端口 N1-N5
+    { id: 'n1', group: 'top', args: { x: '20%', y: '0%' }, data: { desc: 'N1' } as PortData },
+    { id: 'n2', group: 'top', args: { x: '35%', y: '0%' }, data: { desc: 'N2' } as PortData },
+    { id: 'n3', group: 'top', args: { x: '50%', y: '0%' }, data: { desc: 'N3' } as PortData },
+    { id: 'n4', group: 'top', args: { x: '65%', y: '0%' }, data: { desc: 'N4' } as PortData },
+    { id: 'n5', group: 'top', args: { x: '80%', y: '0%' }, data: { desc: 'N5' } as PortData },
+    // 底部端口 N6-N10
+    { id: 'n6', group: 'bottom', args: { x: '20%', y: '100%' }, data: { desc: 'N6' } as PortData },
+    { id: 'n7', group: 'bottom', args: { x: '35%', y: '100%' }, data: { desc: 'N7' } as PortData },
+    { id: 'n8', group: 'bottom', args: { x: '50%', y: '100%' }, data: { desc: 'N8' } as PortData },
+    { id: 'n9', group: 'bottom', args: { x: '65%', y: '100%' }, data: { desc: 'N9' } as PortData },
+    { id: 'n10', group: 'bottom', args: { x: '80%', y: '100%' }, data: { desc: 'N=10' } as PortData },
+    // 左侧端口 N11-N13
+    { id: 'n11', group: 'left', args: { x: '0%', y: '25%' }, data: { desc: 'N11' } as PortData },
+    { id: 'n12', group: 'left', args: { x: '0%', y: '50%' }, data: { desc: 'N12' } as PortData },
+    { id: 'n13', group: 'left', args: { x: '0%', y: '75%' }, data: { desc: 'N13' } as PortData },
+    // 右侧端口 N14-N16
+    { id: 'n14', group: 'right', args: { x: '100%', y: '25%' }, data: { desc: 'N14' } as PortData },
+    { id: 'n15', group: 'right', args: { x: '100%', y: '50%' }, data: { desc: 'N15' } as PortData },
+    { id: 'n16', group: 'right', args: { x: '100%', y: '75%' }, data: { desc: 'N16' } as PortData },
   ],
 };
 
 const GAS_COOLER_PORTS = {
-  groups: { main: { position: 'absolute', attrs: PORT_ATTRS }, burst: { position: 'absolute', attrs: PORT_ATTRS }, top_in: { position: 'absolute', attrs: PORT_ATTRS }, top_out: { position: 'absolute', attrs: PORT_ATTRS }, bottom_in: { position: 'absolute', attrs: PORT_ATTRS }, bottom_out: { position: 'absolute', attrs: PORT_ATTRS } },
+  groups: { 
+    main: { position: 'absolute', attrs: PORT_ATTRS }, 
+    burst: { position: 'absolute', attrs: PORT_ATTRS }, 
+    top_in: { position: 'absolute', attrs: PORT_ATTRS }, 
+    top_out: { position: 'absolute', attrs: PORT_ATTRS }, 
+    bottom_in: { position: 'absolute', attrs: PORT_ATTRS }, 
+    bottom_out: { position: 'absolute', attrs: PORT_ATTRS } 
+  },
   items: [
-    { group: 'main', args: { x: '0%', y: '58%' }, data: { desc: '壳程入口', dir: 'in' } as PortData },
-    { group: 'main', args: { x: '100%', y: '58%' }, data: { desc: '壳程出口', dir: 'out' } as PortData },
-    { group: 'burst', args: { x: '8.75%', y: '19%' }, data: { desc: '爆破片接口(左)', dir: 'bi' } as PortData },
-    { group: 'burst', args: { x: '91.25%', y: '19%' }, data: { desc: '爆破片接口(右)', dir: 'bi' } as PortData },
-    { group: 'top_in', args: { x: '21.25%', y: '15%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'in' } as PortData },
-    { group: 'top_out', args: { x: '31.25%', y: '15%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'out' } as PortData },
-    { group: 'top_out', args: { x: '41.25%', y: '15%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'out' } as PortData },
-    { group: 'top_in', args: { x: '81.25%', y: '15%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'in' } as PortData },
-    { group: 'bottom_in', args: { x: '21.25%', y: '92%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'in' } as PortData },
-    { group: 'bottom_out', args: { x: '31.25%', y: '92%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'out' } as PortData },
-    { group: 'bottom_out', args: { x: '41.25%', y: '92%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'out' } as PortData },
-    { group: 'bottom_in', args: { x: '81.25%', y: '92%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'in' } as PortData },
+    // 壳程
+    { id: 'shell_in', group: 'main', args: { x: '0%', y: '58%' }, data: { desc: '壳程入口', dir: 'in' } as PortData },
+    { id: 'shell_out', group: 'main', args: { x: '100%', y: '58%' }, data: { desc: '壳程出口', dir: 'out' } as PortData },
+    // 爆破片
+    { id: 'burst_left', group: 'burst', args: { x: '8.75%', y: '19%' }, data: { desc: '爆破片接口(左)', dir: 'bi' } as PortData },
+    { id: 'burst_right', group: 'burst', args: { x: '91.25%', y: '19%' }, data: { desc: '爆破片接口(右)', dir: 'bi' } as PortData },
+    // 顶部管束接口
+    { id: 'tube_top_in_1', group: 'top_in', args: { x: '21.25%', y: '15%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'in' } as PortData },
+    { id: 'tube_top_out_1', group: 'top_out', args: { x: '31.25%', y: '15%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'out' } as PortData },
+    { id: 'tube_top_out_2', group: 'top_out', args: { x: '41.25%', y: '15%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'out' } as PortData },
+    { id: 'tube_top_in_2', group: 'top_in', args: { x: '81.25%', y: '15%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'in' } as PortData },
+    // 底部管束接口
+    { id: 'tube_bot_in_1', group: 'bottom_in', args: { x: '21.25%', y: '92%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'in' } as PortData },
+    { id: 'tube_bot_out_1', group: 'bottom_out', args: { x: '31.25%', y: '92%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'out' } as PortData },
+    { id: 'tube_bot_out_2', group: 'bottom_out', args: { x: '41.25%', y: '92%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'out' } as PortData },
+    { id: 'tube_bot_in_2', group: 'bottom_in', args: { x: '81.25%', y: '92%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'in' } as PortData },
   ],
 };
+
 
 const INSTRUMENT_PORTS = {
   groups: { all: { position: 'absolute', attrs: PORT_ATTRS } },
@@ -283,22 +304,30 @@ export const registerCustomCells = () => {
 
   instruments.forEach(inst => {
     Graph.registerNode(inst.key, {
-      width: 50, height: 50,
+      width: 40, height: 40,
       markup: [{ tagName: 'image', selector: 'body' }, { tagName: 'text', selector: 'topLabel' }, { tagName: 'text', selector: 'bottomLabel' }],
       attrs: {
         body: { refWidth: '100%', refHeight: '100%', xlinkHref: svgToDataUrl(inst.svg) },
-        topLabel: { refX: 0.5, refY: 0.35, textAnchor: 'middle', textVerticalAnchor: 'middle', fontSize: 10, fontWeight: 'bold', fill: '#000', text: 'PI' },
-        bottomLabel: { refX: 0.5, refY: 0.65, textAnchor: 'middle', textVerticalAnchor: 'middle', fontSize: 10, fontWeight: 'bold', fill: '#000', text: '101' },
+        topLabel: { refX: 0.5, refY: 0.35, textAnchor: 'middle', textVerticalAnchor: 'middle', fontSize: 9, fontWeight: 'bold', fill: '#000', text: 'PI' },
+        bottomLabel: { refX: 0.5, refY: 0.65, textAnchor: 'middle', textVerticalAnchor: 'middle', fontSize: 9, fontWeight: 'bold', fill: '#000', text: '101' },
       },
       ports: INSTRUMENT_PORTS, data: { type: inst.type, tagId: 'PI', loopNum: '101', range: '0-1.6', unit: 'MPa' },
     });
   });
 
   Graph.registerNode('p-tee', {
-    inherit: 'image', width: 30, height: 30, imageUrl: svgToDataUrl(teeSvg),
+    inherit: 'image', 
+    width: 20, 
+    height: 20, 
+    imageUrl: svgToDataUrl(teeSvg),
     ports: TEE_PORTS,
-    attrs: { label: { refY: '100%', refY2: 4, textAnchor: 'middle', textVerticalAnchor: 'top', fontSize: 12, fill: '#333' } },
-    data: { type: 'Fitting', spec: 'Tee', tag: '' },
+    attrs: { 
+      label: { 
+        display: 'none', 
+        text: '' 
+      } 
+    },
+    data: { type: 'Fitting', spec: 'Tee', tag: 'TEE' },
   });
 
   Graph.registerNode('p-tank-horizontal', {
