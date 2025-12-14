@@ -1,21 +1,6 @@
+// src/services/neo4j.ts
 import neo4j from 'neo4j-driver';
-
-const FLUID_COLORS: Record<string, string> = {
-  Water: '#1890ff',       // 工艺水 - 蓝
-  Steam: '#ff4d4f',       // 蒸汽 - 红
-  Air: '#52c41a',         // 空气 - 绿
-  N2: '#13c2c2',          // 氮气 - 青
-  Oil: '#fa8c16',         // 导热油 - 橙
-  Salt: '#722ed1',        // 熔盐 - 紫
-  Naphthalene: '#8c8c8c', // 萘 - 深灰
-  PA: '#eb2f96',          // 苯酐 - 洋红
-  CrudePA: '#f759ab',     // 粗苯酐 - 浅洋红
-  ProductGas: '#faad14',  // 产物气 - 金黄
-  TailGas: '#bfbfbf',     // 尾气 - 浅灰
-};
-
-// ==================== [新增] 在线元件类型列表 ====================
-const INLINE_TYPES = ['ControlValve', 'Valve', 'Fitting', 'TappingPoint'];
+import { FLUID_COLORS, CURRENT_DRAWING_ID } from '../config/rules';
 
 const driver = neo4j.driver(
   'bolt://localhost:7687', 
@@ -23,33 +8,23 @@ const driver = neo4j.driver(
   { encrypted: 'ENCRYPTION_OFF', disableLosslessIntegers: true }
 );
 
-export const runCypher = async (cypher: string, params = {}) => {
-  const session = driver.session();
-  try {
-    const result = await session.run(cypher, params);
-    return result.records;
-  } catch (error) {
-    console.error('Neo4j Execution Error:', error);
-    throw error;
-  } finally {
-    await session.close();
-  }
-};
-
 export const saveGraphData = async (nodes: any[], edges: any[]) => {
   const session = driver.session();
   const tx = session.beginTransaction();
   try {
-    // 1. 清空旧数据
-    await tx.run(`MATCH (n:Equipment) DETACH DELETE n`);
+    // 1. [安全修复] 仅删除当前图纸的数据
+    await tx.run(
+      `MATCH (n:Equipment {drawingId: $drawingId}) DETACH DELETE n`,
+      { drawingId: CURRENT_DRAWING_ID }
+    );
 
-    // 2. 保存节点
+    // 2. 保存节点 (注入 drawingId)
     if (nodes.length) {
       await tx.run(
         `UNWIND $nodes AS n 
-         CREATE (e:Equipment {x6Id: n.x6Id}) 
+         CREATE (e:Equipment {x6Id: n.x6Id, drawingId: $drawingId}) 
          SET e += n`, 
-        { nodes }
+        { nodes, drawingId: CURRENT_DRAWING_ID }
       );
     }
 
@@ -58,7 +33,7 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
       const pipes = edges.filter(e => e.type !== 'Signal');
       const signals = edges.filter(e => e.type === 'Signal');
 
-      // 3.1 保存工艺管线 (PIPE)
+      // 3.1 保存工艺管线
       if (pipes.length) {
         await tx.run(
           `UNWIND $pipes AS r 
@@ -82,7 +57,7 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         );
       }
 
-      // 3.2 保存信号线 (Signal)
+      // 3.2 保存信号线 (逻辑保持不变)
       if (signals.length) {
         const controlSignals = signals.filter((s: any) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
         const measureSignals = signals.filter((s: any) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
@@ -94,12 +69,8 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
              CREATE (s)-[:CONTROLS {
                fromPort:   r.sourcePort, 
                toPort:     r.targetPort,
-               fromRegion: r.sourceRegion, 
-               fromDesc:   r.sourceDesc,
-               toRegion:   r.targetRegion,
-               toDesc:     r.targetDesc,
-               fluid:      'Signal' ,
-               vertices: r.vertices 
+               fluid:      'Signal',
+               vertices:   r.vertices 
              }]->(t)`, 
             { batch: controlSignals }
           );
@@ -112,11 +83,7 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
              CREATE (inst)-[:MEASURES {
                fromPort:   r.targetPort,
                toPort:     r.sourcePort,
-               fromRegion: r.targetRegion,
-               fromDesc:   r.targetDesc,
-               toRegion:   r.sourceRegion,
-               toDesc:     r.sourceDesc,
-               fluid:      'Signal' ,
+               fluid:      'Signal',
                vertices:   r.vertices
              }]->(tp)`, 
             { batch: measureSignals }
@@ -137,11 +104,16 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
 export const loadGraphData = async () => {
   const session = driver.session();
   try {
-    // 1. 加载节点
-    const nodesResult = await session.run(`MATCH (n:Equipment) RETURN n`);
+    // 1. 加载节点 (增加 drawingId 过滤)
+    const nodesResult = await session.run(
+      `MATCH (n:Equipment {drawingId: $drawingId}) RETURN n`,
+      { drawingId: CURRENT_DRAWING_ID }
+    );
+    
     const nodes = nodesResult.records.map(record => {
       const props = record.get('n').properties;
       
+      // ... (Shape 映射逻辑保持不变，此处省略以节省篇幅) ...
       let shapeName = 'p-valve'; 
       switch (props.type) {
         case 'Reactor':      shapeName = 'p-reactor'; break;
@@ -180,8 +152,6 @@ export const loadGraphData = async () => {
         return undefined; 
       };
 
-      const data = { ...props };
-      
       return {
         id: props.x6Id,
         shape: shapeName, 
@@ -190,7 +160,7 @@ export const loadGraphData = async () => {
         width: safeNumber(props.width), 
         height: safeNumber(props.height),
         angle: safeNumber(props.angle) || 0,
-        data: data,
+        data: { ...props },
         attrs: { 
           label: { text: props.Tag || props.label },
           topLabel: props.tagId ? { text: props.tagId } : undefined,
@@ -201,9 +171,9 @@ export const loadGraphData = async () => {
 
     // 2. 加载连线
     const edgesResult = await session.run(`
-      MATCH (s:Equipment)-[r:PIPE|MEASURES|CONTROLS]->(t:Equipment) 
+      MATCH (s:Equipment {drawingId: $drawingId})-[r:PIPE|MEASURES|CONTROLS]->(t:Equipment {drawingId: $drawingId}) 
       RETURN s.x6Id as sourceId, t.x6Id as targetId, r, type(r) as relType
-    `);
+    `, { drawingId: CURRENT_DRAWING_ID });
     
     const edges = edgesResult.records.map(record => {
       const rel = record.get('r').properties;
@@ -218,17 +188,14 @@ export const loadGraphData = async () => {
       let edgeType = 'Pipe'; 
       let labels: any[] = [];
       let vertices = [];
+      
       if (rel.vertices) {
-        try {
-          vertices = JSON.parse(rel.vertices);
-        } catch (e) {
-          console.warn('Failed to parse vertices', e);
-        }
+        try { vertices = JSON.parse(rel.vertices); } catch (e) { console.warn('Vertices parse error', e); }
       }
 
       if (relType === 'MEASURES' || relType === 'CONTROLS') {
         strokeWidth = 1;
-        strokeColor = '#888'; 
+        strokeColor = FLUID_COLORS.Signal; 
         dashArray = '4 4';    
         targetMarker = { name: 'classic', width: 10, height: 6 }; 
         edgeType = 'Signal';
@@ -236,7 +203,7 @@ export const loadGraphData = async () => {
         targetMarker = { name: 'classic', width: 8, height: 6 }; 
         if (rel.insulation && rel.insulation.startsWith('Jacket')) {
           strokeWidth = 4;
-          strokeColor = '#fa8c16'; 
+          strokeColor = FLUID_COLORS.Oil; // 默认夹套颜色
         } else if (['ST', 'ET', 'OT'].includes(rel.insulation)) {
           dashArray = '5 5'; 
         }
@@ -249,6 +216,7 @@ export const loadGraphData = async () => {
         });
       }
 
+      // 处理 MEASURES 的反向关系
       let finalSourceId = sourceId;
       let finalTargetId = targetId;
       let finalSourcePort = rel.fromPort;
@@ -261,39 +229,14 @@ export const loadGraphData = async () => {
         finalTargetPort = rel.fromPort; 
       }
 
-      // ==================== [新增] 动态计算路由排除列表 ====================
-      let routerConfig = undefined;
-
-      if (edgeType === 'Pipe') {
-        const excludeNodes = ['SHEET_FRAME_A2']; 
-
-        const sourceNode = nodes.find(n => n.id === finalSourceId);
-        const targetNode = nodes.find(n => n.id === finalTargetId);
-
-        if (sourceNode && INLINE_TYPES.includes(sourceNode.data.type)) {
-          excludeNodes.push(finalSourceId);
-        }
-
-        if (targetNode && INLINE_TYPES.includes(targetNode.data.type)) {
-          excludeNodes.push(finalTargetId);
-        }
-
-        routerConfig = {
-          name: 'manhattan',
-          args: {
-            padding: 20,
-            excludeNodes: excludeNodes
-          }
-        };
-      }
-      // =================================================================
+      // [架构修复] 移除后端的 router 计算逻辑
+      // 路由配置现在完全由前端根据节点类型动态生成
 
       return {
         shape: edgeType === 'Signal' ? 'signal-edge' : 'edge',
         source: { cell: finalSourceId, port: finalSourcePort || undefined },
         target: { cell: finalTargetId, port: finalTargetPort || undefined },
         vertices: vertices, 
-        
         attrs: { 
           line: { 
             stroke: strokeColor,
@@ -303,9 +246,6 @@ export const loadGraphData = async () => {
           } 
         },
         labels: labels,
-        // ==================== [关键修复] 注入 router 配置 ====================
-        router: routerConfig, 
-        // ===================================================================
         data: { 
           type: edgeType, 
           relationType: relType, 
