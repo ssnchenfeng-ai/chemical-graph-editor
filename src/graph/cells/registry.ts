@@ -47,7 +47,56 @@ const PORT_ATTRS = {
 const LABEL_ATTRS = {
   label: { refY: '100%', refY2: 8, textAnchor: 'middle', textVerticalAnchor: 'top', fontSize: 12, fill: '#333' }
 };
+// [优化] E-13 端口定义：引入气液分相语义
+const E13_PORTS = {
+  groups: { 
+    top: { position: 'absolute', attrs: PORT_ATTRS }, 
+    bottom: { position: 'absolute', attrs: PORT_ATTRS }, 
+    left: { position: 'absolute', attrs: PORT_ATTRS }, 
+    heater: { position: 'absolute', attrs: PORT_ATTRS } 
+  },
+  items: [
+    // ========================================================================
+    // 1. 壳程-气相区 (ShellSide:Vapor)
+    //    位于设备上半部分，用于排出萘蒸汽、连接安全阀或液位计上法兰
+    // ========================================================================
+    
+    // 顶部接口 (必然是气相)
+    { id: 't1', group: 'top', args: { x: '22%', y: '1.1%' }, data: { desc: '顶部接口-1', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 't2', group: 'top', args: { x: '34%', y: '1.1%' }, data: { desc: '顶部接口-2', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 't3', group: 'top', args: { x: '46%', y: '1.1%' }, data: { desc: '顶部接口-3', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 't4', group: 'top', args: { x: '58%', y: '1.1%' }, data: { desc: '顶部接口-4', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'bi' } as PortData },
 
+    // 左侧上半部接口 (气相空间)
+    { id: 'l1', group: 'left', args: { x: '3%', y: '17.7%' }, data: { desc: '左侧接口-1(上)', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'in' } as PortData }, // y=80
+    { id: 'l2', group: 'left', args: { x: '3%', y: '31.1%' }, data: { desc: '左侧接口-2(上)', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'in' } as PortData }, // y=140
+    { id: 'l3', group: 'left', args: { x: '3%', y: '44.4%' }, data: { desc: '左侧接口-3(中上)', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'in' } as PortData }, // y=200
+
+    // ========================================================================
+    // 2. 壳程-液相区 (ShellSide:Liquid)
+    //    位于设备下半部分，加热器浸没于此，用于进料、排污或液位计下法兰
+    // ========================================================================
+
+    // 底部接口 (必然是液相)
+    { id: 'b1', group: 'bottom', args: { x: '22%', y: '98.9%' }, data: { desc: '底部接口-1', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'bi' } as PortData },
+    { id: 'b2', group: 'bottom', args: { x: '34%', y: '98.9%' }, data: { desc: '底部接口-2', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'bi' } as PortData },
+    { id: 'b3', group: 'bottom', args: { x: '46%', y: '98.9%' }, data: { desc: '底部接口-3', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'bi' } as PortData },
+    { id: 'b4', group: 'bottom', args: { x: '58%', y: '98.9%' }, data: { desc: '底部接口-4', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'bi' } as PortData },
+
+    // 左侧下半部接口 (液相空间)
+    { id: 'l4', group: 'left', args: { x: '3%', y: '57.7%' }, data: { desc: '左侧接口-4(中下)', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'in' } as PortData }, // y=260
+    { id: 'l5', group: 'left', args: { x: '3%', y: '71.1%' }, data: { desc: '左侧接口-5(下)', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'in' } as PortData }, // y=320
+    { id: 'l6', group: 'left', args: { x: '3%', y: '84.4%' }, data: { desc: '左侧接口-6(下)', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'in' } as PortData }, // y=380
+
+    // ========================================================================
+    // 3. 管程 (TubeSide)
+    //    独立的加热回路，与壳程物理隔离
+    // ========================================================================
+    
+    { id: 'h_in', group: 'heater', args: { x: '83%', y: '51.1%' }, data: { desc: '蒸汽入口', region: 'TubeSide', phase: 'Gas', dir: 'in' } as PortData },
+    { id: 'h_out', group: 'heater', args: { x: '83%', y: '93.3%' }, data: { desc: '冷凝水出口', region: 'TubeSide', phase: 'Liquid', dir: 'out' } as PortData },
+  ],
+};
 // ... (端口定义保持不变，此处省略以节省篇幅) ...
 // 如果您需要完整的端口定义代码，请告知，通常这部分不会导致图标丢失。
 // 关键是下面的 registerCustomCells 函数
@@ -247,17 +296,13 @@ export const registerCustomCells = () => {
   });
 
   Graph.registerNode('p-naphthalene-evaporator', {
-    inherit: 'image', width: 200, height: 120, imageUrl: svgToDataUrl(e13Svg),
-    ports: {
-      groups: { shell: { position: 'absolute', attrs: PORT_ATTRS }, tube: { position: 'absolute', attrs: PORT_ATTRS } },
-      items: [
-        { id: 'nap_out', group: 'shell', args: { x: '61.5%', y: '0%' }, data: { desc: '萘蒸汽出口' } as PortData },
-        { id: 'nap_in', group: 'shell', args: { x: '13.5%', y: '100%' }, data: { desc: '工业萘入口' } as PortData },
-        { id: 'steam_in', group: 'tube', args: { x: '100%', y: '63%' }, data: { desc: '蒸汽入口' } as PortData },
-        { id: 'cond_out', group: 'tube', args: { x: '100%', y: '78%' }, data: { desc: '冷凝液出口' } as PortData },
-      ],
-    },
-    attrs: LABEL_ATTRS, data: { type: 'Evaporator', spec: 'E-13' },
+    inherit: 'image', 
+    width: 200, 
+    height: 90, // 调整高度以匹配 1000:450 的比例 (200 * 0.45 = 90)
+    imageUrl: svgToDataUrl(e13Svg),
+    ports: E13_PORTS,
+    attrs: LABEL_ATTRS, 
+    data: { type: 'Evaporator', spec: '蒸发器', tag: 'E-13' },
   });
 
   const pumps = [
@@ -279,7 +324,7 @@ export const registerCustomCells = () => {
     });
   });
 
-  const valves = [
+  const controlValves = [
     { key: 'p-cv-pneumatic', name: '气动调节阀', svg: cvPneumaticSvg, type: 'ControlValve' },
     { key: 'p-cv-positioner', name: '带定位器阀', svg: cvPositionerSvg, type: 'ControlValve' },
     { key: 'p-cv-electric', name: '电动调节阀', svg: cvElectricSvg, type: 'ControlValve' },
@@ -288,7 +333,7 @@ export const registerCustomCells = () => {
     { key: 'p-cv-piston', name: '气缸调节阀', svg: cvPistonSvg, type: 'ControlValve' },
   ];
 
-  valves.forEach(v => {
+  controlValves.forEach(v => {
     Graph.registerNode(v.key, {
       inherit: 'image', width: 40, height: 60, imageUrl: svgToDataUrl(v.svg),
       ports: VALVE_PORTS, attrs: LABEL_ATTRS,

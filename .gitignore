@@ -22,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables (非常重要！绝对不能上传 .env)
+.env
+.env.local
+.env.*.local
+!.env.example

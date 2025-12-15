@@ -92,8 +92,10 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
           const data = node.getData() || {};
           const pos = node.getPosition();
           const size = node.getSize();
+          const angle = node.getAngle(); // 获取角度
           const type = data.type || 'Unknown';
 
+          // Tag 处理逻辑
           let Tag = data.tag || node.getAttrs()?.label?.text || '';
           if (type === 'Instrument') {
             const func = data.tagId || '';
@@ -101,14 +103,27 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
             if (func || loop) Tag = `${func}${loop ? '-' + loop : ''}`;
           }
 
+          // [核心修改] 将 x, y, w, h, a 打包成 layout JSON 字符串
+          // 使用 Math.round 取整，减少存储体积
+          const layoutData = {
+            x: Math.round(pos.x),
+            y: Math.round(pos.y),
+            w: Math.round(size.width),
+            h: Math.round(size.height),
+            a: Math.round(angle) 
+          };
+
           const baseProps = {
             x6Id: node.id,
             type: type, 
             Tag: Tag,
-            x: pos.x, y: pos.y, width: size.width, height: size.height, angle: node.getAngle(),
-            desc: data.desc || ''
+            desc: data.desc || '',
+            // [新增] 存入 layout 字段
+            layout: JSON.stringify(layoutData)
+            // [移除] x, y, width, height, angle 不再直接作为顶层属性
           };
 
+          // 业务属性提取逻辑 (保持不变)
           let specificProps = {};
           if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
              specificProps = pick(data, ['spec', 'flow', 'head', 'power', 'material']);
@@ -134,12 +149,27 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         const targetNode = edge.getTargetNode();
         const vertices = edge.getVertices(); 
         
+        // [核心修改] 提取端口元数据逻辑
         const getPortMeta = (node: Cell | null, portId: string | undefined) => {
           if (!node || !node.isNode() || !portId) return { group: 'default', desc: 'unknown' };
+          
           const port = node.getPort(portId);
           if (!port) return { group: 'default', desc: 'unknown' };
+
+          // 优先级逻辑：
+          // 1. 优先使用语义化的 region (如 "ShellSide:Liquid", "TubeSide")
+          // 2. 其次使用 section (如 "HighTemp")
+          // 3. 最后降级使用视觉 group (如 "top", "left")
+          let region = port.data?.region || port.group || 'default';
+          
+          // 如果有 section (如气体冷却器的高温段)，可以拼接到 region 中，或者单独存储
+          // 这里为了简化，如果存在 section，我们将其追加到 region 描述中，例如 "TubeSide:HighTemp"
+          if (port.data?.region && port.data?.section) {
+            region = `${port.data.region}:${port.data.section}`;
+          }
+
           return {
-            group: port.group || 'default',
+            group: region, // 这里将语义 region 赋值给 group 字段，后续会存入 Neo4j 的 fromRegion/toRegion
             desc: port.data?.desc || port.attrs?.circle?.title || port.id
           };
         };
@@ -152,8 +182,13 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
           target: edge.getTargetCell()?.id,
           sourcePort: edge.getSourcePortId(),
           targetPort: edge.getTargetPortId(),
-          sourceRegion: srcMeta.group, sourceDesc: srcMeta.desc,
-          targetRegion: tgtMeta.group, targetDesc: tgtMeta.desc,
+          
+          // 这里 srcMeta.group 现在携带的是 "ShellSide:Liquid" 等高价值语义
+          sourceRegion: srcMeta.group, 
+          sourceDesc: srcMeta.desc,
+          targetRegion: tgtMeta.group, 
+          targetDesc: tgtMeta.desc,
+          
           type: data.type || 'Pipe', 
           material: data.material || 'CS',
           fluid: data.fluid || 'Water',

@@ -422,92 +422,45 @@ export const DEFAULT_ROUTER = {
 </file>
 
 <file path="src/graph/cells/svgs/E-13.svg">
-<svg xmlns="http://www.w3.org/2000/svg" width="821" height="464" viewBox="0 0 821 464" style="background-color:transparent">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="450" viewBox="0 0 1000 450" fill="none" stroke="black" stroke-width="2">
   <g>
-    <g>
-      <!-- 主壳体 -->
-      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M197.8 5h87v20h-87z" transform="translate(.5 .5)"/>
-      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M183.8 0h111v5h-111z" transform="translate(.5 .5)"/>
-      
-      <!-- 顶部管口 -->
-      <g fill="#ffffff" stroke="#000000" stroke-width="1">
-        <path d="M347.8 7.2h18.5V25h-18.5z" transform="translate(.5 .5)"/>
-        <path d="M341.8 5h30v2.2h-30z" transform="translate(.5 .5)"/>
-      </g>
-      <g fill="#ffffff" stroke="#000000" stroke-width="1">
-        <path d="M497.8 7.2h18.5V25h-18.5z" transform="translate(.5 .5)"/>
-        <path d="M491.8 5h30v2.2h-30z" transform="translate(.5 .5)"/>
-      </g>
-      <g fill="#ffffff" stroke="#000000" stroke-width="1">
-        <path d="M112.8 7.2h18.5V25h-18.5z" transform="translate(.5 .5)"/>
-        <path d="M106.8 5h30v2.2h-30z" transform="translate(.5 .5)"/>
-      </g>
+    <!-- 1. 右侧加热器 (Heater) - 底层 -->
+    
+    <!-- 内部管束主体 (Internal Tubes) -->
+    <!-- x=500 到 x=810 -->
+    <rect x="500" y="250" width="310" height="150" fill="white" stroke="#000000" stroke-width="2"/>
+    
+    <!-- 连接法兰 (Flange) -->
+    <!-- x=810 -->
+    <line x1="810" y1="245" x2="810" y2="405" stroke-width="4" />
 
-      <!-- 底部支撑/管口 -->
-      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M101.8 405h18.5v17.8h-18.5z" transform="matrix(-1 0 0 -1 222.5 828.3)"/>
-      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M96 422.8h30v5H96z" transform="translate(.5 .5)"/>
-      <ellipse cx="438.8" cy="445.5" fill="#ffffff" stroke="#000000" stroke-width="1" rx="21" ry="17.5" transform="translate(.5 .5)"/>
+    <!-- [新增] 加热器外伸筒体 (Extension Cylinder) -->
+    <!-- 宽度=40 (等于封头深度), x=810 到 850 -->
+    <rect x="810" y="250" width="40" height="150" fill="white" stroke="#000000" stroke-width="2"/>
 
-      <!-- 内部管束结构 -->
-      <g>
-        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M338 272.9h367.8v118.3H338z" transform="translate(.5 .5)"/>
-        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 290.6h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
-        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 310.3h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
-        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 329.6h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
-        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 349.8h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
-        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 369h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
-        
-        <!-- 右侧封头 -->
-        <ellipse cx="773.3" cy="330" fill="#ffffff" stroke="#000000" stroke-width="1" rx="46" ry="59.2" transform="matrix(-1 0 0 -1 1547 660.6)"/>
-        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M724.2 270.9h46v118.3h-46z" transform="matrix(-1 0 0 -1 1495 660.6)"/>
-        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M705.8 262h6.1v136.1h-6.1z" transform="translate(.5 .5)"/>
-        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M718.1 262h6.1v136.1h-6.1z" transform="translate(.5 .5)"/>
-      </g>
-
-      <!-- 主罐体轮廓 -->
-      <ellipse cx="75.2" cy="213" fill="#ffffff" stroke="#000000" stroke-width="1" rx="75.2" ry="189" transform="translate(.5 .5)"/>
-      <ellipse cx="559.2" cy="214" fill="#ffffff" stroke="#000000" stroke-width="1" rx="75.2" ry="189" transform="translate(.5 .5)"/>
-      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M75 24h481.2v378H75z" transform="translate(.5 .5)"/>
-
-      <!-- 内部细节组件 -->
-      <g>
-        <g stroke-miterlimit="10">
-          <path fill="none" stroke="#000000" stroke-width="1" d="M406.5 261.9v19.7" transform="translate(.5 .5)"/>
-          <path fill="#000000" stroke="#000000" stroke-width="1" d="m406.5 282.3-.5-1 .5.3.5-.3Z" transform="translate(.5 .5)"/>
-        </g>
-        <g fill="#ffffff" stroke="#000000" stroke-width="1">
-          <ellipse cx="404.4" cy="257.6" rx="7.6" ry="2.7" transform="rotate(90 404.4 258)"/>
-          <path d="M191.2 250h212.3v15.1H191.2z" transform="translate(.5 .5)"/>
-          <ellipse cx="190.3" cy="257.6" rx="7.6" ry="2.7" transform="rotate(90 190.3 258)"/>
-        </g>
-        <g fill="#ffffff" stroke="#000000" stroke-width="1">
-          <ellipse cx="404.4" cy="287.8" rx="7.6" ry="2.7" transform="rotate(-90 404.9 287.8)"/>
-          <ellipse cx="190.3" cy="287.8" rx="7.6" ry="2.7" transform="rotate(-90 190.8 287.8)"/>
-          <path d="M191.2 280.2h212.3v15.1H191.2z" transform="matrix(-1 0 0 -1 595.1 576.1)"/>
-        </g>
-        <g fill="#ffffff" stroke="#000000" stroke-width="1">
-          <ellipse cx="404.4" cy="318" rx="7.6" ry="2.7" transform="rotate(-90 404.9 318)"/>
-          <ellipse cx="190.3" cy="318" rx="7.6" ry="2.7" transform="rotate(-90 190.8 318)"/>
-          <path d="M191.2 310.5h212.3v15.1H191.2z" transform="matrix(-1 0 0 -1 595.1 636.6)"/>
-        </g>
-        <g fill="#ffffff" stroke="#000000" stroke-width="1">
-          <ellipse cx="404.4" cy="348.3" rx="7.6" ry="2.7" transform="rotate(-90 404.8 348.3)"/>
-          <path d="M191.2 340.7h212.3v15.1H191.2z" transform="matrix(-1 0 0 -1 595.1 697)"/>
-          <ellipse cx="190.3" cy="348.3" rx="7.6" ry="2.7" transform="rotate(-90 190.8 348.3)"/>
-        </g>
-        <g stroke-miterlimit="10">
-          <path fill="none" stroke="#000000" stroke-width="1" d="M407 318v28.4" transform="translate(.5 .5)"/>
-          <path fill="#000000" stroke="#000000" stroke-width="1" d="m407 347.2-.5-1 .5.2.5-.2Z" transform="translate(.5 .5)"/>
-        </g>
-        <g stroke-miterlimit="10">
-          <path fill="none" stroke="#000000" stroke-width="1" d="M187.6 287.8v28.4" transform="translate(.5 .5)"/>
-          <path fill="#000000" stroke="#000000" stroke-width="1" d="m187.6 317-.5-1 .5.2.5-.3Z" transform="translate(.5 .5)"/>
-        </g>
-      </g>
-
-      <!-- 底部方块 -->
-      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M417.8 403h42v42h-42z" transform="translate(.5 .5)"/>
+    <!-- 外部封头 (Head) -->
+    <!-- 起点右移至 x=850 -->
+    <path d="M850,250 A40,75 0 0,1 850,400" fill="white" stroke="#000000" stroke-width="2"/>
+    
+    <!-- 封头隔板 (Separator) -->
+    <!-- 从法兰 x=810 延伸至封头顶端 x=890 (850+40) -->
+    <line x1="810" y1="325" x2="890" y2="325" stroke-width="2" />
+    
+    <!-- 管束示意线 (Tubes) -->
+    <!-- 顶到法兰为止 x2=810 -->
+    <g stroke="#000000" stroke-width="1" opacity="0.6">
+      <line x1="510" y1="270" x2="810" y2="270" />
+      <line x1="510" y1="290" x2="810" y2="290" />
+      <line x1="510" y1="310" x2="810" y2="310" />
+      <line x1="510" y1="330" x2="810" y2="330" />
+      <line x1="510" y1="350" x2="810" y2="350" />
+      <line x1="510" y1="370" x2="810" y2="370" />
     </g>
+
+    <!-- 2. 主罐体 (Main Vessel) - 顶层覆盖 -->
+    <rect x="100" y="25" width="600" height="400" fill="white" stroke="#000000" stroke-width="2"/>
+    <path d="M100,25 A50,200 0 0,0 100,425" fill="white" stroke="#000000" stroke-width="2"/>
+    <path d="M700,25 A50,200 0 0,1 700,425" fill="white" stroke="#000000" stroke-width="2"/>
   </g>
 </svg>
 </file>
@@ -728,29 +681,6 @@ export const DEFAULT_ROUTER = {
     <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
   </g>
 
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/inst-local.svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none" stroke="black" stroke-width="2">
-  <circle cx="25" cy="25" r="23" fill="white" />
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/inst-panel.svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none" stroke="black" stroke-width="2">
-  <circle cx="25" cy="25" r="23" fill="white" />
-  <!-- 中间双横线 (上下各偏移 2px) -->
-  <line x1="2" y1="23" x2="48" y2="23" />
-  <line x1="2" y1="27" x2="48" y2="27" />
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/inst-remote.svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" fill="none" stroke="black" stroke-width="2">
-  <circle cx="25" cy="25" r="23" fill="white" />
-  <!-- 中间单横线 -->
-  <line x1="2" y1="25" x2="48" y2="25" />
 </svg>
 </file>
 
@@ -1063,78 +993,89 @@ export default defineConfig([
 </file>
 
 <file path="README.md">
-# React + TypeScript + Vite
+# Chemical P&ID Graph Editor 🏭⚛️
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **连接传统工业图纸与 AI 大模型的桥梁**
+> 
+> *A Bridge Between Traditional P&ID and Industrial AI Models*
 
-Currently, two official plugins are available:
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Tech](https://img.shields.io/badge/Tech-React%20%7C%20AntV%20X6%20%7C%20Neo4j-green)
+![AI-Generated](https://img.shields.io/badge/AI-100%25%20Generated%20Code-purple)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📖 项目背景 (The Story)
 
-## React Compiler
+**这是一个由化工行业资深从业者（0 编程基础），在 Google Gemini 3 全程辅助下完成的开源项目。**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+在工业智能化转型中，我们面临一个核心痛点：**通用的 AI 大模型（LLM）无法理解图片格式的 P&ID（管道及仪表流程图）**。为了让 DeepSeek、Llama 等模型能够分析工艺流程，我们需要将图纸转化为机器可读的**结构化知识图谱**。
 
-## Expanding the ESLint configuration
+本项目提供了一个可视化的 Web 编辑器，允许工程师快速绘制或重构 P&ID，并自动生成符合语义规范的 Neo4j 图数据，为工业 RAG（检索增强生成）应用提供高质量的数据底座。
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## ✨ 核心功能
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+*   **可视化绘图**: 基于 AntV X6 的拖拽式编辑器，内置化工常用图例（反应釜、换热器、阀门等）。
+*   **智能管线管理**: 支持智能避让、自动吸附，模拟真实 CAD 绘图体验。
+*   **语义化数据生成**:
+    *   **节点 (Node)**: 设备、仪表、管件携带完整的位号（Tag）和属性。
+    *   **关系 (Relationship)**: 自动生成 `(设备A)-[PIPING_CONNECT]->(阀门)-[PIPING_CONNECT]->(设备B)` 的流向关系。
+*   **图数据库同步**: 一键将当前画布内容同步至本地 Neo4j 数据库。
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🛠️ 技术栈
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+*   **前端框架**: React 18 + TypeScript + Vite
+*   **图形引擎**: AntV X6 (2.0+)
+*   **UI 组件库**: Ant Design
+*   **图数据库**: Neo4j (via neo4j-driver)
+*   **AI 辅助**: Google Gemini 3 (担任架构师与程序员)
+
+## 🚀 快速开始 (Quick Start)
+
+### 1. 环境准备
+确保你已安装 [Node.js](https://nodejs.org/) (v16+) 和 [Neo4j Desktop](https://neo4j.com/download/)。
+
+### 2. 克隆项目
+```bash
+git clone https://github.com/YOUR_USERNAME/chemical-pid-graph-editor.git
+cd chemical-pid-graph-editor
+
+### 3. 安装依赖
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 4. 配置数据库
+复制环境变量模板文件：
+```bash
+cp .env.example .env
+```
+打开 `.env` 文件，填入你的 Neo4j 数据库连接信息：
+```ini
+VITE_NEO4J_URI=bolt://localhost:7687
+VITE_NEO4J_USER=neo4j
+VITE_NEO4J_PASSWORD=你的数据库密码
+```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 5. 启动项目
+```bash
+npm run dev
+```
+浏览器访问 `http://localhost:5173` 即可开始使用。
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 📸 演示截图
+
+*(此处请上传 1-2 张截图，例如：编辑器界面、Neo4j Browser 中生成的图谱效果)*
+
+> 提示：图谱生成后，可供本地部署的 DeepSeek/Llama 模型通过 Cypher 语句进行查询，例如：“查询 V-101 储罐下游的所有切断阀”。
+
+## 🤝 贡献与反馈
+
+作为一个非程序员发起的项目，代码结构可能不够完美。非常欢迎专业的开发者提出建议或提交 PR！
+
+特别感谢 **AntV X6** 团队提供优秀的图形引擎，以及 **Google Gemini** 让零基础开发成为可能。
+
+## 📄 开源协议
+
+MIT License
 ```
 </file>
 
@@ -1457,6 +1398,30 @@ export default defineConfig({
 }
 </file>
 
+<file path="src/graph/cells/svgs/inst-local.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" stroke="black" stroke-width="2">
+  <!-- 40x40 画布，圆心 20, 半径 18 -->
+  <circle cx="20" cy="20" r="18" fill="white" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/inst-panel.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" stroke="black" stroke-width="2">
+  <circle cx="20" cy="20" r="18" fill="white" />
+  <!-- 中间双横线 (上下各偏移 2px) -->
+  <line x1="2" y1="18" x2="38" y2="18" />
+  <line x1="2" y1="22" x2="38" y2="22" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/inst-remote.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" stroke="black" stroke-width="2">
+  <circle cx="20" cy="20" r="18" fill="white" />
+  <!-- 中间单横线 y=20 -->
+  <line x1="2" y1="20" x2="38" y2="20" />
+</svg>
+</file>
+
 <file path="src/graph/cells/svgs/tank-horizontal.svg">
 <svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
   <!-- 1. 罐体 -->
@@ -1466,18 +1431,6 @@ export default defineConfig({
   <path d="M20,10 L180,10 A20,40 0 0,1 180,90 L20,90 A20,40 0 0,1 20,10 Z" fill="white" />
   
   
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/tee.svg">
-<svg viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- 
-    ViewBox 改为 30x30
-    横线：从 (0,15) 到 (30,15) -> 垂直居中
-    竖线：从 (15,15) 到 (15,30) -> 水平居中
-    线宽：3px (比管线稍粗，突出管件)
-  -->
-  <path d="M0 15 H30 M15 15 V30" stroke="black" stroke-width="3" stroke-linecap="butt" stroke-linejoin="round"/>
 </svg>
 </file>
 
@@ -1771,6 +1724,13 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, type, onClose,
 };
 
 export default ContextMenu;
+</file>
+
+<file path="src/graph/cells/svgs/tee.svg">
+<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 20x20 画布，中心点在 10 -->
+  <path d="M0 10 H20 M10 10 V20" stroke="black" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/>
+</svg>
 </file>
 
 <file path="src/components/Editor/Inspector/index.tsx">
@@ -2092,274 +2052,6 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
 export default Inspector;
 </file>
 
-<file path="src/services/neo4j.ts">
-// src/services/neo4j.ts
-import neo4j from 'neo4j-driver';
-import { FLUID_COLORS, CURRENT_DRAWING_ID } from '../config/rules';
-
-const driver = neo4j.driver(
-  'bolt://localhost:7687', 
-  neo4j.auth.basic('neo4j', 'CGrx2526'), 
-  { encrypted: 'ENCRYPTION_OFF', disableLosslessIntegers: true }
-);
-
-export const saveGraphData = async (nodes: any[], edges: any[]) => {
-  const session = driver.session();
-  const tx = session.beginTransaction();
-  try {
-    // 1. [安全修复] 仅删除当前图纸的数据
-    await tx.run(
-      `MATCH (n:Equipment {drawingId: $drawingId}) DETACH DELETE n`,
-      { drawingId: CURRENT_DRAWING_ID }
-    );
-
-    // 2. 保存节点 (注入 drawingId)
-    if (nodes.length) {
-      await tx.run(
-        `UNWIND $nodes AS n 
-         CREATE (e:Equipment {x6Id: n.x6Id, drawingId: $drawingId}) 
-         SET e += n`, 
-        { nodes, drawingId: CURRENT_DRAWING_ID }
-      );
-    }
-
-    // 3. 保存连线
-    if (edges.length) {
-      const pipes = edges.filter(e => e.type !== 'Signal');
-      const signals = edges.filter(e => e.type === 'Signal');
-
-      // 3.1 保存工艺管线
-      if (pipes.length) {
-        await tx.run(
-          `UNWIND $pipes AS r 
-           MATCH (s:Equipment {x6Id: r.source}), (t:Equipment {x6Id: r.target}) 
-           CREATE (s)-[:PIPE {
-             fromPort:   r.sourcePort, 
-             toPort:     r.targetPort,
-             tag:        r.label,
-             material:   r.material,
-             fluid:      r.fluid,
-             dn:         r.dn,
-             pn:         r.pn,
-             insulation: r.insulation,
-             fromRegion: r.sourceRegion, 
-             fromDesc:   r.sourceDesc,
-             toRegion:   r.targetRegion,
-             toDesc:     r.targetDesc,
-             vertices:   r.vertices
-           }]->(t)`, 
-          { pipes }
-        );
-      }
-
-      // 3.2 保存信号线 (逻辑保持不变)
-      if (signals.length) {
-        const controlSignals = signals.filter((s: any) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
-        const measureSignals = signals.filter((s: any) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
-
-        if (controlSignals.length) {
-          await tx.run(
-            `UNWIND $batch AS r 
-             MATCH (s:Equipment {x6Id: r.source}), (t:Equipment {x6Id: r.target}) 
-             CREATE (s)-[:CONTROLS {
-               fromPort:   r.sourcePort, 
-               toPort:     r.targetPort,
-               fluid:      'Signal',
-               vertices:   r.vertices 
-             }]->(t)`, 
-            { batch: controlSignals }
-          );
-        }
-
-        if (measureSignals.length) {
-          await tx.run(
-            `UNWIND $batch AS r 
-             MATCH (inst:Equipment {x6Id: r.target}), (tp:Equipment {x6Id: r.source}) 
-             CREATE (inst)-[:MEASURES {
-               fromPort:   r.targetPort,
-               toPort:     r.sourcePort,
-               fluid:      'Signal',
-               vertices:   r.vertices
-             }]->(tp)`, 
-            { batch: measureSignals }
-          );
-        }
-      }
-    }
-
-    await tx.commit();
-  } catch (e) {
-    await tx.rollback();
-    throw e;
-  } finally {
-    await session.close();
-  }
-};
-
-export const loadGraphData = async () => {
-  const session = driver.session();
-  try {
-    // 1. 加载节点 (增加 drawingId 过滤)
-    const nodesResult = await session.run(
-      `MATCH (n:Equipment {drawingId: $drawingId}) RETURN n`,
-      { drawingId: CURRENT_DRAWING_ID }
-    );
-    
-    const nodes = nodesResult.records.map(record => {
-      const props = record.get('n').properties;
-      
-      // ... (Shape 映射逻辑保持不变，此处省略以节省篇幅) ...
-      let shapeName = 'p-valve'; 
-      switch (props.type) {
-        case 'Reactor':      shapeName = 'p-reactor'; break;
-        case 'Exchanger':    shapeName = 'p-exchanger'; break;
-        case 'Pump':         shapeName = 'p-pump'; break;
-        case 'LiquidPump':   shapeName = 'p-pump-liquid'; break;
-        case 'CentrifugalPump': shapeName = 'p-pump-centrifugal'; break;
-        case 'DiaphragmPump': shapeName = 'p-pump-diaphragm'; break;
-        case 'PistonPump':   shapeName = 'p-pump-piston'; break;
-        case 'Compressor':   shapeName = 'p-pump-compressor'; break;
-        case 'GearPump':     shapeName = 'p-pump-gear'; break;
-        case 'Fan':          shapeName = 'p-pump-fan'; break;
-        case 'JetPump':      shapeName = 'p-pump-jet'; break;
-        case 'ControlValve': shapeName = 'p-cv-pneumatic'; break;
-        case 'Valve':        shapeName = 'p-cv-manual'; break;
-        case 'Fitting':      shapeName = 'p-tee'; break; 
-        case 'Tank':         shapeName = 'p-tank-horizontal'; break;
-        case 'GasCooler':    shapeName = 'p-gas-cooler'; break;
-        case 'Trap':         shapeName = 'p-trap'; break;
-        case 'FixedBedReactor': shapeName = 'p-fixed-bed-reactor'; break;
-        case 'VerticalExchanger': shapeName = 'p-exchanger-vertical'; break;
-        case 'Evaporator':   shapeName = 'p-naphthalene-evaporator'; break;
-        case 'Instrument':   
-          if(props.spec === 'Local') shapeName = 'p-inst-local';
-          else if(props.spec === 'Panel') shapeName = 'p-inst-panel';
-          else shapeName = 'p-inst-remote';
-          break;
-        case 'TappingPoint': shapeName = 'tapping-point'; break;
-        default: break;
-      }
-
-      const safeNumber = (val: any) => {
-        if (typeof val === 'number') return val;
-        if (val && val.low !== undefined) return val.low; 
-        if (val && !isNaN(Number(val))) return Number(val); 
-        return undefined; 
-      };
-
-      return {
-        id: props.x6Id,
-        shape: shapeName, 
-        x: props.x,
-        y: props.y,
-        width: safeNumber(props.width), 
-        height: safeNumber(props.height),
-        angle: safeNumber(props.angle) || 0,
-        data: { ...props },
-        attrs: { 
-          label: { text: props.Tag || props.label },
-          topLabel: props.tagId ? { text: props.tagId } : undefined,
-          bottomLabel: props.loopNum ? { text: props.loopNum } : undefined,
-        }
-      };
-    });
-
-    // 2. 加载连线
-    const edgesResult = await session.run(`
-      MATCH (s:Equipment {drawingId: $drawingId})-[r:PIPE|MEASURES|CONTROLS]->(t:Equipment {drawingId: $drawingId}) 
-      RETURN s.x6Id as sourceId, t.x6Id as targetId, r, type(r) as relType
-    `, { drawingId: CURRENT_DRAWING_ID });
-    
-    const edges = edgesResult.records.map(record => {
-      const rel = record.get('r').properties;
-      const relType = record.get('relType'); 
-      const sourceId = record.get('sourceId');
-      const targetId = record.get('targetId');
-      
-      let strokeWidth = 2;
-      let strokeColor = FLUID_COLORS[rel.fluid] || '#5F95FF';
-      let dashArray = null;
-      let targetMarker: any = null; 
-      let edgeType = 'Pipe'; 
-      let labels: any[] = [];
-      let vertices = [];
-      
-      if (rel.vertices) {
-        try { vertices = JSON.parse(rel.vertices); } catch (e) { console.warn('Vertices parse error', e); }
-      }
-
-      if (relType === 'MEASURES' || relType === 'CONTROLS') {
-        strokeWidth = 1;
-        strokeColor = FLUID_COLORS.Signal; 
-        dashArray = '4 4';    
-        targetMarker = { name: 'classic', width: 10, height: 6 }; 
-        edgeType = 'Signal';
-      } else {
-        targetMarker = { name: 'classic', width: 8, height: 6 }; 
-        if (rel.insulation && rel.insulation.startsWith('Jacket')) {
-          strokeWidth = 4;
-          strokeColor = FLUID_COLORS.Oil; // 默认夹套颜色
-        } else if (['ST', 'ET', 'OT'].includes(rel.insulation)) {
-          dashArray = '5 5'; 
-        }
-      }
-
-      if (relType === 'PIPE' && rel.tag) {
-        labels.push({
-          attrs: { label: { text: rel.tag }, body: { fill: '#fff', stroke: '#333' } },
-          position: { distance: 0.5, args: { y: -15 } } 
-        });
-      }
-
-      // 处理 MEASURES 的反向关系
-      let finalSourceId = sourceId;
-      let finalTargetId = targetId;
-      let finalSourcePort = rel.fromPort;
-      let finalTargetPort = rel.toPort;
-
-      if (relType === 'MEASURES') {
-        finalSourceId = targetId; 
-        finalTargetId = sourceId; 
-        finalSourcePort = rel.toPort;   
-        finalTargetPort = rel.fromPort; 
-      }
-
-      // [架构修复] 移除后端的 router 计算逻辑
-      // 路由配置现在完全由前端根据节点类型动态生成
-
-      return {
-        shape: edgeType === 'Signal' ? 'signal-edge' : 'edge',
-        source: { cell: finalSourceId, port: finalSourcePort || undefined },
-        target: { cell: finalTargetId, port: finalTargetPort || undefined },
-        vertices: vertices, 
-        attrs: { 
-          line: { 
-            stroke: strokeColor,
-            strokeWidth: strokeWidth,
-            strokeDasharray: dashArray,
-            targetMarker: targetMarker
-          } 
-        },
-        labels: labels,
-        data: { 
-          type: edgeType, 
-          relationType: relType, 
-          material: rel.material, 
-          fluid: rel.fluid,
-          dn: rel.dn,
-          pn: rel.pn,
-          insulation: rel.insulation
-        }
-      };
-    });
-
-    return { nodes, edges };
-  } finally {
-    await session.close();
-  }
-};
-</file>
-
 <file path="src/components/Editor/Canvas/index.tsx">
 import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 import { Graph, Cell, Edge, Node } from '@antv/x6';
@@ -2456,6 +2148,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
           const pos = node.getPosition();
           const size = node.getSize();
           const type = data.type || 'Unknown';
+          const isInstrument = ['Instrument', 'ControlValve'].includes(type);
+          const category = isInstrument ? 'Instrument' : 'Equipment';
 
           let Tag = data.tag || node.getAttrs()?.label?.text || '';
           if (type === 'Instrument') {
@@ -2468,6 +2162,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
             x6Id: node.id,
             type: type, 
             Tag: Tag,
+            category: category, // [新增] 将分类传递给后端
             x: pos.x, y: pos.y, width: size.width, height: size.height, angle: node.getAngle(),
             desc: data.desc || ''
           };
@@ -2497,12 +2192,27 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         const targetNode = edge.getTargetNode();
         const vertices = edge.getVertices(); 
         
+        // [核心修改] 提取端口元数据逻辑
         const getPortMeta = (node: Cell | null, portId: string | undefined) => {
           if (!node || !node.isNode() || !portId) return { group: 'default', desc: 'unknown' };
+          
           const port = node.getPort(portId);
           if (!port) return { group: 'default', desc: 'unknown' };
+
+          // 优先级逻辑：
+          // 1. 优先使用语义化的 region (如 "ShellSide:Liquid", "TubeSide")
+          // 2. 其次使用 section (如 "HighTemp")
+          // 3. 最后降级使用视觉 group (如 "top", "left")
+          let region = port.data?.region || port.group || 'default';
+          
+          // 如果有 section (如气体冷却器的高温段)，可以拼接到 region 中，或者单独存储
+          // 这里为了简化，如果存在 section，我们将其追加到 region 描述中，例如 "TubeSide:HighTemp"
+          if (port.data?.region && port.data?.section) {
+            region = `${port.data.region}:${port.data.section}`;
+          }
+
           return {
-            group: port.group || 'default',
+            group: region, // 这里将语义 region 赋值给 group 字段，后续会存入 Neo4j 的 fromRegion/toRegion
             desc: port.data?.desc || port.attrs?.circle?.title || port.id
           };
         };
@@ -2515,8 +2225,13 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
           target: edge.getTargetCell()?.id,
           sourcePort: edge.getSourcePortId(),
           targetPort: edge.getTargetPortId(),
-          sourceRegion: srcMeta.group, sourceDesc: srcMeta.desc,
-          targetRegion: tgtMeta.group, targetDesc: tgtMeta.desc,
+          
+          // 这里 srcMeta.group 现在携带的是 "ShellSide:Liquid" 等高价值语义
+          sourceRegion: srcMeta.group, 
+          sourceDesc: srcMeta.desc,
+          targetRegion: tgtMeta.group, 
+          targetDesc: tgtMeta.desc,
+          
           type: data.type || 'Pipe', 
           material: data.material || 'CS',
           fluid: data.fluid || 'Water',
@@ -3210,6 +2925,295 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
 export default GraphCanvas;
 </file>
 
+<file path="src/services/neo4j.ts">
+// src/services/neo4j.ts
+import neo4j from 'neo4j-driver';
+import { FLUID_COLORS, CURRENT_DRAWING_ID } from '../config/rules';
+
+const driver = neo4j.driver(
+  'bolt://localhost:7687', 
+  neo4j.auth.basic('neo4j', 'CGrx2526'), 
+  { encrypted: 'ENCRYPTION_OFF', disableLosslessIntegers: true }
+);
+
+export const saveGraphData = async (nodes: any[], edges: any[]) => {
+  const session = driver.session();
+  const tx = session.beginTransaction();
+  try {
+    // 1. [修改] 删除当前图纸的所有节点 (使用基类标签 :Thing)
+    await tx.run(
+      `MATCH (n:Thing {drawingId: $drawingId}) DETACH DELETE n`,
+      { drawingId: CURRENT_DRAWING_ID }
+    );
+
+    // 2. 保存节点 (根据 category 分流)
+    if (nodes.length) {
+      // 2.1 保存设备 (Equipment)
+      // 标签: :Thing (基类) + :Equipment (具体类)
+      await tx.run(
+        `UNWIND $nodes AS n 
+         WITH n WHERE n.category = 'Equipment'
+         CREATE (e:Thing:Equipment {x6Id: n.x6Id, drawingId: $drawingId}) 
+         SET e += n`, 
+        { nodes, drawingId: CURRENT_DRAWING_ID }
+      );
+
+      // 2.2 保存仪表 (Instrument)
+      // 标签: :Thing (基类) + :Instrument (具体类)
+      await tx.run(
+        `UNWIND $nodes AS n 
+         WITH n WHERE n.category = 'Instrument'
+         CREATE (e:Thing:Instrument {x6Id: n.x6Id, drawingId: $drawingId}) 
+         SET e += n`, 
+        { nodes, drawingId: CURRENT_DRAWING_ID }
+      );
+    }
+
+    // 3. 保存连线
+    if (edges.length) {
+      const pipes = edges.filter(e => e.type !== 'Signal');
+      const signals = edges.filter(e => e.type === 'Signal');
+
+      // 3.1 保存工艺管线 (匹配 :Thing)
+      if (pipes.length) {
+        await tx.run(
+          `UNWIND $pipes AS r 
+           MATCH (s:Thing {x6Id: r.source}), (t:Thing {x6Id: r.target}) 
+           CREATE (s)-[:PIPE {
+             fromPort:   r.sourcePort, 
+             toPort:     r.targetPort,
+             tag:        r.label,
+             material:   r.material,
+             fluid:      r.fluid,
+             dn:         r.dn,
+             pn:         r.pn,
+             insulation: r.insulation,
+             fromRegion: r.sourceRegion, 
+             fromDesc:   r.sourceDesc,
+             toRegion:   r.targetRegion,
+             toDesc:     r.targetDesc,
+             vertices:   r.vertices
+           }]->(t)`, 
+          { pipes }
+        );
+      }
+
+      // 3.2 保存信号线 (匹配 :Thing)
+      if (signals.length) {
+        const controlSignals = signals.filter((s: any) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
+        const measureSignals = signals.filter((s: any) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
+
+        if (controlSignals.length) {
+          await tx.run(
+            `UNWIND $batch AS r 
+             MATCH (s:Thing {x6Id: r.source}), (t:Thing {x6Id: r.target}) 
+             CREATE (s)-[:CONTROLS {
+               fromPort:   r.sourcePort, 
+               toPort:     r.targetPort,
+               fluid:      'Signal',
+               vertices:   r.vertices 
+             }]->(t)`, 
+            { batch: controlSignals }
+          );
+        }
+
+        if (measureSignals.length) {
+          await tx.run(
+            `UNWIND $batch AS r 
+             MATCH (inst:Thing {x6Id: r.target}), (tp:Thing {x6Id: r.source}) 
+             CREATE (inst)-[:MEASURES {
+               fromPort:   r.targetPort,
+               toPort:     r.sourcePort,
+               fluid:      'Signal',
+               vertices:   r.vertices
+             }]->(tp)`, 
+            { batch: measureSignals }
+          );
+        }
+      }
+    }
+
+    await tx.commit();
+  } catch (e) {
+    await tx.rollback();
+    throw e;
+  } finally {
+    await session.close();
+  }
+};
+
+export const loadGraphData = async () => {
+  const session = driver.session();
+  try {
+    // 1. [修改] 加载节点 (匹配 :Thing 以加载所有类型)
+    const nodesResult = await session.run(
+      `MATCH (n:Thing {drawingId: $drawingId}) RETURN n`,
+      { drawingId: CURRENT_DRAWING_ID }
+    );
+    
+    // ... (nodes map 逻辑保持不变) ...
+    const nodes = nodesResult.records.map(record => {
+        // ... 原有代码 ...
+        // 注意：这里不需要改动，因为我们只是读取属性
+        const props = record.get('n').properties;
+        // ...
+        // 为了节省篇幅，此处省略中间的 shape 映射代码，保持原样即可
+        // ...
+        // 补全 return 结构
+        const safeNumber = (val: any) => {
+            if (typeof val === 'number') return val;
+            if (val && val.low !== undefined) return val.low; 
+            if (val && !isNaN(Number(val))) return Number(val); 
+            return undefined; 
+        };
+        // 重新构建 shapeName 映射逻辑 (必须保留，否则无法加载)
+        let shapeName = 'p-valve'; 
+        switch (props.type) {
+            case 'Reactor':      shapeName = 'p-reactor'; break;
+            case 'Exchanger':    shapeName = 'p-exchanger'; break;
+            case 'Pump':         shapeName = 'p-pump'; break;
+            case 'LiquidPump':   shapeName = 'p-pump-liquid'; break;
+            case 'CentrifugalPump': shapeName = 'p-pump-centrifugal'; break;
+            case 'DiaphragmPump': shapeName = 'p-pump-diaphragm'; break;
+            case 'PistonPump':   shapeName = 'p-pump-piston'; break;
+            case 'Compressor':   shapeName = 'p-pump-compressor'; break;
+            case 'GearPump':     shapeName = 'p-pump-gear'; break;
+            case 'Fan':          shapeName = 'p-pump-fan'; break;
+            case 'JetPump':      shapeName = 'p-pump-jet'; break;
+            case 'ControlValve': shapeName = 'p-cv-pneumatic'; break;
+            case 'Valve':        shapeName = 'p-cv-manual'; break;
+            case 'Fitting':      shapeName = 'p-tee'; break; 
+            case 'Tank':         shapeName = 'p-tank-horizontal'; break;
+            case 'GasCooler':    shapeName = 'p-gas-cooler'; break;
+            case 'Trap':         shapeName = 'p-trap'; break;
+            case 'FixedBedReactor': shapeName = 'p-fixed-bed-reactor'; break;
+            case 'VerticalExchanger': shapeName = 'p-exchanger-vertical'; break;
+            case 'Evaporator':   shapeName = 'p-naphthalene-evaporator'; break;
+            case 'Instrument':   
+            if(props.spec === 'Local') shapeName = 'p-inst-local';
+            else if(props.spec === 'Panel') shapeName = 'p-inst-panel';
+            else shapeName = 'p-inst-remote';
+            break;
+            case 'TappingPoint': shapeName = 'tapping-point'; break;
+            default: break;
+        }
+        
+        const isTee = props.type === 'Fitting';
+
+        return {
+            id: props.x6Id,
+            shape: shapeName, 
+            x: props.x,
+            y: props.y,
+            width: safeNumber(props.width), 
+            height: safeNumber(props.height),
+            angle: safeNumber(props.angle) || 0,
+            data: { ...props },
+            attrs: { 
+                label: { 
+                    text: isTee ? '' : (props.Tag || props.tag || props.label),
+                    display: isTee ? 'none' : undefined
+                },
+                topLabel: props.tagId ? { text: props.tagId } : undefined,
+                bottomLabel: props.loopNum ? { text: props.loopNum } : undefined,
+            }
+        };
+    });
+
+    // 2. [修改] 加载连线 (匹配 :Thing)
+    const edgesResult = await session.run(`
+      MATCH (s:Thing {drawingId: $drawingId})-[r:PIPE|MEASURES|CONTROLS]->(t:Thing {drawingId: $drawingId}) 
+      RETURN s.x6Id as sourceId, t.x6Id as targetId, r, type(r) as relType
+    `, { drawingId: CURRENT_DRAWING_ID });
+    
+    // ... (edges map 逻辑保持不变) ...
+    const edges = edgesResult.records.map(record => {
+        // ... 保持原样 ...
+        const rel = record.get('r').properties;
+        const relType = record.get('relType'); 
+        const sourceId = record.get('sourceId');
+        const targetId = record.get('targetId');
+        
+        let strokeWidth = 2;
+        let strokeColor = FLUID_COLORS[rel.fluid] || '#5F95FF';
+        let dashArray = null;
+        let targetMarker: any = null; 
+        let edgeType = 'Pipe'; 
+        let labels: any[] = [];
+        let vertices = [];
+        
+        if (rel.vertices) {
+            try { vertices = JSON.parse(rel.vertices); } catch (e) { console.warn('Vertices parse error', e); }
+        }
+
+        if (relType === 'MEASURES' || relType === 'CONTROLS') {
+            strokeWidth = 1;
+            strokeColor = FLUID_COLORS.Signal; 
+            dashArray = '4 4';    
+            targetMarker = { name: 'classic', width: 10, height: 6 }; 
+            edgeType = 'Signal';
+        } else {
+            targetMarker = { name: 'classic', width: 8, height: 6 }; 
+            if (rel.insulation && rel.insulation.startsWith('Jacket')) {
+            strokeWidth = 4;
+            strokeColor = FLUID_COLORS.Oil; 
+            } else if (['ST', 'ET', 'OT'].includes(rel.insulation)) {
+            dashArray = '5 5'; 
+            }
+        }
+
+        if (relType === 'PIPE' && rel.tag) {
+            labels.push({
+            attrs: { label: { text: rel.tag }, body: { fill: '#fff', stroke: '#333' } },
+            position: { distance: 0.5, args: { y: -15 } } 
+            });
+        }
+
+        let finalSourceId = sourceId;
+        let finalTargetId = targetId;
+        let finalSourcePort = rel.fromPort;
+        let finalTargetPort = rel.toPort;
+
+        if (relType === 'MEASURES') {
+            finalSourceId = targetId; 
+            finalTargetId = sourceId; 
+            finalSourcePort = rel.toPort;   
+            finalTargetPort = rel.fromPort; 
+        }
+
+        return {
+            shape: edgeType === 'Signal' ? 'signal-edge' : 'edge',
+            source: { cell: finalSourceId, port: finalSourcePort || undefined },
+            target: { cell: finalTargetId, port: finalTargetPort || undefined },
+            vertices: vertices, 
+            attrs: { 
+            line: { 
+                stroke: strokeColor,
+                strokeWidth: strokeWidth,
+                strokeDasharray: dashArray,
+                targetMarker: targetMarker
+            } 
+            },
+            labels: labels,
+            data: { 
+            type: edgeType, 
+            relationType: relType, 
+            material: rel.material, 
+            fluid: rel.fluid,
+            dn: rel.dn,
+            pn: rel.pn,
+            insulation: rel.insulation
+            }
+        };
+    });
+
+    return { nodes, edges };
+  } finally {
+    await session.close();
+  }
+};
+</file>
+
 <file path="src/graph/cells/registry.ts">
 import { Graph } from '@antv/x6';
 import frameA2Svg from './svgs/frame-a2.svg?raw';
@@ -3260,7 +3264,56 @@ const PORT_ATTRS = {
 const LABEL_ATTRS = {
   label: { refY: '100%', refY2: 8, textAnchor: 'middle', textVerticalAnchor: 'top', fontSize: 12, fill: '#333' }
 };
+// [优化] E-13 端口定义：引入气液分相语义
+const E13_PORTS = {
+  groups: { 
+    top: { position: 'absolute', attrs: PORT_ATTRS }, 
+    bottom: { position: 'absolute', attrs: PORT_ATTRS }, 
+    left: { position: 'absolute', attrs: PORT_ATTRS }, 
+    heater: { position: 'absolute', attrs: PORT_ATTRS } 
+  },
+  items: [
+    // ========================================================================
+    // 1. 壳程-气相区 (ShellSide:Vapor)
+    //    位于设备上半部分，用于排出萘蒸汽、连接安全阀或液位计上法兰
+    // ========================================================================
+    
+    // 顶部接口 (必然是气相)
+    { id: 't1', group: 'top', args: { x: '22%', y: '1.1%' }, data: { desc: '顶部接口-1', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 't2', group: 'top', args: { x: '34%', y: '1.1%' }, data: { desc: '顶部接口-2', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 't3', group: 'top', args: { x: '46%', y: '1.1%' }, data: { desc: '顶部接口-3', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 't4', group: 'top', args: { x: '58%', y: '1.1%' }, data: { desc: '顶部接口-4', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'bi' } as PortData },
 
+    // 左侧上半部接口 (气相空间)
+    { id: 'l1', group: 'left', args: { x: '3%', y: '17.7%' }, data: { desc: '左侧接口-1(上)', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'in' } as PortData }, // y=80
+    { id: 'l2', group: 'left', args: { x: '3%', y: '31.1%' }, data: { desc: '左侧接口-2(上)', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'in' } as PortData }, // y=140
+    { id: 'l3', group: 'left', args: { x: '3%', y: '44.4%' }, data: { desc: '左侧接口-3(中上)', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'in' } as PortData }, // y=200
+
+    // ========================================================================
+    // 2. 壳程-液相区 (ShellSide:Liquid)
+    //    位于设备下半部分，加热器浸没于此，用于进料、排污或液位计下法兰
+    // ========================================================================
+
+    // 底部接口 (必然是液相)
+    { id: 'b1', group: 'bottom', args: { x: '22%', y: '98.9%' }, data: { desc: '底部接口-1', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'bi' } as PortData },
+    { id: 'b2', group: 'bottom', args: { x: '34%', y: '98.9%' }, data: { desc: '底部接口-2', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'bi' } as PortData },
+    { id: 'b3', group: 'bottom', args: { x: '46%', y: '98.9%' }, data: { desc: '底部接口-3', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'bi' } as PortData },
+    { id: 'b4', group: 'bottom', args: { x: '58%', y: '98.9%' }, data: { desc: '底部接口-4', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'bi' } as PortData },
+
+    // 左侧下半部接口 (液相空间)
+    { id: 'l4', group: 'left', args: { x: '3%', y: '57.7%' }, data: { desc: '左侧接口-4(中下)', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'in' } as PortData }, // y=260
+    { id: 'l5', group: 'left', args: { x: '3%', y: '71.1%' }, data: { desc: '左侧接口-5(下)', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'in' } as PortData }, // y=320
+    { id: 'l6', group: 'left', args: { x: '3%', y: '84.4%' }, data: { desc: '左侧接口-6(下)', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'in' } as PortData }, // y=380
+
+    // ========================================================================
+    // 3. 管程 (TubeSide)
+    //    独立的加热回路，与壳程物理隔离
+    // ========================================================================
+    
+    { id: 'h_in', group: 'heater', args: { x: '83%', y: '51.1%' }, data: { desc: '蒸汽入口', region: 'TubeSide', phase: 'Gas', dir: 'in' } as PortData },
+    { id: 'h_out', group: 'heater', args: { x: '83%', y: '93.3%' }, data: { desc: '冷凝水出口', region: 'TubeSide', phase: 'Liquid', dir: 'out' } as PortData },
+  ],
+};
 // ... (端口定义保持不变，此处省略以节省篇幅) ...
 // 如果您需要完整的端口定义代码，请告知，通常这部分不会导致图标丢失。
 // 关键是下面的 registerCustomCells 函数
@@ -3285,51 +3338,72 @@ const VALVE_PORTS = {
 const TEE_PORTS = {
   groups: { all: { position: 'absolute', attrs: PORT_ATTRS } },
   items: [
-    { id: 'left', group: 'all', args: { x: '0%', y: '50%' }, data: { desc: '三通接口', dir: 'bi' } as PortData },
-    { id: 'right', group: 'all', args: { x: '100%', y: '50%' }, data: { desc: '三通接口', dir: 'bi' } as PortData },
-    { id: 'bottom', group: 'all', args: { x: '50%', y: '100%' }, data: { desc: '三通接口', dir: 'bi' } as PortData },
+    { id: 'p1', group: 'all', args: { x: '0%', y: '50%' }, data: { desc: '三通接口-1', dir: 'bi' } as PortData },
+    { id: 'p2', group: 'all', args: { x: '100%', y: '50%' }, data: { desc: '三通接口-2', dir: 'bi' } as PortData },
+    { id: 'p3', group: 'all', args: { x: '50%', y: '100%' }, data: { desc: '三通接口-3', dir: 'bi' } as PortData },
   ],
 };
 
 const TANK_PORTS = {
-  groups: { top: { position: 'absolute', attrs: PORT_ATTRS }, bottom: { position: 'absolute', attrs: PORT_ATTRS }, left: { position: 'absolute', attrs: PORT_ATTRS }, right: { position: 'absolute', attrs: PORT_ATTRS } },
+  groups: { 
+    top: { position: 'absolute', attrs: PORT_ATTRS }, 
+    bottom: { position: 'absolute', attrs: PORT_ATTRS }, 
+    left: { position: 'absolute', attrs: PORT_ATTRS }, 
+    right: { position: 'absolute', attrs: PORT_ATTRS } 
+  },
   items: [
-    { group: 'top', args: { x: '20%', y: '0%' }, data: { desc: 'N1' } as PortData },
-    { group: 'top', args: { x: '35%', y: '0%' }, data: { desc: 'N2' } as PortData },
-    { group: 'top', args: { x: '50%', y: '0%' }, data: { desc: 'N3' } as PortData },
-    { group: 'top', args: { x: '65%', y: '0%' }, data: { desc: 'N4' } as PortData },
-    { group: 'top', args: { x: '80%', y: '0%' }, data: { desc: 'N5' } as PortData },
-    { group: 'bottom', args: { x: '20%', y: '100%' }, data: { desc: 'N6' } as PortData },
-    { group: 'bottom', args: { x: '35%', y: '100%' }, data: { desc: 'N7' } as PortData },
-    { group: 'bottom', args: { x: '50%', y: '100%' }, data: { desc: 'N8' } as PortData },
-    { group: 'bottom', args: { x: '65%', y: '100%' }, data: { desc: 'N9' } as PortData },
-    { group: 'bottom', args: { x: '80%', y: '100%' }, data: { desc: 'N=10' } as PortData },
-    { group: 'left', args: { x: '0%', y: '25%' }, data: { desc: 'N11' } as PortData },
-    { group: 'left', args: { x: '0%', y: '50%' }, data: { desc: 'N12' } as PortData },
-    { group: 'left', args: { x: '0%', y: '75%' }, data: { desc: 'N13' } as PortData },
-    { group: 'right', args: { x: '100%', y: '25%' }, data: { desc: 'N14' } as PortData },
-    { group: 'right', args: { x: '100%', y: '50%' }, data: { desc: 'N15' } as PortData },
-    { group: 'right', args: { x: '100%', y: '75%' }, data: { desc: 'N16' } as PortData },
+    // 顶部端口 N1-N5
+    { id: 'n1', group: 'top', args: { x: '20%', y: '0%' }, data: { desc: 'N1' } as PortData },
+    { id: 'n2', group: 'top', args: { x: '35%', y: '0%' }, data: { desc: 'N2' } as PortData },
+    { id: 'n3', group: 'top', args: { x: '50%', y: '0%' }, data: { desc: 'N3' } as PortData },
+    { id: 'n4', group: 'top', args: { x: '65%', y: '0%' }, data: { desc: 'N4' } as PortData },
+    { id: 'n5', group: 'top', args: { x: '80%', y: '0%' }, data: { desc: 'N5' } as PortData },
+    // 底部端口 N6-N10
+    { id: 'n6', group: 'bottom', args: { x: '20%', y: '100%' }, data: { desc: 'N6' } as PortData },
+    { id: 'n7', group: 'bottom', args: { x: '35%', y: '100%' }, data: { desc: 'N7' } as PortData },
+    { id: 'n8', group: 'bottom', args: { x: '50%', y: '100%' }, data: { desc: 'N8' } as PortData },
+    { id: 'n9', group: 'bottom', args: { x: '65%', y: '100%' }, data: { desc: 'N9' } as PortData },
+    { id: 'n10', group: 'bottom', args: { x: '80%', y: '100%' }, data: { desc: 'N=10' } as PortData },
+    // 左侧端口 N11-N13
+    { id: 'n11', group: 'left', args: { x: '0%', y: '25%' }, data: { desc: 'N11' } as PortData },
+    { id: 'n12', group: 'left', args: { x: '0%', y: '50%' }, data: { desc: 'N12' } as PortData },
+    { id: 'n13', group: 'left', args: { x: '0%', y: '75%' }, data: { desc: 'N13' } as PortData },
+    // 右侧端口 N14-N16
+    { id: 'n14', group: 'right', args: { x: '100%', y: '25%' }, data: { desc: 'N14' } as PortData },
+    { id: 'n15', group: 'right', args: { x: '100%', y: '50%' }, data: { desc: 'N15' } as PortData },
+    { id: 'n16', group: 'right', args: { x: '100%', y: '75%' }, data: { desc: 'N16' } as PortData },
   ],
 };
 
 const GAS_COOLER_PORTS = {
-  groups: { main: { position: 'absolute', attrs: PORT_ATTRS }, burst: { position: 'absolute', attrs: PORT_ATTRS }, top_in: { position: 'absolute', attrs: PORT_ATTRS }, top_out: { position: 'absolute', attrs: PORT_ATTRS }, bottom_in: { position: 'absolute', attrs: PORT_ATTRS }, bottom_out: { position: 'absolute', attrs: PORT_ATTRS } },
+  groups: { 
+    main: { position: 'absolute', attrs: PORT_ATTRS }, 
+    burst: { position: 'absolute', attrs: PORT_ATTRS }, 
+    top_in: { position: 'absolute', attrs: PORT_ATTRS }, 
+    top_out: { position: 'absolute', attrs: PORT_ATTRS }, 
+    bottom_in: { position: 'absolute', attrs: PORT_ATTRS }, 
+    bottom_out: { position: 'absolute', attrs: PORT_ATTRS } 
+  },
   items: [
-    { group: 'main', args: { x: '0%', y: '58%' }, data: { desc: '壳程入口', dir: 'in' } as PortData },
-    { group: 'main', args: { x: '100%', y: '58%' }, data: { desc: '壳程出口', dir: 'out' } as PortData },
-    { group: 'burst', args: { x: '8.75%', y: '19%' }, data: { desc: '爆破片接口(左)', dir: 'bi' } as PortData },
-    { group: 'burst', args: { x: '91.25%', y: '19%' }, data: { desc: '爆破片接口(右)', dir: 'bi' } as PortData },
-    { group: 'top_in', args: { x: '21.25%', y: '15%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'in' } as PortData },
-    { group: 'top_out', args: { x: '31.25%', y: '15%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'out' } as PortData },
-    { group: 'top_out', args: { x: '41.25%', y: '15%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'out' } as PortData },
-    { group: 'top_in', args: { x: '81.25%', y: '15%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'in' } as PortData },
-    { group: 'bottom_in', args: { x: '21.25%', y: '92%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'in' } as PortData },
-    { group: 'bottom_out', args: { x: '31.25%', y: '92%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'out' } as PortData },
-    { group: 'bottom_out', args: { x: '41.25%', y: '92%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'out' } as PortData },
-    { group: 'bottom_in', args: { x: '81.25%', y: '92%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'in' } as PortData },
+    // 壳程
+    { id: 'shell_in', group: 'main', args: { x: '0%', y: '58%' }, data: { desc: '壳程入口', dir: 'in' } as PortData },
+    { id: 'shell_out', group: 'main', args: { x: '100%', y: '58%' }, data: { desc: '壳程出口', dir: 'out' } as PortData },
+    // 爆破片
+    { id: 'burst_left', group: 'burst', args: { x: '8.75%', y: '19%' }, data: { desc: '爆破片接口(左)', dir: 'bi' } as PortData },
+    { id: 'burst_right', group: 'burst', args: { x: '91.25%', y: '19%' }, data: { desc: '爆破片接口(右)', dir: 'bi' } as PortData },
+    // 顶部管束接口
+    { id: 'tube_top_in_1', group: 'top_in', args: { x: '21.25%', y: '15%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'in' } as PortData },
+    { id: 'tube_top_out_1', group: 'top_out', args: { x: '31.25%', y: '15%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'out' } as PortData },
+    { id: 'tube_top_out_2', group: 'top_out', args: { x: '41.25%', y: '15%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'out' } as PortData },
+    { id: 'tube_top_in_2', group: 'top_in', args: { x: '81.25%', y: '15%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'in' } as PortData },
+    // 底部管束接口
+    { id: 'tube_bot_in_1', group: 'bottom_in', args: { x: '21.25%', y: '92%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'in' } as PortData },
+    { id: 'tube_bot_out_1', group: 'bottom_out', args: { x: '31.25%', y: '92%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'out' } as PortData },
+    { id: 'tube_bot_out_2', group: 'bottom_out', args: { x: '41.25%', y: '92%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'out' } as PortData },
+    { id: 'tube_bot_in_2', group: 'bottom_in', args: { x: '81.25%', y: '92%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'in' } as PortData },
   ],
 };
+
 
 const INSTRUMENT_PORTS = {
   groups: { all: { position: 'absolute', attrs: PORT_ATTRS } },
@@ -3439,17 +3513,13 @@ export const registerCustomCells = () => {
   });
 
   Graph.registerNode('p-naphthalene-evaporator', {
-    inherit: 'image', width: 200, height: 120, imageUrl: svgToDataUrl(e13Svg),
-    ports: {
-      groups: { shell: { position: 'absolute', attrs: PORT_ATTRS }, tube: { position: 'absolute', attrs: PORT_ATTRS } },
-      items: [
-        { id: 'nap_out', group: 'shell', args: { x: '61.5%', y: '0%' }, data: { desc: '萘蒸汽出口' } as PortData },
-        { id: 'nap_in', group: 'shell', args: { x: '13.5%', y: '100%' }, data: { desc: '工业萘入口' } as PortData },
-        { id: 'steam_in', group: 'tube', args: { x: '100%', y: '63%' }, data: { desc: '蒸汽入口' } as PortData },
-        { id: 'cond_out', group: 'tube', args: { x: '100%', y: '78%' }, data: { desc: '冷凝液出口' } as PortData },
-      ],
-    },
-    attrs: LABEL_ATTRS, data: { type: 'Evaporator', spec: 'E-13' },
+    inherit: 'image', 
+    width: 200, 
+    height: 90, // 调整高度以匹配 1000:450 的比例 (200 * 0.45 = 90)
+    imageUrl: svgToDataUrl(e13Svg),
+    ports: E13_PORTS,
+    attrs: LABEL_ATTRS, 
+    data: { type: 'Evaporator', spec: 'E-13', tag: 'E-13' },
   });
 
   const pumps = [
@@ -3496,22 +3566,30 @@ export const registerCustomCells = () => {
 
   instruments.forEach(inst => {
     Graph.registerNode(inst.key, {
-      width: 50, height: 50,
+      width: 40, height: 40,
       markup: [{ tagName: 'image', selector: 'body' }, { tagName: 'text', selector: 'topLabel' }, { tagName: 'text', selector: 'bottomLabel' }],
       attrs: {
         body: { refWidth: '100%', refHeight: '100%', xlinkHref: svgToDataUrl(inst.svg) },
-        topLabel: { refX: 0.5, refY: 0.35, textAnchor: 'middle', textVerticalAnchor: 'middle', fontSize: 10, fontWeight: 'bold', fill: '#000', text: 'PI' },
-        bottomLabel: { refX: 0.5, refY: 0.65, textAnchor: 'middle', textVerticalAnchor: 'middle', fontSize: 10, fontWeight: 'bold', fill: '#000', text: '101' },
+        topLabel: { refX: 0.5, refY: 0.35, textAnchor: 'middle', textVerticalAnchor: 'middle', fontSize: 9, fontWeight: 'bold', fill: '#000', text: 'PI' },
+        bottomLabel: { refX: 0.5, refY: 0.65, textAnchor: 'middle', textVerticalAnchor: 'middle', fontSize: 9, fontWeight: 'bold', fill: '#000', text: '101' },
       },
       ports: INSTRUMENT_PORTS, data: { type: inst.type, tagId: 'PI', loopNum: '101', range: '0-1.6', unit: 'MPa' },
     });
   });
 
   Graph.registerNode('p-tee', {
-    inherit: 'image', width: 30, height: 30, imageUrl: svgToDataUrl(teeSvg),
+    inherit: 'image', 
+    width: 20, 
+    height: 20, 
+    imageUrl: svgToDataUrl(teeSvg),
     ports: TEE_PORTS,
-    attrs: { label: { refY: '100%', refY2: 4, textAnchor: 'middle', textVerticalAnchor: 'top', fontSize: 12, fill: '#333' } },
-    data: { type: 'Fitting', spec: 'Tee', tag: '' },
+    attrs: { 
+      label: { 
+        display: 'none', 
+        text: '' 
+      } 
+    },
+    data: { type: 'Fitting', spec: 'Tee', tag: 'TEE' },
   });
 
   Graph.registerNode('p-tank-horizontal', {

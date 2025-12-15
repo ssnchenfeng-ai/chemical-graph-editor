@@ -1,88 +1,41 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="821" height="464" viewBox="0 0 821 464" style="background-color:transparent">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="450" viewBox="0 0 1000 450" fill="none" stroke="black" stroke-width="2">
   <g>
-    <g>
-      <!-- 主壳体 -->
-      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M197.8 5h87v20h-87z" transform="translate(.5 .5)"/>
-      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M183.8 0h111v5h-111z" transform="translate(.5 .5)"/>
-      
-      <!-- 顶部管口 -->
-      <g fill="#ffffff" stroke="#000000" stroke-width="1">
-        <path d="M347.8 7.2h18.5V25h-18.5z" transform="translate(.5 .5)"/>
-        <path d="M341.8 5h30v2.2h-30z" transform="translate(.5 .5)"/>
-      </g>
-      <g fill="#ffffff" stroke="#000000" stroke-width="1">
-        <path d="M497.8 7.2h18.5V25h-18.5z" transform="translate(.5 .5)"/>
-        <path d="M491.8 5h30v2.2h-30z" transform="translate(.5 .5)"/>
-      </g>
-      <g fill="#ffffff" stroke="#000000" stroke-width="1">
-        <path d="M112.8 7.2h18.5V25h-18.5z" transform="translate(.5 .5)"/>
-        <path d="M106.8 5h30v2.2h-30z" transform="translate(.5 .5)"/>
-      </g>
+    <!-- 1. 右侧加热器 (Heater) - 底层 -->
+    
+    <!-- 内部管束主体 (Internal Tubes) -->
+    <!-- x=500 到 x=810 -->
+    <rect x="500" y="250" width="310" height="150" fill="white" stroke="#000000" stroke-width="2"/>
+    
+    <!-- 连接法兰 (Flange) -->
+    <!-- x=810 -->
+    <line x1="810" y1="245" x2="810" y2="405" stroke-width="4" />
 
-      <!-- 底部支撑/管口 -->
-      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M101.8 405h18.5v17.8h-18.5z" transform="matrix(-1 0 0 -1 222.5 828.3)"/>
-      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M96 422.8h30v5H96z" transform="translate(.5 .5)"/>
-      <ellipse cx="438.8" cy="445.5" fill="#ffffff" stroke="#000000" stroke-width="1" rx="21" ry="17.5" transform="translate(.5 .5)"/>
+    <!-- [新增] 加热器外伸筒体 (Extension Cylinder) -->
+    <!-- 宽度=40 (等于封头深度), x=810 到 850 -->
+    <rect x="810" y="250" width="40" height="150" fill="white" stroke="#000000" stroke-width="2"/>
 
-      <!-- 内部管束结构 -->
-      <g>
-        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M338 272.9h367.8v118.3H338z" transform="translate(.5 .5)"/>
-        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 290.6h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
-        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 310.3h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
-        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 329.6h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
-        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 349.8h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
-        <path fill="none" stroke="#000000" stroke-width="1" stroke-miterlimit="10" d="M338 369h367.8m0 4H338m367.8 0" transform="translate(.5 .5)"/>
-        
-        <!-- 右侧封头 -->
-        <ellipse cx="773.3" cy="330" fill="#ffffff" stroke="#000000" stroke-width="1" rx="46" ry="59.2" transform="matrix(-1 0 0 -1 1547 660.6)"/>
-        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M724.2 270.9h46v118.3h-46z" transform="matrix(-1 0 0 -1 1495 660.6)"/>
-        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M705.8 262h6.1v136.1h-6.1z" transform="translate(.5 .5)"/>
-        <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M718.1 262h6.1v136.1h-6.1z" transform="translate(.5 .5)"/>
-      </g>
-
-      <!-- 主罐体轮廓 -->
-      <ellipse cx="75.2" cy="213" fill="#ffffff" stroke="#000000" stroke-width="1" rx="75.2" ry="189" transform="translate(.5 .5)"/>
-      <ellipse cx="559.2" cy="214" fill="#ffffff" stroke="#000000" stroke-width="1" rx="75.2" ry="189" transform="translate(.5 .5)"/>
-      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M75 24h481.2v378H75z" transform="translate(.5 .5)"/>
-
-      <!-- 内部细节组件 -->
-      <g>
-        <g stroke-miterlimit="10">
-          <path fill="none" stroke="#000000" stroke-width="1" d="M406.5 261.9v19.7" transform="translate(.5 .5)"/>
-          <path fill="#000000" stroke="#000000" stroke-width="1" d="m406.5 282.3-.5-1 .5.3.5-.3Z" transform="translate(.5 .5)"/>
-        </g>
-        <g fill="#ffffff" stroke="#000000" stroke-width="1">
-          <ellipse cx="404.4" cy="257.6" rx="7.6" ry="2.7" transform="rotate(90 404.4 258)"/>
-          <path d="M191.2 250h212.3v15.1H191.2z" transform="translate(.5 .5)"/>
-          <ellipse cx="190.3" cy="257.6" rx="7.6" ry="2.7" transform="rotate(90 190.3 258)"/>
-        </g>
-        <g fill="#ffffff" stroke="#000000" stroke-width="1">
-          <ellipse cx="404.4" cy="287.8" rx="7.6" ry="2.7" transform="rotate(-90 404.9 287.8)"/>
-          <ellipse cx="190.3" cy="287.8" rx="7.6" ry="2.7" transform="rotate(-90 190.8 287.8)"/>
-          <path d="M191.2 280.2h212.3v15.1H191.2z" transform="matrix(-1 0 0 -1 595.1 576.1)"/>
-        </g>
-        <g fill="#ffffff" stroke="#000000" stroke-width="1">
-          <ellipse cx="404.4" cy="318" rx="7.6" ry="2.7" transform="rotate(-90 404.9 318)"/>
-          <ellipse cx="190.3" cy="318" rx="7.6" ry="2.7" transform="rotate(-90 190.8 318)"/>
-          <path d="M191.2 310.5h212.3v15.1H191.2z" transform="matrix(-1 0 0 -1 595.1 636.6)"/>
-        </g>
-        <g fill="#ffffff" stroke="#000000" stroke-width="1">
-          <ellipse cx="404.4" cy="348.3" rx="7.6" ry="2.7" transform="rotate(-90 404.8 348.3)"/>
-          <path d="M191.2 340.7h212.3v15.1H191.2z" transform="matrix(-1 0 0 -1 595.1 697)"/>
-          <ellipse cx="190.3" cy="348.3" rx="7.6" ry="2.7" transform="rotate(-90 190.8 348.3)"/>
-        </g>
-        <g stroke-miterlimit="10">
-          <path fill="none" stroke="#000000" stroke-width="1" d="M407 318v28.4" transform="translate(.5 .5)"/>
-          <path fill="#000000" stroke="#000000" stroke-width="1" d="m407 347.2-.5-1 .5.2.5-.2Z" transform="translate(.5 .5)"/>
-        </g>
-        <g stroke-miterlimit="10">
-          <path fill="none" stroke="#000000" stroke-width="1" d="M187.6 287.8v28.4" transform="translate(.5 .5)"/>
-          <path fill="#000000" stroke="#000000" stroke-width="1" d="m187.6 317-.5-1 .5.2.5-.3Z" transform="translate(.5 .5)"/>
-        </g>
-      </g>
-
-      <!-- 底部方块 -->
-      <path fill="#ffffff" stroke="#000000" stroke-width="1" d="M417.8 403h42v42h-42z" transform="translate(.5 .5)"/>
+    <!-- 外部封头 (Head) -->
+    <!-- 起点右移至 x=850 -->
+    <path d="M850,250 A40,75 0 0,1 850,400" fill="white" stroke="#000000" stroke-width="2"/>
+    
+    <!-- 封头隔板 (Separator) -->
+    <!-- 从法兰 x=810 延伸至封头顶端 x=890 (850+40) -->
+    <line x1="810" y1="325" x2="890" y2="325" stroke-width="2" />
+    
+    <!-- 管束示意线 (Tubes) -->
+    <!-- 顶到法兰为止 x2=810 -->
+    <g stroke="#000000" stroke-width="1" opacity="0.6">
+      <line x1="510" y1="270" x2="810" y2="270" />
+      <line x1="510" y1="290" x2="810" y2="290" />
+      <line x1="510" y1="310" x2="810" y2="310" />
+      <line x1="510" y1="330" x2="810" y2="330" />
+      <line x1="510" y1="350" x2="810" y2="350" />
+      <line x1="510" y1="370" x2="810" y2="370" />
     </g>
+
+    <!-- 2. 主罐体 (Main Vessel) - 顶层覆盖 -->
+    <rect x="100" y="25" width="600" height="400" fill="white" stroke="#000000" stroke-width="2"/>
+    <path d="M100,25 A50,200 0 0,0 100,425" fill="white" stroke="#000000" stroke-width="2"/>
+    <path d="M700,25 A50,200 0 0,1 700,425" fill="white" stroke="#000000" stroke-width="2"/>
   </g>
 </svg>
