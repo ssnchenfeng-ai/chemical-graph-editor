@@ -35,7 +35,7 @@ export const INLINE_TYPES = [
 export const DEFAULT_ROUTER = {
   name: 'manhattan',
   args: {
-    padding: 20,
+    padding: 10,
     excludeNodes: ['SHEET_FRAME_A2'], // 默认排除背景框
   },
 };

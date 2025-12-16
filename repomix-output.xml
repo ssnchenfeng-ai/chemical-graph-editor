@@ -41,6 +41,8 @@ The content is organized as follows:
 
 <directory_structure>
 public/
+  demo-editor.png
+  demo-graph.png
   vite.svg
 src/
   assets/
@@ -99,9 +101,11 @@ src/
   App.tsx
   index.css
   main.tsx
+.env.example
 .gitignore
 eslint.config.js
 index.html
+LICENSE
 package.json
 README.md
 tsconfig.app.json
@@ -418,50 +422,6 @@ export const DEFAULT_ROUTER = {
   <!-- 与 P 水平相接，直径相同 -->
   <circle cx="60" cy="25" r="15" fill="white" />
   <text x="60" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">S</text>
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/E-13.svg">
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="450" viewBox="0 0 1000 450" fill="none" stroke="black" stroke-width="2">
-  <g>
-    <!-- 1. 右侧加热器 (Heater) - 底层 -->
-    
-    <!-- 内部管束主体 (Internal Tubes) -->
-    <!-- x=500 到 x=810 -->
-    <rect x="500" y="250" width="310" height="150" fill="white" stroke="#000000" stroke-width="2"/>
-    
-    <!-- 连接法兰 (Flange) -->
-    <!-- x=810 -->
-    <line x1="810" y1="245" x2="810" y2="405" stroke-width="4" />
-
-    <!-- [新增] 加热器外伸筒体 (Extension Cylinder) -->
-    <!-- 宽度=40 (等于封头深度), x=810 到 850 -->
-    <rect x="810" y="250" width="40" height="150" fill="white" stroke="#000000" stroke-width="2"/>
-
-    <!-- 外部封头 (Head) -->
-    <!-- 起点右移至 x=850 -->
-    <path d="M850,250 A40,75 0 0,1 850,400" fill="white" stroke="#000000" stroke-width="2"/>
-    
-    <!-- 封头隔板 (Separator) -->
-    <!-- 从法兰 x=810 延伸至封头顶端 x=890 (850+40) -->
-    <line x1="810" y1="325" x2="890" y2="325" stroke-width="2" />
-    
-    <!-- 管束示意线 (Tubes) -->
-    <!-- 顶到法兰为止 x2=810 -->
-    <g stroke="#000000" stroke-width="1" opacity="0.6">
-      <line x1="510" y1="270" x2="810" y2="270" />
-      <line x1="510" y1="290" x2="810" y2="290" />
-      <line x1="510" y1="310" x2="810" y2="310" />
-      <line x1="510" y1="330" x2="810" y2="330" />
-      <line x1="510" y1="350" x2="810" y2="350" />
-      <line x1="510" y1="370" x2="810" y2="370" />
-    </g>
-
-    <!-- 2. 主罐体 (Main Vessel) - 顶层覆盖 -->
-    <rect x="100" y="25" width="600" height="400" fill="white" stroke="#000000" stroke-width="2"/>
-    <path d="M100,25 A50,200 0 0,0 100,425" fill="white" stroke="#000000" stroke-width="2"/>
-    <path d="M700,25 A50,200 0 0,1 700,425" fill="white" stroke="#000000" stroke-width="2"/>
-  </g>
 </svg>
 </file>
 
@@ -923,31 +883,12 @@ createRoot(document.getElementById('root')!).render(
 )
 </file>
 
-<file path=".gitignore">
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+<file path=".env.example">
+# Neo4j Configuration
+# 请复制此文件为 .env 并填入你的真实配置
+VITE_NEO4J_URI=bolt://localhost:7687
+VITE_NEO4J_USER=neo4j
+VITE_NEO4J_PASSWORD=your_password_here
 </file>
 
 <file path="eslint.config.js">
@@ -992,91 +933,28 @@ export default defineConfig([
 </html>
 </file>
 
-<file path="README.md">
-# Chemical P&ID Graph Editor 🏭⚛️
-
-> **连接传统工业图纸与 AI 大模型的桥梁**
-> 
-> *A Bridge Between Traditional P&ID and Industrial AI Models*
-
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Tech](https://img.shields.io/badge/Tech-React%20%7C%20AntV%20X6%20%7C%20Neo4j-green)
-![AI-Generated](https://img.shields.io/badge/AI-100%25%20Generated%20Code-purple)
-
-## 📖 项目背景 (The Story)
-
-**这是一个由化工行业资深从业者（0 编程基础），在 Google Gemini 3 全程辅助下完成的开源项目。**
-
-在工业智能化转型中，我们面临一个核心痛点：**通用的 AI 大模型（LLM）无法理解图片格式的 P&ID（管道及仪表流程图）**。为了让 DeepSeek、Llama 等模型能够分析工艺流程，我们需要将图纸转化为机器可读的**结构化知识图谱**。
-
-本项目提供了一个可视化的 Web 编辑器，允许工程师快速绘制或重构 P&ID，并自动生成符合语义规范的 Neo4j 图数据，为工业 RAG（检索增强生成）应用提供高质量的数据底座。
-
-## ✨ 核心功能
-
-*   **可视化绘图**: 基于 AntV X6 的拖拽式编辑器，内置化工常用图例（反应釜、换热器、阀门等）。
-*   **智能管线管理**: 支持智能避让、自动吸附，模拟真实 CAD 绘图体验。
-*   **语义化数据生成**:
-    *   **节点 (Node)**: 设备、仪表、管件携带完整的位号（Tag）和属性。
-    *   **关系 (Relationship)**: 自动生成 `(设备A)-[PIPING_CONNECT]->(阀门)-[PIPING_CONNECT]->(设备B)` 的流向关系。
-*   **图数据库同步**: 一键将当前画布内容同步至本地 Neo4j 数据库。
-
-## 🛠️ 技术栈
-
-*   **前端框架**: React 18 + TypeScript + Vite
-*   **图形引擎**: AntV X6 (2.0+)
-*   **UI 组件库**: Ant Design
-*   **图数据库**: Neo4j (via neo4j-driver)
-*   **AI 辅助**: Google Gemini 3 (担任架构师与程序员)
-
-## 🚀 快速开始 (Quick Start)
-
-### 1. 环境准备
-确保你已安装 [Node.js](https://nodejs.org/) (v16+) 和 [Neo4j Desktop](https://neo4j.com/download/)。
-
-### 2. 克隆项目
-```bash
-git clone https://github.com/YOUR_USERNAME/chemical-pid-graph-editor.git
-cd chemical-pid-graph-editor
-
-### 3. 安装依赖
-```bash
-npm install
-```
-
-### 4. 配置数据库
-复制环境变量模板文件：
-```bash
-cp .env.example .env
-```
-打开 `.env` 文件，填入你的 Neo4j 数据库连接信息：
-```ini
-VITE_NEO4J_URI=bolt://localhost:7687
-VITE_NEO4J_USER=neo4j
-VITE_NEO4J_PASSWORD=你的数据库密码
-```
-
-### 5. 启动项目
-```bash
-npm run dev
-```
-浏览器访问 `http://localhost:5173` 即可开始使用。
-
-## 📸 演示截图
-
-*(此处请上传 1-2 张截图，例如：编辑器界面、Neo4j Browser 中生成的图谱效果)*
-
-> 提示：图谱生成后，可供本地部署的 DeepSeek/Llama 模型通过 Cypher 语句进行查询，例如：“查询 V-101 储罐下游的所有切断阀”。
-
-## 🤝 贡献与反馈
-
-作为一个非程序员发起的项目，代码结构可能不够完美。非常欢迎专业的开发者提出建议或提交 PR！
-
-特别感谢 **AntV X6** 团队提供优秀的图形引擎，以及 **Google Gemini** 让零基础开发成为可能。
-
-## 📄 开源协议
-
+<file path="LICENSE">
 MIT License
-```
+
+Copyright (c) [year] [fullname]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 </file>
 
 <file path="tsconfig.app.json">
@@ -1398,6 +1276,50 @@ export default defineConfig({
 }
 </file>
 
+<file path="src/graph/cells/svgs/E-13.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="450" viewBox="0 0 1000 450" fill="none" stroke="black" stroke-width="2">
+  <g>
+    <!-- 1. 右侧加热器 (Heater) - 底层 -->
+    
+    <!-- 内部管束主体 (Internal Tubes) -->
+    <!-- x=500 到 x=810 -->
+    <rect x="500" y="250" width="310" height="150" fill="white" stroke="#000000" stroke-width="2"/>
+    
+    <!-- 连接法兰 (Flange) -->
+    <!-- x=810 -->
+    <line x1="810" y1="245" x2="810" y2="405" stroke-width="4" />
+
+    <!-- [新增] 加热器外伸筒体 (Extension Cylinder) -->
+    <!-- 宽度=40 (等于封头深度), x=810 到 850 -->
+    <rect x="810" y="250" width="40" height="150" fill="white" stroke="#000000" stroke-width="2"/>
+
+    <!-- 外部封头 (Head) -->
+    <!-- 起点右移至 x=850 -->
+    <path d="M850,250 A40,75 0 0,1 850,400" fill="white" stroke="#000000" stroke-width="2"/>
+    
+    <!-- 封头隔板 (Separator) -->
+    <!-- 从法兰 x=810 延伸至封头顶端 x=890 (850+40) -->
+    <line x1="810" y1="325" x2="890" y2="325" stroke-width="2" />
+    
+    <!-- 管束示意线 (Tubes) -->
+    <!-- 顶到法兰为止 x2=810 -->
+    <g stroke="#000000" stroke-width="1" opacity="0.6">
+      <line x1="510" y1="270" x2="810" y2="270" />
+      <line x1="510" y1="290" x2="810" y2="290" />
+      <line x1="510" y1="310" x2="810" y2="310" />
+      <line x1="510" y1="330" x2="810" y2="330" />
+      <line x1="510" y1="350" x2="810" y2="350" />
+      <line x1="510" y1="370" x2="810" y2="370" />
+    </g>
+
+    <!-- 2. 主罐体 (Main Vessel) - 顶层覆盖 -->
+    <rect x="100" y="25" width="600" height="400" fill="white" stroke="#000000" stroke-width="2"/>
+    <path d="M100,25 A50,200 0 0,0 100,425" fill="white" stroke="#000000" stroke-width="2"/>
+    <path d="M700,25 A50,200 0 0,1 700,425" fill="white" stroke="#000000" stroke-width="2"/>
+  </g>
+</svg>
+</file>
+
 <file path="src/graph/cells/svgs/inst-local.svg">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" stroke="black" stroke-width="2">
   <!-- 40x40 画布，圆心 20, 半径 18 -->
@@ -1564,6 +1486,39 @@ function App() {
 export default App;
 </file>
 
+<file path=".gitignore">
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment variables (非常重要！绝对不能上传 .env)
+.env
+.env.local
+.env.*.local
+!.env.example
+</file>
+
 <file path="package.json">
 {
   "name": "chemical-graph-editor",
@@ -1612,6 +1567,191 @@ export default App;
     "vite": "npm:rolldown-vite@7.2.5"
   }
 }
+</file>
+
+<file path="README.md">
+# Chemical P&ID Graph Editor 🏭⚛️
+
+<div align="center">
+
+**连接传统工业图纸与 AI 大模型的桥梁**  
+**A Bridge Between Traditional P&ID and Industrial AI Models**
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Tech](https://img.shields.io/badge/Tech-React%20%7C%20AntV%20X6%20%7C%20Neo4j-green)
+![AI-Ready](https://img.shields.io/badge/AI-Physics%20Aware%20Graph-orange)
+
+[English](#-english) | [中文](#-中文)
+
+</div>
+
+---
+
+<a name="-english"></a>
+## 🇬🇧 English
+
+### 📖 The Story
+**This is an open-source project built entirely by a Chemical Industry Expert (with 0 coding background) paired with Google Gemini 3.**
+
+In the digital transformation of the process industry, general LLMs often struggle to understand the complex physical semantics within P&ID drawings (images). For instance, AI finds it difficult to distinguish whether a pipeline connects to the "Shell Side" or "Tube Side" of a heat exchanger, or whether the medium is in a "Vapor" or "Liquid" phase.
+
+This project is not just a drawing tool, but an **Industrial Knowledge Graph Generator**. By utilizing high-fidelity semantic modeling, it converts graphics into structured data containing **Physical Topology** and **Process Logic**, serving as a high-quality data foundation for Industrial RAG (Retrieval-Augmented Generation) and intelligent diagnostics.
+
+### ✨ Core Features
+
+#### 1. 🎨 Professional Visual Editor
+*   **Powered by AntV X6**: Delivers a Web-based drag-and-drop experience similar to AutoCAD/Visio.
+*   **Smart Routing**: Manhattan orthogonal routing algorithm supporting automatic obstacle avoidance and non-overlapping crossings.
+*   **Smart Interaction**: Auto-split pipelines when dragging valves; auto-generate Tapping Points for instruments.
+
+#### 2. 🧠 AI-Native Semantics `NEW`
+The graph data generated is designed specifically for AI reasoning, embedding deep physical semantics:
+*   **Internal Structure Definition**:
+    *   Explicitly distinguishes internal spaces, e.g., **ShellSide** vs. **TubeSide**, **InnerVessel** vs. **Jacket**.
+    *   *AI Scenario*: Analyzing heat exchange efficiency or mixing logic.
+*   **Phase Awareness**:
+    *   Ports carry phase information, e.g., **ShellSide:Vapor** vs. **ShellSide:Liquid**.
+    *   *AI Scenario*: Detecting "Dry Run" risks (e.g., ensuring heaters are submerged in liquid) or validating venting/draining logic.
+*   **Strict Taxonomy**:
+    *   Strictly distinguishes between **Equipment** and **Instrument** in the graph database.
+    *   *AI Scenario*: Rapid control loop extraction or asset statistics.
+
+#### 3. 🔗 Graph Database Sync
+One-click synchronization to Neo4j, generating an industrial-standard Knowledge Graph:
+*   **Node Labels**: `:Thing`, `:Equipment`, `:Instrument`
+*   **Relationship Props**: Includes `fromRegion`, `toRegion`, `fluid`, `material`, etc.
+
+### 🧠 AI Reasoning Examples
+Once data is stored in Neo4j, you can use Cypher or LLMs to answer complex engineering questions:
+
+1.  **Material Balance Analysis**:
+    > "Query E-13 Evaporator: which pipelines are connected to the Liquid Phase area, and which to the Vapor Phase area?"
+2.  **Safety Logic Verification**:
+    > "Check all heater connections to verify if their corresponding shell-side region is Liquid Phase (to prevent dry heating)."
+3.  **Control Loop Extraction**:
+    > "Find all temperature control instruments on R-101 Reactor and their associated control valves."
+
+### 🚀 Quick Start
+
+1.  **Prerequisites**: Node.js (v16+) and Neo4j Desktop.
+2.  **Clone Repo**:
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/chemical-pid-graph-editor.git
+    cd chemical-pid-graph-editor
+    ```
+3.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
+4.  **Configuration**:
+    Copy the example env file:
+    ```bash
+    cp .env.example .env
+    ```
+    Edit `.env` and fill in your Neo4j credentials.
+5.  **Run**:
+    ```bash
+    npm run dev
+    ```
+
+---
+
+<a name="-中文"></a>
+## 🇨🇳 中文
+
+### 📖 项目背景
+**这是一个由化工行业资深从业者（0 编程基础），在 Google Gemini 3 全程辅助下完成的开源项目。**
+
+在工业智能化转型中，通用的 AI 大模型（LLM）往往难以理解 P&ID 图纸中复杂的物理含义。例如，AI 很难区分一条管线是连接到了换热器的“壳程”还是“管程”，也无法判断介质是“气相”还是“液相”。
+
+本项目不仅仅是一个绘图工具，更是一个**工业知识图谱生成器**。它通过高保真的语义建模，将图形转化为包含**物理拓扑**和**工艺逻辑**的结构化数据，为工业 RAG（检索增强生成）和智能诊断提供高质量的数据底座。
+
+### ✨ 核心功能
+
+#### 1. 🎨 专业级可视化绘图
+*   **基于 AntV X6**: 实现了类似 AutoCAD/Visio 的 Web 端拖拽体验。
+*   **智能路由**: Manhattan 正交路由算法，支持管线自动避让、跨越不穿模。
+*   **智能交互**: 拖拽阀门自动打断管线、拖拽仪表自动生成测点（Tapping Point）。
+
+#### 2. 🧠 AI 语义增强 (AI-Native Semantics) `NEW`
+本项目生成的图谱数据专为 AI 推理设计，包含深度的物理语义：
+*   **精细化腔室定义 (Internal Structure)**:
+    *   明确区分设备的内部空间，如 **壳程 (ShellSide)** vs **管程 (TubeSide)**，**釜内 (InnerVessel)** vs **夹套 (Jacket)**。
+    *   *AI 应用场景*: 分析热交换效率、判断物料是否混合。
+*   **相态感知 (Phase Awareness)**:
+    *   端口携带相态信息，如 **气相区 (ShellSide:Vapor)** vs **液相区 (ShellSide:Liquid)**。
+    *   *AI 应用场景*: 自动检测“干烧”风险（如加热器未浸没在液相中）、验证排污/放空逻辑。
+*   **严格的分类体系 (Strict Taxonomy)**:
+    *   在图数据库中严格区分 **设备 (Equipment)** 与 **仪表 (Instrument)**。
+    *   *AI 应用场景*: 快速提取控制回路，或进行全厂设备资产统计。
+
+#### 3. 🔗 图数据库同步 (Graph Sync)
+一键将画布内容同步至 Neo4j，生成符合工业标准的知识图谱：
+*   **节点标签**: `:Thing`, `:Equipment`, `:Instrument`
+*   **关系属性**: 包含 `fromRegion` (来源腔室), `toRegion` (目标腔室), `fluid` (介质), `material` (材质) 等。
+
+### 🧠 AI 推理示例
+当数据存入 Neo4j 后，您可以使用 Cypher 或让 AI 模型回答以下复杂问题：
+
+1.  **物料平衡分析**:
+    > "查询 E-13 蒸发器中，哪些管线连接到了液相区 (ShellSide:Liquid)，哪些连接到了气相区 (ShellSide:Vapor)？"
+2.  **安全逻辑验证**:
+    > "检查所有加热器接口，确认其对应的壳程区域是否为液相？(防止干烧)"
+3.  **控制回路提取**:
+    > "找出 R-101 反应釜上所有的温度控制仪表及其关联的调节阀。"
+
+### 🚀 快速开始
+
+1.  **环境准备**: 确保已安装 Node.js (v16+) 和 Neo4j Desktop。
+2.  **克隆项目**:
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/chemical-pid-graph-editor.git
+    cd chemical-pid-graph-editor
+    ```
+3.  **安装依赖**:
+    ```bash
+    npm install
+    ```
+4.  **配置数据库**:
+    复制环境变量模板文件：
+    ```bash
+    cp .env.example .env
+    ```
+    打开 `.env` 文件，填入你的 Neo4j 数据库连接信息：
+    ```ini
+    VITE_NEO4J_URI=bolt://localhost:7687
+    VITE_NEO4J_USER=neo4j
+    VITE_NEO4J_PASSWORD=你的数据库密码
+    ```
+5.  **启动项目**:
+    ```bash
+    npm run dev
+    ```
+    浏览器访问 `http://localhost:5173` 即可开始使用。
+
+### 📸 演示截图 (Screenshots)
+
+<div align="center">
+    <!-- GitHub 读取图片的路径规则：相对路径指向 public 文件夹 -->
+    <img src="public/demo-editor.png" alt="Web Editor Interface" width="800"/>
+    <p><i>Web Editor Interface / 编辑器界面</i></p>
+    <br/>
+    <img src="public/demo-graph.png" alt="Neo4j Knowledge Graph" width="800"/>
+    <p><i>Generated Neo4j Graph / 生成的 Neo4j 知识图谱</i></p>
+</div>
+
+---
+
+## 🤝 Contribution / 贡献
+
+As a project initiated by a non-programmer, the code structure might not be perfect. Pull Requests and suggestions are warmly welcome!
+作为一个非程序员发起的项目，代码结构可能不够完美。非常欢迎专业的开发者提出建议或提交 PR！
+
+Special thanks to **AntV X6** team and **Google Gemini**.
+
+## 📄 License
+
+MIT License
 </file>
 
 <file path="src/components/Editor/ContextMenu/index.tsx">
@@ -2147,10 +2287,10 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
           const data = node.getData() || {};
           const pos = node.getPosition();
           const size = node.getSize();
+          const angle = node.getAngle(); // 获取角度
           const type = data.type || 'Unknown';
-          const isInstrument = ['Instrument', 'ControlValve'].includes(type);
-          const category = isInstrument ? 'Instrument' : 'Equipment';
 
+          // Tag 处理逻辑
           let Tag = data.tag || node.getAttrs()?.label?.text || '';
           if (type === 'Instrument') {
             const func = data.tagId || '';
@@ -2158,15 +2298,27 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
             if (func || loop) Tag = `${func}${loop ? '-' + loop : ''}`;
           }
 
+          // [核心修改] 将 x, y, w, h, a 打包成 layout JSON 字符串
+          // 使用 Math.round 取整，减少存储体积
+          const layoutData = {
+            x: Math.round(pos.x),
+            y: Math.round(pos.y),
+            w: Math.round(size.width),
+            h: Math.round(size.height),
+            a: Math.round(angle) 
+          };
+
           const baseProps = {
             x6Id: node.id,
             type: type, 
             Tag: Tag,
-            category: category, // [新增] 将分类传递给后端
-            x: pos.x, y: pos.y, width: size.width, height: size.height, angle: node.getAngle(),
-            desc: data.desc || ''
+            desc: data.desc || '',
+            // [新增] 存入 layout 字段
+            layout: JSON.stringify(layoutData)
+            // [移除] x, y, width, height, angle 不再直接作为顶层属性
           };
 
+          // 业务属性提取逻辑 (保持不变)
           let specificProps = {};
           if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
              specificProps = pick(data, ['spec', 'flow', 'head', 'power', 'material']);
@@ -2930,55 +3082,113 @@ export default GraphCanvas;
 import neo4j from 'neo4j-driver';
 import { FLUID_COLORS, CURRENT_DRAWING_ID } from '../config/rules';
 
+const uri = import.meta.env.VITE_NEO4J_URI || 'bolt://localhost:7687';
+const user = import.meta.env.VITE_NEO4J_USER || 'neo4j';
+const password = import.meta.env.VITE_NEO4J_PASSWORD || '';
+
+// 创建驱动实例
 const driver = neo4j.driver(
-  'bolt://localhost:7687', 
-  neo4j.auth.basic('neo4j', 'CGrx2526'), 
-  { encrypted: 'ENCRYPTION_OFF', disableLosslessIntegers: true }
+  uri,
+  neo4j.auth.basic(user, password)
 );
+
+export default driver;
+
+// [新增] 类型映射表：定义 X6 type 到 Neo4j Labels 的映射关系
+// 所有的节点都会自动带上 :Asset 标签
+const TYPE_MAPPING: Record<string, string[]> = {
+  // 反应器类
+  'Reactor':           ['Equipment', 'Reactor'],
+  'FixedBedReactor':   ['Equipment', 'Reactor'],
+  
+  // 换热器类
+  'Exchanger':         ['Equipment', 'Exchanger'],
+  'VerticalExchanger': ['Equipment', 'Exchanger'],
+  'Evaporator':        ['Equipment', 'Exchanger'],
+  'GasCooler':         ['Equipment', 'Exchanger'],
+  
+  // 泵/压缩机类
+  'Pump':              ['Equipment', 'Pump'],
+  'LiquidPump':        ['Equipment', 'Pump'],
+  'CentrifugalPump':   ['Equipment', 'Pump'],
+  'DiaphragmPump':     ['Equipment', 'Pump'],
+  'PistonPump':        ['Equipment', 'Pump'],
+  'GearPump':          ['Equipment', 'Pump'],
+  'JetPump':           ['Equipment', 'Pump'],
+  'Compressor':        ['Equipment', 'Pump', 'Compressor'], // 压缩机也是流体输送设备，但也可是独立分类
+  'Fan':               ['Equipment', 'Pump', 'Fan'],
+  
+  // 阀门类 (包括手动阀和调节阀)
+  'Valve':             ['Equipment', 'Valve'],
+  'ControlValve':      ['Equipment', 'Valve', 'ControlValve'], // 调节阀既是阀门，也是控制元件
+  
+  // 容器类
+  'Tank':              ['Equipment', 'Vessel'],
+  'Trap':              ['Equipment', 'Vessel'],
+  
+  // 管件
+  'Fitting':           ['Equipment', 'Fitting'],
+  
+  // 仪表类
+  'Instrument':        ['Instrument'],
+  'TappingPoint':      ['Instrument', 'Connection'], // 测点
+  
+  // 默认
+  'default':           ['Equipment', 'Other']
+};
 
 export const saveGraphData = async (nodes: any[], edges: any[]) => {
   const session = driver.session();
   const tx = session.beginTransaction();
   try {
-    // 1. [修改] 删除当前图纸的所有节点 (使用基类标签 :Thing)
+    // 1. [修改] 删除当前图纸的所有资产 (使用基类标签 :Asset)
     await tx.run(
-      `MATCH (n:Thing {drawingId: $drawingId}) DETACH DELETE n`,
+      `MATCH (n:Asset {drawingId: $drawingId}) DETACH DELETE n`,
       { drawingId: CURRENT_DRAWING_ID }
     );
 
-    // 2. 保存节点 (根据 category 分流)
+    // 2. [重构] 保存节点 - 根据类型进行分组批量插入
     if (nodes.length) {
-      // 2.1 保存设备 (Equipment)
-      // 标签: :Thing (基类) + :Equipment (具体类)
-      await tx.run(
-        `UNWIND $nodes AS n 
-         WITH n WHERE n.category = 'Equipment'
-         CREATE (e:Thing:Equipment {x6Id: n.x6Id, drawingId: $drawingId}) 
-         SET e += n`, 
-        { nodes, drawingId: CURRENT_DRAWING_ID }
-      );
+      // 2.1 在内存中对节点进行分组
+      const groups: Record<string, any[]> = {};
+      
+      nodes.forEach(node => {
+        const type = node.type || 'Unknown';
+        // 获取对应的标签列表，例如 ['Equipment', 'Pump']
+        const labels = TYPE_MAPPING[type] || TYPE_MAPPING['default'];
+        // 生成唯一的 Group Key，例如 "Equipment_Pump"
+        const groupKey = labels.join(':');
+        
+        if (!groups[groupKey]) groups[groupKey] = [];
+        groups[groupKey].push(node);
+      });
 
-      // 2.2 保存仪表 (Instrument)
-      // 标签: :Thing (基类) + :Instrument (具体类)
-      await tx.run(
-        `UNWIND $nodes AS n 
-         WITH n WHERE n.category = 'Instrument'
-         CREATE (e:Thing:Instrument {x6Id: n.x6Id, drawingId: $drawingId}) 
-         SET e += n`, 
-        { nodes, drawingId: CURRENT_DRAWING_ID }
-      );
+      // 2.2 针对每一组生成特定的 Cypher 语句
+      for (const [labelString, batch] of Object.entries(groups)) {
+        // labelString 是 "Equipment:Pump"，我们需要把它拼接到 Cypher 中
+        // 注意：Cypher 不支持参数化 Label，所以这里必须使用字符串拼接
+        // 但由于 labelString 来自我们内部定义的 TYPE_MAPPING，所以是安全的
+        const labels = `:Asset:${labelString}`; 
+        
+        await tx.run(
+          `UNWIND $batch AS n 
+           CREATE (e${labels} {x6Id: n.x6Id, drawingId: $drawingId}) 
+           SET e += n`, 
+          { batch, drawingId: CURRENT_DRAWING_ID }
+        );
+      }
     }
 
-    // 3. 保存连线
+    // 3. 保存连线 (匹配 :Asset)
     if (edges.length) {
       const pipes = edges.filter(e => e.type !== 'Signal');
       const signals = edges.filter(e => e.type === 'Signal');
 
-      // 3.1 保存工艺管线 (匹配 :Thing)
+      // 3.1 保存工艺管线
       if (pipes.length) {
         await tx.run(
           `UNWIND $pipes AS r 
-           MATCH (s:Thing {x6Id: r.source}), (t:Thing {x6Id: r.target}) 
+           MATCH (s:Asset {x6Id: r.source}), (t:Asset {x6Id: r.target}) 
            CREATE (s)-[:PIPE {
              fromPort:   r.sourcePort, 
              toPort:     r.targetPort,
@@ -2998,7 +3208,7 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         );
       }
 
-      // 3.2 保存信号线 (匹配 :Thing)
+      // 3.2 保存信号线
       if (signals.length) {
         const controlSignals = signals.filter((s: any) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
         const measureSignals = signals.filter((s: any) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
@@ -3006,7 +3216,7 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         if (controlSignals.length) {
           await tx.run(
             `UNWIND $batch AS r 
-             MATCH (s:Thing {x6Id: r.source}), (t:Thing {x6Id: r.target}) 
+             MATCH (s:Asset {x6Id: r.source}), (t:Asset {x6Id: r.target}) 
              CREATE (s)-[:CONTROLS {
                fromPort:   r.sourcePort, 
                toPort:     r.targetPort,
@@ -3020,7 +3230,7 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         if (measureSignals.length) {
           await tx.run(
             `UNWIND $batch AS r 
-             MATCH (inst:Thing {x6Id: r.target}), (tp:Thing {x6Id: r.source}) 
+             MATCH (inst:Asset {x6Id: r.target}), (tp:Asset {x6Id: r.source}) 
              CREATE (inst)-[:MEASURES {
                fromPort:   r.targetPort,
                toPort:     r.sourcePort,
@@ -3042,87 +3252,109 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
   }
 };
 
-export const loadGraphData = async () => {
+
+  export const loadGraphData = async () => {
   const session = driver.session();
   try {
-    // 1. [修改] 加载节点 (匹配 :Thing 以加载所有类型)
+    // 1. 加载节点
     const nodesResult = await session.run(
-      `MATCH (n:Thing {drawingId: $drawingId}) RETURN n`,
+      `MATCH (n:Asset {drawingId: $drawingId}) RETURN n`,
       { drawingId: CURRENT_DRAWING_ID }
     );
     
-    // ... (nodes map 逻辑保持不变) ...
     const nodes = nodesResult.records.map(record => {
-        // ... 原有代码 ...
-        // 注意：这里不需要改动，因为我们只是读取属性
-        const props = record.get('n').properties;
-        // ...
-        // 为了节省篇幅，此处省略中间的 shape 映射代码，保持原样即可
-        // ...
-        // 补全 return 结构
-        const safeNumber = (val: any) => {
-            if (typeof val === 'number') return val;
-            if (val && val.low !== undefined) return val.low; 
-            if (val && !isNaN(Number(val))) return Number(val); 
-            return undefined; 
+      const props = record.get('n').properties;
+      
+      // 1. 解析 layout JSON
+      let layout: any = { x: 0, y: 0, w: 40, h: 40, a: 0 };
+      if (props.layout) {
+        try {
+          layout = JSON.parse(props.layout);
+        } catch (e) {
+          console.warn('Layout parse failed for node:', props.x6Id);
+        }
+      } else {
+        // 兼容旧数据
+        layout = {
+          x: props.x || 0,
+          y: props.y || 0,
+          w: props.width || 40,
+          h: props.height || 40,
+          a: props.angle || 0
         };
-        // 重新构建 shapeName 映射逻辑 (必须保留，否则无法加载)
-        let shapeName = 'p-valve'; 
-        switch (props.type) {
-            case 'Reactor':      shapeName = 'p-reactor'; break;
-            case 'Exchanger':    shapeName = 'p-exchanger'; break;
-            case 'Pump':         shapeName = 'p-pump'; break;
-            case 'LiquidPump':   shapeName = 'p-pump-liquid'; break;
-            case 'CentrifugalPump': shapeName = 'p-pump-centrifugal'; break;
-            case 'DiaphragmPump': shapeName = 'p-pump-diaphragm'; break;
-            case 'PistonPump':   shapeName = 'p-pump-piston'; break;
-            case 'Compressor':   shapeName = 'p-pump-compressor'; break;
-            case 'GearPump':     shapeName = 'p-pump-gear'; break;
-            case 'Fan':          shapeName = 'p-pump-fan'; break;
-            case 'JetPump':      shapeName = 'p-pump-jet'; break;
-            case 'ControlValve': shapeName = 'p-cv-pneumatic'; break;
-            case 'Valve':        shapeName = 'p-cv-manual'; break;
-            case 'Fitting':      shapeName = 'p-tee'; break; 
-            case 'Tank':         shapeName = 'p-tank-horizontal'; break;
-            case 'GasCooler':    shapeName = 'p-gas-cooler'; break;
-            case 'Trap':         shapeName = 'p-trap'; break;
-            case 'FixedBedReactor': shapeName = 'p-fixed-bed-reactor'; break;
-            case 'VerticalExchanger': shapeName = 'p-exchanger-vertical'; break;
-            case 'Evaporator':   shapeName = 'p-naphthalene-evaporator'; break;
-            case 'Instrument':   
+      }
+
+      // ... (Tag 处理逻辑保持不变) ...
+      if (props.Tag) { props.tag = props.Tag; }
+      const isTee = props.type === 'Fitting';
+      if (isTee) { props.tag = 'TEE'; props.Tag = 'TEE'; }
+
+      // ... (Shape 映射逻辑保持不变) ...
+      let shapeName = 'p-valve'; 
+      switch (props.type) {
+          // ... (省略 switch case 内容，保持原样) ...
+          case 'Reactor':      shapeName = 'p-reactor'; break;
+          case 'Exchanger':    shapeName = 'p-exchanger'; break;
+          case 'Pump':         shapeName = 'p-pump'; break;
+          case 'LiquidPump':   shapeName = 'p-pump-liquid'; break;
+          case 'CentrifugalPump': shapeName = 'p-pump-centrifugal'; break;
+          case 'DiaphragmPump': shapeName = 'p-pump-diaphragm'; break;
+          case 'PistonPump':   shapeName = 'p-pump-piston'; break;
+          case 'Compressor':   shapeName = 'p-pump-compressor'; break;
+          case 'GearPump':     shapeName = 'p-pump-gear'; break;
+          case 'Fan':          shapeName = 'p-pump-fan'; break;
+          case 'JetPump':      shapeName = 'p-pump-jet'; break;
+          case 'ControlValve': shapeName = 'p-cv-pneumatic'; break;
+          case 'Valve':        shapeName = 'p-cv-manual'; break;
+          case 'Fitting':      shapeName = 'p-tee'; break; 
+          case 'Tank':         shapeName = 'p-tank-horizontal'; break;
+          case 'GasCooler':    shapeName = 'p-gas-cooler'; break;
+          case 'Trap':         shapeName = 'p-trap'; break;
+          case 'FixedBedReactor': shapeName = 'p-fixed-bed-reactor'; break;
+          case 'VerticalExchanger': shapeName = 'p-exchanger-vertical'; break;
+          case 'Evaporator':   shapeName = 'p-naphthalene-evaporator'; break;
+          case 'Instrument':   
             if(props.spec === 'Local') shapeName = 'p-inst-local';
             else if(props.spec === 'Panel') shapeName = 'p-inst-panel';
             else shapeName = 'p-inst-remote';
             break;
-            case 'TappingPoint': shapeName = 'tapping-point'; break;
-            default: break;
-        }
-        
-        const isTee = props.type === 'Fitting';
+          case 'TappingPoint': shapeName = 'tapping-point'; break;
+          default: break;
+      }
 
-        return {
-            id: props.x6Id,
-            shape: shapeName, 
-            x: props.x,
-            y: props.y,
-            width: safeNumber(props.width), 
-            height: safeNumber(props.height),
-            angle: safeNumber(props.angle) || 0,
-            data: { ...props },
-            attrs: { 
-                label: { 
-                    text: isTee ? '' : (props.Tag || props.tag || props.label),
-                    display: isTee ? 'none' : undefined
-                },
-                topLabel: props.tagId ? { text: props.tagId } : undefined,
-                bottomLabel: props.loopNum ? { text: props.loopNum } : undefined,
-            }
-        };
+      // [核心修正 1] 清理 props，分离出纯业务数据
+      // 我们不希望 data 里包含 layout 字符串，也不希望包含旧的 x,y
+      const { layout: _layoutStr, x, y, width, height, angle, ...businessData } = props;
+
+      return {
+        id: props.x6Id,
+        shape: shapeName, 
+        
+        // [核心修正 2] 使用解析后的 layout 变量
+        // 注意：保存时用的键是 w, h, a，这里要对应上
+        x: layout.x,
+        y: layout.y,
+        width: layout.w, 
+        height: layout.h,
+        angle: layout.a, 
+        
+        // [核心修正 3] data 只放入清洗后的业务数据
+        data: { ...businessData }, 
+        
+        attrs: { 
+          label: { 
+            text: isTee ? '' : (props.Tag || props.tag || props.label),
+            display: isTee ? 'none' : undefined
+          },
+          topLabel: props.tagId ? { text: props.tagId } : undefined,
+          bottomLabel: props.loopNum ? { text: props.loopNum } : undefined,
+        }
+      };
     });
 
-    // 2. [修改] 加载连线 (匹配 :Thing)
+    // 2. [修改] 加载连线 (匹配 :Asset)
     const edgesResult = await session.run(`
-      MATCH (s:Thing {drawingId: $drawingId})-[r:PIPE|MEASURES|CONTROLS]->(t:Thing {drawingId: $drawingId}) 
+      MATCH (s:Asset {drawingId: $drawingId})-[r:PIPE|MEASURES|CONTROLS]->(t:Asset {drawingId: $drawingId}) 
       RETURN s.x6Id as sourceId, t.x6Id as targetId, r, type(r) as relType
     `, { drawingId: CURRENT_DRAWING_ID });
     
@@ -3519,7 +3751,7 @@ export const registerCustomCells = () => {
     imageUrl: svgToDataUrl(e13Svg),
     ports: E13_PORTS,
     attrs: LABEL_ATTRS, 
-    data: { type: 'Evaporator', spec: 'E-13', tag: 'E-13' },
+    data: { type: 'Evaporator', spec: '蒸发器', tag: 'E-13' },
   });
 
   const pumps = [
@@ -3541,7 +3773,7 @@ export const registerCustomCells = () => {
     });
   });
 
-  const valves = [
+  const controlValves = [
     { key: 'p-cv-pneumatic', name: '气动调节阀', svg: cvPneumaticSvg, type: 'ControlValve' },
     { key: 'p-cv-positioner', name: '带定位器阀', svg: cvPositionerSvg, type: 'ControlValve' },
     { key: 'p-cv-electric', name: '电动调节阀', svg: cvElectricSvg, type: 'ControlValve' },
@@ -3550,7 +3782,7 @@ export const registerCustomCells = () => {
     { key: 'p-cv-piston', name: '气缸调节阀', svg: cvPistonSvg, type: 'ControlValve' },
   ];
 
-  valves.forEach(v => {
+  controlValves.forEach(v => {
     Graph.registerNode(v.key, {
       inherit: 'image', width: 40, height: 60, imageUrl: svgToDataUrl(v.svg),
       ports: VALVE_PORTS, attrs: LABEL_ATTRS,
