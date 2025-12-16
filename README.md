@@ -64,8 +64,8 @@ Once data is stored in Neo4j, you can use Cypher or LLMs to answer complex engin
 1.  **Prerequisites**: Node.js (v16+) and Neo4j Desktop.
 2.  **Clone Repo**:
     ```bash
-    git clone https://github.com/YOUR_USERNAME/chemical-pid-graph-editor.git
-    cd chemical-pid-graph-editor
+    git clone https://github.com/ssnchenfeng-ai/chemical-graph-editor.git
+    cd chemical-graph-editor
     ```
 3.  **Install Dependencies**:
     ```bash
@@ -74,7 +74,11 @@ Once data is stored in Neo4j, you can use Cypher or LLMs to answer complex engin
 4.  **Configuration**:
     Copy the example env file:
     ```bash
+    # Mac/Linux
     cp .env.example .env
+
+    # Windows (CMD)
+    copy .env.example .env
     ```
     Edit `.env` and fill in your Neo4j credentials.
 5.  **Run**:
@@ -133,8 +137,8 @@ Once data is stored in Neo4j, you can use Cypher or LLMs to answer complex engin
 1.  **环境准备**: 确保已安装 Node.js (v16+) 和 Neo4j Desktop。
 2.  **克隆项目**:
     ```bash
-    git clone https://github.com/YOUR_USERNAME/chemical-pid-graph-editor.git
-    cd chemical-pid-graph-editor
+    git clone https://github.com/ssnchenfeng-ai/chemical-graph-editor.git
+    cd chemical-graph-editor
     ```
 3.  **安装依赖**:
     ```bash
@@ -143,7 +147,11 @@ Once data is stored in Neo4j, you can use Cypher or LLMs to answer complex engin
 4.  **配置数据库**:
     复制环境变量模板文件：
     ```bash
+    # Mac/Linux
     cp .env.example .env
+
+    # Windows (CMD)
+    copy .env.example .env
     ```
     打开 `.env` 文件，填入你的 Neo4j 数据库连接信息：
     ```ini
