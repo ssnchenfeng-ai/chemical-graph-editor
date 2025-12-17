@@ -227,7 +227,7 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
           case 'ControlValve': shapeName = 'p-cv-pneumatic'; break;
           case 'Valve':        shapeName = 'p-cv-manual'; break;
           case 'Fitting':      shapeName = 'p-tee'; break; 
-          case 'Tank':         shapeName = 'p-tank-horizontal'; break;
+          case 'Tank':         if (props.spec === 'Vertical') {shapeName = 'p-tank-vertical';} else {shapeName = 'p-tank-horizontal';} break;
           case 'GasCooler':    shapeName = 'p-gas-cooler'; break;
           case 'Trap':         shapeName = 'p-trap'; break;
           case 'FixedBedReactor': shapeName = 'p-fixed-bed-reactor'; break;

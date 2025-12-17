@@ -778,6 +778,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     const exchanger = graph.createNode({ shape: 'p-exchanger', label: '换热器', data: { type: 'Exchanger' } });
     const e13 = graph.createNode({ shape: 'p-naphthalene-evaporator', label: '萘蒸发器', data: { type: 'Evaporator' } });
     const tankH = graph.createNode({ shape: 'p-tank-horizontal', label: '卧式储罐', data: { type: 'Tank' } });
+    const tankV = graph.createNode({ shape: 'p-tank-vertical', label: '立式储罐', data: { type: 'Tank' } });
     const gasCooler = graph.createNode({ shape: 'p-gas-cooler', label: '气体冷却器', data: { type: 'GasCooler' } });
     const d14 = graph.createNode({ shape: 'p-fixed-bed-reactor', label: '固定床反应器', data: { type: 'FixedBedReactor' } });
     const vExchanger = graph.createNode({ shape: 'p-exchanger-vertical', label: '立式换热器', data: { type: 'VerticalExchanger' } });
@@ -814,7 +815,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     ];
 
     // 5. 加载到 Stencil
-    stencil.load([reactor, exchanger, vExchanger, e13, tankH, gasCooler, d14, trapNode], 'main_equip');
+    stencil.load([reactor, exchanger, vExchanger, e13, tankH, tankV, gasCooler, d14, trapNode], 'main_equip');
     stencil.load(pumpList, 'pumps');
     stencil.load(instList, 'instruments');
     stencil.load([...valveList, teeNode], 'parts');

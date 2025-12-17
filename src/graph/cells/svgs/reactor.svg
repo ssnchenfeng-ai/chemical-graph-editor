@@ -1,19 +1,79 @@
-<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
-  <!-- 夹套 (灰色背景) -->
-  <path d="M10,30 H70 V90 Q70,110 40,110 Q10,110 10,90 Z" fill="#f0f0f0" stroke="#666" stroke-width="2"/>
-  <!-- 釜体 (蓝色主体) -->
-  <path d="M15,30 H65 V90 Q65,105 40,105 Q15,105 15,90 Z" fill="#e6f7ff" stroke="#1890ff" stroke-width="2"/>
-  <!-- 顶盖 -->
-  <path d="M15,30 Q40,10 65,30 Z" fill="#e6f7ff" stroke="#1890ff" stroke-width="2"/>
-  <!-- 搅拌电机 -->
-  <rect x="35" y="0" width="10" height="15" fill="#666"/>
-  <line x1="40" y1="15" x2="40" y2="80" stroke="#666" stroke-width="2" stroke-dasharray="4 2"/>
-  <!-- 搅拌桨 -->
-  <path d="M25,80 L55,80" stroke="#666" stroke-width="3"/>
-  <!-- 端口视觉标记 (仅供参考，不参与逻辑) -->
-  <circle cx="25" cy="22" r="2" fill="#1890ff"/> <!-- 进料口1 -->
-  <circle cx="55" cy="22" r="2" fill="#1890ff"/> <!-- 进料口2 -->
-  <circle cx="40" cy="110" r="2" fill="#1890ff"/> <!-- 出料口 -->
-  <circle cx="10" cy="50" r="2" fill="#666"/> <!-- 夹套进 -->
-  <circle cx="70" cy="80" r="2" fill="#666"/> <!-- 夹套出 -->
+<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="1.5">
+  
+  <!-- 1. 半管夹套 (Limpet Coil) -->
+  <!-- 左侧半管组 -->
+  <!-- 最上方半管 (入口) - 顶点在 x=6 -->
+  <path d="M10,50 A4,4 0 0,0 10,58" fill="none"/> 
+  <!-- 左侧入口连接线 (Jacket In) - 外接半圆顶点 -->
+  <line x1="0" y1="54" x2="6" y2="54" stroke-width="2"/>
+  
+  <!-- 左侧其余半管 -->
+  <path d="M10,62 A4,4 0 0,0 10,70" fill="none"/>
+  <path d="M10,74 A4,4 0 0,0 10,82" fill="none"/>
+  <path d="M10,86 A4,4 0 0,0 10,94" fill="none"/>
+
+  <!-- 右侧半管组 -->
+  <path d="M70,50 A4,4 0 0,1 70,58" fill="none"/>
+  <path d="M70,62 A4,4 0 0,1 70,70" fill="none"/>
+  <path d="M70,74 A4,4 0 0,1 70,82" fill="none"/>
+  
+  <!-- 最下方半管 (出口) - 顶点在 x=74 -->
+  <path d="M70,86 A4,4 0 0,1 70,94" fill="none"/>
+  <!-- 右侧出口连接线 (Jacket Out) - 外接半圆顶点 -->
+  <line x1="74" y1="90" x2="80" y2="90" stroke-width="2"/>
+
+  <!-- 2. 釜体 (Main Vessel) -->
+  <path d="M10,30 Q40,10 70,30 L70,100 Q40,120 10,100 Z" fill="white" stroke="black" stroke-width="2"/>
+
+  <!-- 3. 搅拌系统 (Agitator) -->
+  <!-- 电机 (M) - 位于正中，半径8，占据 x=32~48 -->
+  <circle cx="40" cy="5" r="8" fill="white" stroke="black" stroke-width="1.5"/>
+  <text x="40" y="8" font-family="Arial" font-size="10" text-anchor="middle" fill="black" stroke="none">M</text>
+  
+  <!-- 搅拌轴 -->
+  <line x1="40" y1="13" x2="40" y2="85" stroke="black" stroke-width="1.5"/>
+  
+  <!-- 桨叶 (Paddle) -->
+  <rect x="20" y="85" width="40" height="10" fill="white" stroke="black" stroke-width="1.5"/>
+  <line x1="20" y1="85" x2="60" y2="95" stroke="black" stroke-width="1"/>
+  <line x1="20" y1="95" x2="60" y2="85" stroke="black" stroke-width="1"/>
+
+  <!-- 4. 顶部连接桩 (Top Nozzles) -->
+  <!-- 避开电机区域 (32-48)，向两侧分布 -->
+  
+  <!-- N1 (x=12) -->
+  <line x1="12" y1="22" x2="12" y2="5" stroke-width="2"/>
+  <line x1="9" y1="5" x2="15" y2="5" stroke-width="2"/> <!-- 法兰 -->
+
+  <!-- N2 (x=24) - 距离电机有一定间隙 -->
+  <line x1="24" y1="18" x2="24" y2="5" stroke-width="2"/>
+  <line x1="21" y1="5" x2="27" y2="5" stroke-width="2"/>
+
+  <!-- N3 (x=56) -->
+  <line x1="56" y1="18" x2="56" y2="5" stroke-width="2"/>
+  <line x1="53" y1="5" x2="59" y2="5" stroke-width="2"/>
+
+  <!-- N4 (x=68) -->
+  <line x1="68" y1="22" x2="68" y2="5" stroke-width="2"/>
+  <line x1="65" y1="5" x2="71" y2="5" stroke-width="2"/>
+
+  <!-- 5. 侧面工艺接口 -->
+  
+  <!-- 进料口 (Feed In) - 下移至 y=35 (连接在直筒体上) -->
+  <line x1="0" y1="35" x2="10" y2="35" stroke-width="2"/>
+  <!-- 纯直线，无法兰短线 -->
+
+  <!-- 溢流口 (Overflow) - 右侧 y=35 (与进料口水平或略低，这里设为同高对称) -->
+  <line x1="70" y1="35" x2="80" y2="35" stroke-width="2"/>
+  
+  <!-- 插底管 (Dip Pipe) -->
+  <polyline points="70,35 62,35 62,95" fill="none" stroke="black" stroke-width="1" stroke-dasharray="3 2"/>
+
+  <!-- 6. 底部出料口 -->
+  <line x1="40" y1="110" x2="40" y2="120" stroke-width="2"/>
+  <line x1="36" y1="120" x2="44" y2="120" stroke-width="2"/>
+
+  <!-- 7. 内部挡板/套管 -->
+  <line x1="65" y1="35" x2="65" y2="90" stroke="black" stroke-width="1"/>
+
 </svg>

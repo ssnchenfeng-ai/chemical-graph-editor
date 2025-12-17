@@ -1,0 +1,20 @@
+<svg viewBox="0 0 100 200" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 基础背景 (白色) -->
+  <path d="M10,40 A40,20 0 0,1 90,40 L90,160 A40,20 0 0,1 10,160 Z" fill="white" stroke="none" />
+
+  <!-- 2. 液相填充 (淡蓝色，下半部分) -->
+  <!-- 路径说明: 从左中(10,100) -> 右中(90,100) -> 右下直线 -> 底部封头弧线 -> 闭合 -->
+  <path d="M10,100 L90,100 L90,160 A40,20 0 0,1 10,160 Z" fill="#e6f7ff" stroke="none" />
+
+  <!-- 3. 液面线 (蓝色虚线) -->
+  <line x1="10" y1="100" x2="90" y2="100" stroke="#1890ff" stroke-width="1" stroke-dasharray="4 2" />
+
+  <!-- 4. 外轮廓 (黑色) -->
+  <path d="M10,40 A40,20 0 0,1 90,40 L90,160 A40,20 0 0,1 10,160 Z" fill="none" stroke="black" stroke-width="2" />
+  
+  <!-- 5. 支腿 (保持不变) -->
+  <line x1="20" y1="175" x2="20" y2="195" />
+  <line x1="10" y1="195" x2="30" y2="195" />
+  <line x1="80" y1="175" x2="80" y2="195" />
+  <line x1="70" y1="195" x2="90" y2="195" />
+</svg>

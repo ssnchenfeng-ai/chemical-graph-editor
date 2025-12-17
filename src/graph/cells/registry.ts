@@ -26,6 +26,7 @@ import instPanelSvg from './svgs/inst-panel.svg?raw';
 
 import teeSvg from './svgs/tee.svg?raw';
 import tankHorizontalSvg from './svgs/tank-horizontal.svg?raw';
+import tankVerticalSvg from './svgs/tank-vertical.svg?raw'; 
 import gasCoolerSvg from './svgs/gas-cooler.svg?raw';
 import reactorFixedBedSvg from './svgs/reactor-fixed-bed.svg?raw';
 import exchangerVerticalSvg from './svgs/exchanger-vertical.svg?raw';
@@ -100,7 +101,82 @@ const E13_PORTS = {
 // ... (端口定义保持不变，此处省略以节省篇幅) ...
 // 如果您需要完整的端口定义代码，请告知，通常这部分不会导致图标丢失。
 // 关键是下面的 registerCustomCells 函数
+const REACTOR_PORTS = {
+  groups: { 
+    top: { position: 'absolute', attrs: PORT_ATTRS }, 
+    left_side: { position: 'absolute', attrs: PORT_ATTRS }, 
+    right_side: { position: 'absolute', attrs: PORT_ATTRS }, 
+    jacket: { position: 'absolute', attrs: PORT_ATTRS },
+    bottom: { position: 'absolute', attrs: PORT_ATTRS } 
+  },
+  items: [
+    // ========================================================================
+    // 1. 釜顶区域 (Top) - 气相空间 (Gas Phase)
+    //    分布四个连接桩，用于搅拌、放空、备用等
+    // ========================================================================
+    { id: 'n1', group: 'top', args: { x: '15%', y: '0%' }, data: { desc: '釜顶接口N1', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 'n2', group: 'top', args: { x: '30%', y: '0%' }, data: { desc: '釜顶接口N2', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 'n3', group: 'top', args: { x: '70%', y: '0%' }, data: { desc: '釜顶接口N3', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 'n4', group: 'top', args: { x: '85%', y: '0%' }, data: { desc: '釜顶接口N4', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
 
+    // ========================================================================
+    // 2. 进料口 (Feed) - 左侧上部
+    //    位于液面之上，属于气相空间
+    // ========================================================================
+    { 
+      id: 'feed_in', 
+      group: 'left_side', 
+      args: { x: '0%', y: '30%' }, // 较高位置
+      data: { desc: '进料口', region: 'InnerVessel', phase: 'Gas', dir: 'in' } as PortData 
+    },
+
+    // ========================================================================
+    // 3. 溢流口 (Overflow) - 右侧略低于进料口
+    //    定义液位高度，溢流口本身及流出物料视为液相
+    // ========================================================================
+    { 
+      id: 'overflow', 
+      group: 'right_side', 
+      args: { x: '100%', y: '30%' }, // y=30% 略低于进料口的 20%
+      data: { desc: '溢流口', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData 
+    },
+
+    // ========================================================================
+    // 4. 半管夹套 (Half-Pipe Jacket)
+    //    独立的热交换区域
+    // ========================================================================
+    { 
+      id: 'j_in', 
+      group: 'jacket', 
+      args: { x: '0%', y: '45%' }, // 左侧中部进入
+      data: { desc: '半管夹套入口', region: 'Jacket', dir: 'in' } as PortData 
+    },
+    { 
+      id: 'j_out', 
+      group: 'jacket', 
+      args: { x: '100%', y: '75%' }, // 右侧下部流出
+      data: { desc: '半管夹套出口', region: 'Jacket', dir: 'out' } as PortData 
+    },
+
+    // ========================================================================
+    // 5. 釜底区域 (Bottom) - 液相空间 (Liquid Phase)
+    //    包含出料口和温度测点
+    // ========================================================================
+    { 
+      id: 'discharge', 
+      group: 'bottom', 
+      args: { x: '50%', y: '100%' }, // 正底
+      data: { desc: '釜底出料口', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData 
+    },
+    { 
+      id: 'temp_point', 
+      group: 'bottom', 
+      args: { x: '25%', y: '92%' }, // 底部偏左，用于插入热电阻
+      attrs: { circle: { r: 3, fill: '#faad14', stroke: '#333' } }, // 视觉上区分一下测点
+      data: { desc: '釜底温度口', region: 'InnerVessel', phase: 'Liquid', type: 'Instrument' } as PortData 
+    },
+  ],
+};
 const COMMON_PUMP_PORTS = {
   groups: { in: { position: 'absolute', attrs: PORT_ATTRS }, out: { position: 'absolute', attrs: PORT_ATTRS } },
   items: [
@@ -127,7 +203,7 @@ const TEE_PORTS = {
   ],
 };
 
-const TANK_PORTS = {
+const TANK_HORIZONTAL_PORTS = {
   groups: { 
     top: { position: 'absolute', attrs: PORT_ATTRS }, 
     bottom: { position: 'absolute', attrs: PORT_ATTRS }, 
@@ -135,26 +211,62 @@ const TANK_PORTS = {
     right: { position: 'absolute', attrs: PORT_ATTRS } 
   },
   items: [
-    // 顶部端口 N1-N5
-    { id: 'n1', group: 'top', args: { x: '20%', y: '0%' }, data: { desc: 'N1' } as PortData },
-    { id: 'n2', group: 'top', args: { x: '35%', y: '0%' }, data: { desc: 'N2' } as PortData },
-    { id: 'n3', group: 'top', args: { x: '50%', y: '0%' }, data: { desc: 'N3' } as PortData },
-    { id: 'n4', group: 'top', args: { x: '65%', y: '0%' }, data: { desc: 'N4' } as PortData },
-    { id: 'n5', group: 'top', args: { x: '80%', y: '0%' }, data: { desc: 'N5' } as PortData },
-    // 底部端口 N6-N10
-    { id: 'n6', group: 'bottom', args: { x: '20%', y: '100%' }, data: { desc: 'N6' } as PortData },
-    { id: 'n7', group: 'bottom', args: { x: '35%', y: '100%' }, data: { desc: 'N7' } as PortData },
-    { id: 'n8', group: 'bottom', args: { x: '50%', y: '100%' }, data: { desc: 'N8' } as PortData },
-    { id: 'n9', group: 'bottom', args: { x: '65%', y: '100%' }, data: { desc: 'N9' } as PortData },
-    { id: 'n10', group: 'bottom', args: { x: '80%', y: '100%' }, data: { desc: 'N=10' } as PortData },
-    // 左侧端口 N11-N13
-    { id: 'n11', group: 'left', args: { x: '0%', y: '25%' }, data: { desc: 'N11' } as PortData },
-    { id: 'n12', group: 'left', args: { x: '0%', y: '50%' }, data: { desc: 'N12' } as PortData },
-    { id: 'n13', group: 'left', args: { x: '0%', y: '75%' }, data: { desc: 'N13' } as PortData },
-    // 右侧端口 N14-N16
-    { id: 'n14', group: 'right', args: { x: '100%', y: '25%' }, data: { desc: 'N14' } as PortData },
-    { id: 'n15', group: 'right', args: { x: '100%', y: '50%' }, data: { desc: 'N15' } as PortData },
-    { id: 'n16', group: 'right', args: { x: '100%', y: '75%' }, data: { desc: 'N16' } as PortData },
+    // ========================================================================
+    // 1. 顶部端口 - 气相空间 (Gas Phase)
+    //    用于：放空、呼吸阀、氮封、气相进料
+    // ========================================================================
+    { id: 'n1', group: 'top', args: { x: '20%', y: '0%' }, data: { desc: '顶部口N1', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 'n2', group: 'top', args: { x: '35%', y: '0%' }, data: { desc: '顶部口N2', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 'n3', group: 'top', args: { x: '50%', y: '0%' }, data: { desc: '顶部口N3', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 'n4', group: 'top', args: { x: '65%', y: '0%' }, data: { desc: '顶部口N4', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
+    { id: 'n5', group: 'top', args: { x: '80%', y: '0%' }, data: { desc: '顶部口N5', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
+    
+    // ========================================================================
+    // 2. 底部端口 - 液相空间 (Liquid Phase)
+    //    用于：排净、出料泵吸入口
+    // ========================================================================
+    { id: 'n6', group: 'bottom', args: { x: '20%', y: '100%' }, data: { desc: '底部口N6', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
+    { id: 'n7', group: 'bottom', args: { x: '35%', y: '100%' }, data: { desc: '底部口N7', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
+    { id: 'n8', group: 'bottom', args: { x: '50%', y: '100%' }, data: { desc: '底部口N8', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
+    { id: 'n9', group: 'bottom', args: { x: '65%', y: '100%' }, data: { desc: '底部口N9', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
+    { id: 'n10', group: 'bottom', args: { x: '80%', y: '100%' }, data: { desc: '底部口N10', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
+    
+    // ========================================================================
+    // 3. 侧面/端部端口 - 通常为液相 (Liquid Phase)
+    //    用于：人孔、液位计接口、进料
+    // ========================================================================
+    { id: 'n11', group: 'left', args: { x: '0%', y: '50%' }, data: { desc: '左侧口N11', region: 'InnerVessel', phase: 'Liquid', dir: 'bi' } as PortData },
+    { id: 'n14', group: 'right', args: { x: '100%', y: '50%' }, data: { desc: '右侧口N14', region: 'InnerVessel', phase: 'Liquid', dir: 'bi' } as PortData },
+  ],
+};
+
+const TANK_VERTICAL_PORTS = {
+  groups: { 
+    top: { position: 'absolute', attrs: PORT_ATTRS }, 
+    bottom: { position: 'absolute', attrs: PORT_ATTRS }, 
+    left_upper: { position: 'absolute', attrs: PORT_ATTRS }, 
+    left_lower: { position: 'absolute', attrs: PORT_ATTRS },
+    right_upper: { position: 'absolute', attrs: PORT_ATTRS },
+    right_lower: { position: 'absolute', attrs: PORT_ATTRS }
+  },
+  items: [
+    // --- 顶部封头 (气相) ---
+    // y=10% 对应 SVG 中的 y=20 (封头顶点)
+    { id: 't1', group: 'top', args: { x: '50%', y: '10%' }, data: { desc: '顶部放空', region: 'InnerVessel', phase: 'Gas', dir: 'out' } as PortData },
+    
+    // --- 底部封头 (液相) ---
+    // y=90% 对应 SVG 中的 y=180 (封头底点)
+    { id: 'b1', group: 'bottom', args: { x: '50%', y: '90%' }, data: { desc: '底部出料', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
+
+    // --- 侧壁上部 (气相) ---
+    // y=30% 位于直边上部
+    { id: 'l_up', group: 'left_upper', args: { x: '10%', y: '30%' }, data: { desc: '上部侧口(左)', region: 'InnerVessel', phase: 'Gas', dir: 'in' } as PortData },
+    { id: 'r_up', group: 'right_upper', args: { x: '90%', y: '30%' }, data: { desc: '上部侧口(右)', region: 'InnerVessel', phase: 'Gas', dir: 'in' } as PortData },
+
+    // --- 侧壁下部 (液相) ---
+    // y=70% 位于直边下部
+    { id: 'l_low', group: 'left_lower', args: { x: '10%', y: '70%' }, data: { desc: '下部侧口(左)', region: 'InnerVessel', phase: 'Liquid', dir: 'in' } as PortData },
+    { id: 'r_low', group: 'right_lower', args: { x: '90%', y: '70%' }, data: { desc: '下部侧口(右)', region: 'InnerVessel', phase: 'Liquid', dir: 'in' } as PortData },
   ],
 };
 
@@ -168,22 +280,71 @@ const GAS_COOLER_PORTS = {
     bottom_out: { position: 'absolute', attrs: PORT_ATTRS } 
   },
   items: [
-    // 壳程
-    { id: 'shell_in', group: 'main', args: { x: '0%', y: '58%' }, data: { desc: '壳程入口', dir: 'in' } as PortData },
-    { id: 'shell_out', group: 'main', args: { x: '100%', y: '58%' }, data: { desc: '壳程出口', dir: 'out' } as PortData },
-    // 爆破片
-    { id: 'burst_left', group: 'burst', args: { x: '8.75%', y: '19%' }, data: { desc: '爆破片接口(左)', dir: 'bi' } as PortData },
-    { id: 'burst_right', group: 'burst', args: { x: '91.25%', y: '19%' }, data: { desc: '爆破片接口(右)', dir: 'bi' } as PortData },
-    // 顶部管束接口
-    { id: 'tube_top_in_1', group: 'top_in', args: { x: '21.25%', y: '15%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'in' } as PortData },
-    { id: 'tube_top_out_1', group: 'top_out', args: { x: '31.25%', y: '15%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'out' } as PortData },
-    { id: 'tube_top_out_2', group: 'top_out', args: { x: '41.25%', y: '15%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'out' } as PortData },
-    { id: 'tube_top_in_2', group: 'top_in', args: { x: '81.25%', y: '15%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'in' } as PortData },
-    // 底部管束接口
-    { id: 'tube_bot_in_1', group: 'bottom_in', args: { x: '21.25%', y: '92%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'in' } as PortData },
-    { id: 'tube_bot_out_1', group: 'bottom_out', args: { x: '31.25%', y: '92%' }, data: { desc: '高温段', section: 'HighTemp', dir: 'out' } as PortData },
-    { id: 'tube_bot_out_2', group: 'bottom_out', args: { x: '41.25%', y: '92%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'out' } as PortData },
-    { id: 'tube_bot_in_2', group: 'bottom_in', args: { x: '81.25%', y: '92%' }, data: { desc: '低温段', section: 'LowTemp', dir: 'in' } as PortData },
+    // ========================================================================
+    // 1. 壳程 (Shell Side) - 走产物气 (Process Gas)
+    // ========================================================================
+    { 
+      id: 'shell_in', group: 'main', args: { x: '0%', y: '58%' }, 
+      data: { desc: '壳程入口(产物气)', region: 'ShellSide', phase: 'Gas', dir: 'in' } as PortData 
+    },
+    { 
+      id: 'shell_out', group: 'main', args: { x: '100%', y: '58%' }, 
+      data: { desc: '壳程出口(产物气)', region: 'ShellSide', phase: 'Gas', dir: 'out' } as PortData 
+    },
+
+    // ========================================================================
+    // 2. 爆破片接口 (Burst Disc)
+    //    物理位置在管箱上，归属管程侧
+    // ========================================================================
+    { 
+      id: 'burst_left', group: 'burst', args: { x: '8.75%', y: '19%' }, 
+      data: { desc: '爆破片接口(左)', region: 'TubeSide', dir: 'out' } as PortData 
+    },
+    { 
+      id: 'burst_right', group: 'burst', args: { x: '91.25%', y: '19%' }, 
+      data: { desc: '爆破片接口(右)', region: 'TubeSide', dir: 'out' } as PortData 
+    },
+
+    // ========================================================================
+    // 3. 管程 (Tube Side) - 走冷却水 (Water)
+    //    分为高温段 (HighTemp) 和 低温段 (LowTemp)
+    // ========================================================================
+    
+    // --- 顶部接口 ---
+    { 
+      id: 'tube_top_in_1', group: 'top_in', args: { x: '21.25%', y: '15%' }, 
+      data: { desc: '高温段水入口', region: 'TubeSide', section: 'HighTemp', phase: 'Liquid', dir: 'in' } as PortData 
+    },
+    { 
+      id: 'tube_top_out_1', group: 'top_out', args: { x: '31.25%', y: '15%' }, 
+      data: { desc: '高温段水出口', region: 'TubeSide', section: 'HighTemp', phase: 'Liquid', dir: 'out' } as PortData 
+    },
+    { 
+      id: 'tube_top_out_2', group: 'top_out', args: { x: '41.25%', y: '15%' }, 
+      data: { desc: '低温段水出口', region: 'TubeSide', section: 'LowTemp', phase: 'Liquid', dir: 'out' } as PortData 
+    },
+    { 
+      id: 'tube_top_in_2', group: 'top_in', args: { x: '81.25%', y: '15%' }, 
+      data: { desc: '低温段水入口', region: 'TubeSide', section: 'LowTemp', phase: 'Liquid', dir: 'in' } as PortData 
+    },
+
+    // --- 底部接口 ---
+    { 
+      id: 'tube_bot_in_1', group: 'bottom_in', args: { x: '21.25%', y: '92%' }, 
+      data: { desc: '高温段水入口(下)', region: 'TubeSide', section: 'HighTemp', phase: 'Liquid', dir: 'in' } as PortData 
+    },
+    { 
+      id: 'tube_bot_out_1', group: 'bottom_out', args: { x: '31.25%', y: '92%' }, 
+      data: { desc: '高温段水出口(下)', region: 'TubeSide', section: 'HighTemp', phase: 'Liquid', dir: 'out' } as PortData 
+    },
+    { 
+      id: 'tube_bot_out_2', group: 'bottom_out', args: { x: '41.25%', y: '92%' }, 
+      data: { desc: '低温段水出口(下)', region: 'TubeSide', section: 'LowTemp', phase: 'Liquid', dir: 'out' } as PortData 
+    },
+    { 
+      id: 'tube_bot_in_2', group: 'bottom_in', args: { x: '81.25%', y: '92%' }, 
+      data: { desc: '低温段水入口(下)', region: 'TubeSide', section: 'LowTemp', phase: 'Liquid', dir: 'in' } as PortData 
+    },
   ],
 };
 
@@ -217,16 +378,50 @@ const FIXED_BED_REACTOR_PORTS = {
 };
 
 const VERTICAL_EXCHANGER_PORTS = {
-  groups: { side: { position: 'absolute', attrs: PORT_ATTRS }, head: { position: 'absolute', attrs: PORT_ATTRS } },
+  groups: { 
+    side: { position: 'absolute', attrs: PORT_ATTRS }, 
+    head: { position: 'absolute', attrs: PORT_ATTRS } 
+  },
   items: [
-    { id: 'side_left_top', group: 'side', args: { x: '0%', y: '20%' }, data: { desc: '壳程接口(左上)', dir: 'bi' } as PortData },
-    { id: 'side_left_bottom', group: 'side', args: { x: '0%', y: '80%' }, data: { desc: '壳程接口(左下)', dir: 'bi' } as PortData },
-    { id: 'side_right_top', group: 'side', args: { x: '100%', y: '15%' }, data: { desc: '壳程接口(右上)', dir: 'bi' } as PortData },
-    { id: 'side_right_bottom', group: 'side', args: { x: '100%', y: '85%' }, data: { desc: '壳程接口(右下)', dir: 'bi' } as PortData },
-    { id: 'head_top_left', group: 'head', args: { x: '30%', y: '2.5%' }, data: { desc: '管程接口(上左)', dir: 'bi' } as PortData },
-    { id: 'head_top_right', group: 'head', args: { x: '70%', y: '2.5%' }, data: { desc: '管程接口(上右)', dir: 'bi' } as PortData },
-    { id: 'head_bottom_left', group: 'head', args: { x: '30%', y: '97.5%' }, data: { desc: '管程接口(下左)', dir: 'bi' } as PortData },
-    { id: 'head_bottom_right', group: 'head', args: { x: '70%', y: '97.5%' }, data: { desc: '管程接口(下右)', dir: 'bi' } as PortData },
+    // ========================================================================
+    // 1. 壳程 (Shell Side) - 侧面接口
+    // ========================================================================
+    { 
+      id: 'side_left_top', group: 'side', args: { x: '0%', y: '20%' }, 
+      data: { desc: '壳程接口(左上)', region: 'ShellSide', dir: 'bi' } as PortData 
+    },
+    { 
+      id: 'side_left_bottom', group: 'side', args: { x: '0%', y: '80%' }, 
+      data: { desc: '壳程接口(左下)', region: 'ShellSide', dir: 'bi' } as PortData 
+    },
+    { 
+      id: 'side_right_top', group: 'side', args: { x: '100%', y: '15%' }, 
+      data: { desc: '壳程接口(右上)', region: 'ShellSide', dir: 'bi' } as PortData 
+    },
+    { 
+      id: 'side_right_bottom', group: 'side', args: { x: '100%', y: '85%' }, 
+      data: { desc: '壳程接口(右下)', region: 'ShellSide', dir: 'bi' } as PortData 
+    },
+
+    // ========================================================================
+    // 2. 管程 (Tube Side) - 上下封头接口
+    // ========================================================================
+    { 
+      id: 'head_top_left', group: 'head', args: { x: '30%', y: '2.5%' }, 
+      data: { desc: '管程接口(上左)', region: 'TubeSide', dir: 'bi' } as PortData 
+    },
+    { 
+      id: 'head_top_right', group: 'head', args: { x: '70%', y: '2.5%' }, 
+      data: { desc: '管程接口(上右)', region: 'TubeSide', dir: 'bi' } as PortData 
+    },
+    { 
+      id: 'head_bottom_left', group: 'head', args: { x: '30%', y: '97.5%' }, 
+      data: { desc: '管程接口(下左)', region: 'TubeSide', dir: 'bi' } as PortData 
+    },
+    { 
+      id: 'head_bottom_right', group: 'head', args: { x: '70%', y: '97.5%' }, 
+      data: { desc: '管程接口(下右)', region: 'TubeSide', dir: 'bi' } as PortData 
+    },
   ],
 };
 
@@ -265,34 +460,106 @@ export const registerCustomCells = () => {
   });
   
   Graph.registerNode('p-reactor', {
-    inherit: 'image', width: 80, height: 120, imageUrl: svgToDataUrl(reactorSvg),
-    ports: {
-      groups: { feed: { position: 'absolute', attrs: PORT_ATTRS }, bottom: { position: 'absolute', attrs: PORT_ATTRS }, jacket: { position: 'absolute', attrs: PORT_ATTRS } },
-      items: [
-        { id: 'in_1', group: 'feed', args: { x: '31.25%', y: '0%' } },
-        { id: 'in_2', group: 'feed', args: { x: '68.75%', y: '0%' } },
-        { id: 'out_1', group: 'bottom', args: { x: '50%', y: '100%' } }, 
-        { id: 'j_in', group: 'jacket', args: { x: '0%', y: '41.6%' } },
-        { id: 'j_out', group: 'jacket', args: { x: '100%', y: '66.6%' } },
-      ],
+    inherit: 'image', 
+    width: 80, 
+    height: 120, 
+    imageUrl: svgToDataUrl(reactorSvg),
+    ports: REACTOR_PORTS, // <--- 引用新定义的常量
+    attrs: LABEL_ATTRS, 
+    data: { 
+      type: 'Reactor', 
+      tag: 'R-101', 
+      spec: 'HalfPipe-2000L', // 更新规格描述
+      volume: '2.0', 
+      material: 'SS304', 
+      designPressure: '0.6', 
+      designTemp: '150' 
     },
-    attrs: LABEL_ATTRS, data: { type: 'Reactor', tag: 'R-101', spec: 'STD-2000L', volume: '2.0', material: 'SS304', designPressure: '0.6', designTemp: '150' },
   });
 
   Graph.registerNode('p-exchanger', {
-    inherit: 'image', width: 200, height: 80, imageUrl: svgToDataUrl(exchangerSvg),
+    inherit: 'image', 
+    width: 200, 
+    height: 80, 
+    imageUrl: svgToDataUrl(exchangerSvg),
     ports: {
-      groups: { shell: { position: 'absolute', attrs: PORT_ATTRS }, tube_left: { position: 'absolute', attrs: PORT_ATTRS }, tube_right: { position: 'absolute', attrs: PORT_ATTRS } },
+      groups: { 
+        shell: { position: 'absolute', attrs: PORT_ATTRS }, 
+        tube_left: { position: 'absolute', attrs: PORT_ATTRS }, 
+        tube_right: { position: 'absolute', attrs: PORT_ATTRS } 
+      },
       items: [
-        { id: 'n1', group: 'shell', args: { x: '35%', y: '0%' }, attrs: { circle: { title: 'N1 (入口)', cursor: 'help' } }, data: { desc: '壳程入口(N1)', dir: 'in' } as PortData },
-        { id: 'n2', group: 'shell', args: { x: '75%', y: '100%' }, attrs: { circle: { title: 'N2 (出口)', cursor: 'help' } }, data: { desc: '壳程出口(N2)', dir: 'out' } as PortData },
-        { id: 'n4', group: 'tube_left', args: { x: '0%', y: '32.5%' }, attrs: { circle: { title: 'N4 (出口)', cursor: 'help' } }, data: { desc: '管程出口(N4)', dir: 'out' } as PortData },
-        { id: 'n3', group: 'tube_left', args: { x: '0%', y: '67.5%' }, attrs: { circle: { title: 'N3 (入口)', cursor: 'help' } }, data: { desc: '管程入口(N3)', dir: 'in' } as PortData },
-        { id: 'n5', group: 'tube_right', args: { x: '98%', y: '12%' }, data: { desc: '放空(N5)', dir: 'out' } as PortData },
-        { id: 'n6', group: 'tube_right', args: { x: '98%', y: '88%' }, data: { desc: '排净(N6)', dir: 'out' } as PortData },
+        // ====================================================================
+        // 1. 壳程 (Shell Side) - 筒体侧
+        //    通常走蒸汽、冷却水或工艺介质
+        // ====================================================================
+        { 
+          id: 'n1', 
+          group: 'shell', 
+          args: { x: '35%', y: '0%' }, 
+          attrs: { circle: { title: 'N1 (壳程入口)', cursor: 'help' } }, 
+          // [语义增强] 明确属于壳程，流向为入
+          data: { desc: '壳程入口(N1)', region: 'ShellSide', dir: 'in' } as PortData 
+        },
+        { 
+          id: 'n2', 
+          group: 'shell', 
+          args: { x: '75%', y: '100%' }, 
+          attrs: { circle: { title: 'N2 (壳程出口)', cursor: 'help' } }, 
+          // [语义增强] 明确属于壳程，流向为出
+          data: { desc: '壳程出口(N2)', region: 'ShellSide', dir: 'out' } as PortData 
+        },
+
+        // ====================================================================
+        // 2. 管程 (Tube Side) - 管束侧
+        //    通常走需要被加热/冷却的物料
+        // ====================================================================
+        { 
+          id: 'n3', 
+          group: 'tube_left', 
+          args: { x: '0%', y: '67.5%' }, 
+          attrs: { circle: { title: 'N3 (管程入口)', cursor: 'help' } }, 
+          // [语义增强] 明确属于管程，位于左下
+          data: { desc: '管程入口(N3)', region: 'TubeSide', dir: 'in' } as PortData 
+        },
+        { 
+          id: 'n4', 
+          group: 'tube_left', 
+          args: { x: '0%', y: '32.5%' }, 
+          attrs: { circle: { title: 'N4 (管程出口)', cursor: 'help' } }, 
+          // [语义增强] 明确属于管程，位于左上
+          data: { desc: '管程出口(N4)', region: 'TubeSide', dir: 'out' } as PortData 
+        },
+
+        // ====================================================================
+        // 3. 辅助接口 (Auxiliary)
+        //    放空与排净，物理上通常位于壳体
+        // ====================================================================
+        { 
+          id: 'n5', 
+          group: 'tube_right', 
+          args: { x: '98%', y: '12%' }, 
+          // [语义增强] 归属壳程，类型为放空
+          data: { desc: '放空(N5)', region: 'ShellSide', type: 'Vent', dir: 'out' } as PortData 
+        },
+        { 
+          id: 'n6', 
+          group: 'tube_right', 
+          args: { x: '98%', y: '88%' }, 
+          // [语义增强] 归属壳程，类型为排净
+          data: { desc: '排净(N6)', region: 'ShellSide', type: 'Drain', dir: 'out' } as PortData 
+        },
       ],
     },
-    attrs: LABEL_ATTRS, data: { type: 'Exchanger', tag: 'E-101', spec: 'BES-50', area: '50', material: 'CS/SS304', designPressure: '1.6' },
+    attrs: LABEL_ATTRS, 
+    data: { 
+      type: 'Exchanger', 
+      tag: 'E-101', 
+      spec: 'BES-50', 
+      area: '50', 
+      material: 'CS/SS304', 
+      designPressure: '1.6' 
+    },
   });
 
   Graph.registerNode('p-naphthalene-evaporator', {
@@ -377,8 +644,19 @@ export const registerCustomCells = () => {
 
   Graph.registerNode('p-tank-horizontal', {
     inherit: 'image', width: 160, height: 80, imageUrl: svgToDataUrl(tankHorizontalSvg),
-    ports: TANK_PORTS, attrs: { label: { text: 'V-100', refY: '100%', refY2: 10 } },
+    ports: TANK_HORIZONTAL_PORTS, attrs: { label: { text: 'V-100', refY: '100%', refY2: 10 } },
     data: { type: 'Tank', spec: 'Horizontal', volume: '5.0' },
+  });
+
+  // 3. 注册立式储罐
+  Graph.registerNode('p-tank-vertical', {
+    inherit: 'image', 
+    width: 80, 
+    height: 160, // 保持 1:2 比例
+    imageUrl: svgToDataUrl(tankVerticalSvg), // 使用导入的 SVG
+    ports: TANK_VERTICAL_PORTS,
+    attrs: { label: { text: 'V-101', refY: '100%', refY2: 10 } },
+    data: { type: 'Tank', spec: 'Vertical', volume: '10.0' },
   });
 
   Graph.registerNode('p-gas-cooler', {
