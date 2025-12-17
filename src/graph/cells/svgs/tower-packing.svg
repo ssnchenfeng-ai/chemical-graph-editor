@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 支腿 (Legs) -->
+  <line x1="20" y1="180" x2="20" y2="200" stroke-width="2" />
+  <line x1="80" y1="180" x2="80" y2="200" stroke-width="2" />
+  <line x1="15" y1="200" x2="25" y2="200" stroke-width="2" />
+  <line x1="75" y1="200" x2="85" y2="200" stroke-width="2" />
+
+  <!-- 2. 主罐体 (Main Body) -->
+  <!-- 筒体背景 -->
+  <path d="M10,20 A40,15 0 0,1 90,20 L90,180 A40,15 0 0,1 10,180 Z" fill="white" stroke="none" />
+  
+  <!-- 顶部封头 -->
+  <path d="M10,20 A40,15 0 0,1 90,20" fill="none" stroke="black" />
+  <!-- 底部封头 -->
+  <path d="M10,180 A40,15 0 0,0 90,180" fill="none" stroke="black" />
+  <!-- 筒体侧壁 -->
+  <line x1="10" y1="20" x2="10" y2="180" />
+  <line x1="90" y1="20" x2="90" y2="180" />
+
+  <!-- 3. 填料层 (Packing Section) - 鲍尔环示意 -->
+  <!-- 填料层范围：Y=50 到 Y=110 -->
+  
+  <!-- 填料支撑板 (虚线) -->
+  <line x1="10" y1="50" x2="90" y2="50" stroke-dasharray="4 2" stroke-width="1" />
+  <line x1="10" y1="110" x2="90" y2="110" stroke-dasharray="4 2" stroke-width="1" />
+
+  <!-- 填料纹理 (X形图案) -->
+  <g stroke="#666" stroke-width="1" opacity="0.7">
+    <!-- 第一排 -->
+    <path d="M20,55 l10,10 m0,-10 l-10,10" />
+    <path d="M40,55 l10,10 m0,-10 l-10,10" />
+    <path d="M60,55 l10,10 m0,-10 l-10,10" />
+    <!-- 第二排 (错位) -->
+    <path d="M30,70 l10,10 m0,-10 l-10,10" />
+    <path d="M50,70 l10,10 m0,-10 l-10,10" />
+    <path d="M70,70 l10,10 m0,-10 l-10,10" />
+    <!-- 第三排 -->
+    <path d="M20,85 l10,10 m0,-10 l-10,10" />
+    <path d="M40,85 l10,10 m0,-10 l-10,10" />
+    <path d="M60,85 l10,10 m0,-10 l-10,10" />
+    <!-- 第四排 (错位) -->
+    <path d="M30,100 l10,10 m0,-10 l-10,10" />
+    <path d="M50,100 l10,10 m0,-10 l-10,10" />
+  </g>
+
+  <!-- 4. 液体分布器示意 (填料上方) -->
+  <line x1="20" y1="40" x2="80" y2="40" stroke-width="1" />
+  <line x1="50" y1="30" x2="50" y2="40" stroke-width="1" />
+</svg>

@@ -72,7 +72,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         if (isInlineComponent(targetId)) excludeNodes.push(targetId);
 
         edge.setRouter('manhattan', {
-          padding: 20,
+          padding: 10,
           excludeNodes: excludeNodes
         });
       }
@@ -405,7 +405,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
   const onUndo = () => historyRef.current?.undo();
   const onRedo = () => historyRef.current?.redo();
   const onZoom = (f: number) => graphRef.current?.zoom(f);
-  const onZoomToFit = () => graphRef.current?.zoomToFit({ padding: 20 });
+  const onZoomToFit = () => graphRef.current?.zoomToFit({ padding: 10 });
   const onZoomReset = () => graphRef.current?.zoomTo(1);
   const onClear = () => {
     Modal.confirm({
@@ -469,7 +469,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         magnetConnectable: (view) => !view.cell.getData()?.isBackground,
       },
       connecting: {
-        router: { name: 'manhattan', args: { padding: 20, excludeNodes: ['SHEET_FRAME_A2'] } },
+        router: { name: 'manhattan', args: { padding: 10, excludeNodes: ['SHEET_FRAME_A2'] } },
         connector: { name: 'rounded', args: { radius: 8 } },
         anchor: 'center', connectionPoint: 'anchor', snap: true, allowBlank: false, allowEdge: true, highlight: true,
         validateConnection: ({ sourceView, targetView, sourceMagnet, targetMagnet }) => {
@@ -628,8 +628,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         const exclude2 = ['SHEET_FRAME_A2', node.id];
         if (isInlineComponent(targetCellId)) exclude2.push(targetCellId);
 
-        const router1 = { name: 'manhattan', args: { padding: 30, excludeNodes: exclude1 } };
-        const router2 = { name: 'manhattan', args: { padding: 30, excludeNodes: exclude2 } };
+        const router1 = { name: 'manhattan', args: { padding: 10, excludeNodes: exclude1 } };
+        const router2 = { name: 'manhattan', args: { padding: 10, excludeNodes: exclude2 } };
 
         const edge1 = graph.createEdge({
           shape: 'edge', source: source, target: { cell: node.id, port: portForSource }, 
@@ -653,6 +653,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       const { e, edge } = args;
       const sourceNode = edge.getSourceNode();
       if (sourceNode?.getData()?.type !== 'Instrument') return;
+      const sourcePortId = edge.getSourcePortId(); 
 
       let hitPipe: Edge | null = null;
       const point = graph.clientToLocal(e.clientX, e.clientY);
@@ -686,8 +687,14 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         
         graph.removeCell(edge); 
         const signalEdge = graph.createEdge({
-          shape: 'signal-edge', source: { cell: tappingPoint.id }, target: { cell: sourceNode.id },
-          data: { type: 'Signal', relationType: 'MEASURES' }
+          shape: 'signal-edge', source: { cell: tappingPoint.id },  target: { cell: sourceNode.id, port: sourcePortId },
+          data: { 
+            type: 'Signal', 
+            relationType: 'MEASURES',
+            fluid: 'Signal',
+            // 显式清除工艺属性
+            material: undefined, dn: undefined, pn: undefined, insulation: undefined
+          }
         });
 
         const source = hitPipe.getSource();
