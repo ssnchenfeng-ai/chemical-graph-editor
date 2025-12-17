@@ -5,7 +5,7 @@ import { Cell } from '@antv/x6';
 import { 
   InfoCircleOutlined, SettingOutlined, DashboardOutlined, ExperimentOutlined 
 } from '@ant-design/icons';
-import { FLUID_COLORS } from '../../../config/rules'; // [引入配置]
+import { FLUID_COLORS } from '../../../config/rules';
 
 interface InspectorProps { cell: Cell | null; }
 
@@ -14,7 +14,6 @@ const { Panel } = Collapse;
 
 const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   const [form] = Form.useForm();
-  // 增加一个 tick 状态，用于强制刷新
   const [, setTick] = useState(0);
 
   // 1. 监听选中 cell 变化及数据变更
@@ -62,13 +61,11 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
         });
       }
       form.setFieldsValue(formData);
-      setTick(t => t + 1); // 触发重渲染
+      setTick(t => t + 1);
     };
 
-    // 初始化回填
     updateForm();
 
-    // [修复] 监听数据变化 (支持 Undo/Redo 后的刷新)
     cell.on('change:data', updateForm);
     cell.on('change:attrs', updateForm);
 
@@ -120,14 +117,16 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   const type = data.type;
   const isNode = cell.isNode();
   const isEdge = cell.isEdge();
+  const isSignal = isEdge && type === 'Signal';
 
   const renderSpecificFields = () => {
     if (!isNode) return null;
-    // [修复] 使用 orientation="left" 标准属性
+    
+    // [修复] 使用 {"left" as any} 绕过 TS 类型检查
     if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
       return (
         <>
-          <Divider orientation="left"><DashboardOutlined /> 性能参数</Divider>
+          <Divider orientation={"left" as any}><DashboardOutlined /> 性能参数</Divider>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="流量 (m³/h)" name="flow" style={{ flex: 1 }}><Input placeholder="50" /></Form.Item>
             <Form.Item label="扬程 (m)" name="head" style={{ flex: 1 }}><Input placeholder="30" /></Form.Item>
@@ -147,7 +146,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (['Reactor', 'Tank', 'Evaporator'].includes(type)) {
       return (
         <>
-          <Divider orientation="left"><ExperimentOutlined /> 设备参数</Divider>
+          <Divider orientation={"left" as any}><ExperimentOutlined /> 设备参数</Divider>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="容积 (m³)" name="volume" style={{ flex: 1 }}><Input placeholder="2000" /></Form.Item>
             <Form.Item label="材质" name="material" style={{ flex: 1 }}>
@@ -169,7 +168,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (['Exchanger'].includes(type)) {
       return (
         <>
-          <Divider orientation="left"><ExperimentOutlined /> 换热参数</Divider>
+          <Divider orientation={"left" as any}><ExperimentOutlined /> 换热参数</Divider>
           <Form.Item label="换热面积 (㎡)" name="area"><Input placeholder="10" /></Form.Item>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="壳程压力" name="designPressure" style={{ flex: 1 }}><Input placeholder="1.6" /></Form.Item>
@@ -182,7 +181,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (['ControlValve', 'Valve'].includes(type)) {
       return (
         <>
-          <Divider orientation="left"><SettingOutlined /> 阀门规格</Divider>
+          <Divider orientation={"left" as any}><SettingOutlined /> 阀门规格</Divider>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="尺寸" name="size" style={{ flex: 1 }}>
               <Select>
@@ -216,7 +215,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (['Instrument'].includes(type)) {
       return (
         <>
-          <Divider orientation="left"><DashboardOutlined /> 仪表定义</Divider>
+          <Divider orientation={"left" as any}><DashboardOutlined /> 仪表定义</Divider>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="功能 (Tag)" name="tagId" style={{ flex: 1 }} help="如: PI, TT"><Input /></Form.Item>
             <Form.Item label="回路 (Loop)" name="loopNum" style={{ flex: 1 }} help="如: 101"><Input /></Form.Item>
@@ -236,7 +235,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {isNode ? <SettingOutlined /> : <InfoCircleOutlined />}
-          <span>{isNode ? (data.type === 'Instrument' ? '仪表属性' : '设备属性') : '管线属性'}</span>
+          <span>{isNode ? (data.type === 'Instrument' ? '仪表属性' : '设备属性') : (isSignal ? '信号线属性' : '管线属性')}</span>
         </div>
       } 
       bordered={false} 
@@ -246,7 +245,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange} size="small">
         <Collapse defaultActiveKey={['1']} ghost>
           <Panel header="基础信息" key="1">
-            {type !== 'Instrument' && (
+            {type !== 'Instrument' && !isSignal && (
               <Form.Item label={isNode ? "位号 (Tag No.)" : "管段号 (Line No.)"} name="tag">
                 <Input placeholder={isNode ? "R-101" : "PL-1001-50-CS"} />
               </Form.Item>
@@ -259,9 +258,9 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
 
         {isNode && renderSpecificFields()}
 
-        {isEdge && (
+        {isEdge && !isSignal && (
           <>
-            <Divider orientation="left">管道规格</Divider>
+            <Divider orientation={"left" as any}>管道规格</Divider>
             <div style={{ display: 'flex', gap: 8 }}>
               <Form.Item label="介质" name="fluid" style={{ flex: 1 }}>
                 <Select showSearch optionFilterProp="children">
@@ -303,6 +302,12 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
               </Select>
             </Form.Item>
           </>
+        )}
+
+        {isSignal && (
+           <div style={{ color: '#999', padding: '20px 0', textAlign: 'center' }}>
+             <InfoCircleOutlined /> 信号连接 (Signal) <br/> 无需配置工艺参数
+           </div>
         )}
 
         <div style={{ marginTop: 20, fontSize: 12, color: '#999', textAlign: 'center' }}>
