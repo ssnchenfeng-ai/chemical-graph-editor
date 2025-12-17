@@ -117,15 +117,16 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   const type = data.type;
   const isNode = cell.isNode();
   const isEdge = cell.isEdge();
+  // [新增] 判断是否为信号线
   const isSignal = isEdge && type === 'Signal';
 
   const renderSpecificFields = () => {
     if (!isNode) return null;
     
-    // [修复] 使用 {"left" as any} 绕过 TS 类型检查
     if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
       return (
         <>
+          {/* [修复] 使用 as any 绕过类型检查 */}
           <Divider orientation={"left" as any}><DashboardOutlined /> 性能参数</Divider>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="流量 (m³/h)" name="flow" style={{ flex: 1 }}><Input placeholder="50" /></Form.Item>
@@ -235,7 +236,9 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           {isNode ? <SettingOutlined /> : <InfoCircleOutlined />}
-          <span>{isNode ? (data.type === 'Instrument' ? '仪表属性' : '设备属性') : (isSignal ? '信号线属性' : '管线属性')}</span>
+          <span>
+            {isNode ? (data.type === 'Instrument' ? '仪表属性' : '设备属性') : (isSignal ? '信号线属性' : '管线属性')}
+          </span>
         </div>
       } 
       bordered={false} 
@@ -245,6 +248,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange} size="small">
         <Collapse defaultActiveKey={['1']} ghost>
           <Panel header="基础信息" key="1">
+            {/* 信号线不显示管段号 */}
             {type !== 'Instrument' && !isSignal && (
               <Form.Item label={isNode ? "位号 (Tag No.)" : "管段号 (Line No.)"} name="tag">
                 <Input placeholder={isNode ? "R-101" : "PL-1001-50-CS"} />
@@ -258,6 +262,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
 
         {isNode && renderSpecificFields()}
 
+        {/* [修改] 仅当是连线且不是信号线时，才显示管道规格 */}
         {isEdge && !isSignal && (
           <>
             <Divider orientation={"left" as any}>管道规格</Divider>
@@ -304,6 +309,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
           </>
         )}
 
+        {/* [新增] 信号线提示 */}
         {isSignal && (
            <div style={{ color: '#999', padding: '20px 0', textAlign: 'center' }}>
              <InfoCircleOutlined /> 信号连接 (Signal) <br/> 无需配置工艺参数
