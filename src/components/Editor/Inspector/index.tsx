@@ -117,7 +117,6 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   const type = data.type;
   const isNode = cell.isNode();
   const isEdge = cell.isEdge();
-  // [新增] 判断是否为信号线
   const isSignal = isEdge && type === 'Signal';
 
   const renderSpecificFields = () => {
@@ -126,7 +125,6 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
       return (
         <>
-          {/* [修复] 使用 as any 绕过类型检查 */}
           <Divider orientation={"left" as any}><DashboardOutlined /> 性能参数</Divider>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="流量 (m³/h)" name="flow" style={{ flex: 1 }}><Input placeholder="50" /></Form.Item>
@@ -248,7 +246,6 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange} size="small">
         <Collapse defaultActiveKey={['1']} ghost>
           <Panel header="基础信息" key="1">
-            {/* 信号线不显示管段号 */}
             {type !== 'Instrument' && !isSignal && (
               <Form.Item label={isNode ? "位号 (Tag No.)" : "管段号 (Line No.)"} name="tag">
                 <Input placeholder={isNode ? "R-101" : "PL-1001-50-CS"} />
@@ -262,7 +259,6 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
 
         {isNode && renderSpecificFields()}
 
-        {/* [修改] 仅当是连线且不是信号线时，才显示管道规格 */}
         {isEdge && !isSignal && (
           <>
             <Divider orientation={"left" as any}>管道规格</Divider>
@@ -285,14 +281,27 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
             <div style={{ display: 'flex', gap: 8 }}>
               <Form.Item label="管径" name="dn" style={{ flex: 1 }}>
                 <Select showSearch>
-                  {['DN15','DN25','DN50','DN80','DN100','DN150','DN200'].map(d => <Option key={d} value={d}>{d}</Option>)}
+                  {[
+                    'DN15', 'DN20', 'DN25', 'DN32', 'DN40', 'DN50', 'DN65', 'DN80', 
+                    'DN100', 'DN125', 'DN150', 'DN200', 'DN250', 'DN300', 'DN350', 
+                    'DN400', 'DN450', 'DN500', 'DN600'
+                  ].map(d => <Option key={d} value={d}>{d}</Option>)}
                 </Select>
               </Form.Item>
               <Form.Item label="等级" name="pn" style={{ flex: 1 }}>
-                <Select>
+                <Select showSearch>
+                  <Option value="PN6">PN6</Option>
                   <Option value="PN10">PN10</Option>
                   <Option value="PN16">PN16</Option>
+                  <Option value="PN25">PN25</Option>
+                  <Option value="PN40">PN40</Option>
+                  <Option value="PN63">PN63</Option>
+                  <Option value="PN100">PN100</Option>
                   <Option value="CL150">CL150</Option>
+                  <Option value="CL300">CL300</Option>
+                  <Option value="CL600">CL600</Option>
+                  <Option value="CL900">CL900</Option>
+                  <Option value="CL1500">CL1500</Option>
                 </Select>
               </Form.Item>
             </div>
@@ -309,7 +318,6 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
           </>
         )}
 
-        {/* [新增] 信号线提示 */}
         {isSignal && (
            <div style={{ color: '#999', padding: '20px 0', textAlign: 'center' }}>
              <InfoCircleOutlined /> 信号连接 (Signal) <br/> 无需配置工艺参数
