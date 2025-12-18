@@ -212,7 +212,7 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
       // ... (Shape 映射逻辑保持不变) ...
       let shapeName = 'p-valve'; 
       switch (props.type) {
-          // ... (省略 switch case 内容，保持原样) ...
+          
           case 'Reactor':      shapeName = 'p-reactor'; break;
           case 'Exchanger':    shapeName = 'p-exchanger'; break;
           case 'Pump':         shapeName = 'p-pump'; break;
