@@ -76,6 +76,8 @@ const ShapeDesigner: React.FC = () => {
   const [originalSize, setOriginalSize] = useState({ w: 100, h: 100 });
   const [svgViewBox, setSvgViewBox] = useState<ViewBox>({ x: 0, y: 0, w: 100, h: 100 });
   const [mouseSvgPos, setMouseSvgPos] = useState<{x: number, y: number} | null>(null);
+  const [draggingPortId, setDraggingPortId] = useState<string | null>(null);
+  const isDraggingRef = useRef(false);
   const [enableSnap, setEnableSnap] = useState(true);
   const [gridSize, setGridSize] = useState(10); 
 
@@ -305,8 +307,63 @@ const ShapeDesigner: React.FC = () => {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
+    // 1. 计算当前鼠标在 SVG 坐标系下的位置
     const coords = getSvgCoordinates(e.clientX, e.clientY);
-    setMouseSvgPos({ x: Math.round(coords.x * 10) / 10, y: Math.round(coords.y * 10) / 10 });
+    let svgX = coords.x;
+    let svgY = coords.y;
+
+    // 2. 如果开启了吸附，先对 SVG 坐标进行吸附计算
+    if (enableSnap) {
+      const relativeX = svgX - svgViewBox.x;
+      const relativeY = svgY - svgViewBox.y;
+      const snappedRelX = Math.round(relativeX / gridSize) * gridSize;
+      const snappedRelY = Math.round(relativeY / gridSize) * gridSize;
+      svgX = svgViewBox.x + snappedRelX;
+      svgY = svgViewBox.y + snappedRelY;
+    }
+
+    // 更新左下角显示的坐标信息
+    setMouseSvgPos({ x: Math.round(svgX * 10) / 10, y: Math.round(svgY * 10) / 10 });
+
+    // 3. [核心逻辑] 如果正在拖拽某个端口
+    if (draggingPortId) {
+      isDraggingRef.current = true;
+      // 计算百分比坐标
+      let pctX = ((svgX - svgViewBox.x) / svgViewBox.w) * 100;
+      let pctY = ((svgY - svgViewBox.y) / svgViewBox.h) * 100;
+
+      // 智能取整 (0, 50, 100 等特殊值吸附)
+      pctX = Math.max(0, Math.min(100, smartRoundPercent(pctX)));
+      pctY = Math.max(0, Math.min(100, smartRoundPercent(pctY)));
+
+      // 更新 ports 状态
+      setPorts(prev => prev.map(p => {
+        if (p.id === draggingPortId) {
+          const updated = { ...p, x: pctX, y: pctY };
+          // 同时更新表单显示，实现联动
+          form.setFieldsValue({ x: pctX, y: pctY });
+          return updated;
+        }
+        return p;
+      }));
+    }
+  };
+  // [新增] 开始拖拽
+  const handlePortMouseDown = (e: React.MouseEvent, portId: string) => {
+    e.stopPropagation(); // 阻止冒泡，防止触发画布的点击添加功能
+    e.preventDefault();  // 防止选中文本
+    isDraggingRef.current = false;
+    setDraggingPortId(portId);
+    setSelectedPortId(portId);
+    
+    // 选中该端口并回填表单
+    const port = ports.find(p => p.id === portId);
+    if (port) form.setFieldsValue(port);
+  };
+
+  // [新增] 结束拖拽
+  const handleMouseUp = () => {
+    setDraggingPortId(null);
   };
 
   const smartRoundPercent = (val: number) => {
@@ -321,6 +378,10 @@ const ShapeDesigner: React.FC = () => {
 
   const handleCanvasClick = (e: React.MouseEvent) => {
     if (!imgContainerRef.current) return;
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      return;
+    }
     if ((e.target as HTMLElement).closest('.port-dot')) return;
     let { x: svgX, y: svgY } = getSvgCoordinates(e.clientX, e.clientY);
     if (enableSnap) {
@@ -503,18 +564,59 @@ ${itemsStr}
           </Space>
         </div>
 
-        <div ref={scrollContainerRef} style={{ flex: 1, overflow: 'auto', display: 'flex', padding: 20, background: '#e6e6e6' }} onWheel={handleWheel}>
-          <div 
-            style={{ width: containerSize.w * zoom, height: containerSize.h * zoom, border: '1px solid #999', position: 'relative', backgroundColor: '#fff', cursor: 'crosshair', boxShadow: '0 8px 24px rgba(0,0,0,0.15)', flexShrink: 0, margin: 'auto' }}
-            ref={imgContainerRef} onClick={handleCanvasClick} onMouseMove={handleMouseMove} onMouseLeave={() => setMouseSvgPos(null)}
+        <div 
+            style={{ 
+              width: containerSize.w * zoom, 
+              height: containerSize.h * zoom, 
+              border: '1px solid #999', 
+              position: 'relative',
+              backgroundColor: '#fff',
+              cursor: 'crosshair',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+              transition: 'width 0.1s, height 0.1s',
+              flexShrink: 0, 
+              margin: 'auto' 
+            }}
+            ref={imgContainerRef}
+            onClick={handleCanvasClick}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => { setMouseSvgPos(null); handleMouseUp(); }} // 离开画布也停止拖拽
+            onMouseUp={handleMouseUp} // [新增] 松开鼠标停止拖拽
           >
             <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svgInput)}`} style={{ width: '100%', height: '100%', display: 'block', pointerEvents: 'none', userSelect: 'none' }} draggable={false} />
+            
             {showGrid && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 1, backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px)`, backgroundSize: `${(containerSize.w / originalSize.w) * gridSize * zoom}px ${(containerSize.h / originalSize.h) * gridSize * zoom}px` }} />}
+            
             {ports.map(port => (
-              <div key={port.id} className="port-dot" onClick={(e) => { e.stopPropagation(); setSelectedPortId(port.id); form.setFieldsValue(port); }} style={{ position: 'absolute', left: `${port.x}%`, top: `${port.y}%`, width: 12, height: 12, borderRadius: '50%', background: selectedPortId === port.id ? '#1890ff' : 'red', border: '2px solid white', transform: 'translate(-50%, -50%)', cursor: 'pointer', zIndex: 10 }} title={`${port.id}: ${port.desc}`} />
+              <div
+                key={port.id}
+                className="port-dot"
+                // [修改] 绑定 MouseDown 事件
+                onMouseDown={(e) => handlePortMouseDown(e, port.id)}
+                // [移除] 原来的 onClick，因为 MouseDown 已经处理了选中逻辑
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  position: 'absolute',
+                  left: `${port.x}%`,
+                  top: `${port.y}%`,
+                  width: 12,
+                  height: 12,
+                  borderRadius: '50%',
+                  background: selectedPortId === port.id ? '#1890ff' : 'red',
+                  border: '2px solid white',
+                  transform: 'translate(-50%, -50%)',
+                  cursor: 'move', // [修改] 鼠标样式改为 move
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  zIndex: 10
+                }}
+                title={`${port.id}: ${port.desc}`}
+              >
+                <div style={{ position: 'absolute', top: -20, left: '50%', transform: 'translateX(-50%)', fontSize: 10, background: 'rgba(0,0,0,0.7)', color: '#fff', padding: '0 4px', borderRadius: 2, whiteSpace: 'nowrap', pointerEvents: 'none' }}>
+                  {port.id}
+                </div>
+              </div>
             ))}
           </div>
-        </div>
       </Content>
 
       <Sider width={400} style={{ background: '#fff', borderLeft: '1px solid #eee', padding: 16 }}>
