@@ -1,0 +1,271 @@
+{
+  "width": 1000,
+  "height": 450,
+  "ports": {
+    "groups": {
+      "top": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "bottom": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "heater": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "t1",
+        "group": "top",
+        "args": {
+          "x": "22%",
+          "y": "1.1%"
+        },
+        "data": {
+          "desc": "顶部接口-1",
+          "region": "ShellSide:Vapor",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "t2",
+        "group": "top",
+        "args": {
+          "x": "34%",
+          "y": "1.1%"
+        },
+        "data": {
+          "desc": "顶部接口-2",
+          "region": "ShellSide:Vapor",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "t3",
+        "group": "top",
+        "args": {
+          "x": "46%",
+          "y": "1.1%"
+        },
+        "data": {
+          "desc": "顶部接口-3",
+          "region": "ShellSide:Vapor",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "t4",
+        "group": "top",
+        "args": {
+          "x": "58%",
+          "y": "1.1%"
+        },
+        "data": {
+          "desc": "顶部接口-4",
+          "region": "ShellSide:Vapor",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "l1",
+        "group": "left",
+        "args": {
+          "x": "3%",
+          "y": "17.7%"
+        },
+        "data": {
+          "desc": "左侧接口-1(上)",
+          "region": "ShellSide:Vapor",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "l2",
+        "group": "left",
+        "args": {
+          "x": "3%",
+          "y": "31.1%"
+        },
+        "data": {
+          "desc": "左侧接口-2(上)",
+          "region": "ShellSide:Vapor",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "l3",
+        "group": "left",
+        "args": {
+          "x": "3%",
+          "y": "44.4%"
+        },
+        "data": {
+          "desc": "左侧接口-3(中上)",
+          "region": "ShellSide:Vapor",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "b1",
+        "group": "bottom",
+        "args": {
+          "x": "22%",
+          "y": "98.9%"
+        },
+        "data": {
+          "desc": "底部接口-1",
+          "region": "ShellSide:Liquid",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "b2",
+        "group": "bottom",
+        "args": {
+          "x": "34%",
+          "y": "98.9%"
+        },
+        "data": {
+          "desc": "底部接口-2",
+          "region": "ShellSide:Liquid",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "b3",
+        "group": "bottom",
+        "args": {
+          "x": "46%",
+          "y": "98.9%"
+        },
+        "data": {
+          "desc": "底部接口-3",
+          "region": "ShellSide:Liquid",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "b4",
+        "group": "bottom",
+        "args": {
+          "x": "58%",
+          "y": "98.9%"
+        },
+        "data": {
+          "desc": "底部接口-4",
+          "region": "ShellSide:Liquid",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "l4",
+        "group": "left",
+        "args": {
+          "x": "3%",
+          "y": "57.7%"
+        },
+        "data": {
+          "desc": "左侧接口-4(中下)",
+          "region": "ShellSide:Liquid",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "l5",
+        "group": "left",
+        "args": {
+          "x": "3%",
+          "y": "71.1%"
+        },
+        "data": {
+          "desc": "左侧接口-5(下)",
+          "region": "ShellSide:Liquid",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "l6",
+        "group": "left",
+        "args": {
+          "x": "3%",
+          "y": "84.4%"
+        },
+        "data": {
+          "desc": "左侧接口-6(下)",
+          "region": "ShellSide:Liquid",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "h_in",
+        "group": "heater",
+        "args": {
+          "x": "83%",
+          "y": "51.1%"
+        },
+        "data": {
+          "desc": "蒸汽入口",
+          "region": "TubeSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "h_out",
+        "group": "heater",
+        "args": {
+          "x": "83%",
+          "y": "93.3%"
+        },
+        "data": {
+          "desc": "冷凝水出口",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Evaporator",
+    "tag": "E-13",
+    "spec": "Spec..."
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "width": 12,
+  "height": 12,
+  "ports": {
+    "groups": {},
+    "items": []
+  },
+  "data": {
+    "type": "TappingPoint",
+    "tag": "TAPPING-POINT",
+    "spec": "Spec..."
+  }
+}

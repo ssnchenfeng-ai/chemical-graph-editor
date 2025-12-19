@@ -15,9 +15,10 @@ import {
 import Inspector from '../Inspector';
 import ContextMenu, { type MenuState } from '../ContextMenu';
 import './index.css';
-import { registerCustomCells } from '../../../graph/cells/registry';
+//import { registerCustomCells } from '../../../graph/cells/registry';
 import { saveGraphData, loadGraphData } from '../../../services/neo4j';
 import { FLUID_COLORS, INLINE_TYPES } from '../../../config/rules';
+import { registerCustomCells, SHAPE_LIBRARY } from '../../../graph/cells/registry';
 
 // 确保注册自定义图形
 try { registerCustomCells(); } catch (e) { console.warn(e); }
@@ -767,65 +768,191 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     graph.on('cell:contextmenu', ({ e, cell }) => { if (cell.getData()?.isBackground) return; setMenu({ visible: true, x: e.clientX, y: e.clientY, type: cell.isNode() ? 'node' : 'edge', cellId: cell.id }); });
     graph.on('blank:contextmenu', ({ e }) => { setMenu({ visible: true, x: e.clientX, y: e.clientY, type: 'blank' }); });
 
-    // --- Stencil (完整加载逻辑) ---
+    // --- Stencil (动态加载逻辑) ---
     const stencil = new Stencil({
-      title: '组件库', target: graph, stencilGraphWidth: 240, stencilGraphHeight: 0, collapsable: true,
+      title: '组件库', 
+      target: graph, 
+      stencilGraphWidth: 240, 
+      stencilGraphHeight: 0, 
+      collapsable: true,
       search: { visible: true, placeholder: '搜索设备...' },
       groups: [
-        { title: '主工艺设备', name: 'main_equip', layoutOptions: { columns: 1, columnWidth: 220, rowHeight: 160 } },
+        { title: '主工艺设备', name: 'main_equip', layoutOptions: { columns: 2, columnWidth: 105, rowHeight: 100 } }, // 改为2列，更紧凑
         { title: '泵类设备', name: 'pumps', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 100 } },
         { title: '仪表控制', name: 'instruments', layoutOptions: { columns: 3, columnWidth: 60, rowHeight: 70 } },
-        { title: '管路附件', name: 'parts', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 120 } }
+        { title: '管路附件', name: 'parts', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 80 } }
       ],
+      // [新增] 核心逻辑：拖拽放置时恢复原始尺寸
+      getDropNode(node) {
+        const clone = node.clone();
+        const data = clone.getData();
+        
+        // 如果有原始尺寸记录，则恢复
+        if (data?.originalSize) {
+          clone.setSize(data.originalSize.width, data.originalSize.height);
+          // 清理掉临时数据，不让它带入画布
+          const { originalSize, ...rest } = data;
+          clone.setData(rest);
+        }
+        return clone;
+      }
     });
     stencilRef.current.appendChild(stencil.container);
 
-    // 1. 创建主设备
-    const reactor = graph.createNode({ shape: 'p-reactor', label: '反应釜', data: { type: 'Reactor' } });
-    const exchanger = graph.createNode({ shape: 'p-exchanger', label: '换热器', data: { type: 'Exchanger' } });
-    const e13 = graph.createNode({ shape: 'p-naphthalene-evaporator', label: '萘蒸发器', data: { type: 'Evaporator' } });
-    const tankH = graph.createNode({ shape: 'p-tank-horizontal', label: '卧式储罐', data: { type: 'Tank' } });
-    const tankV = graph.createNode({ shape: 'p-tank-vertical', label: '立式储罐', data: { type: 'Tank' } });
-    const gasCooler = graph.createNode({ shape: 'p-gas-cooler', label: '气体冷却器', data: { type: 'GasCooler' } });
-    const d14 = graph.createNode({ shape: 'p-fixed-bed-reactor', label: '固定床反应器', data: { type: 'FixedBedReactor' } });
-    const vExchanger = graph.createNode({ shape: 'p-exchanger-vertical', label: '立式换热器', data: { type: 'VerticalExchanger' } });
-    const trapNode = graph.createNode({ shape: 'p-trap', label: '捕集器', data: { type: 'Trap' } });
+    // ============================================================
+    // 动态分拣算法：根据 Type 自动归类
+    // ============================================================
+    
+    // 1. 定义类型到分组的映射表
+    const TYPE_TO_GROUP: Record<string, string> = {
+      // 主设备
+      'Reactor': 'main_equip',
+      'FixedBedReactor': 'main_equip',
+      'Exchanger': 'main_equip',
+      'VerticalExchanger': 'main_equip',
+      'Evaporator': 'main_equip',
+      'Tank': 'main_equip',
+      'GasCooler': 'main_equip',
+      'Trap': 'main_equip', 
+      
+      // 泵类
+      'Pump': 'pumps',
+      'LiquidPump': 'pumps',
+      'CentrifugalPump': 'pumps',
+      'DiaphragmPump': 'pumps',
+      'PistonPump': 'pumps',
+      'GearPump': 'pumps',
+      'Compressor': 'pumps',
+      'Fan': 'pumps',
+      'JetPump': 'pumps',
+      
+      // 仪表
+      'Instrument': 'instruments',
+      
+      // 附件
+      'Valve': 'parts',
+      'ControlValve': 'parts',
+      'ManualValve': 'parts', // 确保包含
+      'Fitting': 'parts',
+      'TappingPoint': 'ignore', 
+      'Frame': 'ignore'         
+    };
 
-    // 2. 创建泵类
-    const pumpList = [
-      graph.createNode({ shape: 'p-pump-liquid', label: '液体泵' }),
-      graph.createNode({ shape: 'p-pump-centrifugal', label: '离心泵' }),
-      graph.createNode({ shape: 'p-pump-diaphragm', label: '隔膜泵' }),
-      graph.createNode({ shape: 'p-pump-piston', label: '活塞泵' }),
-      graph.createNode({ shape: 'p-pump-compressor', label: '压缩机' }),
-      graph.createNode({ shape: 'p-pump-gear', label: '齿轮泵' }),
-      graph.createNode({ shape: 'p-pump-fan', label: '风扇' }),
-      graph.createNode({ shape: 'p-pump-jet', label: '喷射泵' }),
-    ];
+    // 2. 初始化分组容器
+    const stencilNodes: Record<string, Node[]> = {
+      main_equip: [],
+      pumps: [],
+      instruments: [],
+      parts: []
+    };
+    // [新增] 预计算每个 Type 的数量，用于决定是否显示后缀
+    const typeCounts: Record<string, number> = {};
+    Object.values(SHAPE_LIBRARY).forEach((config: any) => {
+      const t = config.data?.type || 'Unknown';
+      typeCounts[t] = (typeCounts[t] || 0) + 1;
+    });
 
-    // 3. 创建阀门与附件
-    const valveList = [
-      graph.createNode({ shape: 'p-cv-pneumatic', label: '气动阀' }),
-      graph.createNode({ shape: 'p-cv-positioner', label: '定位器' }),
-      graph.createNode({ shape: 'p-cv-electric', label: '电动阀' }),
-      graph.createNode({ shape: 'p-cv-solenoid', label: '电磁阀' }),
-      graph.createNode({ shape: 'p-cv-manual', label: '手动阀' }),
-      graph.createNode({ shape: 'p-cv-piston', label: '气缸阀' }),
-    ];
-    const teeNode = graph.createNode({ shape: 'p-tee' });
+    // [新增] 用于同名 Type 的计数器
+    const typeIterators: Record<string, number> = {};
 
-    // 4. 创建仪表
-    const instList = [
-      graph.createNode({ shape: 'p-inst-local', label: '就地' }),
-      graph.createNode({ shape: 'p-inst-remote', label: '远传' }),
-      graph.createNode({ shape: 'p-inst-panel', label: '盘装' }),
-    ];
+    // 3. 遍历注册表，自动创建节点实例
+    Object.keys(SHAPE_LIBRARY).forEach(shapeId => {
+      const config = SHAPE_LIBRARY[shapeId];
+      const type = config.data?.type || 'Unknown';
+      
+      // 获取目标分组，默认为 'parts'
+      let groupName = TYPE_TO_GROUP[type];
+      
+      if (!groupName) {
+        if (type.includes('Pump')) groupName = 'pumps';
+        else if (type.includes('Valve')) groupName = 'parts';
+        else groupName = 'parts'; 
+      }
 
-    // 5. 加载到 Stencil
-    stencil.load([reactor, exchanger, vExchanger, e13, tankH, tankV, gasCooler, d14, trapNode], 'main_equip');
-    stencil.load(pumpList, 'pumps');
-    stencil.load(instList, 'instruments');
-    stencil.load([...valveList, teeNode], 'parts');
+      if (groupName === 'ignore') return;
+
+      // [新增] 尺寸自适应计算
+      const MAX_W = 70; // 侧边栏图标最大宽度
+      const MAX_H = 70; // 侧边栏图标最大高度
+      
+      const originalW = config.width || 80;
+      const originalH = config.height || 80;
+      
+      let displayW = originalW;
+      let displayH = originalH;
+
+      // 如果原始尺寸超过限制，按比例缩放
+      if (originalW > MAX_W || originalH > MAX_H) {
+        const ratio = originalW / originalH;
+        if (ratio > 1) {
+          // 宽 > 高
+          displayW = MAX_W;
+          displayH = displayW / ratio;
+        } else {
+          // 高 > 宽
+          displayH = MAX_H;
+          displayW = displayH * ratio;
+        }
+      }
+
+      // [新增] 标签优化逻辑
+      // 侧边栏显示 Type (如 "Reactor") 或 Tag (如 "R-101")，而不是 Spec
+      // 如果有中文别名映射更好，这里暂时用 Type
+      let displayLabel = type;
+      // 特殊处理：如果是仪表，显示简短的 PI/TI
+      if (type === 'Instrument') {
+         displayLabel = config.data?.tagId || 'Inst';
+      }
+      // 如果该类型有多个图元，则添加后缀
+      else if (typeCounts[type] > 1) {
+         // 尝试从 ID 中提取后缀 (例如 p-cv-electric -> electric)
+         const parts = shapeId.split('-');
+         let suffix = parts[parts.length - 1]; // 取最后一段
+
+         // 如果后缀就是类型本身 (例如 p-reactor -> reactor)，则使用数字编号
+         if (type.toLowerCase().includes(suffix.toLowerCase())) {
+            typeIterators[type] = (typeIterators[type] || 0) + 1;
+            suffix = `${typeIterators[type]}`;
+         } else {
+            // 首字母大写
+            suffix = suffix.charAt(0).toUpperCase() + suffix.slice(1);
+         }
+         
+         displayLabel = `${type} ${suffix}`;
+      }
+
+      // 创建用于 Stencil 显示的节点
+      const node = graph.createNode({
+        shape: shapeId,
+        width: displayW,   // 使用缩放后的尺寸
+        height: displayH,
+        label: displayLabel, // 使用优化后的标签
+        attrs: {
+          // 强制调整 label 位置，防止在缩略图中跑偏
+          label: { 
+            fontSize: 10, 
+            refY: '100%', 
+            refY2: 4,
+            textWrap: { width: 90, ellipsis: true } // 防止文字过长
+          }
+        },
+        data: { 
+          ...config.data,
+          // [关键] 记录原始尺寸，供 getDropNode 恢复
+          originalSize: { width: originalW, height: originalH } 
+        } 
+      });
+
+      if (stencilNodes[groupName]) {
+        stencilNodes[groupName].push(node);
+      }
+    });
+
+    // 4. 一次性加载所有分组
+    stencil.load(stencilNodes.main_equip, 'main_equip');
+    stencil.load(stencilNodes.pumps, 'pumps');
+    stencil.load(stencilNodes.instruments, 'instruments');
+    stencil.load(stencilNodes.parts, 'parts');
 
     const setupBackgroundFrame = () => {
       if (graph.getNodes().some(n => n.getData()?.isBackground)) return;

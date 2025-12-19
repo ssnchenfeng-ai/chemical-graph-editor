@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="450" viewBox="0 0 1000 450" fill="none" stroke="black" stroke-width="2">
+  <defs>
+    <!-- 定义主罐体轮廓路径 (左侧封头已镜像为向外凸) -->
+    <path id="vessel-body" d="M100,25 L700,25 A50,200 0 0,1 700,425 L100,425 A50,200 0 0,1 100,25 Z" />
+    
+    <!-- 定义液位剪切蒙版 -->
+    <clipPath id="liquid-clip">
+      <use href="#vessel-body" />
+    </clipPath>
+  </defs>
+
+  <g>
+    <!-- 1. 右侧加热器 (Heater) - 底层 -->
+    <rect x="500" y="250" width="310" height="150" fill="white" stroke="#000000" stroke-width="2"/>
+    <line x1="810" y1="245" x2="810" y2="405" stroke-width="4" />
+    <rect x="810" y="250" width="40" height="150" fill="white" stroke="#000000" stroke-width="2"/>
+    <path d="M850,250 A40,75 0 0,1 850,400" fill="white" stroke="#000000" stroke-width="2"/>
+    <line x1="810" y1="325" x2="890" y2="325" stroke-width="2" />
+    
+    <g stroke="#000000" stroke-width="1" opacity="0.6">
+      <line x1="510" y1="270" x2="810" y2="270" />
+      <line x1="510" y1="290" x2="810" y2="290" />
+      <line x1="510" y1="310" x2="810" y2="310" />
+      <line x1="510" y1="330" x2="810" y2="330" />
+      <line x1="510" y1="350" x2="810" y2="350" />
+      <line x1="510" y1="370" x2="810" y2="370" />
+    </g>
+
+    <!-- 2. 主罐体 (Main Vessel) - 顶层覆盖 -->
+    
+    <!-- 2.1 罐体背景 -->
+    <use href="#vessel-body" fill="white" stroke="none" />
+    
+    <!-- 2.2 液相示意 (淡蓝色填充) -->
+    <!-- 修改：y=225 (即 50% 高度) -->
+    <rect x="0" y="225" width="800" height="300" fill="#e6f7ff" stroke="none" clip-path="url(#liquid-clip)" />
+    
+    <!-- 2.3 液面线 -->
+    <!-- 修改：y1=225, y2=225 -->
+    <line x1="50" y1="225" x2="750" y2="225" stroke="#1890ff" stroke-width="1" stroke-dasharray="4 2" clip-path="url(#liquid-clip)" />
+
+    <!-- 2.4 罐体轮廓描边 -->
+    <use href="#vessel-body" fill="none" stroke="black" stroke-width="2" />
+  </g>
+</svg>

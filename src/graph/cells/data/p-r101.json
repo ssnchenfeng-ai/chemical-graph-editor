@@ -1,0 +1,205 @@
+{
+  "width": 80,
+  "height": 120,
+  "ports": {
+    "groups": {
+      "top": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "left_side": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right_side": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "jacket": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "bottom": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "n1",
+        "group": "top",
+        "args": {
+          "x": "15%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "釜顶接口N1",
+          "region": "InnerVessel",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "n2",
+        "group": "top",
+        "args": {
+          "x": "30%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "釜顶接口N2",
+          "region": "InnerVessel",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "n3",
+        "group": "top",
+        "args": {
+          "x": "70%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "釜顶接口N3",
+          "region": "InnerVessel",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "n4",
+        "group": "top",
+        "args": {
+          "x": "85%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "釜顶接口N4",
+          "region": "InnerVessel",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "feed_in",
+        "group": "left_side",
+        "args": {
+          "x": "0%",
+          "y": "30%"
+        },
+        "data": {
+          "desc": "进料口",
+          "region": "InnerVessel",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "overflow",
+        "group": "right_side",
+        "args": {
+          "x": "100%",
+          "y": "30%"
+        },
+        "data": {
+          "desc": "溢流口",
+          "region": "InnerVessel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "j_in",
+        "group": "jacket",
+        "args": {
+          "x": "0%",
+          "y": "45%"
+        },
+        "data": {
+          "desc": "半管夹套入口",
+          "region": "Jacket",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "j_out",
+        "group": "jacket",
+        "args": {
+          "x": "100%",
+          "y": "75%"
+        },
+        "data": {
+          "desc": "半管夹套出口",
+          "region": "Jacket",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "discharge",
+        "group": "bottom",
+        "args": {
+          "x": "50%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "釜底出料口",
+          "region": "InnerVessel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "temp_point",
+        "group": "bottom",
+        "args": {
+          "x": "25%",
+          "y": "92%"
+        },
+        "data": {
+          "desc": "釜底温度口",
+          "region": "InnerVessel",
+          "dir": "bi"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Reactor",
+    "tag": "R-101",
+    "spec": "Spec..."
+  }
+}

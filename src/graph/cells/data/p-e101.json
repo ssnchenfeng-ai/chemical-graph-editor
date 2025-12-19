@@ -1,0 +1,129 @@
+{
+  "width": 340,
+  "height": 120,
+  "ports": {
+    "groups": {
+      "shell": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "tube_left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "tube_right": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "n1",
+        "group": "shell",
+        "args": {
+          "x": "35%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "壳程入口(N1)",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "n2",
+        "group": "shell",
+        "args": {
+          "x": "75%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "壳程出口(N2)",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "n3",
+        "group": "tube_left",
+        "args": {
+          "x": "0%",
+          "y": "67.5%"
+        },
+        "data": {
+          "desc": "管程入口(N3)",
+          "region": "TubeSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "n4",
+        "group": "tube_left",
+        "args": {
+          "x": "0%",
+          "y": "32.5%"
+        },
+        "data": {
+          "desc": "管程出口(N4)",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "n5",
+        "group": "tube_right",
+        "args": {
+          "x": "98%",
+          "y": "12%"
+        },
+        "data": {
+          "desc": "放空(N5)",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "n6",
+        "group": "tube_right",
+        "args": {
+          "x": "98%",
+          "y": "88%"
+        },
+        "data": {
+          "desc": "排净(N6)",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Exchanger",
+    "tag": "E-101",
+    "spec": "Spec..."
+  }
+}

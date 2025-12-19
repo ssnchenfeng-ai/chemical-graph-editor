@@ -1,0 +1,66 @@
+{
+  "width": 20,
+  "height": 20,
+  "ports": {
+    "groups": {
+      "all": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "p1",
+        "group": "all",
+        "args": {
+          "x": "0%",
+          "y": "50%"
+        },
+        "data": {
+          "desc": "三通接口-1",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "p2",
+        "group": "all",
+        "args": {
+          "x": "100%",
+          "y": "50%"
+        },
+        "data": {
+          "desc": "三通接口-2",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "p3",
+        "group": "all",
+        "args": {
+          "x": "50%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "三通接口-3",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Fitting",
+    "tag": "TEE",
+    "spec": "Spec..."
+  }
+}
