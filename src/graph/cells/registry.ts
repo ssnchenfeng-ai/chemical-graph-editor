@@ -31,6 +31,7 @@ import gasCoolerSvg from './svgs/gas-cooler.svg?raw';
 import reactorFixedBedSvg from './svgs/reactor-fixed-bed.svg?raw';
 import exchangerVerticalSvg from './svgs/exchanger-vertical.svg?raw';
 import trapSvg from './svgs/trap.svg?raw';
+import tvtrapSvg from './svgs/tv-Trap.svg?raw';
 
 export type PortDir = 'in' | 'out' | 'bi';
 export interface PortData {
@@ -683,4 +684,27 @@ export const registerCustomCells = () => {
     attrs: { label: { text: 'V-102', refY: '100%', refY2: 10, textAnchor: 'middle', textVerticalAnchor: 'top', fontSize: 12, fill: '#333' } },
     data: { type: 'Trap', spec: 'Gravity', material: 'SS304', volume: '500L' },
   });
+  //疏水阀注册
+  Graph.registerNode('p-tv-trap', {
+  inherit: 'image',
+  width: 250, 
+  height: 100,
+  imageUrl: svgToDataUrl(tvtrapSvg),
+  ports: {
+    groups: {
+        all: { position: 'absolute', attrs: PORT_ATTRS }
+    },
+    items: [
+        { id: 'i', group: 'all', args: { x: '0%', y: '49%' }, data: { desc: '新接口', region: 'ShellSide', dir: 'bi' } as PortData },
+        { id: 'o', group: 'all', args: { x: '100%', y: '49%' }, data: { desc: '新接口', region: 'ShellSide', dir: 'bi' } as PortData }
+    ],
+  },
+  attrs: LABEL_ATTRS,
+  data: { 
+    type: 'Trap', 
+    tag: 'tv-Trap', 
+    spec: 'Spec...',
+  },
+});
+
 };

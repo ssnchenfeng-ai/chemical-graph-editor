@@ -41,6 +41,7 @@ const TYPE_MAPPING: Record<string, string[]> = {
   // 阀门类 (包括手动阀和调节阀)
   'Valve':             ['Equipment', 'Valve'],
   'ControlValve':      ['Equipment', 'Valve', 'ControlValve'], // 调节阀既是阀门，也是控制元件
+  'Trap':              ['Equipment', 'Trap'],
   
   // 容器类
   'Tank':              ['Equipment', 'Vessel'],
@@ -230,6 +231,7 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
           case 'Tank':         if (props.spec === 'Vertical') {shapeName = 'p-tank-vertical';} else {shapeName = 'p-tank-horizontal';} break;
           case 'GasCooler':    shapeName = 'p-gas-cooler'; break;
           case 'Trap':         shapeName = 'p-trap'; break;
+          case 'Trap':         shapeName = 'p-tv-trap'; break;
           case 'FixedBedReactor': shapeName = 'p-fixed-bed-reactor'; break;
           case 'VerticalExchanger': shapeName = 'p-exchanger-vertical'; break;
           case 'Evaporator':   shapeName = 'p-naphthalene-evaporator'; break;

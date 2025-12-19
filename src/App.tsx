@@ -1,23 +1,24 @@
 import { useRef, useState } from 'react';
-import { Button, Layout, message } from 'antd';
-// 1. 确保图标库已安装。如果此处报错，请运行 npm install @ant-design/icons
+import { Button, Layout, message, Radio } from 'antd';
 import { 
   SaveOutlined, 
   DatabaseOutlined, 
   ToolOutlined, 
-  ArrowLeftOutlined 
+  ArrowLeftOutlined,
+  FormOutlined 
 } from '@ant-design/icons';
 
-// 2. 分开导入组件和类型（这是修复白屏的关键）
 import GraphCanvas from './components/Editor/Canvas';
 import type { GraphCanvasRef } from './components/Editor/Canvas';
 import ShapeDesigner from './components/DevTools/ShapeDesigner';
+import AttributeDesigner from './components/DevTools/AttributeDesigner';
 
 const { Header, Content } = Layout;
 
 function App() {
   const [saving, setSaving] = useState(false);
-  const [mode, setMode] = useState<'editor' | 'designer'>('editor');
+  // mode 增加 'attributes' 状态
+  const [mode, setMode] = useState<'editor' | 'designer' | 'attributes'>('editor');
   const graphRef = useRef<GraphCanvasRef>(null);
 
   const handleSaveClick = async () => {
@@ -35,8 +36,9 @@ function App() {
         console.warn("GraphRef is null");
     }
   };
-  // --- 渲染设计器模式 ---
-  if (mode === 'designer') {
+
+  // --- 渲染开发者模式 (包含 图元设计 和 属性设计) ---
+  if (mode === 'designer' || mode === 'attributes') {
     return (
       <Layout style={{ height: '100vh' }}>
         <Header style={{ 
@@ -44,9 +46,23 @@ function App() {
           height: '50px', padding: '0 20px', flexShrink: 0,
           justifyContent: 'space-between', background: '#001529'
         }}>
-          <div style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <ToolOutlined /> 📐 图元设计器 (DevMode)
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+            <div style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <ToolOutlined /> 开发者工具箱
+            </div>
+            
+            {/* 顶部切换 Tab */}
+            <Radio.Group 
+              value={mode} 
+              onChange={e => setMode(e.target.value)} 
+              buttonStyle="solid"
+              size="small"
+            >
+              <Radio.Button value="designer"><ToolOutlined /> 图形设计 (Shape)</Radio.Button>
+              <Radio.Button value="attributes"><FormOutlined /> 属性定义 (Attribute)</Radio.Button>
+            </Radio.Group>
           </div>
+
           <Button 
             type="primary" 
             ghost 
@@ -57,12 +73,13 @@ function App() {
           </Button>
         </Header>
         <Content style={{ height: 'calc(100vh - 50px)', overflow: 'hidden' }}>
-          <ShapeDesigner />
+          {mode === 'designer' ? <ShapeDesigner /> : <AttributeDesigner />}
         </Content>
       </Layout>
     );
   }
 
+  // --- 渲染主编辑器 ---
   return (
     <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header style={{ 
@@ -74,26 +91,27 @@ function App() {
           <DatabaseOutlined />
           🧪 化工 P&ID 编辑器
         </div>
-        <Button 
-            type="dashed" 
-            ghost 
-            icon={<ToolOutlined />} 
-            onClick={() => setMode('designer')}
+        <div style={{ display: 'flex', gap: 10 }}>
+          <Button 
+              type="dashed" 
+              ghost 
+              icon={<ToolOutlined />} 
+              onClick={() => setMode('designer')} // 默认进入图形设计
+            >
+              DevTools
+            </Button>
+          <Button 
+            type="primary" 
+            icon={<SaveOutlined />} 
+            loading={saving}
+            onClick={handleSaveClick}
           >
-            设计图元
+            保存图纸到 Neo4j
           </Button>
-        <Button 
-          type="primary" 
-          icon={<SaveOutlined />} 
-          loading={saving}
-          onClick={handleSaveClick}
-        >
-          保存图纸到 Neo4j
-        </Button>
+        </div>
       </Header>
       
       <Content style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex' }}>
-        {/* 确保这里没有多余的 props 导致类型冲突 */}
         <GraphCanvas ref={graphRef} />
       </Content>
     </Layout>

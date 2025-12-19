@@ -31,7 +31,7 @@ interface ViewBox {
   h: number;
 }
 
-// 预置设备类型列表
+// [修改] 预置设备类型列表，增加疏水阀、手动阀等细分类型
 const EQUIPMENT_TYPES = [
   { value: 'Reactor', label: '反应器 (Reactor)', prefix: 'R' },
   { value: 'Exchanger', label: '换热器 (Exchanger)', prefix: 'E' },
@@ -40,8 +40,13 @@ const EQUIPMENT_TYPES = [
   { value: 'Pump', label: '泵 (Pump)', prefix: 'P' },
   { value: 'Compressor', label: '压缩机 (Compressor)', prefix: 'C' },
   { value: 'Fan', label: '风机 (Fan)', prefix: 'K' },
-  { value: 'Valve', label: '阀门 (Valve)', prefix: 'V' },
+  
+  // 阀门类细分
+  { value: 'Valve', label: '通用阀门 (Valve)', prefix: 'V' },
   { value: 'ControlValve', label: '调节阀 (ControlValve)', prefix: 'FV' },
+  { value: 'ManualValve', label: '手动阀 (ManualValve)', prefix: 'HV' },
+  { value: 'Trap', label: '疏水阀 (Trap)', prefix: 'S' },
+  
   { value: 'Instrument', label: '仪表 (Instrument)', prefix: 'PI' },
   { value: 'Fitting', label: '管件 (Fitting)', prefix: '' },
   { value: 'Other', label: '其他 (Other)', prefix: 'M' },
@@ -61,7 +66,7 @@ const ShapeDesigner: React.FC = () => {
   // 画布显示的物理尺寸 (px)
   const [containerSize, setContainerSize] = useState({ w: 600, h: 300 });
   
-  // 原始尺寸状态
+  // 原始尺寸状态 (对应 SVG 的 width/height 属性)
   const [originalSize, setOriginalSize] = useState({ w: 100, h: 100 });
 
   // SVG 内部逻辑尺寸 (viewBox)
@@ -102,6 +107,7 @@ const ShapeDesigner: React.FC = () => {
       }
       setSvgViewBox(vb);
 
+      // 优先读取 width/height 属性，如果没有则回退到 viewBox
       const rawW = parseFloat(svg.getAttribute('width') || String(vb.w));
       const rawH = parseFloat(svg.getAttribute('height') || String(vb.h));
       setOriginalSize({ w: rawW, h: rawH });
@@ -111,7 +117,7 @@ const ShapeDesigner: React.FC = () => {
     }
   }, [svgInput]);
 
-  // [核心修改] 居中规整化：调整 ViewBox 原点以保持内容居中，不拉伸
+  // 居中规整化
   const normalizeDimensions = () => {
     try {
       const parser = new DOMParser();
@@ -123,8 +129,6 @@ const ShapeDesigner: React.FC = () => {
         return;
       }
 
-      // 1. 获取当前 ViewBox (作为内容的真实边界)
-      // 如果没有 viewBox，则使用 width/height 构造一个
       let oldVb = { x: 0, y: 0, w: originalSize.w, h: originalSize.h };
       const currentVBAttr = svg.getAttribute('viewBox');
       if (currentVBAttr) {
@@ -134,31 +138,21 @@ const ShapeDesigner: React.FC = () => {
         }
       }
 
-      // 2. 计算目标尺寸 (四舍五入到最近的 10)
-      // 例如: 50.271 -> 50, 25.135 -> 30 (或者 20，取决于 Math.round)
       let newW = Math.round(oldVb.w / 10) * 10;
       let newH = Math.round(oldVb.h / 10) * 10;
       if (newW === 0) newW = 10;
       if (newH === 0) newH = 10;
 
-      // 3. [关键算法] 计算新的 ViewBox 原点，使旧内容居中
-      // 公式: 新原点 = 旧原点 - (宽度差 / 2)
-      // 这样做的效果是：如果新盒子比旧盒子宽，我们在左右两边均匀增加“视野”；
-      // 如果新盒子比旧盒子窄，我们在左右两边均匀裁剪。
       const diffW = newW - oldVb.w;
       const diffH = newH - oldVb.h;
       
       const newVbX = oldVb.x - (diffW / 2);
       const newVbY = oldVb.y - (diffH / 2);
 
-      // 4. 应用修改
       svg.setAttribute('width', String(newW));
       svg.setAttribute('height', String(newH));
-      
-      // 使用 toFixed(2) 避免浮点数精度问题导致 viewBox 出现极长小数
       svg.setAttribute('viewBox', `${newVbX.toFixed(2)} ${newVbY.toFixed(2)} ${newW} ${newH}`);
 
-      // 5. 序列化回字符串
       const serializer = new XMLSerializer();
       const newSvgStr = serializer.serializeToString(doc);
 
@@ -579,7 +573,7 @@ ${itemsStr}
                   linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px),
                   linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px)
                 `,
-                backgroundSize: `${(containerSize.w / svgViewBox.w) * gridSize * zoom}px ${(containerSize.h / svgViewBox.h) * gridSize * zoom}px`
+                backgroundSize: `${(containerSize.w / originalSize.w) * gridSize * zoom}px ${(containerSize.h / originalSize.h) * gridSize * zoom}px`
               }} />
             )}
 
