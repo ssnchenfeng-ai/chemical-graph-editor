@@ -45,7 +45,7 @@ const TYPE_MAPPING: Record<string, string[]> = {
   
   // 容器类
   'Tank':              ['Equipment', 'Vessel'],
-  'Trap':              ['Equipment', 'Vessel'],
+  //'Trap':              ['Equipment', 'Vessel'],
   
   // 管件
   'Fitting':           ['Equipment', 'Fitting'],
@@ -187,7 +187,7 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
       const props = record.get('n').properties;
       
       // 1. 解析 layout JSON
-      let layout: any = { x: 0, y: 0, w: 40, h: 40, a: 0 };
+      let layout: any = { x: 0, y: 0, w: 40, h: 40, a: 0, s: ''  };
       if (props.layout) {
         try {
           layout = JSON.parse(props.layout);
@@ -201,7 +201,8 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
           y: props.y || 0,
           w: props.width || 40,
           h: props.height || 40,
-          a: props.angle || 0
+          a: props.angle || 0,
+          s: props.shape || ''
         };
       }
 
@@ -211,7 +212,9 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
       if (isTee) { props.tag = 'TEE'; props.Tag = 'TEE'; }
 
       // ... (Shape 映射逻辑保持不变) ...
-      let shapeName = 'p-valve'; 
+      let shapeName = layout.s || props.shape; 
+      if (!shapeName) {
+        shapeName = 'p-valve'; 
       switch (props.type) {
           
           case 'Reactor':      shapeName = 'p-reactor'; break;
@@ -243,6 +246,7 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
           case 'TappingPoint': shapeName = 'tapping-point'; break;
           default: break;
       }
+    }
 
       // [核心修正 1] 清理 props，分离出纯业务数据
       // 我们不希望 data 里包含 layout 字符串，也不希望包含旧的 x,y

@@ -1,0 +1,207 @@
+{
+  "width": 260,
+  "height": 300,
+  "ports": {
+    "groups": {
+      "gas": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "upper_salt": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "lower_salt": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "gas_in",
+        "group": "gas",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "工艺气入口",
+          "region": "TubeSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "gas_out",
+        "group": "gas",
+        "args": {
+          "x": "50%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "气体出口",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "upper_L1",
+        "group": "upper_salt",
+        "args": {
+          "x": "7.7%",
+          "y": "21.6%"
+        },
+        "data": {
+          "desc": "上盐道接口-L1",
+          "region": "UpperSaltChannel",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "upper_L2",
+        "group": "upper_salt",
+        "args": {
+          "x": "7.7%",
+          "y": "24.1%"
+        },
+        "data": {
+          "desc": "上盐道接口-L2",
+          "region": "UpperSaltChannel",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "upper_L3",
+        "group": "upper_salt",
+        "args": {
+          "x": "7.7%",
+          "y": "26.6%"
+        },
+        "data": {
+          "desc": "上盐道接口-L3",
+          "region": "UpperSaltChannel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "upper_R1",
+        "group": "upper_salt",
+        "args": {
+          "x": "92.3%",
+          "y": "22.6%"
+        },
+        "data": {
+          "desc": "上盐道接口-R1",
+          "region": "UpperSaltChannel",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "upper_R2",
+        "group": "upper_salt",
+        "args": {
+          "x": "92.3%",
+          "y": "25.6%"
+        },
+        "data": {
+          "desc": "上盐道接口-R2",
+          "region": "UpperSaltChannel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "lower_L1",
+        "group": "lower_salt",
+        "args": {
+          "x": "7.7%",
+          "y": "73.3%"
+        },
+        "data": {
+          "desc": "下盐道接口-L1",
+          "region": "LowerSaltChannel",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "lower_L2",
+        "group": "lower_salt",
+        "args": {
+          "x": "7.7%",
+          "y": "75.8%"
+        },
+        "data": {
+          "desc": "下盐道接口-L2",
+          "region": "LowerSaltChannel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "lower_L3",
+        "group": "lower_salt",
+        "args": {
+          "x": "7.7%",
+          "y": "78.3%"
+        },
+        "data": {
+          "desc": "下盐道接口-L3",
+          "region": "LowerSaltChannel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "lower_R1",
+        "group": "lower_salt",
+        "args": {
+          "x": "92.3%",
+          "y": "74.3%"
+        },
+        "data": {
+          "desc": "下盐道接口-R1",
+          "region": "LowerSaltChannel",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "lower_R2",
+        "group": "lower_salt",
+        "args": {
+          "x": "92.3%",
+          "y": "77.3%"
+        },
+        "data": {
+          "desc": "下盐道接口-R2",
+          "region": "LowerSaltChannel",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "FixedBedReactor",
+    "tag": "FIXED-BED-REACTOR",
+    "spec": "Spec..."
+  }
+}

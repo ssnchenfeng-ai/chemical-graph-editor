@@ -111,7 +111,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
             y: Math.round(pos.y),
             w: Math.round(size.width),
             h: Math.round(size.height),
-            a: Math.round(angle) 
+            a: Math.round(angle), 
+            s: node.shape
           };
 
           const baseProps = {

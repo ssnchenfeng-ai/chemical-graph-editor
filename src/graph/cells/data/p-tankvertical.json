@@ -1,0 +1,165 @@
+{
+  "width": 100,
+  "height": 200,
+  "ports": {
+    "groups": {
+      "top": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "bottom": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "left_upper": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right_upper": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "left_lower": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right_lower": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "t1",
+        "group": "top",
+        "args": {
+          "x": "50%",
+          "y": "10%"
+        },
+        "data": {
+          "desc": "顶部放空",
+          "region": "InnerVessel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "b1",
+        "group": "bottom",
+        "args": {
+          "x": "50%",
+          "y": "90%"
+        },
+        "data": {
+          "desc": "底部出料",
+          "region": "InnerVessel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "l_up",
+        "group": "left_upper",
+        "args": {
+          "x": "10%",
+          "y": "30%"
+        },
+        "data": {
+          "desc": "上部侧口(左)",
+          "region": "InnerVessel",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "r_up",
+        "group": "right_upper",
+        "args": {
+          "x": "90%",
+          "y": "30%"
+        },
+        "data": {
+          "desc": "上部侧口(右)",
+          "region": "InnerVessel",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "l_low",
+        "group": "left_lower",
+        "args": {
+          "x": "10%",
+          "y": "70%"
+        },
+        "data": {
+          "desc": "下部侧口(左)",
+          "region": "InnerVessel",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "r_low",
+        "group": "right_lower",
+        "args": {
+          "x": "90%",
+          "y": "70%"
+        },
+        "data": {
+          "desc": "下部侧口(右)",
+          "region": "InnerVessel",
+          "dir": "in"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Tank",
+    "tag": "TANK-VERTICAL",
+    "spec": "Spec..."
+  }
+}

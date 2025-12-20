@@ -1,0 +1,243 @@
+{
+  "width": 400,
+  "height": 260,
+  "ports": {
+    "groups": {
+      "main": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "burst": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "top_in": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "top_out": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "bottom_in": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "bottom_out": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "shell_in",
+        "group": "main",
+        "args": {
+          "x": "0%",
+          "y": "58%"
+        },
+        "data": {
+          "desc": "壳程入口(产物气)",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "shell_out",
+        "group": "main",
+        "args": {
+          "x": "100%",
+          "y": "58%"
+        },
+        "data": {
+          "desc": "壳程出口(产物气)",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "burst_left",
+        "group": "burst",
+        "args": {
+          "x": "8.75%",
+          "y": "19%"
+        },
+        "data": {
+          "desc": "爆破片接口(左)",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "burst_right",
+        "group": "burst",
+        "args": {
+          "x": "91.25%",
+          "y": "19%"
+        },
+        "data": {
+          "desc": "爆破片接口(右)",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "tube_top_in_1",
+        "group": "top_in",
+        "args": {
+          "x": "21.25%",
+          "y": "15%"
+        },
+        "data": {
+          "desc": "高温段水入口",
+          "region": "TubeSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "tube_top_out_1",
+        "group": "top_out",
+        "args": {
+          "x": "31.25%",
+          "y": "15%"
+        },
+        "data": {
+          "desc": "高温段水出口",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "tube_top_out_2",
+        "group": "top_out",
+        "args": {
+          "x": "41.25%",
+          "y": "15%"
+        },
+        "data": {
+          "desc": "低温段水出口",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "tube_top_in_2",
+        "group": "top_in",
+        "args": {
+          "x": "81.25%",
+          "y": "15%"
+        },
+        "data": {
+          "desc": "低温段水入口",
+          "region": "TubeSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "tube_bot_in_1",
+        "group": "bottom_in",
+        "args": {
+          "x": "21.25%",
+          "y": "92%"
+        },
+        "data": {
+          "desc": "高温段水入口(下)",
+          "region": "TubeSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "tube_bot_out_1",
+        "group": "bottom_out",
+        "args": {
+          "x": "31.25%",
+          "y": "92%"
+        },
+        "data": {
+          "desc": "高温段水出口(下)",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "tube_bot_out_2",
+        "group": "bottom_out",
+        "args": {
+          "x": "41.25%",
+          "y": "92%"
+        },
+        "data": {
+          "desc": "低温段水出口(下)",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "tube_bot_in_2",
+        "group": "bottom_in",
+        "args": {
+          "x": "81.25%",
+          "y": "92%"
+        },
+        "data": {
+          "desc": "低温段水入口(下)",
+          "region": "TubeSide",
+          "dir": "in"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "GasCooler",
+    "tag": "GAS-COOLER",
+    "spec": "Spec..."
+  }
+}

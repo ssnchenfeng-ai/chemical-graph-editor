@@ -1,0 +1,143 @@
+{
+  "width": 100,
+  "height": 400,
+  "ports": {
+    "groups": {
+      "side": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "head": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "side_left_top",
+        "group": "side",
+        "args": {
+          "x": "0%",
+          "y": "20%"
+        },
+        "data": {
+          "desc": "壳程接口(左上)",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "side_left_bottom",
+        "group": "side",
+        "args": {
+          "x": "0%",
+          "y": "80%"
+        },
+        "data": {
+          "desc": "壳程接口(左下)",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "side_right_top",
+        "group": "side",
+        "args": {
+          "x": "100%",
+          "y": "15%"
+        },
+        "data": {
+          "desc": "壳程接口(右上)",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "side_right_bottom",
+        "group": "side",
+        "args": {
+          "x": "100%",
+          "y": "85%"
+        },
+        "data": {
+          "desc": "壳程接口(右下)",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "head_top_left",
+        "group": "head",
+        "args": {
+          "x": "30%",
+          "y": "2.5%"
+        },
+        "data": {
+          "desc": "管程接口(上左)",
+          "region": "TubeSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "head_top_right",
+        "group": "head",
+        "args": {
+          "x": "70%",
+          "y": "2.5%"
+        },
+        "data": {
+          "desc": "管程接口(上右)",
+          "region": "TubeSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "head_bottom_left",
+        "group": "head",
+        "args": {
+          "x": "30%",
+          "y": "97.5%"
+        },
+        "data": {
+          "desc": "管程接口(下左)",
+          "region": "TubeSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "head_bottom_right",
+        "group": "head",
+        "args": {
+          "x": "70%",
+          "y": "97.5%"
+        },
+        "data": {
+          "desc": "管程接口(下右)",
+          "region": "TubeSide",
+          "dir": "bi"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "VerticalExchanger",
+    "tag": "EXCHANGER-VERTICAL",
+    "spec": "Spec..."
+  }
+}
