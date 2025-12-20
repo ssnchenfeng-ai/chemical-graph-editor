@@ -1,0 +1,90 @@
+{
+  "width": 60,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "actuator": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "left",
+        "args": {
+          "x": "0%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门入口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "right",
+        "args": {
+          "x": "100%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门出口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "actuator",
+        "group": "actuator",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "执行机构",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "ControlValve",
+    "tag": "cv-manual",
+    "spec": "Spec..."
+  }
+}

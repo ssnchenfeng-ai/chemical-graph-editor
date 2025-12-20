@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0.00 0.00 120 100" fill="none" stroke="black" stroke-width="2" width="120" height="100">
+  <!-- 主罐体 -->
+  <rect x="20" y="30" width="90" height="60" fill="white"/>
+
+  <!-- 内部挡板 -->
+  <!-- 右侧挡板：从上往下 -->
+  <line x1="75" y1="30" x2="75" y2="75"/>
+  <!-- 左侧挡板：从下往上 -->
+  <line x1="50" y1="90" x2="50" y2="45"/>
+
+  <!-- N1: 入口连接桩 (右上) - 已移除文字，增加法兰盖 -->
+  <line x1="85" y1="30" x2="85" y2="10"/>
+  <line x1="91" y1="30" x2="91" y2="10"/>
+  <!-- N1 法兰 -->
+  <line x1="82" y1="10" x2="94" y2="10"/>
+
+  <!-- N2: 出口连接桩 (左上) - 已移除文字，增加法兰盖 -->
+  <line x1="35" y1="30" x2="35" y2="10"/>
+  <line x1="41" y1="30" x2="41" y2="10"/>
+  <!-- N2 法兰 -->
+  <line x1="32" y1="10" x2="44" y2="10"/>
+
+  <!-- M1: 侧口 (左侧) - 保持不变 -->
+  <line x1="20" y1="50" x2="10" y2="50"/>
+  <line x1="20" y1="62" x2="10" y2="62"/>
+  <line x1="10" y1="46" x2="10" y2="66"/>
+  <text x="5" y="60" text-anchor="end" font-family="Arial" font-size="12" stroke="none" fill="black" font-weight="bold">M1</text>
+</svg>

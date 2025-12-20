@@ -1,0 +1,24 @@
+{
+  "width": 40,
+  "height": 40,
+  "markup": [
+    { "tagName": "image", "selector": "body" },
+    { "tagName": "text", "selector": "topLabel" },
+    { "tagName": "text", "selector": "bottomLabel" }
+  ],
+  "attrs": {
+    "body": { "refWidth": "100%", "refHeight": "100%" },
+    "topLabel": { "refX": 0.5, "refY": 0.35, "textAnchor": "middle", "textVerticalAnchor": "middle", "fontSize": 9, "fontWeight": "bold", "fill": "#000", "text": "PI" },
+    "bottomLabel": { "refX": 0.5, "refY": 0.65, "textAnchor": "middle", "textVerticalAnchor": "middle", "fontSize": 9, "fontWeight": "bold", "fill": "#000", "text": "101" }
+  },
+  "ports": {
+    "groups": { "all": { "position": "absolute", "attrs": { "circle": { "r": 3, "magnet": true, "stroke": "#FFFFFF", "strokeWidth": 1, "fill": "#e3dedeff" } } } },
+    "items": [
+      { "id": "top", "group": "all", "args": { "x": "50%", "y": "0%" } },
+      { "id": "bottom", "group": "all", "args": { "x": "50%", "y": "100%" } },
+      { "id": "left", "group": "all", "args": { "x": "0%", "y": "50%" } },
+      { "id": "right", "group": "all", "args": { "x": "100%", "y": "50%" } }
+    ]
+  },
+  "data": { "type": "Instrument", "spec": "Local", "tagId": "PI", "loopNum": "101", "range": "0-1.6", "unit": "MPa" }
+}

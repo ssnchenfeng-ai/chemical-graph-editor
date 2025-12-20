@@ -2,10 +2,13 @@
   <!-- 阀体 (Bowtie) -->
   <polygon points="5,75 30,85 5,95" fill="white" />
   <polygon points="55,75 30,85 55,95" fill="white" />
+  
   <!-- 阀杆 -->
   <line x1="30" y1="85" x2="30" y2="40" />
-  <!-- 执行机构 (圆头) -->
-  <circle cx="30" cy="25" r="15" fill="white" />
-  <!-- 文字 P -->
-  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">P</text>
+  
+  <!-- 执行机构：两个大小相同的矩形 -->
+  <!-- 下矩形 -->
+  <rect x="15" y="25" width="30" height="15" fill="white" />
+  <!-- 上矩形 -->
+  <rect x="15" y="10" width="30" height="15" fill="white" />
 </svg>

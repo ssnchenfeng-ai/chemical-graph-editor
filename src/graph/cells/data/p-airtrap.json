@@ -1,0 +1,53 @@
+{
+  "width": 120,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "all": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "all",
+        "args": {
+          "x": "75%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "捕集器入口",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "out",
+        "group": "all",
+        "args": {
+          "x": "33%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "捕集器出口",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Tank",
+    "tag": "Air-Trap",
+    "spec": "Spec..."
+  }
+}
