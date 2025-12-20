@@ -217,27 +217,26 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         shapeName = 'p-valve'; 
       switch (props.type) {
           
-          case 'Reactor':      shapeName = 'p-reactor'; break;
-          case 'Exchanger':    shapeName = 'p-exchanger'; break;
-          case 'Pump':         shapeName = 'p-pump'; break;
-          case 'LiquidPump':   shapeName = 'p-pump-liquid'; break;
-          case 'CentrifugalPump': shapeName = 'p-pump-centrifugal'; break;
-          case 'DiaphragmPump': shapeName = 'p-pump-diaphragm'; break;
-          case 'PistonPump':   shapeName = 'p-pump-piston'; break;
-          case 'Compressor':   shapeName = 'p-pump-compressor'; break;
-          case 'GearPump':     shapeName = 'p-pump-gear'; break;
-          case 'Fan':          shapeName = 'p-pump-fan'; break;
-          case 'JetPump':      shapeName = 'p-pump-jet'; break;
+          case 'Reactor':      shapeName = 'p-r101'; break;
+          case 'Exchanger':    shapeName = 'p-e101'; break;
+          case 'Pump':         shapeName = 'p-centrifugalpump'; break;
+          case 'LiquidPump':   shapeName = 'p-p101'; break;
+          case 'CentrifugalPump': shapeName = 'p-centrifugalpump'; break;
+          case 'DiaphragmPump': shapeName = 'p-diaphragmpump'; break;
+          case 'PistonPump':   shapeName = 'p-pistonpump'; break;
+          case 'Compressor':   shapeName = 'p-compressor'; break;
+          case 'GearPump':     shapeName = 'p-gearpump'; break;
+          case 'Fan':          shapeName = 'p-fan'; break;
+          case 'JetPump':      shapeName = 'p-jetpump'; break;
           case 'ControlValve': shapeName = 'p-cv-pneumatic'; break;
           case 'Valve':        shapeName = 'p-cv-manual'; break;
           case 'Fitting':      shapeName = 'p-tee'; break; 
-          case 'Tank':         if (props.spec === 'Vertical') {shapeName = 'p-tank-vertical';} else {shapeName = 'p-tank-horizontal';} break;
-          case 'GasCooler':    shapeName = 'p-gas-cooler'; break;
+          case 'Tank':         if (props.spec === 'Vertical') {shapeName = 'p-tankvertical';} else {shapeName = 'p-tank';} break;
+          case 'GasCooler':    shapeName = 'p-gascooler'; break;
           case 'Trap':         shapeName = 'p-trap'; break;
-          case 'Trap':         shapeName = 'p-tv-trap'; break;
-          case 'FixedBedReactor': shapeName = 'p-fixed-bed-reactor'; break;
-          case 'VerticalExchanger': shapeName = 'p-exchanger-vertical'; break;
-          case 'Evaporator':   shapeName = 'p-naphthalene-evaporator'; break;
+          case 'FixedBedReactor': shapeName = 'p-fixedbedreactor'; break;
+          case 'VerticalExchanger': shapeName = 'p-exchangervertical'; break;
+          case 'Evaporator':   shapeName = 'p-e13'; break;
           case 'Instrument':   
             if(props.spec === 'Local') shapeName = 'p-inst-local';
             else if(props.spec === 'Panel') shapeName = 'p-inst-panel';
