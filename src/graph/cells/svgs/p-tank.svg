@@ -1,0 +1,14 @@
+<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 基础背景 (白色) -->
+  <path d="M20,10 L180,10 A20,40 0 0,1 180,90 L20,90 A20,40 0 0,1 20,10 Z" fill="white" stroke="none" />
+  
+  <!-- 2. 液相填充 (修正版：覆盖封头) -->
+  <!-- 路径: 左顶点(0,50) -> 右顶点(200,50) -> 右下弧线 -> 底部直线 -> 左下弧线 -> 闭合 -->
+  <path d="M0,50 L200,50 A20,40 0 0,1 180,90 L20,90 A20,40 0 0,1 0,50 Z" fill="#e6f7ff" stroke="none" />
+  
+  <!-- 3. 液面线 (贯穿整个宽度) -->
+  <line x1="0" y1="50" x2="200" y2="50" stroke="#1890ff" stroke-width="1" stroke-dasharray="4 2" />
+
+  <!-- 4. 外轮廓 -->
+  <path d="M20,10 L180,10 A20,40 0 0,1 180,90 L20,90 A20,40 0 0,1 20,10 Z" fill="none" stroke="black" stroke-width="2" />
+</svg>

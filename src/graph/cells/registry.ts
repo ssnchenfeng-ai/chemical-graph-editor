@@ -37,6 +37,12 @@ import reactorFixedBedSvg from './svgs/reactor-fixed-bed.svg?raw';
 import exchangerVerticalSvg from './svgs/exchanger-vertical.svg?raw';
 import tvtrapSvg from './svgs/tv-Trap.svg?raw';
 
+// ============================================================
+// [关键修改 1] 将 glob 移到顶层，确保 HMR 时能扫描所有文件
+// ============================================================
+const SVG_MODULES = import.meta.glob('./svgs/*.svg', { eager: true, query: '?raw', import: 'default' });
+const JSON_MODULES = import.meta.glob('./data/*.json', { eager: true, import: 'default' });
+
 // --- 全局变量与类型定义 ---
 
 export const SHAPE_LIBRARY: Record<string, any> = {};
@@ -101,18 +107,13 @@ const LABEL_ATTRS = {
 // ============================================================
 
 const autoRegisterShapes = () => {
-  // 1.1 自动导入 svgs 目录下所有的 .svg 文件
-  const svgModules = import.meta.glob('./svgs/*.svg', { eager: true, query: '?raw', import: 'default' });
-  
-  // 1.2 自动导入 data 目录下所有的 .json 文件
-  const jsonModules = import.meta.glob('./data/*.json', { eager: true, import: 'default' });
-
-  console.log(`[Registry] Found ${Object.keys(jsonModules).length} custom shapes in /data folder.`);
+  // [关键修改 2] 使用顶层定义的 JSON_MODULES
+  console.log(`[Registry] Found ${Object.keys(JSON_MODULES).length} custom shapes in /data folder.`);
 
   // 1.3 遍历 JSON 配置进行注册
-  for (const path in jsonModules) {
+  for (const path in JSON_MODULES) {
     try {
-      const config = jsonModules[path] as ShapeConfig;
+      const config = JSON_MODULES[path] as ShapeConfig;
       
       // 从文件名推导 ID: ./data/p-reactor.json -> p-reactor
       const fileName = path.split('/').pop()?.replace('.json', '');
@@ -120,7 +121,9 @@ const autoRegisterShapes = () => {
 
       // 查找对应的 SVG
       const svgPath = `./svgs/${shapeId}.svg`;
-      const svgContent = svgModules[svgPath] as string;
+      
+      // [关键修改 3] 使用顶层定义的 SVG_MODULES
+      const svgContent = SVG_MODULES[svgPath] as string;
 
       if (!svgContent) {
         console.warn(`[Registry] Missing SVG for ${shapeId} (expected at ${svgPath})`);
@@ -512,6 +515,22 @@ export const registerCustomCells = () => {
     ports: VERTICAL_EXCHANGER_PORTS, attrs: { label: { text: 'E-102', refY: '100%', refY2: 10 } },
     data: { type: 'VerticalExchanger', spec: 'Vertical', area: '100' },
   });
-
- 
 };
+
+// ============================================================
+// [新增] 模块自启动与 HMR 处理
+// ============================================================
+
+// 1. 立即执行注册，填充 SHAPE_LIBRARY
+try {
+  registerCustomCells();
+} catch (e) {
+  console.warn('[Registry] Auto-init failed:', e);
+}
+
+// 2. 显式接受 HMR 更新，确保模块重新评估时状态正确
+if (import.meta.hot) {
+  import.meta.hot.accept(() => {
+    console.log('[Registry] HMR updated. Library refreshed.');
+  });
+}

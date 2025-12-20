@@ -215,7 +215,7 @@ const ShapeDesigner: React.FC = () => {
         setTimeout(() => {
           refreshLibrary();
           message.success({ content: '图元库已同步', key: 'sync_lib' });
-        }, 1500);
+        }, 2000);
       } else {
         message.error('保存失败: ' + res.message);
       }

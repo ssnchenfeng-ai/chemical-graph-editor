@@ -1,0 +1,219 @@
+{
+  "width": 200,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "top": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "bottom": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "n1",
+        "group": "top",
+        "args": {
+          "x": "20%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "顶部口N1",
+          "region": "InnerVessel",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "n2",
+        "group": "top",
+        "args": {
+          "x": "35%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "顶部口N2",
+          "region": "InnerVessel",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "n3",
+        "group": "top",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "顶部口N3",
+          "region": "InnerVessel",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "n4",
+        "group": "top",
+        "args": {
+          "x": "65%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "顶部口N4",
+          "region": "InnerVessel",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "n5",
+        "group": "top",
+        "args": {
+          "x": "80%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "顶部口N5",
+          "region": "InnerVessel",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "n6",
+        "group": "bottom",
+        "args": {
+          "x": "20%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "底部口N6",
+          "region": "InnerVessel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "n7",
+        "group": "bottom",
+        "args": {
+          "x": "35%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "底部口N7",
+          "region": "InnerVessel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "n8",
+        "group": "bottom",
+        "args": {
+          "x": "50%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "底部口N8",
+          "region": "InnerVessel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "n9",
+        "group": "bottom",
+        "args": {
+          "x": "65%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "底部口N9",
+          "region": "InnerVessel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "n10",
+        "group": "bottom",
+        "args": {
+          "x": "80%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "底部口N10",
+          "region": "InnerVessel",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "n11",
+        "group": "left",
+        "args": {
+          "x": "0%",
+          "y": "50%"
+        },
+        "data": {
+          "desc": "左侧口N11",
+          "region": "InnerVessel",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "n14",
+        "group": "right",
+        "args": {
+          "x": "100%",
+          "y": "50%"
+        },
+        "data": {
+          "desc": "右侧口N14",
+          "region": "InnerVessel",
+          "dir": "bi"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Tank",
+    "tag": "TANK-HORIZONTAL",
+    "spec": "Spec..."
+  }
+}

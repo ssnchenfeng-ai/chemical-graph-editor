@@ -68,14 +68,16 @@ src/
   graph/
     cells/
       data/
+        p-centrifugalpump.json
+        p-diaphragmpump.json
         p-e101.json
         p-e13.json
         p-p101.json
+        p-pistonpump.json
         p-r101.json
         p-tappingpoint.json
         p-tee.json
         p-trap.json
-        p-tvtrap.json
       svgs/
         cv-electric.svg
         cv-manual.svg
@@ -91,9 +93,12 @@ src/
         inst-local.svg
         inst-panel.svg
         inst-remote.svg
+        p-centrifugalpump.svg
+        p-diaphragmpump.svg
         p-e101.svg
         p-e13.svg
         p-p101.svg
+        p-pistonpump.svg
         p-r101.svg
         p-tappingpoint.svg
         p-tee.svg
@@ -139,6 +144,581 @@ vite.config.ts
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="src/graph/cells/data/p-pistonpump.json">
+{
+  "width": 100,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "in": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "out": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "in",
+        "args": {
+          "x": "50%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "泵入口",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "out",
+        "group": "out",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "泵出口",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "PistonPump",
+    "tag": "P-101",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/svgs/p-pistonpump.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <circle cx="50" cy="50" r="48" fill="white" />
+  <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
+  <!-- 活塞杆 -->
+  <line x1="50" y1="4" x2="50" y2="75" />
+  <!-- 活塞头 -->
+  <line x1="30" y1="75" x2="70" y2="75" />
+</svg>
+</file>
+
+<file path="public/vite.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
+</file>
+
+<file path="src/assets/react.svg">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
+</file>
+
+<file path="src/components/DevTools/AttributeDesigner.tsx">
+import React, { useState, useEffect } from 'react';
+import { Layout, Form, Input, Select, InputNumber, Typography, Button, Card, Row, Col, Tabs, message, Divider } from 'antd';
+import { CopyOutlined, CodeOutlined, SettingOutlined, ExperimentOutlined, ThunderboltOutlined, FilterOutlined } from '@ant-design/icons';
+
+const { Content, Sider } = Layout;
+const { Title, Paragraph } = Typography;
+const { Option } = Select;
+const { TabPane } = Tabs;
+const { TextArea } = Input; // 确保这一行存在
+
+// ============================================================================
+// 1. 属性模式定义 (Schema Definition)
+//    定义不同设备类型拥有的特有属性字段
+// ============================================================================
+
+const COMMON_FIELDS = [
+  { name: 'tag', label: '位号 (Tag)', type: 'string', default: 'New-Tag' },
+  { name: 'desc', label: '描述 (Description)', type: 'string', default: '' },
+  { name: 'spec', label: '规格型号 (Spec)', type: 'string', default: '' },
+];
+
+const EQUIPMENT_SCHEMAS: Record<string, any> = {
+  'Pump': {
+    label: '泵类设备 (Pump)',
+    icon: <ThunderboltOutlined />,
+    fields: [
+      { name: 'flow', label: '流量 (Flow)', unit: 'm³/h', type: 'number', default: 50 },
+      { name: 'head', label: '扬程 (Head)', unit: 'm', type: 'number', default: 30 },
+      { name: 'power', label: '电机功率 (Power)', unit: 'kW', type: 'string', default: '15kW' },
+      { name: 'material', label: '泵体材质', type: 'select', options: ['CastIron', 'CS', 'SS304', 'SS316L', 'Duplex'] },
+      { name: 'sealType', label: '密封形式', type: 'select', options: ['Mechanical', 'Packing', 'Magnetic'] },
+    ]
+  },
+  'Trap': {
+    label: '疏水阀 (Steam Trap)',
+    icon: <FilterOutlined />,
+    fields: [
+      { name: 'trapType', label: '疏水阀类型', type: 'select', options: [
+        { val: 'Thermodynamic', label: '热动力式 (圆盘)' },
+        { val: 'BallFloat', label: '浮球式' },
+        { val: 'InvertedBucket', label: '倒吊桶式' },
+        { val: 'Thermostatic', label: '热静力式 (波纹管)' },
+        { val: 'Bimetallic', label: '双金属片式' }
+      ]},
+      { name: 'size', label: '接口尺寸', type: 'select', options: ['DN15', 'DN20', 'DN25', 'DN32', 'DN40', 'DN50'] },
+      { name: 'maxPressure', label: '最大允许压力 (PMA)', unit: 'MPa', type: 'number', default: 1.6 },
+      { name: 'dischargeCapacity', label: '排水量', unit: 'kg/h', type: 'number', default: 500 },
+      { name: 'connection', label: '连接方式', type: 'select', options: ['Flange', 'Thread', 'SocketWeld'] },
+    ]
+  },
+  'Vessel': {
+    label: '容器/储罐 (Vessel)',
+    icon: <ExperimentOutlined />,
+    fields: [
+      { name: 'volume', label: '容积 (Volume)', unit: 'm³', type: 'number', default: 10 },
+      { name: 'designPressure', label: '设计压力', unit: 'MPa', type: 'number', default: 0.6 },
+      { name: 'designTemp', label: '设计温度', unit: '℃', type: 'number', default: 150 },
+      { name: 'material', label: '主体材质', type: 'select', options: ['Q235B', 'Q345R', 'S30408', 'S31603', 'Ti'] },
+      { name: 'insulation', label: '保温类型', type: 'select', options: ['None', 'RockWool', 'Perlite', 'PU'] },
+    ]
+  },
+  'Exchanger': {
+    label: '换热器 (Exchanger)',
+    icon: <ExperimentOutlined />,
+    fields: [
+      { name: 'area', label: '换热面积', unit: '㎡', type: 'number', default: 50 },
+      { name: 'type', label: '结构类型', type: 'select', options: ['FixedTubeSheet', 'U-Tube', 'FloatingHead', 'Plate'] },
+      { name: 'shellPress', label: '壳程压力', unit: 'MPa', type: 'number', default: 1.6 },
+      { name: 'tubePress', label: '管程压力', unit: 'MPa', type: 'number', default: 1.0 },
+      { name: 'material', label: '材质(壳/管)', type: 'string', default: 'CS/SS304' },
+    ]
+  },
+  'ControlValve': {
+    label: '控制阀 (Control Valve)',
+    icon: <SettingOutlined />,
+    fields: [
+      { name: 'size', label: '阀门尺寸', type: 'select', options: ['DN25', 'DN40', 'DN50', 'DN80', 'DN100', 'DN150'] },
+      { name: 'cv', label: '流量系数 (Cv/Kv)', type: 'number', default: 60 },
+      { name: 'failPos', label: '故障位置', type: 'select', options: [
+        { val: 'FC', label: '气开 (FC/Fail Close)' },
+        { val: 'FO', label: '气关 (FO/Fail Open)' },
+        { val: 'FL', label: '保位 (FL/Fail Last)' }
+      ]},
+      { name: 'class', label: '压力等级', type: 'select', options: ['PN16', 'PN40', 'PN63', 'CL150', 'CL300', 'CL600'] },
+      { name: 'actuator', label: '执行机构', type: 'select', options: ['Diaphragm', 'Piston', 'Electric'] },
+    ]
+  },
+  'ManualValve': {
+    label: '手动阀 (Manual Valve)',
+    icon: <SettingOutlined />,
+    fields: [
+      { name: 'valveType', label: '阀门类型', type: 'select', options: ['Gate', 'Globe', 'Ball', 'Butterfly', 'Check'] },
+      { name: 'size', label: '尺寸', type: 'select', options: ['DN15', 'DN25', 'DN50', 'DN80', 'DN100'] },
+      { name: 'class', label: '压力等级', type: 'select', options: ['PN16', 'PN25', 'PN40', 'CL150'] },
+      { name: 'material', label: '阀体材质', type: 'select', options: ['WCB', 'CF8', 'CF8M', 'CastIron'] },
+    ]
+  }
+};
+
+const AttributeDesigner: React.FC = () => {
+  const [selectedType, setSelectedType] = useState('Pump');
+  const [form] = Form.useForm();
+  const [formData, setFormData] = useState<any>({});
+
+  // 初始化表单默认值
+  useEffect(() => {
+    const schema = EQUIPMENT_SCHEMAS[selectedType];
+    const initialValues: any = { type: selectedType };
+    
+    COMMON_FIELDS.forEach(f => initialValues[f.name] = f.default);
+    schema.fields.forEach((f: any) => initialValues[f.name] = f.default);
+    
+    form.setFieldsValue(initialValues);
+    setFormData(initialValues);
+  }, [selectedType, form]);
+
+  const handleValuesChange = (_: any, allValues: any) => {
+    setFormData(allValues);
+  };
+
+  // 生成注册用的 data 对象代码
+  const generateDataCode = () => {
+    const jsonString = JSON.stringify(formData, null, 2);
+    // 去掉 key 的引号，使其更像 JS 代码
+    const jsObj = jsonString.replace(/"([^"]+)":/g, '$1:');
+    
+    return `// 在 src/graph/cells/registry.ts 中注册节点时使用：
+Graph.registerNode('custom-${selectedType.toLowerCase()}', {
+  // ... 其他配置 (inherit, width, height, ports 等)
+  data: ${jsObj},
+});`;
+  };
+
+  // 生成 Inspector 组件的渲染代码
+  const generateInspectorCode = () => {
+    const schema = EQUIPMENT_SCHEMAS[selectedType];
+    
+    const fieldRenders = schema.fields.map((f: any) => {
+      let inputComponent = `<Input />`;
+      if (f.type === 'number') inputComponent = `<InputNumber style={{ width: '100%' }} />`;
+      if (f.type === 'select') {
+        const options = f.options.map((opt: any) => {
+          const val = typeof opt === 'string' ? opt : opt.val;
+          const label = typeof opt === 'string' ? opt : opt.label;
+          return `<Option value="${val}">${label}</Option>`;
+        }).join('\n              ');
+        inputComponent = `<Select>\n              ${options}\n            </Select>`;
+      }
+
+      return `          <Form.Item label="${f.label}" name="${f.name}">
+            ${inputComponent}
+          </Form.Item>`;
+    }).join('\n');
+
+    return `// 在 src/components/Editor/Inspector/index.tsx 中：
+// 1. 在 renderSpecificFields 函数中添加 case：
+
+if (type === '${selectedType}') {
+  return (
+    <>
+      <Divider orientation="left">${schema.label}</Divider>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+${fieldRenders}
+      </div>
+    </>
+  );
+}`;
+  };
+
+  return (
+    <Layout style={{ height: '100vh', background: '#fff' }}>
+      {/* 左侧：类型选择 */}
+      <Sider width={250} style={{ background: '#f0f2f5', borderRight: '1px solid #eee', overflowY: 'auto' }}>
+        <div style={{ padding: '16px', borderBottom: '1px solid #e8e8e8' }}>
+          <Title level={5}>设备类型库</Title>
+        </div>
+        <div style={{ padding: 8 }}>
+          {Object.keys(EQUIPMENT_SCHEMAS).map(key => (
+            <Button 
+              key={key}
+              type={selectedType === key ? 'primary' : 'text'}
+              block
+              style={{ textAlign: 'left', marginBottom: 4, height: 'auto', padding: '8px 12px' }}
+              icon={EQUIPMENT_SCHEMAS[key].icon}
+              onClick={() => setSelectedType(key)}
+            >
+              {EQUIPMENT_SCHEMAS[key].label}
+            </Button>
+          ))}
+        </div>
+      </Sider>
+
+      {/* 中间：属性配置表单 */}
+      <Content style={{ padding: '24px', overflowY: 'auto', background: '#fff' }}>
+        <Title level={4}>属性配置预览</Title>
+        <Paragraph type="secondary">
+          在此处配置 {EQUIPMENT_SCHEMAS[selectedType].label} 的默认属性值和字段结构。
+        </Paragraph>
+        
+        <Card title="基础属性 (Common)" size="small" style={{ marginBottom: 16 }}>
+          <Form layout="vertical" form={form} onValuesChange={handleValuesChange}>
+            <Row gutter={16}>
+              {COMMON_FIELDS.map(f => (
+                <Col span={8} key={f.name}>
+                  <Form.Item label={f.label} name={f.name}>
+                    <Input />
+                  </Form.Item>
+                </Col>
+              ))}
+            </Row>
+          </Form>
+        </Card>
+
+        <Card title="业务属性 (Specific)" size="small" headStyle={{ background: '#fafafa' }}>
+          <Form layout="vertical" form={form} onValuesChange={handleValuesChange}>
+            <Row gutter={16}>
+              {EQUIPMENT_SCHEMAS[selectedType].fields.map((f: any) => (
+                <Col span={12} key={f.name}>
+                  <Form.Item label={f.label} name={f.name}>
+                    {f.type === 'select' ? (
+                      <Select>
+                        {f.options.map((opt: any) => {
+                          const val = typeof opt === 'string' ? opt : opt.val;
+                          const label = typeof opt === 'string' ? opt : opt.label;
+                          return <Option key={val} value={val}>{label}</Option>;
+                        })}
+                      </Select>
+                    ) : f.type === 'number' ? (
+                      <InputNumber style={{ width: '100%' }} addonAfter={f.unit} />
+                    ) : (
+                      <Input />
+                    )}
+                  </Form.Item>
+                </Col>
+              ))}
+            </Row>
+          </Form>
+        </Card>
+      </Content>
+
+      {/* 右侧：代码生成 */}
+      <Sider width={450} style={{ background: '#fff', borderLeft: '1px solid #eee', padding: '0' }}>
+        <Tabs defaultActiveKey="1" tabBarStyle={{ paddingLeft: 16 }}>
+          <TabPane tab={<span><CodeOutlined /> 注册数据 (Data)</span>} key="1">
+            <div style={{ padding: 16, height: 'calc(100vh - 60px)', overflowY: 'auto' }}>
+              <Paragraph type="secondary" style={{ fontSize: 12 }}>
+                此代码用于 `src/graph/cells/registry.ts` 中的 `data` 字段。
+              </Paragraph>
+              <TextArea 
+                value={generateDataCode()} 
+                autoSize={{ minRows: 15 }} 
+                style={{ fontFamily: 'monospace', fontSize: 12, background: '#f5f5f5', color: '#333' }} 
+                readOnly
+              />
+              <Button type="primary" icon={<CopyOutlined />} block style={{ marginTop: 16 }} onClick={() => {
+                navigator.clipboard.writeText(generateDataCode());
+                message.success('Data 代码已复制');
+              }}>
+                复制 Data 代码
+              </Button>
+            </div>
+          </TabPane>
+          
+          <TabPane tab={<span><SettingOutlined /> 属性面板 (Inspector)</span>} key="2">
+            <div style={{ padding: 16, height: 'calc(100vh - 60px)', overflowY: 'auto' }}>
+              <Paragraph type="secondary" style={{ fontSize: 12 }}>
+                此代码用于 `src/components/Editor/Inspector/index.tsx`，用于在右侧面板渲染这些属性。
+              </Paragraph>
+              <TextArea 
+                value={generateInspectorCode()} 
+                autoSize={{ minRows: 20 }} 
+                style={{ fontFamily: 'monospace', fontSize: 12, background: '#f5f5f5', color: '#333' }} 
+                readOnly
+              />
+              <Button type="primary" icon={<CopyOutlined />} block style={{ marginTop: 16 }} onClick={() => {
+                navigator.clipboard.writeText(generateInspectorCode());
+                message.success('Inspector 代码已复制');
+              }}>
+                复制 Inspector 代码
+              </Button>
+            </div>
+          </TabPane>
+        </Tabs>
+      </Sider>
+    </Layout>
+  );
+};
+
+export default AttributeDesigner;
+</file>
+
+<file path="src/components/Editor/ContextMenu/index.css">
+.context-menu {
+  position: fixed; /* 使用 fixed 避免被画布容器遮挡 */
+  z-index: 9999;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  border: 1px solid #eee;
+  min-width: 120px;
+  user-select: none;
+}
+
+.context-menu-item {
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+}
+
+.context-menu-item:hover {
+  background-color: #f5f5f5;
+  color: #1890ff;
+}
+
+.context-menu-item.danger {
+  color: #ff4d4f;
+}
+
+.context-menu-item.danger:hover {
+  background-color: #fff1f0;
+}
+
+.context-menu-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 4px 0;
+}
+</file>
+
+<file path="src/components/Editor/Toolbar/index.css">
+.toolbar-container {
+  position: absolute;
+  top: 20px;
+  left: 260px; /* 躲开左侧 Stencil */
+  z-index: 100;
+  background: #fff;
+  padding: 4px 12px;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+</file>
+
+<file path="src/graph/cells/data/p-centrifugalpump.json">
+{
+  "width": 100,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "in": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "out": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "in",
+        "args": {
+          "x": "50%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "泵入口",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "out",
+        "group": "out",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "泵出口",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "CentrifugalPump",
+    "tag": "P-101",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/data/p-diaphragmpump.json">
+{
+  "width": 100,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "in": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "out": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "in",
+        "args": {
+          "x": "50%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "泵入口",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "out",
+        "group": "out",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "泵出口",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "DiaphragmPump",
+    "tag": "P-101",
+    "spec": "Spec..."
+  }
+}
+</file>
 
 <file path="src/graph/cells/data/p-e101.json">
 {
@@ -607,7 +1187,7 @@ This section contains the contents of the repository's files.
     ]
   },
   "data": {
-    "type": "CentrifugalPump",
+    "type": "LiquidPump",
     "tag": "P-101",
     "spec": "Spec..."
   }
@@ -909,99 +1489,6 @@ This section contains the contents of the repository's files.
 
 <file path="src/graph/cells/data/p-trap.json">
 {
-  "width": 120,
-  "height": 100,
-  "ports": {
-    "groups": {
-      "top_in": {
-        "position": "absolute",
-        "attrs": {
-          "circle": {
-            "r": 3,
-            "magnet": true,
-            "stroke": "#FFFFFF",
-            "strokeWidth": 1,
-            "fill": "#e3dedeff"
-          }
-        }
-      },
-      "top_out": {
-        "position": "absolute",
-        "attrs": {
-          "circle": {
-            "r": 3,
-            "magnet": true,
-            "stroke": "#FFFFFF",
-            "strokeWidth": 1,
-            "fill": "#e3dedeff"
-          }
-        }
-      },
-      "side": {
-        "position": "absolute",
-        "attrs": {
-          "circle": {
-            "r": 3,
-            "magnet": true,
-            "stroke": "#FFFFFF",
-            "strokeWidth": 1,
-            "fill": "#e3dedeff"
-          }
-        }
-      }
-    },
-    "items": [
-      {
-        "id": "n1",
-        "group": "top_in",
-        "args": {
-          "x": "73.3%",
-          "y": "10%"
-        },
-        "data": {
-          "desc": "入口(N1)",
-          "region": "ShellSide",
-          "dir": "in"
-        }
-      },
-      {
-        "id": "n2",
-        "group": "top_out",
-        "args": {
-          "x": "31.6%",
-          "y": "10%"
-        },
-        "data": {
-          "desc": "出口(N2)",
-          "region": "ShellSide",
-          "dir": "out"
-        }
-      },
-      {
-        "id": "m1",
-        "group": "side",
-        "args": {
-          "x": "8.3%",
-          "y": "56%"
-        },
-        "data": {
-          "desc": "排净/人孔(M1)",
-          "region": "ShellSide",
-          "dir": "bi"
-        }
-      }
-    ]
-  },
-  "data": {
-    "type": "Trap",
-    "tag": "TRAP",
-    "spec": "Spec..."
-  }
-}
-</file>
-
-<file path="src/graph/cells/data/p-tvtrap.json">
-{
   "width": 250,
   "height": 100,
   "ports": {
@@ -1021,29 +1508,29 @@ This section contains the contents of the repository's files.
     },
     "items": [
       {
-        "id": "i",
+        "id": "in",
         "group": "all",
         "args": {
           "x": "0%",
-          "y": "49%"
+          "y": "48%"
         },
         "data": {
-          "desc": "新接口",
+          "desc": "入口",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "in"
         }
       },
       {
-        "id": "o",
+        "id": "out",
         "group": "all",
         "args": {
           "x": "100%",
-          "y": "49%"
+          "y": "48%"
         },
         "data": {
-          "desc": "新接口",
+          "desc": "出口",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "out"
         }
       }
     ]
@@ -1053,627 +1540,6 @@ This section contains the contents of the repository's files.
     "tag": "tv-Trap",
     "spec": "Spec..."
   }
-}
-</file>
-
-<file path="src/graph/cells/svgs/p-e101.svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 0 340 120" fill="none" stroke="black" stroke-width="2" style="background-color:transparent">
-  <!-- 
-     修正策略：调整绘制顺序 (Painter's Algorithm)
-     1. 先画筒体 (白色背景)
-     2. 再画内部管束 (叠在筒体上)
-     3. 再画两端法兰和封头 (叠在最上层以遮挡多余线条)
-  -->
-
-  <!-- 1. 主筒体 (Shell) - 移到最前，作为底图 -->
-  <rect x="50" y="20" width="230" height="80" fill="white" stroke-width="2" />
-
-  <!-- 2. 内部管束 (Tubes) - 现在会显示在白色筒体之上 -->
-  <g stroke="#333" stroke-width="1">
-    <line x1="50" y1="30" x2="280" y2="30" />
-    <line x1="50" y1="40" x2="280" y2="40" />
-    <line x1="50" y1="50" x2="280" y2="50" />
-    <line x1="50" y1="60" x2="280" y2="60" /> <!-- 中心线 -->
-    <line x1="50" y1="70" x2="280" y2="70" />
-    <line x1="50" y1="80" x2="280" y2="80" />
-    <line x1="50" y1="90" x2="280" y2="90" />
-  </g>
-
-  <!-- 3. 左侧结构 (管箱 + 隔板) -->
-  <!-- 左法兰 (直径90) -->
-  <rect x="45" y="15" width="5" height="90" fill="white" />
-  
-  <!-- 左封头 (加长型) -->
-  <path d="M45 20 C -5 20, -5 100, 45 100" fill="white" />
-  
-  <!-- 隔板 (虚线，画在封头之上) -->
-  <line x1="45" y1="60" x2="5" y2="60" stroke-width="2" stroke-dasharray="4,2" />
-
-  <!-- 4. 右侧结构 -->
-  <!-- 右法兰 (直径90) -->
-  <rect x="280" y="15" width="5" height="90" fill="white" />
-  <!-- 右封头 -->
-  <path d="M285 20 C 315 20, 315 100, 285 100" fill="white" />
-
-  <!-- 5. 管口 (Nozzles) -->
-  
-  <!-- N1: 壳程入口 (上) -->
-  <line x1="95" y1="20" x2="95" y2="5" stroke-width="2"/>
-  <line x1="90" y1="5" x2="100" y2="5" stroke-width="2"/>
-
-  <!-- N2: 壳程出口 (下) -->
-  <line x1="235" y1="100" x2="235" y2="115" stroke-width="2"/>
-  <line x1="230" y1="115" x2="240" y2="115" stroke-width="2"/>
-
-  <!-- N4: 管程出口 (左上 - 位于隔板上方) -->
-  <line x1="8" y1="35" x2="-15" y2="35" stroke-width="2"/>
-  <line x1="-15" y1="30" x2="-15" y2="40" stroke-width="2"/>
-
-  <!-- N3: 管程入口 (左下 - 位于隔板下方) -->
-  <line x1="8" y1="85" x2="-15" y2="85" stroke-width="2"/>
-  <line x1="-15" y1="80" x2="-15" y2="90" stroke-width="2"/>
-
-  <!-- N5: 放空 (右上) -->
-  <line x1="303" y1="23" x2="310" y2="15" stroke-width="2"/>
-  <line x1="307" y1="12" x2="313" y2="18" stroke-width="2"/>
-
-  <!-- N6: 排净 (右下) -->
-  <line x1="303" y1="97" x2="310" y2="105" stroke-width="2"/>
-  <line x1="307" y1="108" x2="313" y2="102" stroke-width="2"/>
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/p-e13.svg">
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="450" viewBox="0 0 1000 450" fill="none" stroke="black" stroke-width="2">
-  <defs>
-    <!-- 定义主罐体轮廓路径 (左侧封头已镜像为向外凸) -->
-    <path id="vessel-body" d="M100,25 L700,25 A50,200 0 0,1 700,425 L100,425 A50,200 0 0,1 100,25 Z" />
-    
-    <!-- 定义液位剪切蒙版 -->
-    <clipPath id="liquid-clip">
-      <use href="#vessel-body" />
-    </clipPath>
-  </defs>
-
-  <g>
-    <!-- 1. 右侧加热器 (Heater) - 底层 -->
-    <rect x="500" y="250" width="310" height="150" fill="white" stroke="#000000" stroke-width="2"/>
-    <line x1="810" y1="245" x2="810" y2="405" stroke-width="4" />
-    <rect x="810" y="250" width="40" height="150" fill="white" stroke="#000000" stroke-width="2"/>
-    <path d="M850,250 A40,75 0 0,1 850,400" fill="white" stroke="#000000" stroke-width="2"/>
-    <line x1="810" y1="325" x2="890" y2="325" stroke-width="2" />
-    
-    <g stroke="#000000" stroke-width="1" opacity="0.6">
-      <line x1="510" y1="270" x2="810" y2="270" />
-      <line x1="510" y1="290" x2="810" y2="290" />
-      <line x1="510" y1="310" x2="810" y2="310" />
-      <line x1="510" y1="330" x2="810" y2="330" />
-      <line x1="510" y1="350" x2="810" y2="350" />
-      <line x1="510" y1="370" x2="810" y2="370" />
-    </g>
-
-    <!-- 2. 主罐体 (Main Vessel) - 顶层覆盖 -->
-    
-    <!-- 2.1 罐体背景 -->
-    <use href="#vessel-body" fill="white" stroke="none" />
-    
-    <!-- 2.2 液相示意 (淡蓝色填充) -->
-    <!-- 修改：y=225 (即 50% 高度) -->
-    <rect x="0" y="225" width="800" height="300" fill="#e6f7ff" stroke="none" clip-path="url(#liquid-clip)" />
-    
-    <!-- 2.3 液面线 -->
-    <!-- 修改：y1=225, y2=225 -->
-    <line x1="50" y1="225" x2="750" y2="225" stroke="#1890ff" stroke-width="1" stroke-dasharray="4 2" clip-path="url(#liquid-clip)" />
-
-    <!-- 2.4 罐体轮廓描边 -->
-    <use href="#vessel-body" fill="none" stroke="black" stroke-width="2" />
-  </g>
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/p-p101.svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
-  <circle cx="50" cy="50" r="48" fill="white" />
-  <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
-  <!-- 中心垂直线 -->
-  <line x1="50" y1="4" x2="50" y2="98" />
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/p-r101.svg">
-<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="1.5">
-  
-  <!-- 1. 半管夹套 (Limpet Coil) -->
-  <!-- 左侧半管组 -->
-  <!-- 最上方半管 (入口) - 顶点在 x=6 -->
-  <path d="M10,50 A4,4 0 0,0 10,58" fill="none"/> 
-  <!-- 左侧入口连接线 (Jacket In) - 外接半圆顶点 -->
-  <line x1="0" y1="54" x2="6" y2="54" stroke-width="2"/>
-  
-  <!-- 左侧其余半管 -->
-  <path d="M10,62 A4,4 0 0,0 10,70" fill="none"/>
-  <path d="M10,74 A4,4 0 0,0 10,82" fill="none"/>
-  <path d="M10,86 A4,4 0 0,0 10,94" fill="none"/>
-
-  <!-- 右侧半管组 -->
-  <path d="M70,50 A4,4 0 0,1 70,58" fill="none"/>
-  <path d="M70,62 A4,4 0 0,1 70,70" fill="none"/>
-  <path d="M70,74 A4,4 0 0,1 70,82" fill="none"/>
-  
-  <!-- 最下方半管 (出口) - 顶点在 x=74 -->
-  <path d="M70,86 A4,4 0 0,1 70,94" fill="none"/>
-  <!-- 右侧出口连接线 (Jacket Out) - 外接半圆顶点 -->
-  <line x1="74" y1="90" x2="80" y2="90" stroke-width="2"/>
-
-  <!-- 2. 釜体 (Main Vessel) -->
-  <path d="M10,30 Q40,10 70,30 L70,100 Q40,120 10,100 Z" fill="white" stroke="black" stroke-width="2"/>
-
-  <!-- 3. 搅拌系统 (Agitator) -->
-  <!-- 电机 (M) - 位于正中，半径8，占据 x=32~48 -->
-  <circle cx="40" cy="5" r="8" fill="white" stroke="black" stroke-width="1.5"/>
-  <text x="40" y="8" font-family="Arial" font-size="10" text-anchor="middle" fill="black" stroke="none">M</text>
-  
-  <!-- 搅拌轴 -->
-  <line x1="40" y1="13" x2="40" y2="85" stroke="black" stroke-width="1.5"/>
-  
-  <!-- 桨叶 (Paddle) -->
-  <rect x="20" y="85" width="40" height="10" fill="white" stroke="black" stroke-width="1.5"/>
-  <line x1="20" y1="85" x2="60" y2="95" stroke="black" stroke-width="1"/>
-  <line x1="20" y1="95" x2="60" y2="85" stroke="black" stroke-width="1"/>
-
-  <!-- 4. 顶部连接桩 (Top Nozzles) -->
-  <!-- 避开电机区域 (32-48)，向两侧分布 -->
-  
-  <!-- N1 (x=12) -->
-  <line x1="12" y1="22" x2="12" y2="5" stroke-width="2"/>
-  <line x1="9" y1="5" x2="15" y2="5" stroke-width="2"/> <!-- 法兰 -->
-
-  <!-- N2 (x=24) - 距离电机有一定间隙 -->
-  <line x1="24" y1="18" x2="24" y2="5" stroke-width="2"/>
-  <line x1="21" y1="5" x2="27" y2="5" stroke-width="2"/>
-
-  <!-- N3 (x=56) -->
-  <line x1="56" y1="18" x2="56" y2="5" stroke-width="2"/>
-  <line x1="53" y1="5" x2="59" y2="5" stroke-width="2"/>
-
-  <!-- N4 (x=68) -->
-  <line x1="68" y1="22" x2="68" y2="5" stroke-width="2"/>
-  <line x1="65" y1="5" x2="71" y2="5" stroke-width="2"/>
-
-  <!-- 5. 侧面工艺接口 -->
-  
-  <!-- 进料口 (Feed In) - 下移至 y=35 (连接在直筒体上) -->
-  <line x1="0" y1="35" x2="10" y2="35" stroke-width="2"/>
-  <!-- 纯直线，无法兰短线 -->
-
-  <!-- 溢流口 (Overflow) - 右侧 y=35 (与进料口水平或略低，这里设为同高对称) -->
-  <line x1="70" y1="35" x2="80" y2="35" stroke-width="2"/>
-  
-  <!-- 插底管 (Dip Pipe) -->
-  <polyline points="70,35 62,35 62,95" fill="none" stroke="black" stroke-width="1" stroke-dasharray="3 2"/>
-
-  <!-- 6. 底部出料口 -->
-  <line x1="40" y1="110" x2="40" y2="120" stroke-width="2"/>
-  <line x1="36" y1="120" x2="44" y2="120" stroke-width="2"/>
-
-  <!-- 7. 内部挡板/套管 -->
-  <line x1="65" y1="35" x2="65" y2="90" stroke="black" stroke-width="1"/>
-
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/p-tappingpoint.svg">
-<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
-  <rect x="10" y="10" width="180" height="80" rx="20" ry="20" fill="white" />
-  <line x1="10" y1="50" x2="190" y2="50" stroke="#1890ff" stroke-dasharray="4 2" />
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/p-tee.svg">
-<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- 20x20 画布，中心点在 10 -->
-  <path d="M0 10 H20 M10 10 V20" stroke="black" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/>
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/p-trap.svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" stroke="black" stroke-width="2">
-  <!-- 主罐体 -->
-  <rect x="20" y="30" width="90" height="60" fill="white" />
-
-  <!-- 内部挡板 -->
-  <!-- 右侧挡板：从上往下 -->
-  <line x1="75" y1="30" x2="75" y2="75" />
-  <!-- 左侧挡板：从下往上 -->
-  <line x1="50" y1="90" x2="50" y2="45" />
-
-  <!-- N1: 入口连接桩 (右上) - 已移除文字，增加法兰盖 -->
-  <line x1="85" y1="30" x2="85" y2="10" />
-  <line x1="91" y1="30" x2="91" y2="10" />
-  <!-- N1 法兰 -->
-  <line x1="82" y1="10" x2="94" y2="10" />
-
-  <!-- N2: 出口连接桩 (左上) - 已移除文字，增加法兰盖 -->
-  <line x1="35" y1="30" x2="35" y2="10" />
-  <line x1="41" y1="30" x2="41" y2="10" />
-  <!-- N2 法兰 -->
-  <line x1="32" y1="10" x2="44" y2="10" />
-
-  <!-- M1: 侧口 (左侧) - 保持不变 -->
-  <line x1="20" y1="50" x2="10" y2="50" />
-  <line x1="20" y1="62" x2="10" y2="62" />
-  <line x1="10" y1="46" x2="10" y2="66" />
-  <text x="5" y="60" text-anchor="end" font-family="Arial" font-size="12" stroke="none" fill="black" font-weight="bold">M1</text>
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/p-tvtrap.svg">
-<svg width="250" height="100" viewBox="12.15 7.4 26 10.4" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
-  <path style="fill:none;fill-opacity:1;stroke:#000;stroke-width:.15;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke" d="M17.517 7.606h5.175M37.476 7.607h5.175" transform="translate(-4.948 4.884)"/>
-  <g transform="matrix(.19762 0 0 .19762 20.262 7.575)" stroke="#000" pointer-events="all">
-    <circle cx="25.25" cy="25.25" fill="#fff" r="25.248" style="fill:none"/>
-    <path d="M43.12 7.37c9.88 9.87 9.88 25.88 0 35.75-9.87 9.88-25.88 9.88-35.75 0Z" stroke-miterlimit="10"/>
-  </g>
-</svg>
-</file>
-
-<file path="public/vite.svg">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
-</file>
-
-<file path="src/assets/react.svg">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="35.93" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 228"><path fill="#00D8FF" d="M210.483 73.824a171.49 171.49 0 0 0-8.24-2.597c.465-1.9.893-3.777 1.273-5.621c6.238-30.281 2.16-54.676-11.769-62.708c-13.355-7.7-35.196.329-57.254 19.526a171.23 171.23 0 0 0-6.375 5.848a155.866 155.866 0 0 0-4.241-3.917C100.759 3.829 77.587-4.822 63.673 3.233C50.33 10.957 46.379 33.89 51.995 62.588a170.974 170.974 0 0 0 1.892 8.48c-3.28.932-6.445 1.924-9.474 2.98C17.309 83.498 0 98.307 0 113.668c0 15.865 18.582 31.778 46.812 41.427a145.52 145.52 0 0 0 6.921 2.165a167.467 167.467 0 0 0-2.01 9.138c-5.354 28.2-1.173 50.591 12.134 58.266c13.744 7.926 36.812-.22 59.273-19.855a145.567 145.567 0 0 0 5.342-4.923a168.064 168.064 0 0 0 6.92 6.314c21.758 18.722 43.246 26.282 56.54 18.586c13.731-7.949 18.194-32.003 12.4-61.268a145.016 145.016 0 0 0-1.535-6.842c1.62-.48 3.21-.974 4.76-1.488c29.348-9.723 48.443-25.443 48.443-41.52c0-15.417-17.868-30.326-45.517-39.844Zm-6.365 70.984c-1.4.463-2.836.91-4.3 1.345c-3.24-10.257-7.612-21.163-12.963-32.432c5.106-11 9.31-21.767 12.459-31.957c2.619.758 5.16 1.557 7.61 2.4c23.69 8.156 38.14 20.213 38.14 29.504c0 9.896-15.606 22.743-40.946 31.14Zm-10.514 20.834c2.562 12.94 2.927 24.64 1.23 33.787c-1.524 8.219-4.59 13.698-8.382 15.893c-8.067 4.67-25.32-1.4-43.927-17.412a156.726 156.726 0 0 1-6.437-5.87c7.214-7.889 14.423-17.06 21.459-27.246c12.376-1.098 24.068-2.894 34.671-5.345a134.17 134.17 0 0 1 1.386 6.193ZM87.276 214.515c-7.882 2.783-14.16 2.863-17.955.675c-8.075-4.657-11.432-22.636-6.853-46.752a156.923 156.923 0 0 1 1.869-8.499c10.486 2.32 22.093 3.988 34.498 4.994c7.084 9.967 14.501 19.128 21.976 27.15a134.668 134.668 0 0 1-4.877 4.492c-9.933 8.682-19.886 14.842-28.658 17.94ZM50.35 144.747c-12.483-4.267-22.792-9.812-29.858-15.863c-6.35-5.437-9.555-10.836-9.555-15.216c0-9.322 13.897-21.212 37.076-29.293c2.813-.98 5.757-1.905 8.812-2.773c3.204 10.42 7.406 21.315 12.477 32.332c-5.137 11.18-9.399 22.249-12.634 32.792a134.718 134.718 0 0 1-6.318-1.979Zm12.378-84.26c-4.811-24.587-1.616-43.134 6.425-47.789c8.564-4.958 27.502 2.111 47.463 19.835a144.318 144.318 0 0 1 3.841 3.545c-7.438 7.987-14.787 17.08-21.808 26.988c-12.04 1.116-23.565 2.908-34.161 5.309a160.342 160.342 0 0 1-1.76-7.887Zm110.427 27.268a347.8 347.8 0 0 0-7.785-12.803c8.168 1.033 15.994 2.404 23.343 4.08c-2.206 7.072-4.956 14.465-8.193 22.045a381.151 381.151 0 0 0-7.365-13.322Zm-45.032-43.861c5.044 5.465 10.096 11.566 15.065 18.186a322.04 322.04 0 0 0-30.257-.006c4.974-6.559 10.069-12.652 15.192-18.18ZM82.802 87.83a323.167 323.167 0 0 0-7.227 13.238c-3.184-7.553-5.909-14.98-8.134-22.152c7.304-1.634 15.093-2.97 23.209-3.984a321.524 321.524 0 0 0-7.848 12.897Zm8.081 65.352c-8.385-.936-16.291-2.203-23.593-3.793c2.26-7.3 5.045-14.885 8.298-22.6a321.187 321.187 0 0 0 7.257 13.246c2.594 4.48 5.28 8.868 8.038 13.147Zm37.542 31.03c-5.184-5.592-10.354-11.779-15.403-18.433c4.902.192 9.899.29 14.978.29c5.218 0 10.376-.117 15.453-.343c-4.985 6.774-10.018 12.97-15.028 18.486Zm52.198-57.817c3.422 7.8 6.306 15.345 8.596 22.52c-7.422 1.694-15.436 3.058-23.88 4.071a382.417 382.417 0 0 0 7.859-13.026a347.403 347.403 0 0 0 7.425-13.565Zm-16.898 8.101a358.557 358.557 0 0 1-12.281 19.815a329.4 329.4 0 0 1-23.444.823c-7.967 0-15.716-.248-23.178-.732a310.202 310.202 0 0 1-12.513-19.846h.001a307.41 307.41 0 0 1-10.923-20.627a310.278 310.278 0 0 1 10.89-20.637l-.001.001a307.318 307.318 0 0 1 12.413-19.761c7.613-.576 15.42-.876 23.31-.876H128c7.926 0 15.743.303 23.354.883a329.357 329.357 0 0 1 12.335 19.695a358.489 358.489 0 0 1 11.036 20.54a329.472 329.472 0 0 1-11 20.722Zm22.56-122.124c8.572 4.944 11.906 24.881 6.52 51.026c-.344 1.668-.73 3.367-1.15 5.09c-10.622-2.452-22.155-4.275-34.23-5.408c-7.034-10.017-14.323-19.124-21.64-27.008a160.789 160.789 0 0 1 5.888-5.4c18.9-16.447 36.564-22.941 44.612-18.3ZM128 90.808c12.625 0 22.86 10.235 22.86 22.86s-10.235 22.86-22.86 22.86s-22.86-10.235-22.86-22.86s10.235-22.86 22.86-22.86Z"></path></svg>
-</file>
-
-<file path="src/components/DevTools/AttributeDesigner.tsx">
-import React, { useState, useEffect } from 'react';
-import { Layout, Form, Input, Select, InputNumber, Typography, Button, Card, Row, Col, Tabs, message, Divider } from 'antd';
-import { CopyOutlined, CodeOutlined, SettingOutlined, ExperimentOutlined, ThunderboltOutlined, FilterOutlined } from '@ant-design/icons';
-
-const { Content, Sider } = Layout;
-const { Title, Paragraph } = Typography;
-const { Option } = Select;
-const { TabPane } = Tabs;
-const { TextArea } = Input; // 确保这一行存在
-
-// ============================================================================
-// 1. 属性模式定义 (Schema Definition)
-//    定义不同设备类型拥有的特有属性字段
-// ============================================================================
-
-const COMMON_FIELDS = [
-  { name: 'tag', label: '位号 (Tag)', type: 'string', default: 'New-Tag' },
-  { name: 'desc', label: '描述 (Description)', type: 'string', default: '' },
-  { name: 'spec', label: '规格型号 (Spec)', type: 'string', default: '' },
-];
-
-const EQUIPMENT_SCHEMAS: Record<string, any> = {
-  'Pump': {
-    label: '泵类设备 (Pump)',
-    icon: <ThunderboltOutlined />,
-    fields: [
-      { name: 'flow', label: '流量 (Flow)', unit: 'm³/h', type: 'number', default: 50 },
-      { name: 'head', label: '扬程 (Head)', unit: 'm', type: 'number', default: 30 },
-      { name: 'power', label: '电机功率 (Power)', unit: 'kW', type: 'string', default: '15kW' },
-      { name: 'material', label: '泵体材质', type: 'select', options: ['CastIron', 'CS', 'SS304', 'SS316L', 'Duplex'] },
-      { name: 'sealType', label: '密封形式', type: 'select', options: ['Mechanical', 'Packing', 'Magnetic'] },
-    ]
-  },
-  'Trap': {
-    label: '疏水阀 (Steam Trap)',
-    icon: <FilterOutlined />,
-    fields: [
-      { name: 'trapType', label: '疏水阀类型', type: 'select', options: [
-        { val: 'Thermodynamic', label: '热动力式 (圆盘)' },
-        { val: 'BallFloat', label: '浮球式' },
-        { val: 'InvertedBucket', label: '倒吊桶式' },
-        { val: 'Thermostatic', label: '热静力式 (波纹管)' },
-        { val: 'Bimetallic', label: '双金属片式' }
-      ]},
-      { name: 'size', label: '接口尺寸', type: 'select', options: ['DN15', 'DN20', 'DN25', 'DN32', 'DN40', 'DN50'] },
-      { name: 'maxPressure', label: '最大允许压力 (PMA)', unit: 'MPa', type: 'number', default: 1.6 },
-      { name: 'dischargeCapacity', label: '排水量', unit: 'kg/h', type: 'number', default: 500 },
-      { name: 'connection', label: '连接方式', type: 'select', options: ['Flange', 'Thread', 'SocketWeld'] },
-    ]
-  },
-  'Vessel': {
-    label: '容器/储罐 (Vessel)',
-    icon: <ExperimentOutlined />,
-    fields: [
-      { name: 'volume', label: '容积 (Volume)', unit: 'm³', type: 'number', default: 10 },
-      { name: 'designPressure', label: '设计压力', unit: 'MPa', type: 'number', default: 0.6 },
-      { name: 'designTemp', label: '设计温度', unit: '℃', type: 'number', default: 150 },
-      { name: 'material', label: '主体材质', type: 'select', options: ['Q235B', 'Q345R', 'S30408', 'S31603', 'Ti'] },
-      { name: 'insulation', label: '保温类型', type: 'select', options: ['None', 'RockWool', 'Perlite', 'PU'] },
-    ]
-  },
-  'Exchanger': {
-    label: '换热器 (Exchanger)',
-    icon: <ExperimentOutlined />,
-    fields: [
-      { name: 'area', label: '换热面积', unit: '㎡', type: 'number', default: 50 },
-      { name: 'type', label: '结构类型', type: 'select', options: ['FixedTubeSheet', 'U-Tube', 'FloatingHead', 'Plate'] },
-      { name: 'shellPress', label: '壳程压力', unit: 'MPa', type: 'number', default: 1.6 },
-      { name: 'tubePress', label: '管程压力', unit: 'MPa', type: 'number', default: 1.0 },
-      { name: 'material', label: '材质(壳/管)', type: 'string', default: 'CS/SS304' },
-    ]
-  },
-  'ControlValve': {
-    label: '控制阀 (Control Valve)',
-    icon: <SettingOutlined />,
-    fields: [
-      { name: 'size', label: '阀门尺寸', type: 'select', options: ['DN25', 'DN40', 'DN50', 'DN80', 'DN100', 'DN150'] },
-      { name: 'cv', label: '流量系数 (Cv/Kv)', type: 'number', default: 60 },
-      { name: 'failPos', label: '故障位置', type: 'select', options: [
-        { val: 'FC', label: '气开 (FC/Fail Close)' },
-        { val: 'FO', label: '气关 (FO/Fail Open)' },
-        { val: 'FL', label: '保位 (FL/Fail Last)' }
-      ]},
-      { name: 'class', label: '压力等级', type: 'select', options: ['PN16', 'PN40', 'PN63', 'CL150', 'CL300', 'CL600'] },
-      { name: 'actuator', label: '执行机构', type: 'select', options: ['Diaphragm', 'Piston', 'Electric'] },
-    ]
-  },
-  'ManualValve': {
-    label: '手动阀 (Manual Valve)',
-    icon: <SettingOutlined />,
-    fields: [
-      { name: 'valveType', label: '阀门类型', type: 'select', options: ['Gate', 'Globe', 'Ball', 'Butterfly', 'Check'] },
-      { name: 'size', label: '尺寸', type: 'select', options: ['DN15', 'DN25', 'DN50', 'DN80', 'DN100'] },
-      { name: 'class', label: '压力等级', type: 'select', options: ['PN16', 'PN25', 'PN40', 'CL150'] },
-      { name: 'material', label: '阀体材质', type: 'select', options: ['WCB', 'CF8', 'CF8M', 'CastIron'] },
-    ]
-  }
-};
-
-const AttributeDesigner: React.FC = () => {
-  const [selectedType, setSelectedType] = useState('Pump');
-  const [form] = Form.useForm();
-  const [formData, setFormData] = useState<any>({});
-
-  // 初始化表单默认值
-  useEffect(() => {
-    const schema = EQUIPMENT_SCHEMAS[selectedType];
-    const initialValues: any = { type: selectedType };
-    
-    COMMON_FIELDS.forEach(f => initialValues[f.name] = f.default);
-    schema.fields.forEach((f: any) => initialValues[f.name] = f.default);
-    
-    form.setFieldsValue(initialValues);
-    setFormData(initialValues);
-  }, [selectedType, form]);
-
-  const handleValuesChange = (_: any, allValues: any) => {
-    setFormData(allValues);
-  };
-
-  // 生成注册用的 data 对象代码
-  const generateDataCode = () => {
-    const jsonString = JSON.stringify(formData, null, 2);
-    // 去掉 key 的引号，使其更像 JS 代码
-    const jsObj = jsonString.replace(/"([^"]+)":/g, '$1:');
-    
-    return `// 在 src/graph/cells/registry.ts 中注册节点时使用：
-Graph.registerNode('custom-${selectedType.toLowerCase()}', {
-  // ... 其他配置 (inherit, width, height, ports 等)
-  data: ${jsObj},
-});`;
-  };
-
-  // 生成 Inspector 组件的渲染代码
-  const generateInspectorCode = () => {
-    const schema = EQUIPMENT_SCHEMAS[selectedType];
-    
-    const fieldRenders = schema.fields.map((f: any) => {
-      let inputComponent = `<Input />`;
-      if (f.type === 'number') inputComponent = `<InputNumber style={{ width: '100%' }} />`;
-      if (f.type === 'select') {
-        const options = f.options.map((opt: any) => {
-          const val = typeof opt === 'string' ? opt : opt.val;
-          const label = typeof opt === 'string' ? opt : opt.label;
-          return `<Option value="${val}">${label}</Option>`;
-        }).join('\n              ');
-        inputComponent = `<Select>\n              ${options}\n            </Select>`;
-      }
-
-      return `          <Form.Item label="${f.label}" name="${f.name}">
-            ${inputComponent}
-          </Form.Item>`;
-    }).join('\n');
-
-    return `// 在 src/components/Editor/Inspector/index.tsx 中：
-// 1. 在 renderSpecificFields 函数中添加 case：
-
-if (type === '${selectedType}') {
-  return (
-    <>
-      <Divider orientation="left">${schema.label}</Divider>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-${fieldRenders}
-      </div>
-    </>
-  );
-}`;
-  };
-
-  return (
-    <Layout style={{ height: '100vh', background: '#fff' }}>
-      {/* 左侧：类型选择 */}
-      <Sider width={250} style={{ background: '#f0f2f5', borderRight: '1px solid #eee', overflowY: 'auto' }}>
-        <div style={{ padding: '16px', borderBottom: '1px solid #e8e8e8' }}>
-          <Title level={5}>设备类型库</Title>
-        </div>
-        <div style={{ padding: 8 }}>
-          {Object.keys(EQUIPMENT_SCHEMAS).map(key => (
-            <Button 
-              key={key}
-              type={selectedType === key ? 'primary' : 'text'}
-              block
-              style={{ textAlign: 'left', marginBottom: 4, height: 'auto', padding: '8px 12px' }}
-              icon={EQUIPMENT_SCHEMAS[key].icon}
-              onClick={() => setSelectedType(key)}
-            >
-              {EQUIPMENT_SCHEMAS[key].label}
-            </Button>
-          ))}
-        </div>
-      </Sider>
-
-      {/* 中间：属性配置表单 */}
-      <Content style={{ padding: '24px', overflowY: 'auto', background: '#fff' }}>
-        <Title level={4}>属性配置预览</Title>
-        <Paragraph type="secondary">
-          在此处配置 {EQUIPMENT_SCHEMAS[selectedType].label} 的默认属性值和字段结构。
-        </Paragraph>
-        
-        <Card title="基础属性 (Common)" size="small" style={{ marginBottom: 16 }}>
-          <Form layout="vertical" form={form} onValuesChange={handleValuesChange}>
-            <Row gutter={16}>
-              {COMMON_FIELDS.map(f => (
-                <Col span={8} key={f.name}>
-                  <Form.Item label={f.label} name={f.name}>
-                    <Input />
-                  </Form.Item>
-                </Col>
-              ))}
-            </Row>
-          </Form>
-        </Card>
-
-        <Card title="业务属性 (Specific)" size="small" headStyle={{ background: '#fafafa' }}>
-          <Form layout="vertical" form={form} onValuesChange={handleValuesChange}>
-            <Row gutter={16}>
-              {EQUIPMENT_SCHEMAS[selectedType].fields.map((f: any) => (
-                <Col span={12} key={f.name}>
-                  <Form.Item label={f.label} name={f.name}>
-                    {f.type === 'select' ? (
-                      <Select>
-                        {f.options.map((opt: any) => {
-                          const val = typeof opt === 'string' ? opt : opt.val;
-                          const label = typeof opt === 'string' ? opt : opt.label;
-                          return <Option key={val} value={val}>{label}</Option>;
-                        })}
-                      </Select>
-                    ) : f.type === 'number' ? (
-                      <InputNumber style={{ width: '100%' }} addonAfter={f.unit} />
-                    ) : (
-                      <Input />
-                    )}
-                  </Form.Item>
-                </Col>
-              ))}
-            </Row>
-          </Form>
-        </Card>
-      </Content>
-
-      {/* 右侧：代码生成 */}
-      <Sider width={450} style={{ background: '#fff', borderLeft: '1px solid #eee', padding: '0' }}>
-        <Tabs defaultActiveKey="1" tabBarStyle={{ paddingLeft: 16 }}>
-          <TabPane tab={<span><CodeOutlined /> 注册数据 (Data)</span>} key="1">
-            <div style={{ padding: 16, height: 'calc(100vh - 60px)', overflowY: 'auto' }}>
-              <Paragraph type="secondary" style={{ fontSize: 12 }}>
-                此代码用于 `src/graph/cells/registry.ts` 中的 `data` 字段。
-              </Paragraph>
-              <TextArea 
-                value={generateDataCode()} 
-                autoSize={{ minRows: 15 }} 
-                style={{ fontFamily: 'monospace', fontSize: 12, background: '#f5f5f5', color: '#333' }} 
-                readOnly
-              />
-              <Button type="primary" icon={<CopyOutlined />} block style={{ marginTop: 16 }} onClick={() => {
-                navigator.clipboard.writeText(generateDataCode());
-                message.success('Data 代码已复制');
-              }}>
-                复制 Data 代码
-              </Button>
-            </div>
-          </TabPane>
-          
-          <TabPane tab={<span><SettingOutlined /> 属性面板 (Inspector)</span>} key="2">
-            <div style={{ padding: 16, height: 'calc(100vh - 60px)', overflowY: 'auto' }}>
-              <Paragraph type="secondary" style={{ fontSize: 12 }}>
-                此代码用于 `src/components/Editor/Inspector/index.tsx`，用于在右侧面板渲染这些属性。
-              </Paragraph>
-              <TextArea 
-                value={generateInspectorCode()} 
-                autoSize={{ minRows: 20 }} 
-                style={{ fontFamily: 'monospace', fontSize: 12, background: '#f5f5f5', color: '#333' }} 
-                readOnly
-              />
-              <Button type="primary" icon={<CopyOutlined />} block style={{ marginTop: 16 }} onClick={() => {
-                navigator.clipboard.writeText(generateInspectorCode());
-                message.success('Inspector 代码已复制');
-              }}>
-                复制 Inspector 代码
-              </Button>
-            </div>
-          </TabPane>
-        </Tabs>
-      </Sider>
-    </Layout>
-  );
-};
-
-export default AttributeDesigner;
-</file>
-
-<file path="src/components/Editor/ContextMenu/index.css">
-.context-menu {
-  position: fixed; /* 使用 fixed 避免被画布容器遮挡 */
-  z-index: 9999;
-  background: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  padding: 4px 0;
-  border: 1px solid #eee;
-  min-width: 120px;
-  user-select: none;
-}
-
-.context-menu-item {
-  padding: 6px 12px;
-  cursor: pointer;
-  font-size: 13px;
-  color: #333;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background 0.2s;
-}
-
-.context-menu-item:hover {
-  background-color: #f5f5f5;
-  color: #1890ff;
-}
-
-.context-menu-item.danger {
-  color: #ff4d4f;
-}
-
-.context-menu-item.danger:hover {
-  background-color: #fff1f0;
-}
-
-.context-menu-divider {
-  height: 1px;
-  background-color: #eee;
-  margin: 4px 0;
-}
-</file>
-
-<file path="src/components/Editor/Toolbar/index.css">
-.toolbar-container {
-  position: absolute;
-  top: 20px;
-  left: 260px; /* 躲开左侧 Stencil */
-  z-index: 100;
-  background: #fff;
-  padding: 4px 12px;
-  border-radius: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  gap: 4px;
 }
 </file>
 
@@ -1989,6 +1855,271 @@ export default AttributeDesigner;
     <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
   </g>
 
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-centrifugalpump.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <circle cx="50" cy="50" r="48" fill="white" />
+  <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
+  <!-- 中心垂直线 -->
+  <line x1="50" y1="4" x2="50" y2="98" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-diaphragmpump.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 外圆 (白底遮挡网格) -->
+  <circle cx="50" cy="50" r="48" fill="white" />
+  
+  <!-- 2. 倒V型结构 (三角形的上半部分) -->
+  <!-- 左端点: (4, 50), 顶点: (50, 4), 右端点: (96, 50) -->
+  <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
+  
+  <!-- 3. 隔膜弧线 (修正版) -->
+  <!-- 起点 (4, 50) -> 控制点 (50, 85) -> 终点 (96, 50) -->
+  <!-- 这样弧线就精确连接了倒V型的两个端点 -->
+  <path d="M 4 50 Q 50 85 96 50" stroke-linecap="round" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-e101.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-20 0 340 120" fill="none" stroke="black" stroke-width="2" style="background-color:transparent">
+  <!-- 
+     修正策略：调整绘制顺序 (Painter's Algorithm)
+     1. 先画筒体 (白色背景)
+     2. 再画内部管束 (叠在筒体上)
+     3. 再画两端法兰和封头 (叠在最上层以遮挡多余线条)
+  -->
+
+  <!-- 1. 主筒体 (Shell) - 移到最前，作为底图 -->
+  <rect x="50" y="20" width="230" height="80" fill="white" stroke-width="2" />
+
+  <!-- 2. 内部管束 (Tubes) - 现在会显示在白色筒体之上 -->
+  <g stroke="#333" stroke-width="1">
+    <line x1="50" y1="30" x2="280" y2="30" />
+    <line x1="50" y1="40" x2="280" y2="40" />
+    <line x1="50" y1="50" x2="280" y2="50" />
+    <line x1="50" y1="60" x2="280" y2="60" /> <!-- 中心线 -->
+    <line x1="50" y1="70" x2="280" y2="70" />
+    <line x1="50" y1="80" x2="280" y2="80" />
+    <line x1="50" y1="90" x2="280" y2="90" />
+  </g>
+
+  <!-- 3. 左侧结构 (管箱 + 隔板) -->
+  <!-- 左法兰 (直径90) -->
+  <rect x="45" y="15" width="5" height="90" fill="white" />
+  
+  <!-- 左封头 (加长型) -->
+  <path d="M45 20 C -5 20, -5 100, 45 100" fill="white" />
+  
+  <!-- 隔板 (虚线，画在封头之上) -->
+  <line x1="45" y1="60" x2="5" y2="60" stroke-width="2" stroke-dasharray="4,2" />
+
+  <!-- 4. 右侧结构 -->
+  <!-- 右法兰 (直径90) -->
+  <rect x="280" y="15" width="5" height="90" fill="white" />
+  <!-- 右封头 -->
+  <path d="M285 20 C 315 20, 315 100, 285 100" fill="white" />
+
+  <!-- 5. 管口 (Nozzles) -->
+  
+  <!-- N1: 壳程入口 (上) -->
+  <line x1="95" y1="20" x2="95" y2="5" stroke-width="2"/>
+  <line x1="90" y1="5" x2="100" y2="5" stroke-width="2"/>
+
+  <!-- N2: 壳程出口 (下) -->
+  <line x1="235" y1="100" x2="235" y2="115" stroke-width="2"/>
+  <line x1="230" y1="115" x2="240" y2="115" stroke-width="2"/>
+
+  <!-- N4: 管程出口 (左上 - 位于隔板上方) -->
+  <line x1="8" y1="35" x2="-15" y2="35" stroke-width="2"/>
+  <line x1="-15" y1="30" x2="-15" y2="40" stroke-width="2"/>
+
+  <!-- N3: 管程入口 (左下 - 位于隔板下方) -->
+  <line x1="8" y1="85" x2="-15" y2="85" stroke-width="2"/>
+  <line x1="-15" y1="80" x2="-15" y2="90" stroke-width="2"/>
+
+  <!-- N5: 放空 (右上) -->
+  <line x1="303" y1="23" x2="310" y2="15" stroke-width="2"/>
+  <line x1="307" y1="12" x2="313" y2="18" stroke-width="2"/>
+
+  <!-- N6: 排净 (右下) -->
+  <line x1="303" y1="97" x2="310" y2="105" stroke-width="2"/>
+  <line x1="307" y1="108" x2="313" y2="102" stroke-width="2"/>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-e13.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="450" viewBox="0 0 1000 450" fill="none" stroke="black" stroke-width="2">
+  <defs>
+    <!-- 定义主罐体轮廓路径 (左侧封头已镜像为向外凸) -->
+    <path id="vessel-body" d="M100,25 L700,25 A50,200 0 0,1 700,425 L100,425 A50,200 0 0,1 100,25 Z" />
+    
+    <!-- 定义液位剪切蒙版 -->
+    <clipPath id="liquid-clip">
+      <use href="#vessel-body" />
+    </clipPath>
+  </defs>
+
+  <g>
+    <!-- 1. 右侧加热器 (Heater) - 底层 -->
+    <rect x="500" y="250" width="310" height="150" fill="white" stroke="#000000" stroke-width="2"/>
+    <line x1="810" y1="245" x2="810" y2="405" stroke-width="4" />
+    <rect x="810" y="250" width="40" height="150" fill="white" stroke="#000000" stroke-width="2"/>
+    <path d="M850,250 A40,75 0 0,1 850,400" fill="white" stroke="#000000" stroke-width="2"/>
+    <line x1="810" y1="325" x2="890" y2="325" stroke-width="2" />
+    
+    <g stroke="#000000" stroke-width="1" opacity="0.6">
+      <line x1="510" y1="270" x2="810" y2="270" />
+      <line x1="510" y1="290" x2="810" y2="290" />
+      <line x1="510" y1="310" x2="810" y2="310" />
+      <line x1="510" y1="330" x2="810" y2="330" />
+      <line x1="510" y1="350" x2="810" y2="350" />
+      <line x1="510" y1="370" x2="810" y2="370" />
+    </g>
+
+    <!-- 2. 主罐体 (Main Vessel) - 顶层覆盖 -->
+    
+    <!-- 2.1 罐体背景 -->
+    <use href="#vessel-body" fill="white" stroke="none" />
+    
+    <!-- 2.2 液相示意 (淡蓝色填充) -->
+    <!-- 修改：y=225 (即 50% 高度) -->
+    <rect x="0" y="225" width="800" height="300" fill="#e6f7ff" stroke="none" clip-path="url(#liquid-clip)" />
+    
+    <!-- 2.3 液面线 -->
+    <!-- 修改：y1=225, y2=225 -->
+    <line x1="50" y1="225" x2="750" y2="225" stroke="#1890ff" stroke-width="1" stroke-dasharray="4 2" clip-path="url(#liquid-clip)" />
+
+    <!-- 2.4 罐体轮廓描边 -->
+    <use href="#vessel-body" fill="none" stroke="black" stroke-width="2" />
+  </g>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-p101.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 外圆 (白底遮挡网格) -->
+  <circle cx="50" cy="50" r="48" fill="white" />
+  <!-- 倒V型结构 -->
+  <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-r101.svg">
+<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="1.5">
+  
+  <!-- 1. 半管夹套 (Limpet Coil) -->
+  <!-- 左侧半管组 -->
+  <!-- 最上方半管 (入口) - 顶点在 x=6 -->
+  <path d="M10,50 A4,4 0 0,0 10,58" fill="none"/> 
+  <!-- 左侧入口连接线 (Jacket In) - 外接半圆顶点 -->
+  <line x1="0" y1="54" x2="6" y2="54" stroke-width="2"/>
+  
+  <!-- 左侧其余半管 -->
+  <path d="M10,62 A4,4 0 0,0 10,70" fill="none"/>
+  <path d="M10,74 A4,4 0 0,0 10,82" fill="none"/>
+  <path d="M10,86 A4,4 0 0,0 10,94" fill="none"/>
+
+  <!-- 右侧半管组 -->
+  <path d="M70,50 A4,4 0 0,1 70,58" fill="none"/>
+  <path d="M70,62 A4,4 0 0,1 70,70" fill="none"/>
+  <path d="M70,74 A4,4 0 0,1 70,82" fill="none"/>
+  
+  <!-- 最下方半管 (出口) - 顶点在 x=74 -->
+  <path d="M70,86 A4,4 0 0,1 70,94" fill="none"/>
+  <!-- 右侧出口连接线 (Jacket Out) - 外接半圆顶点 -->
+  <line x1="74" y1="90" x2="80" y2="90" stroke-width="2"/>
+
+  <!-- 2. 釜体 (Main Vessel) -->
+  <path d="M10,30 Q40,10 70,30 L70,100 Q40,120 10,100 Z" fill="white" stroke="black" stroke-width="2"/>
+
+  <!-- 3. 搅拌系统 (Agitator) -->
+  <!-- 电机 (M) - 位于正中，半径8，占据 x=32~48 -->
+  <circle cx="40" cy="5" r="8" fill="white" stroke="black" stroke-width="1.5"/>
+  <text x="40" y="8" font-family="Arial" font-size="10" text-anchor="middle" fill="black" stroke="none">M</text>
+  
+  <!-- 搅拌轴 -->
+  <line x1="40" y1="13" x2="40" y2="85" stroke="black" stroke-width="1.5"/>
+  
+  <!-- 桨叶 (Paddle) -->
+  <rect x="20" y="85" width="40" height="10" fill="white" stroke="black" stroke-width="1.5"/>
+  <line x1="20" y1="85" x2="60" y2="95" stroke="black" stroke-width="1"/>
+  <line x1="20" y1="95" x2="60" y2="85" stroke="black" stroke-width="1"/>
+
+  <!-- 4. 顶部连接桩 (Top Nozzles) -->
+  <!-- 避开电机区域 (32-48)，向两侧分布 -->
+  
+  <!-- N1 (x=12) -->
+  <line x1="12" y1="22" x2="12" y2="5" stroke-width="2"/>
+  <line x1="9" y1="5" x2="15" y2="5" stroke-width="2"/> <!-- 法兰 -->
+
+  <!-- N2 (x=24) - 距离电机有一定间隙 -->
+  <line x1="24" y1="18" x2="24" y2="5" stroke-width="2"/>
+  <line x1="21" y1="5" x2="27" y2="5" stroke-width="2"/>
+
+  <!-- N3 (x=56) -->
+  <line x1="56" y1="18" x2="56" y2="5" stroke-width="2"/>
+  <line x1="53" y1="5" x2="59" y2="5" stroke-width="2"/>
+
+  <!-- N4 (x=68) -->
+  <line x1="68" y1="22" x2="68" y2="5" stroke-width="2"/>
+  <line x1="65" y1="5" x2="71" y2="5" stroke-width="2"/>
+
+  <!-- 5. 侧面工艺接口 -->
+  
+  <!-- 进料口 (Feed In) - 下移至 y=35 (连接在直筒体上) -->
+  <line x1="0" y1="35" x2="10" y2="35" stroke-width="2"/>
+  <!-- 纯直线，无法兰短线 -->
+
+  <!-- 溢流口 (Overflow) - 右侧 y=35 (与进料口水平或略低，这里设为同高对称) -->
+  <line x1="70" y1="35" x2="80" y2="35" stroke-width="2"/>
+  
+  <!-- 插底管 (Dip Pipe) -->
+  <polyline points="70,35 62,35 62,95" fill="none" stroke="black" stroke-width="1" stroke-dasharray="3 2"/>
+
+  <!-- 6. 底部出料口 -->
+  <line x1="40" y1="110" x2="40" y2="120" stroke-width="2"/>
+  <line x1="36" y1="120" x2="44" y2="120" stroke-width="2"/>
+
+  <!-- 7. 内部挡板/套管 -->
+  <line x1="65" y1="35" x2="65" y2="90" stroke="black" stroke-width="1"/>
+
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-tappingpoint.svg">
+<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <rect x="10" y="10" width="180" height="80" rx="20" ry="20" fill="white" />
+  <line x1="10" y1="50" x2="190" y2="50" stroke="#1890ff" stroke-dasharray="4 2" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-tee.svg">
+<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 20x20 画布，中心点在 10 -->
+  <path d="M0 10 H20 M10 10 V20" stroke="black" stroke-width="2" stroke-linecap="butt" stroke-linejoin="round"/>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-trap.svg">
+<svg width="250" height="100" viewBox="12.15 7.4 26 10.4" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+  <path style="fill:none;fill-opacity:1;stroke:#000;stroke-width:.15;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke" d="M17.517 7.606h5.175M37.476 7.607h5.175" transform="translate(-4.948 4.884)"/>
+  <g transform="matrix(.19762 0 0 .19762 20.262 7.575)" stroke="#000" pointer-events="all">
+    <circle cx="25.25" cy="25.25" fill="#fff" r="25.248" style="fill:none"/>
+    <path d="M43.12 7.37c9.88 9.87 9.88 25.88 0 35.75-9.87 9.88-25.88 9.88-35.75 0Z" stroke-miterlimit="10"/>
+  </g>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-tvtrap.svg">
+<svg width="250" height="100" viewBox="12.15 7.4 26 10.4" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+  <path style="fill:none;fill-opacity:1;stroke:#000;stroke-width:.15;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke" d="M17.517 7.606h5.175M37.476 7.607h5.175" transform="translate(-4.948 4.884)"/>
+  <g transform="matrix(.19762 0 0 .19762 20.262 7.575)" stroke="#000" pointer-events="all">
+    <circle cx="25.25" cy="25.25" fill="#fff" r="25.248" style="fill:none"/>
+    <path d="M43.12 7.37c9.88 9.87 9.88 25.88 0 35.75-9.87 9.88-25.88 9.88-35.75 0Z" stroke-miterlimit="10"/>
+  </g>
 </svg>
 </file>
 
@@ -2440,69 +2571,6 @@ SOFTWARE.
   },
   "include": ["vite.config.ts"]
 }
-</file>
-
-<file path="vite.config.ts">
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import fs from 'node:fs'
-import path from 'node:path'
-
-// 自定义中间件：处理文件保存请求
-const saveFilePlugin = () => ({
-  name: 'vite-plugin-save-shape',
-  configureServer(server) {
-    // 注册一个 API 路由 /_api/save-shape
-    server.middlewares.use('/_api/save-shape', async (req, res, next) => {
-      if (req.method === 'POST') {
-        const chunks = []
-        req.on('data', chunk => chunks.push(chunk))
-        req.on('end', () => {
-          try {
-            const body = JSON.parse(Buffer.concat(chunks).toString())
-            const { filename, svgContent, jsonContent } = body
-            
-            // 1. 确定保存路径 (基于项目根目录)
-            // 注意：这里假设你的代码结构是 src/graph/cells/svgs 和 src/graph/cells/data
-            const svgPath = path.resolve(__dirname, 'src/graph/cells/svgs', `${filename}.svg`)
-            const jsonPath = path.resolve(__dirname, 'src/graph/cells/data', `${filename}.json`)
-
-            // 2. 确保 data 目录存在 (svgs 目录通常已存在，但 data 目录可能是新的)
-            const jsonDir = path.dirname(jsonPath)
-            if (!fs.existsSync(jsonDir)) {
-              fs.mkdirSync(jsonDir, { recursive: true })
-            }
-
-            // 3. 写入文件
-            fs.writeFileSync(svgPath, svgContent, 'utf-8')
-            fs.writeFileSync(jsonPath, JSON.stringify(jsonContent, null, 2), 'utf-8')
-
-            console.log(`[Vite] Saved shape: ${filename}`)
-
-            res.statusCode = 200
-            res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify({ success: true, message: 'Saved successfully' }))
-          } catch (e) {
-            console.error('[Vite] Save error:', e)
-            res.statusCode = 500
-            res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify({ success: false, message: (e as Error).message }))
-          }
-        })
-      } else {
-        next()
-      }
-    })
-  }
-})
-
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [
-    react(), 
-    saveFilePlugin() // 启用插件
-  ],
-})
 </file>
 
 <file path="src/components/Editor/Canvas/index.css">
@@ -3161,872 +3229,67 @@ dist-ssr
 }
 </file>
 
-<file path="src/components/DevTools/ShapeDesigner.tsx">
-import React, { useState, useRef, useEffect } from 'react';
-import { Layout, Input, Button, Form, Select, Row, Col, Typography, message, Divider, Collapse, Tooltip, Checkbox, Slider, Space, InputNumber } from 'antd';
-import { 
-  CopyOutlined, DeleteOutlined, QuestionCircleOutlined, InfoCircleOutlined, 
-  ZoomInOutlined, ZoomOutOutlined, ReloadOutlined, FileAddOutlined, 
-  ColumnHeightOutlined, AimOutlined,
-  ImportOutlined, CloudUploadOutlined 
-} from '@ant-design/icons';
-
-// 1. 导入注册表和缓存
-import { registerCustomCells, SHAPE_LIBRARY } from '../../graph/cells/registry';
-
-const { Content, Sider } = Layout;
-const { TextArea } = Input;
-const { Title, Text } = Typography;
-const { Option } = Select;
-const { Panel } = Collapse;
-
-// 默认 SVG 模板
-const DEFAULT_SVG = `<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
-  <rect x="10" y="10" width="180" height="80" rx="20" ry="20" fill="white" />
-  <line x1="10" y1="50" x2="190" y2="50" stroke="#1890ff" stroke-dasharray="4 2" />
-</svg>`;
-
-interface PortConfig {
-  id: string;
-  group: string;
-  x: number;
-  y: number;
-  desc: string;
-  region: string;
-  dir: 'in' | 'out' | 'bi';
-}
-
-interface ViewBox {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-}
-
-// [修改] 预置设备类型列表，增加疏水阀、手动阀等细分类型
-const EQUIPMENT_TYPES = [
-  { value: 'Reactor', label: '反应器 (Reactor)', prefix: 'R' },
-  { value: 'Exchanger', label: '换热器 (Exchanger)', prefix: 'E' },
-  { value: 'Evaporator', label: '蒸发器 (Evaporator)', prefix: 'E' },
-  { value: 'Tank', label: '储罐 (Tank)', prefix: 'V' },
-  { value: 'Pump', label: '泵 (Pump)', prefix: 'P' },
-  { value: 'Compressor', label: '压缩机 (Compressor)', prefix: 'C' },
-  { value: 'Fan', label: '风机 (Fan)', prefix: 'K' },
-  
-  // 阀门类细分
-  { value: 'Valve', label: '通用阀门 (Valve)', prefix: 'V' },
-  { value: 'ControlValve', label: '调节阀 (ControlValve)', prefix: 'FV' },
-  { value: 'ManualValve', label: '手动阀 (ManualValve)', prefix: 'HV' },
-  { value: 'Trap', label: '疏水阀 (Trap)', prefix: 'S' },
-  
-  { value: 'Instrument', label: '仪表 (Instrument)', prefix: 'PI' },
-  { value: 'Fitting', label: '管件 (Fitting)', prefix: '' },
-  { value: 'Other', label: '其他 (Other)', prefix: 'M' },
-];
-
-const ShapeDesigner: React.FC = () => {
-  const [svgInput, setSvgInput] = useState(DEFAULT_SVG);
-  const [ports, setPorts] = useState<PortConfig[]>([]);
-  const [selectedPortId, setSelectedPortId] = useState<string | null>(null);
-  
-  const [nodeType, setNodeType] = useState('Reactor');
-  const [nodeTag, setNodeTag] = useState('R-New');
-  
-  const [showGrid, setShowGrid] = useState(true);
-  const [zoom, setZoom] = useState(1.0);
-
-  // 画布显示的物理尺寸 (px)
-  const [containerSize, setContainerSize] = useState({ w: 600, h: 300 });
-  
-  // 原始尺寸状态 (对应 SVG 的 width/height 属性)
-  const [originalSize, setOriginalSize] = useState({ w: 100, h: 100 });
-
-  // SVG 内部逻辑尺寸 (viewBox)
-  const [svgViewBox, setSvgViewBox] = useState<ViewBox>({ x: 0, y: 0, w: 100, h: 100 });
-  
-  // 鼠标当前的 SVG 坐标
-  const [mouseSvgPos, setMouseSvgPos] = useState<{x: number, y: number} | null>(null);
-
-  // 网格捕捉设置
-  const [enableSnap, setEnableSnap] = useState(true);
-  const [gridSize, setGridSize] = useState(10); 
-
-  const imgContainerRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [form] = Form.useForm();
-
-  // 2. 新增 state：用于选择已有图元
-  const [selectedLibraryShape, setSelectedLibraryShape] = useState<string | null>(null);
-  
-  // [新增] 用于强制刷新 UI 的状态
-  const [libraryTick, setLibraryTick] = useState(0);
-
-  // [新增] 封装刷新逻辑
-  const refreshLibrary = () => {
-    try {
-      // 重新注册，确保 SHAPE_LIBRARY 被填充 (应对 HMR 重置的问题)
-      registerCustomCells();
-      // 强制触发 React 重渲染
-      setLibraryTick(t => t + 1);
-      console.log('Library refreshed, count:', Object.keys(SHAPE_LIBRARY).length);
-    } catch (e) {
-      console.warn('Registry load warning', e);
-    }
-  };
-
-  // [修改] 初始化：使用 refreshLibrary
-  useEffect(() => {
-    refreshLibrary();
-  }, []);
-
-  // [新增] 核心逻辑：加载已有图元
-  const handleLoadFromLibrary = (shapeId: string) => {
-    const config = SHAPE_LIBRARY[shapeId];
-    if (!config) {
-      message.error('未找到该图元配置');
-      return;
-    }
-
-    // 1. 恢复 SVG
-    if (config.rawSvg) {
-      setSvgInput(config.rawSvg);
-    }
-
-    // 2. 恢复尺寸
-    const w = config.width || 100;
-    const h = config.height || 100;
-    setOriginalSize({ w, h });
-    setContainerSize({ w, h });
-
-    // 3. 恢复基础信息
-    if (config.data) {
-      setNodeType(config.data.type || 'Equipment');
-      // 尝试从 shapeId 恢复 tag (例如 p-reactor -> Reactor)
-      // 或者直接用 config.data.tag
-      setNodeTag(config.data.tag || shapeId.replace('p-', '').toUpperCase());
-    }
-
-    // 4. 恢复端口
-    if (config.ports && Array.isArray(config.ports.items)) {
-      const restoredPorts: PortConfig[] = config.ports.items.map((item: any) => {
-        // 解析 args: { x: '50%', y: '100%' } -> 50, 100
-        let x = 0;
-        let y = 0;
-        
-        if (item.args) {
-          if (typeof item.args.x === 'string' && item.args.x.includes('%')) {
-            x = parseFloat(item.args.x);
-          } else {
-            x = Number(item.args.x);
-          }
-          
-          if (typeof item.args.y === 'string' && item.args.y.includes('%')) {
-            y = parseFloat(item.args.y);
-          } else {
-            y = Number(item.args.y);
-          }
-        }
-
-        return {
-          id: item.id,
-          group: item.group || 'default',
-          x: isNaN(x) ? 0 : x,
-          y: isNaN(y) ? 0 : y,
-          desc: item.data?.desc || item.attrs?.circle?.title || '未命名端口',
-          region: item.data?.region || 'ShellSide',
-          dir: item.data?.dir || 'bi'
-        };
-      });
-      
-      setPorts(restoredPorts);
-      message.success(`已加载图元: ${shapeId}`);
-    } else {
-      setPorts([]);
-      message.info(`已加载图元: ${shapeId} (无端口)`);
-    }
-    
-    setSelectedLibraryShape(shapeId);
-  };
-
-  // [新增] 保存到项目
-  const handleSaveToProject = async () => {
-    if (!nodeTag) {
-      message.error('请输入 Tag 作为文件名');
-      return;
-    }
-
-    // 1. 构造文件名 (使用 shapeName，例如 p-reactor)
-    const cleanTag = nodeTag.replace(/[-_]/g, '').toLowerCase();
-    const fileName = `p-${cleanTag}`; // 例如 p-r101
-
-    // 2. 构造 JSON 配置内容
-    const jsonContent = {
-      width: originalSize.w,
-      height: originalSize.h,
-      ports: {
-        groups: {
-            // 收集所有用到的 group
-            ...Array.from(new Set(ports.map(p => p.group))).reduce((acc, g) => ({
-                ...acc,
-                [g]: { position: 'absolute', attrs: { circle: { r: 3, magnet: true, stroke: '#FFFFFF', strokeWidth: 1, fill: '#e3dedeff' } } }
-            }), {})
-        },
-        items: ports.map(p => ({
-          id: p.id,
-          group: p.group,
-          args: { x: `${p.x}%`, y: `${p.y}%` },
-          data: { desc: p.desc, region: p.region, dir: p.dir }
-        }))
-      },
-      data: {
-        type: nodeType,
-        tag: nodeTag,
-        spec: 'Spec...' 
-      }
-    };
-
-    try {
-      const response = await fetch('/_api/save-shape', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          filename: fileName,
-          svgContent: svgInput,
-          jsonContent: jsonContent
-        })
-      });
-
-      const res = await response.json();
-      if (res.success) {
-        message.success(`保存成功！文件已写入: src/graph/cells/data/${fileName}.json`);
-        
-        // [新增] 延迟自动刷新，等待 Vite HMR 完成
-        message.loading({ content: '正在同步图元库...', key: 'sync_lib' });
-        setTimeout(() => {
-          refreshLibrary();
-          message.success({ content: '图元库已同步', key: 'sync_lib' });
-        }, 1500);
-
-      } else {
-        message.error('保存失败: ' + res.message);
-      }
-    } catch (e) {
-      message.error('网络请求失败，请确保 Vite 插件已配置');
-    }
-  };
-
-  // 解析 SVG viewBox 和 原始尺寸
-  useEffect(() => {
-    try {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(svgInput, 'image/svg+xml');
-      const svg = doc.querySelector('svg');
-      
-      if (!svg) return;
-
-      let vb = { x: 0, y: 0, w: 100, h: 100 };
-      const viewBoxAttr = svg.getAttribute('viewBox');
-
-      if (viewBoxAttr) {
-        const parts = viewBoxAttr.split(/[\s,]+/).filter(Boolean).map(Number);
-        if (parts.length === 4) { 
-          vb = { x: parts[0], y: parts[1], w: parts[2], h: parts[3] };
-        }
-      } else {
-        const attrW = parseFloat(svg.getAttribute('width') || '100');
-        const attrH = parseFloat(svg.getAttribute('height') || '100');
-        vb = { x: 0, y: 0, w: attrW, h: attrH };
-      }
-      setSvgViewBox(vb);
-
-      // 优先读取 width/height 属性，如果没有则回退到 viewBox
-      const rawW = parseFloat(svg.getAttribute('width') || String(vb.w));
-      const rawH = parseFloat(svg.getAttribute('height') || String(vb.h));
-      setOriginalSize({ w: rawW, h: rawH });
-
-    } catch (e) {
-      console.warn('SVG Parse Warning:', e);
-    }
-  }, [svgInput]);
-
-  // 居中规整化
-  const normalizeDimensions = () => {
-    try {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(svgInput, 'image/svg+xml');
-      const svg = doc.querySelector('svg');
-      
-      if (!svg) {
-        message.error('无法解析 SVG');
-        return;
-      }
-
-      let oldVb = { x: 0, y: 0, w: originalSize.w, h: originalSize.h };
-      const currentVBAttr = svg.getAttribute('viewBox');
-      if (currentVBAttr) {
-        const parts = currentVBAttr.split(/[\s,]+/).filter(Boolean).map(Number);
-        if (parts.length === 4) {
-          oldVb = { x: parts[0], y: parts[1], w: parts[2], h: parts[3] };
-        }
-      }
-
-      let newW = Math.round(oldVb.w / 10) * 10;
-      let newH = Math.round(oldVb.h / 10) * 10;
-      if (newW === 0) newW = 10;
-      if (newH === 0) newH = 10;
-
-      const diffW = newW - oldVb.w;
-      const diffH = newH - oldVb.h;
-      
-      const newVbX = oldVb.x - (diffW / 2);
-      const newVbY = oldVb.y - (diffH / 2);
-
-      svg.setAttribute('width', String(newW));
-      svg.setAttribute('height', String(newH));
-      svg.setAttribute('viewBox', `${newVbX.toFixed(2)} ${newVbY.toFixed(2)} ${newW} ${newH}`);
-
-      const serializer = new XMLSerializer();
-      const newSvgStr = serializer.serializeToString(doc);
-
-      setSvgInput(newSvgStr);
-      setOriginalSize({ w: newW, h: newH });
-      setContainerSize({ w: newW, h: newH }); 
-      
-      message.success(`SVG 已居中规整: ${oldVb.w.toFixed(1)}x${oldVb.h.toFixed(1)} -> ${newW}x${newH}`);
-
-    } catch (e) {
-      console.error(e);
-      message.error('规整化失败，请检查 SVG 格式');
-    }
-  };
-
-  // 一键匹配比例
-  const fitAspectRatio = () => {
-    const ratio = svgViewBox.h / svgViewBox.w;
-    const newH = Math.round(containerSize.w * ratio);
-    setContainerSize(prev => ({ ...prev, h: newH }));
-    message.success(`画布比例已调整为 ${containerSize.w}x${newH}`);
-  };
-
-  // 处理滚轮缩放
-  const handleWheel = (e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const delta = e.deltaY > 0 ? -0.1 : 0.1;
-      const newZoom = Math.max(0.5, Math.min(5.0, zoom + delta));
-      setZoom(parseFloat(newZoom.toFixed(1)));
-    }
-  };
-
-  // 计算鼠标在 SVG 逻辑坐标系中的位置
-  const getSvgCoordinates = (clientX: number, clientY: number) => {
-    if (!imgContainerRef.current) return { x: 0, y: 0 };
-    const rect = imgContainerRef.current.getBoundingClientRect();
-    
-    const relX = (clientX - rect.left) / rect.width;
-    const relY = (clientY - rect.top) / rect.height;
-
-    const svgX = svgViewBox.x + (relX * svgViewBox.w);
-    const svgY = svgViewBox.y + (relY * svgViewBox.h);
-
-    return { x: svgX, y: svgY };
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const coords = getSvgCoordinates(e.clientX, e.clientY);
-    setMouseSvgPos({ 
-      x: Math.round(coords.x * 10) / 10, 
-      y: Math.round(coords.y * 10) / 10 
-    });
-  };
-
-  // 智能百分比取整
-  const smartRoundPercent = (val: number) => {
-    if (val < 0.5) return 0;
-    if (val > 99.5) return 100;
-    const rounded = Math.round(val);
-    if (Math.abs(val - rounded) < 0.5) return rounded;
-    const halfRounded = Math.round(val * 2) / 2;
-    if (Math.abs(val - halfRounded) < 0.25) return halfRounded;
-    return Number(val.toFixed(2));
-  };
-
-  const handleCanvasClick = (e: React.MouseEvent) => {
-    if (!imgContainerRef.current) return;
-    if ((e.target as HTMLElement).closest('.port-dot')) return;
-
-    let { x: svgX, y: svgY } = getSvgCoordinates(e.clientX, e.clientY);
-
-    if (enableSnap) {
-      const relativeX = svgX - svgViewBox.x;
-      const relativeY = svgY - svgViewBox.y;
-
-      const snappedRelX = Math.round(relativeX / gridSize) * gridSize;
-      const snappedRelY = Math.round(relativeY / gridSize) * gridSize;
-
-      svgX = svgViewBox.x + snappedRelX;
-      svgY = svgViewBox.y + snappedRelY;
-    }
-
-    let pctX = ((svgX - svgViewBox.x) / svgViewBox.w) * 100;
-    let pctY = ((svgY - svgViewBox.y) / svgViewBox.h) * 100;
-
-    pctX = smartRoundPercent(pctX);
-    pctY = smartRoundPercent(pctY);
-
-    pctX = Math.max(0, Math.min(100, pctX));
-    pctY = Math.max(0, Math.min(100, pctY));
-
-    const newPort: PortConfig = {
-      id: `p${ports.length + 1}`,
-      group: 'all',
-      x: pctX,
-      y: pctY,
-      desc: '新接口',
-      region: 'ShellSide',
-      dir: 'bi'
-    };
-
-    setPorts([...ports, newPort]);
-    setSelectedPortId(newPort.id);
-    form.setFieldsValue(newPort);
-  };
-
-  const handleFormChange = (_changedValues: any, allValues: any) => {
-    if (!selectedPortId) return;
-    setPorts(ports.map(p => p.id === selectedPortId ? { ...p, ...allValues } : p));
-  };
-
-  const handleDeletePort = (id: string) => {
-    setPorts(ports.filter(p => p.id !== id));
-    if (selectedPortId === id) setSelectedPortId(null);
-  };
-
-  const handleTypeChange = (value: string) => {
-    setNodeType(value);
-    const typeInfo = EQUIPMENT_TYPES.find(t => t.value === value);
-    if (typeInfo && typeInfo.prefix) {
-      setNodeTag(`${typeInfo.prefix}-New`);
-    }
-  };
-
-  const generateCode = () => {
-    const cleanTag = nodeTag.replace(/[-_]/g, '').toLowerCase();
-    const varName = `${cleanTag}Svg`;
-    const fileName = `${nodeTag}.svg`;
-    const shapeName = `p-${nodeTag.toLowerCase()}`;
-
-    const groups = Array.from(new Set(ports.map(p => p.group)));
-    const groupsStr = groups.map(g => `        ${g}: { position: 'absolute', attrs: PORT_ATTRS }`).join(',\n');
-    const itemsStr = ports.map(p => 
-      `        { id: '${p.id}', group: '${p.group}', args: { x: '${p.x}%', y: '${p.y}%' }, data: { desc: '${p.desc}', region: '${p.region}', dir: '${p.dir}' } as PortData }`
-    ).join(',\n');
-
-    const neo4jLabels = nodeType === 'Instrument' 
-      ? `['Instrument']` 
-      : `['Equipment', '${nodeType}']`;
-
-    return `/** 
- * ============================================================
- * 步骤 1: 创建 SVG 文件
- * 路径: src/graph/cells/svgs/${fileName}
- * 内容: (请复制左侧 SVG 源码)
- * ============================================================
- */
-
-// ============================================================
-// 步骤 2: 在 src/graph/cells/registry.ts 顶部添加导入
-// ============================================================
-import ${varName} from './svgs/${fileName}?raw';
-
-// ============================================================
-// 步骤 3: 在 registerCustomCells() 函数内部添加注册
-// ============================================================
-Graph.registerNode('${shapeName}', {
-  inherit: 'image',
-  width: ${originalSize.w}, 
-  height: ${originalSize.h},
-  imageUrl: svgToDataUrl(${varName}),
-  ports: {
-    groups: {
-${groupsStr}
-    },
-    items: [
-${itemsStr}
-    ],
-  },
-  attrs: LABEL_ATTRS,
-  data: { 
-    type: '${nodeType}', 
-    tag: '${nodeTag}', 
-    spec: 'Spec...',
-  },
-});
-
-// ============================================================
-// 步骤 4: 在 src/services/neo4j.ts 的 TYPE_MAPPING 中添加映射
-// ============================================================
-// const TYPE_MAPPING: Record<string, string[]> = {
-//   ...
-  '${nodeType}': ${neo4jLabels},
-//   ...
-// };
-
-// ============================================================
-// 步骤 5: 在 src/services/neo4j.ts 的 loadGraphData switch 中添加
-// ============================================================
-// switch (props.type) {
-//   ...
-  case '${nodeType}': shapeName = '${shapeName}'; break;
-//   ...
-// }`;
-  };
-
-  return (
-    <Layout style={{ height: '100vh', background: '#fff' }}>
-      <Sider width={380} style={{ background: '#fff', borderRight: '1px solid #eee', padding: 16, overflowY: 'auto' }}>
-        
-        {/* [修改] 加载已有图元区域：增加刷新按钮 */}
-        <div style={{ background: '#f0f5ff', padding: 12, borderRadius: 6, marginBottom: 16, border: '1px solid #adc6ff' }}>
-          <div style={{ fontWeight: 'bold', marginBottom: 8, color: '#2f54eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span><ImportOutlined /> 加载已有图元修改</span>
-            <Tooltip title="刷新列表 (保存后如果列表为空请点击)">
-              <Button type="text" size="small" icon={<ReloadOutlined />} onClick={() => { refreshLibrary(); message.success('列表已刷新'); }} />
-            </Tooltip>
-          </div>
-          <Select
-            showSearch
-            style={{ width: '100%' }}
-            placeholder="选择已注册的图元..."
-            optionFilterProp="children"
-            onChange={handleLoadFromLibrary}
-            value={selectedLibraryShape}
-            // [关键] 依赖 libraryTick 强制重新计算 options
-            options={Object.keys(SHAPE_LIBRARY).map(key => ({
-              value: key,
-              label: `${key} (${SHAPE_LIBRARY[key].data?.type || 'Unknown'})`
-            }))}
-            filterOption={(input, option) =>
-              (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-            }
-          />
-        </div>
-
-        <Title level={4}>1. SVG 源码</Title>
-        <TextArea 
-          rows={4} 
-          value={svgInput} 
-          onChange={e => setSvgInput(e.target.value)} 
-          placeholder="在此粘贴 SVG 代码..."
-        />
-        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, color: '#666' }}>
-            <span>
-              原始尺寸: {Number(originalSize.w).toFixed(1)} x {Number(originalSize.h).toFixed(1)}
-            </span>
-            <Tooltip title="居中规整化：将尺寸调整为 10 的倍数，并保持内容居中不拉伸">
-              <Button size="small" type="primary" ghost icon={<AimOutlined />} onClick={normalizeDimensions}>
-                规整化
-              </Button>
-            </Tooltip>
-          </div>
-          <div style={{ fontSize: 12, color: '#999' }}>
-            ViewBox: {svgViewBox.x}, {svgViewBox.y}, {svgViewBox.w}, {svgViewBox.h}
-          </div>
-          <Button 
-            size="small" 
-            icon={<FileAddOutlined />} 
-            onClick={() => {
-              navigator.clipboard.writeText(svgInput);
-              message.success('SVG 源码已复制');
-            }}
-            block
-            style={{ marginTop: 4 }}
-          >
-            复制 SVG 源码
-          </Button>
-        </div>
-        
-        <Divider />
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-          <Title level={4} style={{ margin: 0 }}>3. 端口属性</Title>
-          <Tooltip title="点击查看详细说明">
-            <InfoCircleOutlined style={{ color: '#1890ff' }} />
-          </Tooltip>
-        </div>
-
-        <Collapse ghost size="small" style={{ marginBottom: 16, background: '#f9f9f9', borderRadius: 4 }}>
-          <Panel header="配置指南 (必读)" key="1">
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              <ul style={{ paddingLeft: 16, margin: 0 }}>
-                <li><b>Group</b>: 视觉分组 (如 top, left)，仅用于代码组织。</li>
-                <li><b>Region</b>: <b>AI 语义核心</b>。
-                  <ul style={{ marginTop: 4 }}>
-                    <li><code>ShellSide</code>: 壳程/主容器</li>
-                    <li><code>TubeSide</code>: 管程</li>
-                    <li><code>Jacket</code>: 夹套</li>
-                  </ul>
-                </li>
-                <li><b>Dir</b>: 流向。In 只能连 Out。</li>
-              </ul>
-            </Text>
-          </Panel>
-        </Collapse>
-
-        {selectedPortId ? (
-          <Form form={form} layout="vertical" onValuesChange={handleFormChange} initialValues={ports.find(p => p.id === selectedPortId)}>
-            <Row gutter={8}>
-              <Col span={12}>
-                <Form.Item name="id" label="ID" tooltip="端口唯一标识，如 n1, n2"><Input /></Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item name="group" label="Group" tooltip="视觉分组，如 top, left"><Input /></Form.Item>
-              </Col>
-            </Row>
-            <Form.Item name="desc" label="描述 (语义)"><Input placeholder="例如：壳程入口" /></Form.Item>
-            <Form.Item name="region" label="区域 (Region)" extra={<span style={{fontSize: 12, color: '#faad14'}}>AI 分析最重要的字段</span>}>
-              <Select>
-                <Option value="ShellSide">ShellSide (壳程/主容器)</Option>
-                <Option value="ShellSide:Vapor">ShellSide:Vapor (气相区)</Option>
-                <Option value="ShellSide:Liquid">ShellSide:Liquid (液相区)</Option>
-                <Option value="TubeSide">TubeSide (管程/换热管)</Option>
-                <Option value="Jacket">Jacket (夹套)</Option>
-                <Option value="InnerVessel">InnerVessel (内胆)</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item name="dir" label="流向 (Direction)">
-              <Select>
-                <Option value="in">In (入口)</Option>
-                <Option value="out">Out (出口)</Option>
-                <Option value="bi">Bi (双向)</Option>
-              </Select>
-            </Form.Item>
-            <Button danger icon={<DeleteOutlined />} onClick={() => handleDeletePort(selectedPortId)} block>删除此端口</Button>
-          </Form>
-        ) : (
-          <div style={{ height: 200, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', border: '1px dashed #d9d9d9', borderRadius: 4, background: '#fafafa' }}>
-            <QuestionCircleOutlined style={{ fontSize: 24, color: '#ccc', marginBottom: 8 }} />
-            <Text type="secondary">请在右侧图上点击红点选中</Text>
-          </div>
-        )}
-      </Sider>
-
-      <Content style={{ display: 'flex', flexDirection: 'column', background: '#f0f2f5', height: '100%', overflow: 'hidden' }}>
-        {/* 工具栏 */}
-        <div style={{ 
-          padding: '8px 24px', background: '#fff', borderBottom: '1px solid #eee', 
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0, flexWrap: 'wrap', gap: 8
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <Title level={4} style={{ margin: 0 }}>2. 可视化打桩</Title>
+<file path="vite.config.ts">
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import fs from 'node:fs'
+import path from 'node:path'
+
+// 自定义中间件：处理文件保存请求
+const saveFilePlugin = () => ({
+  name: 'vite-plugin-save-shape',
+  configureServer(server) {
+    // 注册一个 API 路由 /_api/save-shape
+    server.middlewares.use('/_api/save-shape', async (req, res, next) => {
+      if (req.method === 'POST') {
+        const chunks = []
+        req.on('data', chunk => chunks.push(chunk))
+        req.on('end', () => {
+          try {
+            const body = JSON.parse(Buffer.concat(chunks).toString())
+            const { filename, svgContent, jsonContent } = body
             
-            {/* 画布尺寸设置 */}
-            <Space size="small" style={{ borderLeft: '1px solid #eee', paddingLeft: 16 }}>
-              <Text type="secondary" style={{ fontSize: 12 }}>画布:</Text>
-              <InputNumber 
-                size="small" 
-                value={containerSize.w} 
-                onChange={v => setContainerSize(s => ({ ...s, w: v || 100 }))} 
-                style={{ width: 60 }} 
-              />
-              <Text type="secondary">x</Text>
-              <InputNumber 
-                size="small" 
-                value={containerSize.h} 
-                onChange={v => setContainerSize(s => ({ ...s, h: v || 100 }))} 
-                style={{ width: 60 }} 
-              />
-              <Tooltip title="调整画布高度以匹配 SVG 比例 (防止变形)">
-                <Button size="small" icon={<ColumnHeightOutlined />} onClick={fitAspectRatio}>适应比例</Button>
-              </Tooltip>
-            </Space>
+            // 1. 确定保存路径 (基于项目根目录)
+            // 注意：这里假设你的代码结构是 src/graph/cells/svgs 和 src/graph/cells/data
+            const svgPath = path.resolve(__dirname, 'src/graph/cells/svgs', `${filename}.svg`)
+            const jsonPath = path.resolve(__dirname, 'src/graph/cells/data', `${filename}.json`)
 
-            {/* 网格捕捉设置 */}
-            <Space size="small" style={{ borderLeft: '1px solid #eee', paddingLeft: 16 }}>
-              <Checkbox checked={enableSnap} onChange={e => setEnableSnap(e.target.checked)}>
-                SVG 坐标捕捉
-              </Checkbox>
-              <InputNumber 
-                size="small" 
-                value={gridSize} 
-                onChange={v => setGridSize(v || 10)} 
-                style={{ width: 50 }} 
-                disabled={!enableSnap}
-                min={0.1}
-                step={1}
-              />
-              <Text type="secondary" style={{ fontSize: 12 }}>units</Text>
-            </Space>
-          </div>
-          
-          <Space>
-            <Checkbox checked={showGrid} onChange={e => setShowGrid(e.target.checked)}>
-              网格
-            </Checkbox>
-            <Space>
-              <Button icon={<ZoomOutOutlined />} onClick={() => setZoom(z => Math.max(0.5, z - 0.1))} />
-              <Slider 
-                min={0.5} max={5.0} step={0.1} 
-                value={zoom} 
-                onChange={val => setZoom(val)} 
-                style={{ width: 100 }} 
-                tooltip={{ formatter: (val) => `${Math.round((val || 1) * 100)}%` }}
-              />
-              <Button icon={<ZoomInOutlined />} onClick={() => setZoom(z => Math.min(5.0, z + 0.1))} />
-              <Button icon={<ReloadOutlined />} onClick={() => setZoom(1.0)}>1:1</Button>
-            </Space>
-          </Space>
-        </div>
+            // 2. 确保 data 目录存在 (svgs 目录通常已存在，但 data 目录可能是新的)
+            const jsonDir = path.dirname(jsonPath)
+            if (!fs.existsSync(jsonDir)) {
+              fs.mkdirSync(jsonDir, { recursive: true })
+            }
 
-        {/* 滚动容器 (Outer Scroll View) */}
-        <div 
-          ref={scrollContainerRef}
-          style={{ 
-            flex: 1, 
-            overflow: 'auto', 
-            display: 'flex',  
-            padding: 20,      
-            background: '#e6e6e6' 
-          }}
-          onWheel={handleWheel}
-        >
-          {/* 画布本体 */}
-          <div 
-            style={{ 
-              width: containerSize.w * zoom, 
-              height: containerSize.h * zoom, 
-              border: '1px solid #999', 
-              position: 'relative',
-              backgroundColor: '#fff',
-              cursor: 'crosshair',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-              transition: 'width 0.1s, height 0.1s',
-              flexShrink: 0, 
-              margin: 'auto' 
-            }}
-            ref={imgContainerRef}
-            onClick={handleCanvasClick}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={() => setMouseSvgPos(null)}
-          >
-            <img 
-              src={`data:image/svg+xml;utf8,${encodeURIComponent(svgInput)}`}
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'block',
-                pointerEvents: 'none',
-                userSelect: 'none',
-                objectFit: 'fill' 
-              }}
-              draggable={false}
-              alt="SVG Preview"
-            />
+            // 3. 写入文件
+            fs.writeFileSync(svgPath, svgContent, 'utf-8')
+            fs.writeFileSync(jsonPath, JSON.stringify(jsonContent, null, 2), 'utf-8')
 
-            {showGrid && (
-              <div style={{
-                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                pointerEvents: 'none', zIndex: 1,
-                backgroundImage: `
-                  linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px),
-                  linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px)
-                `,
-                backgroundSize: `${(containerSize.w / originalSize.w) * gridSize * zoom}px ${(containerSize.h / originalSize.h) * gridSize * zoom}px`
-              }} />
-            )}
+            console.log(`[Vite] Saved shape: ${filename}`)
 
-            {ports.map(port => (
-              <div
-                key={port.id}
-                className="port-dot"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedPortId(port.id);
-                  form.setFieldsValue(port);
-                }}
-                style={{
-                  position: 'absolute',
-                  left: `${port.x}%`,
-                  top: `${port.y}%`,
-                  width: 12,
-                  height: 12,
-                  borderRadius: '50%',
-                  background: selectedPortId === port.id ? '#1890ff' : 'red',
-                  border: '2px solid white',
-                  transform: 'translate(-50%, -50%)',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                  zIndex: 10
-                }}
-                title={`${port.id}: ${port.desc}`}
-              >
-                <div style={{ position: 'absolute', top: -20, left: '50%', transform: 'translateX(-50%)', fontSize: 10, background: 'rgba(0,0,0,0.7)', color: '#fff', padding: '0 4px', borderRadius: 2, whiteSpace: 'nowrap' }}>
-                  {port.id}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-        
-        <div style={{ padding: '4px 24px', background: '#fff', borderTop: '1px solid #eee', fontSize: 12, color: '#666', display: 'flex', justifyContent: 'space-between' }}>
-          <span>
-            {mouseSvgPos && `SVG 坐标: X=${mouseSvgPos.x}, Y=${mouseSvgPos.y}`}
-          </span>
-          <span>
-            当前设计尺寸: {containerSize.w}x{containerSize.h}px (显示比例: {(zoom * 100).toFixed(0)}%)
-          </span>
-        </div>
-      </Content>
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ success: true, message: 'Saved successfully' }))
+          } catch (e) {
+            console.error('[Vite] Save error:', e)
+            res.statusCode = 500
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ success: false, message: (e as Error).message }))
+          }
+        })
+      } else {
+        next()
+      }
+    })
+  }
+})
 
-      <Sider width={400} style={{ background: '#fff', borderLeft: '1px solid #eee', padding: 16 }}>
-        <Title level={4}>4. 生成代码</Title>
-        <div style={{ marginBottom: 16 }}>
-          <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center' }}>
-            <span style={{ width: 60, display: 'inline-block', color: 'rgba(0, 0, 0, 0.88)' }}>Type:</span>
-            <Select 
-              value={nodeType} 
-              onChange={handleTypeChange} 
-              style={{ flex: 1 }}
-              showSearch
-              optionFilterProp="label"
-            >
-              {EQUIPMENT_TYPES.map(t => (
-                <Option key={t.value} value={t.value} label={t.label}>
-                  {t.label}
-                </Option>
-              ))}
-            </Select>
-          </div>
-          <Input addonBefore="Tag" value={nodeTag} onChange={e => setNodeTag(e.target.value)} placeholder="如 R-101" />
-        </div>
-        <TextArea 
-          value={generateCode()} 
-          autoSize={{ minRows: 20, maxRows: 30 }} 
-          style={{ fontFamily: 'monospace', fontSize: 12, background: '#f5f5f5' }} 
-        />
-        
-        {/* [新增] 保存到项目按钮 */}
-        <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
-          <Button type="primary" icon={<CopyOutlined />} onClick={() => {
-            navigator.clipboard.writeText(generateCode());
-            message.success('完整注册代码已复制');
-          }} style={{ flex: 1 }}>
-            复制完整代码
-          </Button>
-          <Button type="primary" danger icon={<CloudUploadOutlined />} onClick={handleSaveToProject} style={{ flex: 1 }}>
-            保存到项目
-          </Button>
-        </div>
-        <div style={{ marginTop: 8, fontSize: 12, color: '#999' }}>
-          * 保存到项目将直接写入 src/graph/cells 下的 svgs 和 data 目录，刷新页面即可生效。
-        </div>
-      </Sider>
-    </Layout>
-  );
-};
-
-export default ShapeDesigner;
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [
+    react(), 
+    saveFilePlugin() // 启用插件
+  ],
+})
 </file>
 
 <file path="src/components/Editor/ContextMenu/index.tsx">
@@ -4528,6 +3791,666 @@ function App() {
 }
 
 export default App;
+</file>
+
+<file path="src/components/DevTools/ShapeDesigner.tsx">
+import React, { useState, useRef, useEffect } from 'react';
+import { Layout, Input, Button, Form, Select, Row, Col, Typography, message, Divider, Collapse, Tooltip, Checkbox, Slider, Space, InputNumber, Radio } from 'antd';
+import { 
+  CopyOutlined, DeleteOutlined, QuestionCircleOutlined, InfoCircleOutlined, 
+  ZoomInOutlined, ZoomOutOutlined, ReloadOutlined, FileAddOutlined, 
+  ColumnHeightOutlined, AimOutlined,
+  ImportOutlined, CloudUploadOutlined 
+} from '@ant-design/icons';
+
+// 1. 导入注册表和缓存
+import { registerCustomCells, SHAPE_LIBRARY } from '../../graph/cells/registry';
+
+const { Content, Sider } = Layout;
+const { TextArea } = Input;
+const { Title, Text } = Typography;
+const { Option } = Select;
+const { Panel } = Collapse;
+
+// 默认 SVG 模板
+const DEFAULT_SVG = `<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <rect x="10" y="10" width="180" height="80" rx="20" ry="20" fill="white" />
+  <line x1="10" y1="50" x2="190" y2="50" stroke="#1890ff" stroke-dasharray="4 2" />
+</svg>`;
+
+interface PortConfig {
+  id: string;
+  group: string;
+  x: number;
+  y: number;
+  desc: string;
+  region: string;
+  dir: 'in' | 'out' | 'bi';
+}
+
+interface ViewBox {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+// 预置设备类型列表
+const EQUIPMENT_TYPES = [
+  { value: 'Reactor', label: '反应器 (Reactor)', prefix: 'R' },
+  { value: 'Exchanger', label: '换热器 (Exchanger)', prefix: 'E' },
+  { value: 'Evaporator', label: '蒸发器 (Evaporator)', prefix: 'E' },
+  { value: 'Tank', label: '储罐 (Tank)', prefix: 'V' },
+  { value: 'Pump', label: '泵 (Pump)', prefix: 'P' },
+  { value: 'Compressor', label: '压缩机 (Compressor)', prefix: 'C' },
+  { value: 'Fan', label: '风机 (Fan)', prefix: 'K' },
+  
+  { value: 'Valve', label: '通用阀门 (Valve)', prefix: 'V' },
+  { value: 'ControlValve', label: '调节阀 (ControlValve)', prefix: 'FV' },
+  { value: 'ManualValve', label: '手动阀 (ManualValve)', prefix: 'HV' },
+  { value: 'Trap', label: '疏水阀 (Trap)', prefix: 'S' },
+  
+  { value: 'Instrument', label: '仪表 (Instrument)', prefix: 'PI' },
+  { value: 'Fitting', label: '管件 (Fitting)', prefix: '' },
+  { value: 'Other', label: '其他 (Other)', prefix: 'M' },
+];
+
+const ShapeDesigner: React.FC = () => {
+  const [svgInput, setSvgInput] = useState(DEFAULT_SVG);
+  const [ports, setPorts] = useState<PortConfig[]>([]);
+  const [selectedPortId, setSelectedPortId] = useState<string | null>(null);
+  
+  const [nodeType, setNodeType] = useState('Reactor');
+  const [nodeTag, setNodeTag] = useState('R-New');
+  
+  // [新增] 命名模式：按类型保存 vs 按Tag保存
+  const [namingMode, setNamingMode] = useState<'type' | 'tag'>('type');
+
+  const [showGrid, setShowGrid] = useState(true);
+  const [zoom, setZoom] = useState(1.0);
+  const [containerSize, setContainerSize] = useState({ w: 600, h: 300 });
+  const [originalSize, setOriginalSize] = useState({ w: 100, h: 100 });
+  const [svgViewBox, setSvgViewBox] = useState<ViewBox>({ x: 0, y: 0, w: 100, h: 100 });
+  const [mouseSvgPos, setMouseSvgPos] = useState<{x: number, y: number} | null>(null);
+  const [draggingPortId, setDraggingPortId] = useState<string | null>(null);
+  const isDraggingRef = useRef(false);
+  const [enableSnap, setEnableSnap] = useState(true);
+  const [gridSize, setGridSize] = useState(10); 
+
+  const imgContainerRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [form] = Form.useForm();
+
+  const [selectedLibraryShape, setSelectedLibraryShape] = useState<string | null>(null);
+  const [libraryTick, setLibraryTick] = useState(0);
+
+  const refreshLibrary = () => {
+    try {
+      registerCustomCells();
+      setLibraryTick(t => t + 1);
+      console.log('Library refreshed');
+    } catch (e) {
+      console.warn('Registry load warning', e);
+    }
+  };
+
+  useEffect(() => {
+    refreshLibrary();
+  }, []);
+
+  const handleLoadFromLibrary = (shapeId: string) => {
+    const config = SHAPE_LIBRARY[shapeId];
+    if (!config) {
+      message.error('未找到该图元配置');
+      return;
+    }
+
+    if (config.rawSvg) setSvgInput(config.rawSvg);
+
+    const w = config.width || 100;
+    const h = config.height || 100;
+    setOriginalSize({ w, h });
+    setContainerSize({ w, h });
+
+    if (config.data) {
+      setNodeType(config.data.type || 'Equipment');
+      setNodeTag(config.data.tag || shapeId.replace('p-', '').toUpperCase());
+    }
+
+    if (config.ports && Array.isArray(config.ports.items)) {
+      const restoredPorts: PortConfig[] = config.ports.items.map((item: any) => {
+        let x = 0;
+        let y = 0;
+        if (item.args) {
+          if (typeof item.args.x === 'string' && item.args.x.includes('%')) {
+            x = parseFloat(item.args.x);
+          } else {
+            x = Number(item.args.x);
+          }
+          if (typeof item.args.y === 'string' && item.args.y.includes('%')) {
+            y = parseFloat(item.args.y);
+          } else {
+            y = Number(item.args.y);
+          }
+        }
+        return {
+          id: item.id,
+          group: item.group || 'default',
+          x: isNaN(x) ? 0 : x,
+          y: isNaN(y) ? 0 : y,
+          desc: item.data?.desc || item.attrs?.circle?.title || '未命名端口',
+          region: item.data?.region || 'ShellSide',
+          dir: item.data?.dir || 'bi'
+        };
+      });
+      setPorts(restoredPorts);
+      message.success(`已加载图元: ${shapeId}`);
+    } else {
+      setPorts([]);
+      message.info(`已加载图元: ${shapeId} (无端口)`);
+    }
+    setSelectedLibraryShape(shapeId);
+  };
+
+  // [新增] 获取文件基础名称的辅助函数
+  const getFileBaseName = () => {
+    if (namingMode === 'type') {
+      // 模式1：按类型 (如 Reactor -> reactor)
+      return nodeType.toLowerCase();
+    } else {
+      // 模式2：按Tag (如 R-101 -> r101)
+      return nodeTag.replace(/[-_]/g, '').toLowerCase();
+    }
+  };
+
+  const handleSaveToProject = async () => {
+    // 1. 构造文件名
+    const baseName = getFileBaseName();
+    const fileName = `p-${baseName}`; // 例如 p-reactor 或 p-r101
+
+    // 2. 构造 JSON 配置内容
+    const jsonContent = {
+      width: originalSize.w,
+      height: originalSize.h,
+      ports: {
+        groups: {
+            ...Array.from(new Set(ports.map(p => p.group))).reduce((acc, g) => ({
+                ...acc,
+                [g]: { position: 'absolute', attrs: { circle: { r: 3, magnet: true, stroke: '#FFFFFF', strokeWidth: 1, fill: '#e3dedeff' } } }
+            }), {})
+        },
+        items: ports.map(p => ({
+          id: p.id,
+          group: p.group,
+          args: { x: `${p.x}%`, y: `${p.y}%` },
+          data: { desc: p.desc, region: p.region, dir: p.dir }
+        }))
+      },
+      data: {
+        type: nodeType,
+        tag: nodeTag, // 即使按类型保存，Tag 也会作为默认值写入 data
+        spec: 'Spec...' 
+      }
+    };
+
+    try {
+      const response = await fetch('/_api/save-shape', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          filename: fileName,
+          svgContent: svgInput,
+          jsonContent: jsonContent
+        })
+      });
+
+      const res = await response.json();
+      if (res.success) {
+        message.success(`保存成功！文件: ${fileName}.json`);
+        message.loading({ content: '正在同步图元库...', key: 'sync_lib' });
+        setTimeout(() => {
+          refreshLibrary();
+          message.success({ content: '图元库已同步', key: 'sync_lib' });
+        }, 1500);
+      } else {
+        message.error('保存失败: ' + res.message);
+      }
+    } catch (e) {
+      message.error('网络请求失败');
+    }
+  };
+
+  // ... (SVG 解析、规整化、缩放等逻辑保持不变) ...
+  useEffect(() => {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgInput, 'image/svg+xml');
+      const svg = doc.querySelector('svg');
+      if (!svg) return;
+      let vb = { x: 0, y: 0, w: 100, h: 100 };
+      const viewBoxAttr = svg.getAttribute('viewBox');
+      if (viewBoxAttr) {
+        const parts = viewBoxAttr.split(/[\s,]+/).filter(Boolean).map(Number);
+        if (parts.length === 4) { 
+          vb = { x: parts[0], y: parts[1], w: parts[2], h: parts[3] };
+        }
+      } else {
+        const attrW = parseFloat(svg.getAttribute('width') || '100');
+        const attrH = parseFloat(svg.getAttribute('height') || '100');
+        vb = { x: 0, y: 0, w: attrW, h: attrH };
+      }
+      setSvgViewBox(vb);
+      const rawW = parseFloat(svg.getAttribute('width') || String(vb.w));
+      const rawH = parseFloat(svg.getAttribute('height') || String(vb.h));
+      setOriginalSize({ w: rawW, h: rawH });
+    } catch (e) { console.warn(e); }
+  }, [svgInput]);
+
+  const normalizeDimensions = () => {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgInput, 'image/svg+xml');
+      const svg = doc.querySelector('svg');
+      if (!svg) return;
+      let oldVb = { x: 0, y: 0, w: originalSize.w, h: originalSize.h };
+      const currentVBAttr = svg.getAttribute('viewBox');
+      if (currentVBAttr) {
+        const parts = currentVBAttr.split(/[\s,]+/).filter(Boolean).map(Number);
+        if (parts.length === 4) oldVb = { x: parts[0], y: parts[1], w: parts[2], h: parts[3] };
+      }
+      let newW = Math.round(oldVb.w / 10) * 10;
+      let newH = Math.round(oldVb.h / 10) * 10;
+      if (newW === 0) newW = 10;
+      if (newH === 0) newH = 10;
+      const diffW = newW - oldVb.w;
+      const diffH = newH - oldVb.h;
+      const newVbX = oldVb.x - (diffW / 2);
+      const newVbY = oldVb.y - (diffH / 2);
+      svg.setAttribute('width', String(newW));
+      svg.setAttribute('height', String(newH));
+      svg.setAttribute('viewBox', `${newVbX.toFixed(2)} ${newVbY.toFixed(2)} ${newW} ${newH}`);
+      const serializer = new XMLSerializer();
+      setSvgInput(serializer.serializeToString(doc));
+      setOriginalSize({ w: newW, h: newH });
+      setContainerSize({ w: newW, h: newH }); 
+      message.success(`SVG 已规整: ${newW}x${newH}`);
+    } catch (e) { message.error('规整化失败'); }
+  };
+
+  const fitAspectRatio = () => {
+    const ratio = svgViewBox.h / svgViewBox.w;
+    const newH = Math.round(containerSize.w * ratio);
+    setContainerSize(prev => ({ ...prev, h: newH }));
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      const newZoom = Math.max(0.5, Math.min(5.0, zoom + delta));
+      setZoom(parseFloat(newZoom.toFixed(1)));
+    }
+  };
+
+  const getSvgCoordinates = (clientX: number, clientY: number) => {
+    if (!imgContainerRef.current) return { x: 0, y: 0 };
+    const rect = imgContainerRef.current.getBoundingClientRect();
+    const relX = (clientX - rect.left) / rect.width;
+    const relY = (clientY - rect.top) / rect.height;
+    const svgX = svgViewBox.x + (relX * svgViewBox.w);
+    const svgY = svgViewBox.y + (relY * svgViewBox.h);
+    return { x: svgX, y: svgY };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    // 1. 计算当前鼠标在 SVG 坐标系下的位置
+    const coords = getSvgCoordinates(e.clientX, e.clientY);
+    let svgX = coords.x;
+    let svgY = coords.y;
+
+    // 2. 如果开启了吸附，先对 SVG 坐标进行吸附计算
+    if (enableSnap) {
+      const relativeX = svgX - svgViewBox.x;
+      const relativeY = svgY - svgViewBox.y;
+      const snappedRelX = Math.round(relativeX / gridSize) * gridSize;
+      const snappedRelY = Math.round(relativeY / gridSize) * gridSize;
+      svgX = svgViewBox.x + snappedRelX;
+      svgY = svgViewBox.y + snappedRelY;
+    }
+
+    // 更新左下角显示的坐标信息
+    setMouseSvgPos({ x: Math.round(svgX * 10) / 10, y: Math.round(svgY * 10) / 10 });
+
+    // 3. [核心逻辑] 如果正在拖拽某个端口
+    if (draggingPortId) {
+      isDraggingRef.current = true;
+      // 计算百分比坐标
+      let pctX = ((svgX - svgViewBox.x) / svgViewBox.w) * 100;
+      let pctY = ((svgY - svgViewBox.y) / svgViewBox.h) * 100;
+
+      // 智能取整 (0, 50, 100 等特殊值吸附)
+      pctX = Math.max(0, Math.min(100, smartRoundPercent(pctX)));
+      pctY = Math.max(0, Math.min(100, smartRoundPercent(pctY)));
+
+      // 更新 ports 状态
+      setPorts(prev => prev.map(p => {
+        if (p.id === draggingPortId) {
+          const updated = { ...p, x: pctX, y: pctY };
+          // 同时更新表单显示，实现联动
+          form.setFieldsValue({ x: pctX, y: pctY });
+          return updated;
+        }
+        return p;
+      }));
+    }
+  };
+  // [新增] 开始拖拽
+  const handlePortMouseDown = (e: React.MouseEvent, portId: string) => {
+    e.stopPropagation(); // 阻止冒泡，防止触发画布的点击添加功能
+    e.preventDefault();  // 防止选中文本
+    isDraggingRef.current = false;
+    setDraggingPortId(portId);
+    setSelectedPortId(portId);
+    
+    // 选中该端口并回填表单
+    const port = ports.find(p => p.id === portId);
+    if (port) form.setFieldsValue(port);
+  };
+
+  // [新增] 结束拖拽
+  const handleMouseUp = () => {
+    setDraggingPortId(null);
+  };
+
+  const smartRoundPercent = (val: number) => {
+    if (val < 0.5) return 0;
+    if (val > 99.5) return 100;
+    const rounded = Math.round(val);
+    if (Math.abs(val - rounded) < 0.5) return rounded;
+    const halfRounded = Math.round(val * 2) / 2;
+    if (Math.abs(val - halfRounded) < 0.25) return halfRounded;
+    return Number(val.toFixed(2));
+  };
+
+  const handleCanvasClick = (e: React.MouseEvent) => {
+    if (!imgContainerRef.current) return;
+    if (isDraggingRef.current) {
+      isDraggingRef.current = false;
+      return;
+    }
+    if ((e.target as HTMLElement).closest('.port-dot')) return;
+    let { x: svgX, y: svgY } = getSvgCoordinates(e.clientX, e.clientY);
+    if (enableSnap) {
+      const relativeX = svgX - svgViewBox.x;
+      const relativeY = svgY - svgViewBox.y;
+      const snappedRelX = Math.round(relativeX / gridSize) * gridSize;
+      const snappedRelY = Math.round(relativeY / gridSize) * gridSize;
+      svgX = svgViewBox.x + snappedRelX;
+      svgY = svgViewBox.y + snappedRelY;
+    }
+    let pctX = ((svgX - svgViewBox.x) / svgViewBox.w) * 100;
+    let pctY = ((svgY - svgViewBox.y) / svgViewBox.h) * 100;
+    pctX = Math.max(0, Math.min(100, smartRoundPercent(pctX)));
+    pctY = Math.max(0, Math.min(100, smartRoundPercent(pctY)));
+    const newPort: PortConfig = {
+      id: `p${ports.length + 1}`, group: 'all', x: pctX, y: pctY,
+      desc: '新接口', region: 'ShellSide', dir: 'bi'
+    };
+    setPorts([...ports, newPort]);
+    setSelectedPortId(newPort.id);
+    form.setFieldsValue(newPort);
+  };
+
+  const handleFormChange = (changedValues: any, allValues: any) => {
+    if (!selectedPortId) return;
+    setPorts(ports.map(p => p.id === selectedPortId ? { ...p, ...allValues } : p));
+    if (changedValues.id && changedValues.id !== selectedPortId) {
+      setSelectedPortId(changedValues.id);
+    }
+  };
+
+  const handleDeletePort = (id: string) => {
+    setPorts(ports.filter(p => p.id !== id));
+    if (selectedPortId === id) setSelectedPortId(null);
+  };
+
+  const handleTypeChange = (value: string) => {
+    setNodeType(value);
+    const typeInfo = EQUIPMENT_TYPES.find(t => t.value === value);
+    if (typeInfo && typeInfo.prefix) {
+      setNodeTag(`${typeInfo.prefix}-New`);
+    }
+  };
+
+  const generateCode = () => {
+    const baseName = getFileBaseName();
+    const varName = `${baseName.replace(/-/g, '')}Svg`;
+    const fileName = `${baseName}.svg`;
+    const shapeName = `p-${baseName}`;
+
+    const groups = Array.from(new Set(ports.map(p => p.group)));
+    const groupsStr = groups.map(g => `        ${g}: { position: 'absolute', attrs: PORT_ATTRS }`).join(',\n');
+    const itemsStr = ports.map(p => 
+      `        { id: '${p.id}', group: '${p.group}', args: { x: '${p.x}%', y: '${p.y}%' }, data: { desc: '${p.desc}', region: '${p.region}', dir: '${p.dir}' } as PortData }`
+    ).join(',\n');
+
+    const neo4jLabels = nodeType === 'Instrument' ? `['Instrument']` : `['Equipment', '${nodeType}']`;
+
+    return `/** 
+ * 文件: src/graph/cells/svgs/${fileName}
+ */
+// 注册代码:
+import ${varName} from './svgs/${fileName}?raw';
+
+Graph.registerNode('${shapeName}', {
+  inherit: 'image',
+  width: ${originalSize.w}, 
+  height: ${originalSize.h},
+  imageUrl: svgToDataUrl(${varName}),
+  ports: {
+    groups: {
+${groupsStr}
+    },
+    items: [
+${itemsStr}
+    ],
+  },
+  attrs: LABEL_ATTRS,
+  data: { 
+    type: '${nodeType}', 
+    tag: '${nodeTag}', 
+    spec: 'Spec...',
+  },
+});`;
+  };
+
+  return (
+    <Layout style={{ height: '100vh', background: '#fff' }}>
+      <Sider width={380} style={{ background: '#fff', borderRight: '1px solid #eee', padding: 16, overflowY: 'auto' }}>
+        <div style={{ background: '#f0f5ff', padding: 12, borderRadius: 6, marginBottom: 16, border: '1px solid #adc6ff' }}>
+          <div style={{ fontWeight: 'bold', marginBottom: 8, color: '#2f54eb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span><ImportOutlined /> 加载已有图元修改</span>
+            <Tooltip title="刷新列表"><Button type="text" size="small" icon={<ReloadOutlined />} onClick={() => { refreshLibrary(); message.success('列表已刷新'); }} /></Tooltip>
+          </div>
+          <Select
+            showSearch
+            style={{ width: '100%' }}
+            placeholder="选择已注册的图元..."
+            optionFilterProp="children"
+            onChange={handleLoadFromLibrary}
+            value={selectedLibraryShape}
+            options={Object.keys(SHAPE_LIBRARY).map(key => ({ value: key, label: `${key} (${SHAPE_LIBRARY[key].data?.type || 'Unknown'})` }))}
+            filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
+          />
+        </div>
+
+        <Title level={4}>1. SVG 源码</Title>
+        <TextArea rows={4} value={svgInput} onChange={e => setSvgInput(e.target.value)} placeholder="在此粘贴 SVG 代码..." />
+        <div style={{ marginTop: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, color: '#666' }}>
+          <span>原始尺寸: {Number(originalSize.w).toFixed(1)} x {Number(originalSize.h).toFixed(1)}</span>
+          <Tooltip title="居中规整化"><Button size="small" type="primary" ghost icon={<AimOutlined />} onClick={normalizeDimensions}>规整化</Button></Tooltip>
+        </div>
+        
+        <Divider />
+        
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <Title level={4} style={{ margin: 0 }}>3. 端口属性</Title>
+          <Tooltip title="点击查看详细说明"><InfoCircleOutlined style={{ color: '#1890ff' }} /></Tooltip>
+        </div>
+        <Collapse ghost size="small" style={{ marginBottom: 16, background: '#f9f9f9', borderRadius: 4 }}>
+          <Panel header="配置指南 (必读)" key="1">
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              <ul style={{ paddingLeft: 16, margin: 0 }}>
+                <li><b>Group</b>: 视觉分组 (如 top, left)。</li>
+                <li><b>Region</b>: <b>AI 语义核心</b> (ShellSide, TubeSide, Jacket)。</li>
+                <li><b>Dir</b>: 流向 (in, out, bi)。</li>
+              </ul>
+            </Text>
+          </Panel>
+        </Collapse>
+
+        {selectedPortId ? (
+          <Form form={form} layout="vertical" onValuesChange={handleFormChange} initialValues={ports.find(p => p.id === selectedPortId)}>
+            <Row gutter={8}>
+              <Col span={12}><Form.Item name="id" label="ID"><Input /></Form.Item></Col>
+              <Col span={12}><Form.Item name="group" label="Group"><Input /></Form.Item></Col>
+            </Row>
+            <Form.Item name="desc" label="描述 (语义)"><Input /></Form.Item>
+            <Form.Item name="region" label="区域 (Region)">
+              <Select>
+                <Option value="ShellSide">ShellSide (壳程)</Option>
+                <Option value="TubeSide">TubeSide (管程)</Option>
+                <Option value="Jacket">Jacket (夹套)</Option>
+                <Option value="InnerVessel">InnerVessel (内胆)</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item name="dir" label="流向"><Select><Option value="in">In</Option><Option value="out">Out</Option><Option value="bi">Bi</Option></Select></Form.Item>
+            <Button danger icon={<DeleteOutlined />} onClick={() => handleDeletePort(selectedPortId)} block>删除此端口</Button>
+          </Form>
+        ) : (
+          <div style={{ height: 100, display: 'flex', justifyContent: 'center', alignItems: 'center', border: '1px dashed #d9d9d9', borderRadius: 4, background: '#fafafa' }}>
+            <Text type="secondary">请在右侧图上点击红点选中</Text>
+          </div>
+        )}
+      </Sider>
+
+      <Content style={{ display: 'flex', flexDirection: 'column', background: '#f0f2f5', height: '100%', overflow: 'hidden' }}>
+        <div style={{ padding: '8px 24px', background: '#fff', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <Title level={4} style={{ margin: 0 }}>2. 可视化打桩</Title>
+            <Space size="small" style={{ borderLeft: '1px solid #eee', paddingLeft: 16 }}>
+              <Text type="secondary">画布:</Text>
+              <InputNumber size="small" value={containerSize.w} onChange={v => setContainerSize(s => ({ ...s, w: v || 100 }))} style={{ width: 60 }} />
+              <Text type="secondary">x</Text>
+              <InputNumber size="small" value={containerSize.h} onChange={v => setContainerSize(s => ({ ...s, h: v || 100 }))} style={{ width: 60 }} />
+              <Button size="small" icon={<ColumnHeightOutlined />} onClick={fitAspectRatio}>适应比例</Button>
+            </Space>
+            <Space size="small" style={{ borderLeft: '1px solid #eee', paddingLeft: 16 }}>
+              <Checkbox checked={enableSnap} onChange={e => setEnableSnap(e.target.checked)}>捕捉</Checkbox>
+              <InputNumber size="small" value={gridSize} onChange={v => setGridSize(v || 10)} style={{ width: 50 }} disabled={!enableSnap} />
+            </Space>
+          </div>
+          <Space>
+            <Checkbox checked={showGrid} onChange={e => setShowGrid(e.target.checked)}>网格</Checkbox>
+            <Space>
+              <Button icon={<ZoomOutOutlined />} onClick={() => setZoom(z => Math.max(0.5, z - 0.1))} />
+              <Slider min={0.5} max={5.0} step={0.1} value={zoom} onChange={val => setZoom(val)} style={{ width: 100 }} />
+              <Button icon={<ZoomInOutlined />} onClick={() => setZoom(z => Math.min(5.0, z + 0.1))} />
+            </Space>
+          </Space>
+        </div>
+
+        <div 
+            style={{ 
+              width: containerSize.w * zoom, 
+              height: containerSize.h * zoom, 
+              border: '1px solid #999', 
+              position: 'relative',
+              backgroundColor: '#fff',
+              cursor: 'crosshair',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+              transition: 'width 0.1s, height 0.1s',
+              flexShrink: 0, 
+              margin: 'auto' 
+            }}
+            ref={imgContainerRef}
+            onClick={handleCanvasClick}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => { setMouseSvgPos(null); handleMouseUp(); }} // 离开画布也停止拖拽
+            onMouseUp={handleMouseUp} // [新增] 松开鼠标停止拖拽
+          >
+            <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svgInput)}`} style={{ width: '100%', height: '100%', display: 'block', pointerEvents: 'none', userSelect: 'none' }} draggable={false} />
+            
+            {showGrid && <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', zIndex: 1, backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.1) 1px, transparent 1px)`, backgroundSize: `${(containerSize.w / originalSize.w) * gridSize * zoom}px ${(containerSize.h / originalSize.h) * gridSize * zoom}px` }} />}
+            
+            {ports.map(port => (
+              <div
+                key={port.id}
+                className="port-dot"
+                // [修改] 绑定 MouseDown 事件
+                onMouseDown={(e) => handlePortMouseDown(e, port.id)}
+                // [移除] 原来的 onClick，因为 MouseDown 已经处理了选中逻辑
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  position: 'absolute',
+                  left: `${port.x}%`,
+                  top: `${port.y}%`,
+                  width: 12,
+                  height: 12,
+                  borderRadius: '50%',
+                  background: selectedPortId === port.id ? '#1890ff' : 'red',
+                  border: '2px solid white',
+                  transform: 'translate(-50%, -50%)',
+                  cursor: 'move', // [修改] 鼠标样式改为 move
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                  zIndex: 10
+                }}
+                title={`${port.id}: ${port.desc}`}
+              >
+                <div style={{ position: 'absolute', top: -20, left: '50%', transform: 'translateX(-50%)', fontSize: 10, background: 'rgba(0,0,0,0.7)', color: '#fff', padding: '0 4px', borderRadius: 2, whiteSpace: 'nowrap', pointerEvents: 'none' }}>
+                  {port.id}
+                </div>
+              </div>
+            ))}
+          </div>
+      </Content>
+
+      <Sider width={400} style={{ background: '#fff', borderLeft: '1px solid #eee', padding: 16 }}>
+        <Title level={4}>4. 生成代码</Title>
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ marginBottom: 12 }}>
+            <Text strong>命名模式 (文件名):</Text>
+            <div style={{ marginTop: 4 }}>
+              <Radio.Group value={namingMode} onChange={e => setNamingMode(e.target.value)} buttonStyle="solid">
+                <Radio.Button value="type">按类型 (p-{nodeType.toLowerCase()})</Radio.Button>
+                <Radio.Button value="tag">按 Tag (p-{nodeTag.replace(/[-_]/g, '').toLowerCase()})</Radio.Button>
+              </Radio.Group>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center' }}>
+            <span style={{ width: 60, display: 'inline-block', color: 'rgba(0, 0, 0, 0.88)' }}>Type:</span>
+            <Select value={nodeType} onChange={handleTypeChange} style={{ flex: 1 }} showSearch optionFilterProp="label">
+              {EQUIPMENT_TYPES.map(t => <Option key={t.value} value={t.value} label={t.label}>{t.label}</Option>)}
+            </Select>
+          </div>
+          <Input addonBefore="Tag" value={nodeTag} onChange={e => setNodeTag(e.target.value)} placeholder="如 R-101" />
+          <div style={{ marginTop: 8, fontSize: 12, color: '#1890ff' }}>
+            将保存为: <b>p-{getFileBaseName()}.json</b>
+          </div>
+        </div>
+        <TextArea value={generateCode()} autoSize={{ minRows: 15, maxRows: 25 }} style={{ fontFamily: 'monospace', fontSize: 12, background: '#f5f5f5' }} />
+        
+        <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+          <Button type="primary" icon={<CopyOutlined />} onClick={() => { navigator.clipboard.writeText(generateCode()); message.success('代码已复制'); }} style={{ flex: 1 }}>复制</Button>
+          <Button type="primary" danger icon={<CloudUploadOutlined />} onClick={handleSaveToProject} style={{ flex: 1 }}>保存到项目</Button>
+        </div>
+      </Sider>
+    </Layout>
+  );
+};
+
+export default ShapeDesigner;
 </file>
 
 <file path="src/components/Editor/Inspector/index.tsx">
@@ -5648,11 +5571,25 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       collapsable: true,
       search: { visible: true, placeholder: '搜索设备...' },
       groups: [
-        { title: '主工艺设备', name: 'main_equip', layoutOptions: { columns: 1, columnWidth: 220, rowHeight: 160 } },
+        { title: '主工艺设备', name: 'main_equip', layoutOptions: { columns: 2, columnWidth: 105, rowHeight: 100 } }, // 改为2列，更紧凑
         { title: '泵类设备', name: 'pumps', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 100 } },
         { title: '仪表控制', name: 'instruments', layoutOptions: { columns: 3, columnWidth: 60, rowHeight: 70 } },
-        { title: '管路附件', name: 'parts', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 120 } }
+        { title: '管路附件', name: 'parts', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 80 } }
       ],
+      // [新增] 核心逻辑：拖拽放置时恢复原始尺寸
+      getDropNode(node) {
+        const clone = node.clone();
+        const data = clone.getData();
+        
+        // 如果有原始尺寸记录，则恢复
+        if (data?.originalSize) {
+          clone.setSize(data.originalSize.width, data.originalSize.height);
+          // 清理掉临时数据，不让它带入画布
+          const { originalSize, ...rest } = data;
+          clone.setData(rest);
+        }
+        return clone;
+      }
     });
     stencilRef.current.appendChild(stencil.container);
 
@@ -5670,7 +5607,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       'Evaporator': 'main_equip',
       'Tank': 'main_equip',
       'GasCooler': 'main_equip',
-      'Trap': 'main_equip', // 捕集器/疏水阀如果是大型的放这里，小型的放 parts
+      'Trap': 'main_equip', 
       
       // 泵类
       'Pump': 'pumps',
@@ -5689,9 +5626,10 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       // 附件
       'Valve': 'parts',
       'ControlValve': 'parts',
+      'ManualValve': 'parts', // 确保包含
       'Fitting': 'parts',
-      'TappingPoint': 'ignore', // 忽略
-      'Frame': 'ignore'         // 忽略
+      'TappingPoint': 'ignore', 
+      'Frame': 'ignore'         
     };
 
     // 2. 初始化分组容器
@@ -5701,6 +5639,15 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       instruments: [],
       parts: []
     };
+    // [新增] 预计算每个 Type 的数量，用于决定是否显示后缀
+    const typeCounts: Record<string, number> = {};
+    Object.values(SHAPE_LIBRARY).forEach((config: any) => {
+      const t = config.data?.type || 'Unknown';
+      typeCounts[t] = (typeCounts[t] || 0) + 1;
+    });
+
+    // [新增] 用于同名 Type 的计数器
+    const typeIterators: Record<string, number> = {};
 
     // 3. 遍历注册表，自动创建节点实例
     Object.keys(SHAPE_LIBRARY).forEach(shapeId => {
@@ -5710,22 +5657,84 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       // 获取目标分组，默认为 'parts'
       let groupName = TYPE_TO_GROUP[type];
       
-      // 特殊处理：如果映射表中没写，但 type 包含 Pump 字样，自动归入泵类
       if (!groupName) {
         if (type.includes('Pump')) groupName = 'pumps';
         else if (type.includes('Valve')) groupName = 'parts';
-        else groupName = 'parts'; // 兜底
+        else groupName = 'parts'; 
       }
 
       if (groupName === 'ignore') return;
 
+      // [新增] 尺寸自适应计算
+      const MAX_W = 70; // 侧边栏图标最大宽度
+      const MAX_H = 70; // 侧边栏图标最大高度
+      
+      const originalW = config.width || 80;
+      const originalH = config.height || 80;
+      
+      let displayW = originalW;
+      let displayH = originalH;
+
+      // 如果原始尺寸超过限制，按比例缩放
+      if (originalW > MAX_W || originalH > MAX_H) {
+        const ratio = originalW / originalH;
+        if (ratio > 1) {
+          // 宽 > 高
+          displayW = MAX_W;
+          displayH = displayW / ratio;
+        } else {
+          // 高 > 宽
+          displayH = MAX_H;
+          displayW = displayH * ratio;
+        }
+      }
+
+      // [新增] 标签优化逻辑
+      // 侧边栏显示 Type (如 "Reactor") 或 Tag (如 "R-101")，而不是 Spec
+      // 如果有中文别名映射更好，这里暂时用 Type
+      let displayLabel = type;
+      // 特殊处理：如果是仪表，显示简短的 PI/TI
+      if (type === 'Instrument') {
+         displayLabel = config.data?.tagId || 'Inst';
+      }
+      // 如果该类型有多个图元，则添加后缀
+      else if (typeCounts[type] > 1) {
+         // 尝试从 ID 中提取后缀 (例如 p-cv-electric -> electric)
+         const parts = shapeId.split('-');
+         let suffix = parts[parts.length - 1]; // 取最后一段
+
+         // 如果后缀就是类型本身 (例如 p-reactor -> reactor)，则使用数字编号
+         if (type.toLowerCase().includes(suffix.toLowerCase())) {
+            typeIterators[type] = (typeIterators[type] || 0) + 1;
+            suffix = `${typeIterators[type]}`;
+         } else {
+            // 首字母大写
+            suffix = suffix.charAt(0).toUpperCase() + suffix.slice(1);
+         }
+         
+         displayLabel = `${type} ${suffix}`;
+      }
+
       // 创建用于 Stencil 显示的节点
-      // 注意：这里我们只取必要的展示属性
       const node = graph.createNode({
         shape: shapeId,
-        // 优先显示 spec (规格)，其次 tag (位号)，最后是 shapeId
-        label: config.data?.spec || config.data?.tag || shapeId, 
-        data: { ...config.data } // 复制完整数据
+        width: displayW,   // 使用缩放后的尺寸
+        height: displayH,
+        label: displayLabel, // 使用优化后的标签
+        attrs: {
+          // 强制调整 label 位置，防止在缩略图中跑偏
+          label: { 
+            fontSize: 10, 
+            refY: '100%', 
+            refY2: 4,
+            textWrap: { width: 90, ellipsis: true } // 防止文字过长
+          }
+        },
+        data: { 
+          ...config.data,
+          // [关键] 记录原始尺寸，供 getDropNode 恢复
+          originalSize: { width: originalW, height: originalH } 
+        } 
       });
 
       if (stencilNodes[groupName]) {
@@ -5800,6 +5809,377 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
 });
 
 export default GraphCanvas;
+</file>
+
+<file path="src/services/neo4j.ts">
+// src/services/neo4j.ts
+import neo4j from 'neo4j-driver';
+import { FLUID_COLORS, CURRENT_DRAWING_ID } from '../config/rules';
+
+const uri = import.meta.env.VITE_NEO4J_URI || 'bolt://localhost:7687';
+const user = import.meta.env.VITE_NEO4J_USER || 'neo4j';
+const password = import.meta.env.VITE_NEO4J_PASSWORD || '';
+
+// 创建驱动实例
+const driver = neo4j.driver(
+  uri,
+  neo4j.auth.basic(user, password)
+);
+
+export default driver;
+
+// [新增] 类型映射表：定义 X6 type 到 Neo4j Labels 的映射关系
+// 所有的节点都会自动带上 :Asset 标签
+const TYPE_MAPPING: Record<string, string[]> = {
+  // 反应器类
+  'Reactor':           ['Equipment', 'Reactor'],
+  'FixedBedReactor':   ['Equipment', 'Reactor'],
+  
+  // 换热器类
+  'Exchanger':         ['Equipment', 'Exchanger'],
+  'VerticalExchanger': ['Equipment', 'Exchanger'],
+  'Evaporator':        ['Equipment', 'Exchanger'],
+  'GasCooler':         ['Equipment', 'Exchanger'],
+  
+  // 泵/压缩机类
+  'Pump':              ['Equipment', 'Pump'],
+  'LiquidPump':        ['Equipment', 'Pump'],
+  'CentrifugalPump':   ['Equipment', 'Pump'],
+  'DiaphragmPump':     ['Equipment', 'Pump'],
+  'PistonPump':        ['Equipment', 'Pump'],
+  'GearPump':          ['Equipment', 'Pump'],
+  'JetPump':           ['Equipment', 'Pump'],
+  'Compressor':        ['Equipment', 'Pump', 'Compressor'], // 压缩机也是流体输送设备，但也可是独立分类
+  'Fan':               ['Equipment', 'Pump', 'Fan'],
+  
+  // 阀门类 (包括手动阀和调节阀)
+  'Valve':             ['Equipment', 'Valve'],
+  'ControlValve':      ['Equipment', 'Valve', 'ControlValve'], // 调节阀既是阀门，也是控制元件
+  'Trap':              ['Equipment', 'Trap'],
+  
+  // 容器类
+  'Tank':              ['Equipment', 'Vessel'],
+  'Trap':              ['Equipment', 'Vessel'],
+  
+  // 管件
+  'Fitting':           ['Equipment', 'Fitting'],
+  
+  // 仪表类
+  'Instrument':        ['Instrument'],
+  'TappingPoint':      ['Instrument', 'Connection'], // 测点
+  
+  // 默认
+  'default':           ['Equipment', 'Other']
+};
+
+export const saveGraphData = async (nodes: any[], edges: any[]) => {
+  const session = driver.session();
+  const tx = session.beginTransaction();
+  try {
+    // 1. [修改] 删除当前图纸的所有资产 (使用基类标签 :Asset)
+    await tx.run(
+      `MATCH (n:Asset {drawingId: $drawingId}) DETACH DELETE n`,
+      { drawingId: CURRENT_DRAWING_ID }
+    );
+
+    // 2. [重构] 保存节点 - 根据类型进行分组批量插入
+    if (nodes.length) {
+      // 2.1 在内存中对节点进行分组
+      const groups: Record<string, any[]> = {};
+      
+      nodes.forEach(node => {
+        const type = node.type || 'Unknown';
+        // 获取对应的标签列表，例如 ['Equipment', 'Pump']
+        const labels = TYPE_MAPPING[type] || TYPE_MAPPING['default'];
+        // 生成唯一的 Group Key，例如 "Equipment_Pump"
+        const groupKey = labels.join(':');
+        
+        if (!groups[groupKey]) groups[groupKey] = [];
+        groups[groupKey].push(node);
+      });
+
+      // 2.2 针对每一组生成特定的 Cypher 语句
+      for (const [labelString, batch] of Object.entries(groups)) {
+        // labelString 是 "Equipment:Pump"，我们需要把它拼接到 Cypher 中
+        // 注意：Cypher 不支持参数化 Label，所以这里必须使用字符串拼接
+        // 但由于 labelString 来自我们内部定义的 TYPE_MAPPING，所以是安全的
+        const labels = `:Asset:${labelString}`; 
+        
+        await tx.run(
+          `UNWIND $batch AS n 
+           CREATE (e${labels} {x6Id: n.x6Id, drawingId: $drawingId}) 
+           SET e += n`, 
+          { batch, drawingId: CURRENT_DRAWING_ID }
+        );
+      }
+    }
+
+    // 3. 保存连线 (匹配 :Asset)
+    if (edges.length) {
+      const pipes = edges.filter(e => e.type !== 'Signal');
+      const signals = edges.filter(e => e.type === 'Signal');
+
+      // 3.1 保存工艺管线
+      if (pipes.length) {
+        await tx.run(
+          `UNWIND $pipes AS r 
+           MATCH (s:Asset {x6Id: r.source}), (t:Asset {x6Id: r.target}) 
+           CREATE (s)-[:PIPE {
+             fromPort:   r.sourcePort, 
+             toPort:     r.targetPort,
+             tag:        r.label,
+             material:   r.material,
+             fluid:      r.fluid,
+             dn:         r.dn,
+             pn:         r.pn,
+             insulation: r.insulation,
+             fromRegion: r.sourceRegion, 
+             fromDesc:   r.sourceDesc,
+             toRegion:   r.targetRegion,
+             toDesc:     r.targetDesc,
+             vertices:   r.vertices
+           }]->(t)`, 
+          { pipes }
+        );
+      }
+
+      // 3.2 保存信号线
+      if (signals.length) {
+        const controlSignals = signals.filter((s: any) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
+        const measureSignals = signals.filter((s: any) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
+
+        if (controlSignals.length) {
+          await tx.run(
+            `UNWIND $batch AS r 
+             MATCH (s:Asset {x6Id: r.source}), (t:Asset {x6Id: r.target}) 
+             CREATE (s)-[:CONTROLS {
+               fromPort:   r.sourcePort, 
+               toPort:     r.targetPort,
+               fluid:      'Signal',
+               vertices:   r.vertices 
+             }]->(t)`, 
+            { batch: controlSignals }
+          );
+        }
+
+        if (measureSignals.length) {
+          await tx.run(
+            `UNWIND $batch AS r 
+             MATCH (inst:Asset {x6Id: r.target}), (tp:Asset {x6Id: r.source}) 
+             CREATE (inst)-[:MEASURES {
+               fromPort:   r.targetPort,
+               toPort:     r.sourcePort,
+               fluid:      'Signal',
+               vertices:   r.vertices
+             }]->(tp)`, 
+            { batch: measureSignals }
+          );
+        }
+      }
+    }
+
+    await tx.commit();
+  } catch (e) {
+    await tx.rollback();
+    throw e;
+  } finally {
+    await session.close();
+  }
+};
+
+
+  export const loadGraphData = async () => {
+  const session = driver.session();
+  try {
+    // 1. 加载节点
+    const nodesResult = await session.run(
+      `MATCH (n:Asset {drawingId: $drawingId}) RETURN n`,
+      { drawingId: CURRENT_DRAWING_ID }
+    );
+    
+    const nodes = nodesResult.records.map(record => {
+      const props = record.get('n').properties;
+      
+      // 1. 解析 layout JSON
+      let layout: any = { x: 0, y: 0, w: 40, h: 40, a: 0 };
+      if (props.layout) {
+        try {
+          layout = JSON.parse(props.layout);
+        } catch (e) {
+          console.warn('Layout parse failed for node:', props.x6Id);
+        }
+      } else {
+        // 兼容旧数据
+        layout = {
+          x: props.x || 0,
+          y: props.y || 0,
+          w: props.width || 40,
+          h: props.height || 40,
+          a: props.angle || 0
+        };
+      }
+
+      // ... (Tag 处理逻辑保持不变) ...
+      if (props.Tag) { props.tag = props.Tag; }
+      const isTee = props.type === 'Fitting';
+      if (isTee) { props.tag = 'TEE'; props.Tag = 'TEE'; }
+
+      // ... (Shape 映射逻辑保持不变) ...
+      let shapeName = 'p-valve'; 
+      switch (props.type) {
+          
+          case 'Reactor':      shapeName = 'p-reactor'; break;
+          case 'Exchanger':    shapeName = 'p-exchanger'; break;
+          case 'Pump':         shapeName = 'p-pump'; break;
+          case 'LiquidPump':   shapeName = 'p-pump-liquid'; break;
+          case 'CentrifugalPump': shapeName = 'p-pump-centrifugal'; break;
+          case 'DiaphragmPump': shapeName = 'p-pump-diaphragm'; break;
+          case 'PistonPump':   shapeName = 'p-pump-piston'; break;
+          case 'Compressor':   shapeName = 'p-pump-compressor'; break;
+          case 'GearPump':     shapeName = 'p-pump-gear'; break;
+          case 'Fan':          shapeName = 'p-pump-fan'; break;
+          case 'JetPump':      shapeName = 'p-pump-jet'; break;
+          case 'ControlValve': shapeName = 'p-cv-pneumatic'; break;
+          case 'Valve':        shapeName = 'p-cv-manual'; break;
+          case 'Fitting':      shapeName = 'p-tee'; break; 
+          case 'Tank':         if (props.spec === 'Vertical') {shapeName = 'p-tank-vertical';} else {shapeName = 'p-tank-horizontal';} break;
+          case 'GasCooler':    shapeName = 'p-gas-cooler'; break;
+          case 'Trap':         shapeName = 'p-trap'; break;
+          case 'Trap':         shapeName = 'p-tv-trap'; break;
+          case 'FixedBedReactor': shapeName = 'p-fixed-bed-reactor'; break;
+          case 'VerticalExchanger': shapeName = 'p-exchanger-vertical'; break;
+          case 'Evaporator':   shapeName = 'p-naphthalene-evaporator'; break;
+          case 'Instrument':   
+            if(props.spec === 'Local') shapeName = 'p-inst-local';
+            else if(props.spec === 'Panel') shapeName = 'p-inst-panel';
+            else shapeName = 'p-inst-remote';
+            break;
+          case 'TappingPoint': shapeName = 'tapping-point'; break;
+          default: break;
+      }
+
+      // [核心修正 1] 清理 props，分离出纯业务数据
+      // 我们不希望 data 里包含 layout 字符串，也不希望包含旧的 x,y
+      const { layout: _layoutStr, x, y, width, height, angle, ...businessData } = props;
+
+      return {
+        id: props.x6Id,
+        shape: shapeName, 
+        
+        // [核心修正 2] 使用解析后的 layout 变量
+        // 注意：保存时用的键是 w, h, a，这里要对应上
+        x: layout.x,
+        y: layout.y,
+        width: layout.w, 
+        height: layout.h,
+        angle: layout.a, 
+        
+        // [核心修正 3] data 只放入清洗后的业务数据
+        data: { ...businessData }, 
+        
+        attrs: { 
+          label: { 
+            text: isTee ? '' : (props.Tag || props.tag || props.label),
+            display: isTee ? 'none' : undefined
+          },
+          topLabel: props.tagId ? { text: props.tagId } : undefined,
+          bottomLabel: props.loopNum ? { text: props.loopNum } : undefined,
+        }
+      };
+    });
+
+    // 2. [修改] 加载连线 (匹配 :Asset)
+    const edgesResult = await session.run(`
+      MATCH (s:Asset {drawingId: $drawingId})-[r:PIPE|MEASURES|CONTROLS]->(t:Asset {drawingId: $drawingId}) 
+      RETURN s.x6Id as sourceId, t.x6Id as targetId, r, type(r) as relType
+    `, { drawingId: CURRENT_DRAWING_ID });
+    
+    // ... (edges map 逻辑保持不变) ...
+    const edges = edgesResult.records.map(record => {
+        // ... 保持原样 ...
+        const rel = record.get('r').properties;
+        const relType = record.get('relType'); 
+        const sourceId = record.get('sourceId');
+        const targetId = record.get('targetId');
+        
+        let strokeWidth = 2;
+        let strokeColor = FLUID_COLORS[rel.fluid] || '#5F95FF';
+        let dashArray = null;
+        let targetMarker: any = null; 
+        let edgeType = 'Pipe'; 
+        let labels: any[] = [];
+        let vertices = [];
+        
+        if (rel.vertices) {
+            try { vertices = JSON.parse(rel.vertices); } catch (e) { console.warn('Vertices parse error', e); }
+        }
+
+        if (relType === 'MEASURES' || relType === 'CONTROLS') {
+            strokeWidth = 1;
+            strokeColor = FLUID_COLORS.Signal; 
+            dashArray = '4 4';    
+            targetMarker = { name: 'classic', width: 10, height: 6 }; 
+            edgeType = 'Signal';
+        } else {
+            targetMarker = { name: 'classic', width: 8, height: 6 }; 
+            if (rel.insulation && rel.insulation.startsWith('Jacket')) {
+            strokeWidth = 4;
+            strokeColor = FLUID_COLORS.Oil; 
+            } else if (['ST', 'ET', 'OT'].includes(rel.insulation)) {
+            dashArray = '5 5'; 
+            }
+        }
+
+        if (relType === 'PIPE' && rel.tag) {
+            labels.push({
+            attrs: { label: { text: rel.tag }, body: { fill: '#fff', stroke: '#333' } },
+            position: { distance: 0.5, args: { y: -15 } } 
+            });
+        }
+
+        let finalSourceId = sourceId;
+        let finalTargetId = targetId;
+        let finalSourcePort = rel.fromPort;
+        let finalTargetPort = rel.toPort;
+
+        if (relType === 'MEASURES') {
+            finalSourceId = targetId; 
+            finalTargetId = sourceId; 
+            finalSourcePort = rel.toPort;   
+            finalTargetPort = rel.fromPort; 
+        }
+
+        return {
+            shape: edgeType === 'Signal' ? 'signal-edge' : 'edge',
+            source: { cell: finalSourceId, port: finalSourcePort || undefined },
+            target: { cell: finalTargetId, port: finalTargetPort || undefined },
+            vertices: vertices, 
+            attrs: { 
+            line: { 
+                stroke: strokeColor,
+                strokeWidth: strokeWidth,
+                strokeDasharray: dashArray,
+                targetMarker: targetMarker
+            } 
+            },
+            labels: labels,
+            data: { 
+            type: edgeType, 
+            relationType: relType, 
+            material: rel.material, 
+            fluid: rel.fluid,
+            dn: rel.dn,
+            pn: rel.pn,
+            insulation: rel.insulation
+            }
+        };
+    });
+
+    return { nodes, edges };
+  } finally {
+    await session.close();
+  }
+};
 </file>
 
 <file path="src/graph/cells/registry.ts">
@@ -6318,399 +6698,7 @@ export const registerCustomCells = () => {
     data: { type: 'VerticalExchanger', spec: 'Vertical', area: '100' },
   });
 
-  // 疏水阀 (复杂版) 暂时保留手动注册
-  registerNodeWithCache('p-tv-trap', {
-    inherit: 'image',
-    width: 250, 
-    height: 100,
-    imageUrl: svgToDataUrl(tvtrapSvg),
-    ports: {
-      groups: {
-          all: { position: 'absolute', attrs: PORT_ATTRS }
-      },
-      items: [
-          { id: 'i', group: 'all', args: { x: '0%', y: '49%' }, data: { desc: '新接口', region: 'ShellSide', dir: 'bi' } as PortData },
-          { id: 'o', group: 'all', args: { x: '100%', y: '49%' }, data: { desc: '新接口', region: 'ShellSide', dir: 'bi' } as PortData }
-      ],
-    },
-    attrs: LABEL_ATTRS,
-    data: { 
-      type: 'Trap', 
-      tag: 'tv-Trap', 
-      spec: 'Spec...',
-    },
-  });
-};
-</file>
-
-<file path="src/services/neo4j.ts">
-// src/services/neo4j.ts
-import neo4j from 'neo4j-driver';
-import { FLUID_COLORS, CURRENT_DRAWING_ID } from '../config/rules';
-
-const uri = import.meta.env.VITE_NEO4J_URI || 'bolt://localhost:7687';
-const user = import.meta.env.VITE_NEO4J_USER || 'neo4j';
-const password = import.meta.env.VITE_NEO4J_PASSWORD || '';
-
-// 创建驱动实例
-const driver = neo4j.driver(
-  uri,
-  neo4j.auth.basic(user, password)
-);
-
-export default driver;
-
-// [新增] 类型映射表：定义 X6 type 到 Neo4j Labels 的映射关系
-// 所有的节点都会自动带上 :Asset 标签
-const TYPE_MAPPING: Record<string, string[]> = {
-  // 反应器类
-  'Reactor':           ['Equipment', 'Reactor'],
-  'FixedBedReactor':   ['Equipment', 'Reactor'],
-  
-  // 换热器类
-  'Exchanger':         ['Equipment', 'Exchanger'],
-  'VerticalExchanger': ['Equipment', 'Exchanger'],
-  'Evaporator':        ['Equipment', 'Exchanger'],
-  'GasCooler':         ['Equipment', 'Exchanger'],
-  
-  // 泵/压缩机类
-  'Pump':              ['Equipment', 'Pump'],
-  'LiquidPump':        ['Equipment', 'Pump'],
-  'CentrifugalPump':   ['Equipment', 'Pump'],
-  'DiaphragmPump':     ['Equipment', 'Pump'],
-  'PistonPump':        ['Equipment', 'Pump'],
-  'GearPump':          ['Equipment', 'Pump'],
-  'JetPump':           ['Equipment', 'Pump'],
-  'Compressor':        ['Equipment', 'Pump', 'Compressor'], // 压缩机也是流体输送设备，但也可是独立分类
-  'Fan':               ['Equipment', 'Pump', 'Fan'],
-  
-  // 阀门类 (包括手动阀和调节阀)
-  'Valve':             ['Equipment', 'Valve'],
-  'ControlValve':      ['Equipment', 'Valve', 'ControlValve'], // 调节阀既是阀门，也是控制元件
-  'Trap':              ['Equipment', 'Trap'],
-  
-  // 容器类
-  'Tank':              ['Equipment', 'Vessel'],
-  'Trap':              ['Equipment', 'Vessel'],
-  
-  // 管件
-  'Fitting':           ['Equipment', 'Fitting'],
-  
-  // 仪表类
-  'Instrument':        ['Instrument'],
-  'TappingPoint':      ['Instrument', 'Connection'], // 测点
-  
-  // 默认
-  'default':           ['Equipment', 'Other']
-};
-
-export const saveGraphData = async (nodes: any[], edges: any[]) => {
-  const session = driver.session();
-  const tx = session.beginTransaction();
-  try {
-    // 1. [修改] 删除当前图纸的所有资产 (使用基类标签 :Asset)
-    await tx.run(
-      `MATCH (n:Asset {drawingId: $drawingId}) DETACH DELETE n`,
-      { drawingId: CURRENT_DRAWING_ID }
-    );
-
-    // 2. [重构] 保存节点 - 根据类型进行分组批量插入
-    if (nodes.length) {
-      // 2.1 在内存中对节点进行分组
-      const groups: Record<string, any[]> = {};
-      
-      nodes.forEach(node => {
-        const type = node.type || 'Unknown';
-        // 获取对应的标签列表，例如 ['Equipment', 'Pump']
-        const labels = TYPE_MAPPING[type] || TYPE_MAPPING['default'];
-        // 生成唯一的 Group Key，例如 "Equipment_Pump"
-        const groupKey = labels.join(':');
-        
-        if (!groups[groupKey]) groups[groupKey] = [];
-        groups[groupKey].push(node);
-      });
-
-      // 2.2 针对每一组生成特定的 Cypher 语句
-      for (const [labelString, batch] of Object.entries(groups)) {
-        // labelString 是 "Equipment:Pump"，我们需要把它拼接到 Cypher 中
-        // 注意：Cypher 不支持参数化 Label，所以这里必须使用字符串拼接
-        // 但由于 labelString 来自我们内部定义的 TYPE_MAPPING，所以是安全的
-        const labels = `:Asset:${labelString}`; 
-        
-        await tx.run(
-          `UNWIND $batch AS n 
-           CREATE (e${labels} {x6Id: n.x6Id, drawingId: $drawingId}) 
-           SET e += n`, 
-          { batch, drawingId: CURRENT_DRAWING_ID }
-        );
-      }
-    }
-
-    // 3. 保存连线 (匹配 :Asset)
-    if (edges.length) {
-      const pipes = edges.filter(e => e.type !== 'Signal');
-      const signals = edges.filter(e => e.type === 'Signal');
-
-      // 3.1 保存工艺管线
-      if (pipes.length) {
-        await tx.run(
-          `UNWIND $pipes AS r 
-           MATCH (s:Asset {x6Id: r.source}), (t:Asset {x6Id: r.target}) 
-           CREATE (s)-[:PIPE {
-             fromPort:   r.sourcePort, 
-             toPort:     r.targetPort,
-             tag:        r.label,
-             material:   r.material,
-             fluid:      r.fluid,
-             dn:         r.dn,
-             pn:         r.pn,
-             insulation: r.insulation,
-             fromRegion: r.sourceRegion, 
-             fromDesc:   r.sourceDesc,
-             toRegion:   r.targetRegion,
-             toDesc:     r.targetDesc,
-             vertices:   r.vertices
-           }]->(t)`, 
-          { pipes }
-        );
-      }
-
-      // 3.2 保存信号线
-      if (signals.length) {
-        const controlSignals = signals.filter((s: any) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
-        const measureSignals = signals.filter((s: any) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
-
-        if (controlSignals.length) {
-          await tx.run(
-            `UNWIND $batch AS r 
-             MATCH (s:Asset {x6Id: r.source}), (t:Asset {x6Id: r.target}) 
-             CREATE (s)-[:CONTROLS {
-               fromPort:   r.sourcePort, 
-               toPort:     r.targetPort,
-               fluid:      'Signal',
-               vertices:   r.vertices 
-             }]->(t)`, 
-            { batch: controlSignals }
-          );
-        }
-
-        if (measureSignals.length) {
-          await tx.run(
-            `UNWIND $batch AS r 
-             MATCH (inst:Asset {x6Id: r.target}), (tp:Asset {x6Id: r.source}) 
-             CREATE (inst)-[:MEASURES {
-               fromPort:   r.targetPort,
-               toPort:     r.sourcePort,
-               fluid:      'Signal',
-               vertices:   r.vertices
-             }]->(tp)`, 
-            { batch: measureSignals }
-          );
-        }
-      }
-    }
-
-    await tx.commit();
-  } catch (e) {
-    await tx.rollback();
-    throw e;
-  } finally {
-    await session.close();
-  }
-};
-
-
-  export const loadGraphData = async () => {
-  const session = driver.session();
-  try {
-    // 1. 加载节点
-    const nodesResult = await session.run(
-      `MATCH (n:Asset {drawingId: $drawingId}) RETURN n`,
-      { drawingId: CURRENT_DRAWING_ID }
-    );
-    
-    const nodes = nodesResult.records.map(record => {
-      const props = record.get('n').properties;
-      
-      // 1. 解析 layout JSON
-      let layout: any = { x: 0, y: 0, w: 40, h: 40, a: 0 };
-      if (props.layout) {
-        try {
-          layout = JSON.parse(props.layout);
-        } catch (e) {
-          console.warn('Layout parse failed for node:', props.x6Id);
-        }
-      } else {
-        // 兼容旧数据
-        layout = {
-          x: props.x || 0,
-          y: props.y || 0,
-          w: props.width || 40,
-          h: props.height || 40,
-          a: props.angle || 0
-        };
-      }
-
-      // ... (Tag 处理逻辑保持不变) ...
-      if (props.Tag) { props.tag = props.Tag; }
-      const isTee = props.type === 'Fitting';
-      if (isTee) { props.tag = 'TEE'; props.Tag = 'TEE'; }
-
-      // ... (Shape 映射逻辑保持不变) ...
-      let shapeName = 'p-valve'; 
-      switch (props.type) {
-          
-          case 'Reactor':      shapeName = 'p-reactor'; break;
-          case 'Exchanger':    shapeName = 'p-exchanger'; break;
-          case 'Pump':         shapeName = 'p-pump'; break;
-          case 'LiquidPump':   shapeName = 'p-pump-liquid'; break;
-          case 'CentrifugalPump': shapeName = 'p-pump-centrifugal'; break;
-          case 'DiaphragmPump': shapeName = 'p-pump-diaphragm'; break;
-          case 'PistonPump':   shapeName = 'p-pump-piston'; break;
-          case 'Compressor':   shapeName = 'p-pump-compressor'; break;
-          case 'GearPump':     shapeName = 'p-pump-gear'; break;
-          case 'Fan':          shapeName = 'p-pump-fan'; break;
-          case 'JetPump':      shapeName = 'p-pump-jet'; break;
-          case 'ControlValve': shapeName = 'p-cv-pneumatic'; break;
-          case 'Valve':        shapeName = 'p-cv-manual'; break;
-          case 'Fitting':      shapeName = 'p-tee'; break; 
-          case 'Tank':         if (props.spec === 'Vertical') {shapeName = 'p-tank-vertical';} else {shapeName = 'p-tank-horizontal';} break;
-          case 'GasCooler':    shapeName = 'p-gas-cooler'; break;
-          case 'Trap':         shapeName = 'p-trap'; break;
-          case 'Trap':         shapeName = 'p-tv-trap'; break;
-          case 'FixedBedReactor': shapeName = 'p-fixed-bed-reactor'; break;
-          case 'VerticalExchanger': shapeName = 'p-exchanger-vertical'; break;
-          case 'Evaporator':   shapeName = 'p-naphthalene-evaporator'; break;
-          case 'Instrument':   
-            if(props.spec === 'Local') shapeName = 'p-inst-local';
-            else if(props.spec === 'Panel') shapeName = 'p-inst-panel';
-            else shapeName = 'p-inst-remote';
-            break;
-          case 'TappingPoint': shapeName = 'tapping-point'; break;
-          default: break;
-      }
-
-      // [核心修正 1] 清理 props，分离出纯业务数据
-      // 我们不希望 data 里包含 layout 字符串，也不希望包含旧的 x,y
-      const { layout: _layoutStr, x, y, width, height, angle, ...businessData } = props;
-
-      return {
-        id: props.x6Id,
-        shape: shapeName, 
-        
-        // [核心修正 2] 使用解析后的 layout 变量
-        // 注意：保存时用的键是 w, h, a，这里要对应上
-        x: layout.x,
-        y: layout.y,
-        width: layout.w, 
-        height: layout.h,
-        angle: layout.a, 
-        
-        // [核心修正 3] data 只放入清洗后的业务数据
-        data: { ...businessData }, 
-        
-        attrs: { 
-          label: { 
-            text: isTee ? '' : (props.Tag || props.tag || props.label),
-            display: isTee ? 'none' : undefined
-          },
-          topLabel: props.tagId ? { text: props.tagId } : undefined,
-          bottomLabel: props.loopNum ? { text: props.loopNum } : undefined,
-        }
-      };
-    });
-
-    // 2. [修改] 加载连线 (匹配 :Asset)
-    const edgesResult = await session.run(`
-      MATCH (s:Asset {drawingId: $drawingId})-[r:PIPE|MEASURES|CONTROLS]->(t:Asset {drawingId: $drawingId}) 
-      RETURN s.x6Id as sourceId, t.x6Id as targetId, r, type(r) as relType
-    `, { drawingId: CURRENT_DRAWING_ID });
-    
-    // ... (edges map 逻辑保持不变) ...
-    const edges = edgesResult.records.map(record => {
-        // ... 保持原样 ...
-        const rel = record.get('r').properties;
-        const relType = record.get('relType'); 
-        const sourceId = record.get('sourceId');
-        const targetId = record.get('targetId');
-        
-        let strokeWidth = 2;
-        let strokeColor = FLUID_COLORS[rel.fluid] || '#5F95FF';
-        let dashArray = null;
-        let targetMarker: any = null; 
-        let edgeType = 'Pipe'; 
-        let labels: any[] = [];
-        let vertices = [];
-        
-        if (rel.vertices) {
-            try { vertices = JSON.parse(rel.vertices); } catch (e) { console.warn('Vertices parse error', e); }
-        }
-
-        if (relType === 'MEASURES' || relType === 'CONTROLS') {
-            strokeWidth = 1;
-            strokeColor = FLUID_COLORS.Signal; 
-            dashArray = '4 4';    
-            targetMarker = { name: 'classic', width: 10, height: 6 }; 
-            edgeType = 'Signal';
-        } else {
-            targetMarker = { name: 'classic', width: 8, height: 6 }; 
-            if (rel.insulation && rel.insulation.startsWith('Jacket')) {
-            strokeWidth = 4;
-            strokeColor = FLUID_COLORS.Oil; 
-            } else if (['ST', 'ET', 'OT'].includes(rel.insulation)) {
-            dashArray = '5 5'; 
-            }
-        }
-
-        if (relType === 'PIPE' && rel.tag) {
-            labels.push({
-            attrs: { label: { text: rel.tag }, body: { fill: '#fff', stroke: '#333' } },
-            position: { distance: 0.5, args: { y: -15 } } 
-            });
-        }
-
-        let finalSourceId = sourceId;
-        let finalTargetId = targetId;
-        let finalSourcePort = rel.fromPort;
-        let finalTargetPort = rel.toPort;
-
-        if (relType === 'MEASURES') {
-            finalSourceId = targetId; 
-            finalTargetId = sourceId; 
-            finalSourcePort = rel.toPort;   
-            finalTargetPort = rel.fromPort; 
-        }
-
-        return {
-            shape: edgeType === 'Signal' ? 'signal-edge' : 'edge',
-            source: { cell: finalSourceId, port: finalSourcePort || undefined },
-            target: { cell: finalTargetId, port: finalTargetPort || undefined },
-            vertices: vertices, 
-            attrs: { 
-            line: { 
-                stroke: strokeColor,
-                strokeWidth: strokeWidth,
-                strokeDasharray: dashArray,
-                targetMarker: targetMarker
-            } 
-            },
-            labels: labels,
-            data: { 
-            type: edgeType, 
-            relationType: relType, 
-            material: rel.material, 
-            fluid: rel.fluid,
-            dn: rel.dn,
-            pn: rel.pn,
-            insulation: rel.insulation
-            }
-        };
-    });
-
-    return { nodes, edges };
-  } finally {
-    await session.close();
-  }
+ 
 };
 </file>
 
