@@ -1,0 +1,16 @@
+<svg width="60" height="60" viewBox="4.4 9.9 20.5 10.7" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs/>
+  <g transform="translate(-15.565 7.5317)">
+    <g transform="matrix(.10102 0 0 .10102 27.472 2.5299)" fill="none">
+      <g fill="none">
+        <path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m20.004 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/>
+        <path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m34.974 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/>
+        <g pointer-events="all">
+          <rect x="1" y="1" width="50" height="100"/>
+          <rect x="1" y="1" width="50" height="100" stroke="#000" stroke-width="2.9697"/>
+          <path d="m11 1v20c16.57 0 30 13.43 30 30s-13.43 30-30 30v20" stroke="#000" stroke-miterlimit="10" stroke-width="2.9697"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

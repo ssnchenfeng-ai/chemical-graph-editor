@@ -68,19 +68,34 @@ src/
   graph/
     cells/
       data/
+        p-airtrap.json
         p-centrifugalpump.json
         p-compressor.json
         p-controlvalve.json
+        p-cvelectric.json
+        p-cvmanual.json
+        p-cvpiston.json
+        p-cvpneumatic.json
+        p-cvpositioner.json
+        p-cvsolenoid.json
         p-diaphragmpump.json
         p-e101.json
         p-e13.json
         p-exchangervertical.json
+        p-fan.json
         p-fixedbedreactor.json
         p-gascooler.json
+        p-gearpump.json
+        p-hvnew.json
+        p-inst-local.json
+        p-inst-panel.json
+        p-inst-remote.json
         p-jetpump.json
+        p-manualvalve.json
         p-p101.json
         p-pistonpump.json
         p-r101.json
+        p-rupturedisc.json
         p-tank.json
         p-tankvertical.json
         p-tappingpoint.json
@@ -98,22 +113,35 @@ src/
         exchanger.svg
         frame-a2.svg
         gas-cooler.svg
-        inst-local.svg
-        inst-panel.svg
-        inst-remote.svg
+        p-airtrap.svg
         p-centrifugalpump.svg
         p-compressor.svg
         p-controlvalve.svg
+        p-cvelectric.svg
+        p-cvmanual.svg
+        p-cvpiston.svg
+        p-cvpneumatic.svg
+        p-cvpositioner.svg
+        p-cvsolenoid.svg
         p-diaphragmpump.svg
         p-e101.svg
         p-e13.svg
         p-exchangervertical.svg
+        p-fan.svg
+        p-fitting.svg
         p-fixedbedreactor.svg
         p-gascooler.svg
+        p-gearpump.svg
+        p-hvnew.svg
+        p-inst-local.svg
+        p-inst-panel.svg
+        p-inst-remote.svg
         p-jetpump.svg
+        p-manualvalve.svg
         p-p101.svg
         p-pistonpump.svg
         p-r101.svg
+        p-rupturedisc.svg
         p-tank.svg
         p-tankvertical.svg
         p-tappingpoint.svg
@@ -160,6 +188,205 @@ vite.config.ts
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="src/graph/cells/data/p-hvnew.json">
+{
+  "width": 100,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "all": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "all",
+        "args": {
+          "x": "25.5%",
+          "y": "55%"
+        },
+        "data": {
+          "desc": "新接口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "all",
+        "args": {
+          "x": "75.5%",
+          "y": "56%"
+        },
+        "data": {
+          "desc": "新接口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "ManualValve",
+    "tag": "HV-New",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/data/p-manualvalve.json">
+{
+  "width": 100,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "all": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "all",
+        "args": {
+          "x": "25.5%",
+          "y": "55%"
+        },
+        "data": {
+          "desc": "新接口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "all",
+        "args": {
+          "x": "75.5%",
+          "y": "56%"
+        },
+        "data": {
+          "desc": "新接口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "ManualValve",
+    "tag": "HV-New",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/data/p-rupturedisc.json">
+{
+  "width": 60,
+  "height": 60,
+  "ports": {
+    "groups": {
+      "all": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "all",
+        "args": {
+          "x": "1%",
+          "y": "49%"
+        },
+        "data": {
+          "desc": "入口",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "out",
+        "group": "all",
+        "args": {
+          "x": "100%",
+          "y": "49%"
+        },
+        "data": {
+          "desc": "出口",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Fitting",
+    "tag": "Rupturedisc",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/svgs/p-fitting.svg">
+<svg width="29.104mm" height="30.427mm" version="1.1" viewBox="0 0 29.104 30.427" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs/><g transform="translate(-15.565 7.5317)"><g transform="matrix(.10102 0 0 .10102 27.472 2.5299)" fill="none"><g fill="none"><path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m20.004 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/><path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m34.974 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/><g pointer-events="all"><rect x="1" y="1" width="50" height="100"/><rect x="1" y="1" width="50" height="100" stroke="#000" stroke-width="2.9697"/><path d="m11 1v20c16.57 0 30 13.43 30 30s-13.43 30-30 30v20" stroke="#000" stroke-miterlimit="10" stroke-width="2.9697"/></g></g></g></g></svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-hvnew.svg">
+<svg width="100" height="100" version="1.1" viewBox="-.5 -.5 100 100" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><g transform="translate(12.252 -74.364)"><g transform="translate(12.248 95.114)" fill="none" pointer-events="all" stroke="#000" stroke-linejoin="round" stroke-miterlimit="10"><path d="m12.5 7.5h25m-12.5 0v27.5"/><path d="m0 20 25 15-25 15zm50 0-25 15 25 15z"/></g></g></svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-manualvalve.svg">
+<svg width="100" height="100" version="1.1" viewBox="-.5 -.5 100 100" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><g transform="translate(12.252 -74.364)"><g transform="translate(12.248 95.114)" fill="none" pointer-events="all" stroke="#000" stroke-linejoin="round" stroke-miterlimit="10"><path d="m12.5 7.5h25m-12.5 0v27.5"/><path d="m0 20 25 15-25 15zm50 0-25 15 25 15z"/></g></g></svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-rupturedisc.svg">
+<svg width="60" height="60" viewBox="4.4 9.9 20.5 10.7" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs/>
+  <g transform="translate(-15.565 7.5317)">
+    <g transform="matrix(.10102 0 0 .10102 27.472 2.5299)" fill="none">
+      <g fill="none">
+        <path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m20.004 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/>
+        <path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m34.974 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/>
+        <g pointer-events="all">
+          <rect x="1" y="1" width="50" height="100"/>
+          <rect x="1" y="1" width="50" height="100" stroke="#000" stroke-width="2.9697"/>
+          <path d="m11 1v20c16.57 0 30 13.43 30 30s-13.43 30-30 30v20" stroke="#000" stroke-miterlimit="10" stroke-width="2.9697"/>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>
+</file>
 
 <file path="public/vite.svg">
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
@@ -521,6 +748,62 @@ export default AttributeDesigner;
 }
 </file>
 
+<file path="src/graph/cells/data/p-airtrap.json">
+{
+  "width": 120,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "all": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "all",
+        "args": {
+          "x": "75%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "捕集器入口",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "out",
+        "group": "all",
+        "args": {
+          "x": "33%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "捕集器出口",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Tank",
+    "tag": "Air-Trap",
+    "spec": "Spec..."
+  }
+}
+</file>
+
 <file path="src/graph/cells/data/p-centrifugalpump.json">
 {
   "width": 100,
@@ -745,6 +1028,564 @@ export default AttributeDesigner;
   "data": {
     "type": "ControlValve",
     "tag": "FV-101",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/data/p-cvelectric.json">
+{
+  "width": 60,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "actuator": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "left",
+        "args": {
+          "x": "0%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门入口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "right",
+        "args": {
+          "x": "100%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门出口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "actuator",
+        "group": "actuator",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "执行机构",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "ControlValve",
+    "tag": "cv-electric",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/data/p-cvmanual.json">
+{
+  "width": 60,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "actuator": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "left",
+        "args": {
+          "x": "0%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门入口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "right",
+        "args": {
+          "x": "100%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门出口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "actuator",
+        "group": "actuator",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "执行机构",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "ControlValve",
+    "tag": "cv-manual",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/data/p-cvpiston.json">
+{
+  "width": 60,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "actuator": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "left",
+        "args": {
+          "x": "0%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门入口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "right",
+        "args": {
+          "x": "100%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门出口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "actuator",
+        "group": "actuator",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "执行机构",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "ControlValve",
+    "tag": "cv-piston",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/data/p-cvpneumatic.json">
+{
+  "width": 60,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "actuator": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "left",
+        "args": {
+          "x": "0%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门入口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "right",
+        "args": {
+          "x": "100%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门出口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "actuator",
+        "group": "actuator",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "执行机构",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "ControlValve",
+    "tag": "cv-pneumatic",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/data/p-cvpositioner.json">
+{
+  "width": 60,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "actuator": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "left",
+        "args": {
+          "x": "0%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门入口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "right",
+        "args": {
+          "x": "100%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门出口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "actuator",
+        "group": "actuator",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "执行机构",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "ControlValve",
+    "tag": "cv-positioner",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/data/p-cvsolenoid.json">
+{
+  "width": 90,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "actuator": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "left",
+        "args": {
+          "x": "0%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门入口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "right",
+        "args": {
+          "x": "100%",
+          "y": "83.33%"
+        },
+        "data": {
+          "desc": "阀门出口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "actuator",
+        "group": "actuator",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "执行机构",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "ControlValve",
+    "tag": "cv-solenoid",
     "spec": "Spec..."
   }
 }
@@ -1370,6 +2211,74 @@ export default AttributeDesigner;
 }
 </file>
 
+<file path="src/graph/cells/data/p-fan.json">
+{
+  "width": 100,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "in": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "out": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "in",
+        "args": {
+          "x": "50%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "泵入口",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "out",
+        "group": "out",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "泵出口",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Fan",
+    "tag": "P-101",
+    "spec": "Spec..."
+  }
+}
+</file>
+
 <file path="src/graph/cells/data/p-fixedbedreactor.json">
 {
   "width": 260,
@@ -1823,6 +2732,155 @@ export default AttributeDesigner;
     "tag": "GAS-COOLER",
     "spec": "Spec..."
   }
+}
+</file>
+
+<file path="src/graph/cells/data/p-gearpump.json">
+{
+  "width": 100,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "in": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "out": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "in",
+        "args": {
+          "x": "50%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "泵入口",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "out",
+        "group": "out",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "泵出口",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "GearPump",
+    "tag": "P-101",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/data/p-inst-local.json">
+{
+  "width": 40,
+  "height": 40,
+  "markup": [
+    { "tagName": "image", "selector": "body" },
+    { "tagName": "text", "selector": "topLabel" },
+    { "tagName": "text", "selector": "bottomLabel" }
+  ],
+  "attrs": {
+    "body": { "refWidth": "100%", "refHeight": "100%" },
+    "topLabel": { "refX": 0.5, "refY": 0.35, "textAnchor": "middle", "textVerticalAnchor": "middle", "fontSize": 9, "fontWeight": "bold", "fill": "#000", "text": "PI" },
+    "bottomLabel": { "refX": 0.5, "refY": 0.65, "textAnchor": "middle", "textVerticalAnchor": "middle", "fontSize": 9, "fontWeight": "bold", "fill": "#000", "text": "101" }
+  },
+  "ports": {
+    "groups": { "all": { "position": "absolute", "attrs": { "circle": { "r": 3, "magnet": true, "stroke": "#FFFFFF", "strokeWidth": 1, "fill": "#e3dedeff" } } } },
+    "items": [
+      { "id": "top", "group": "all", "args": { "x": "50%", "y": "0%" } },
+      { "id": "bottom", "group": "all", "args": { "x": "50%", "y": "100%" } },
+      { "id": "left", "group": "all", "args": { "x": "0%", "y": "50%" } },
+      { "id": "right", "group": "all", "args": { "x": "100%", "y": "50%" } }
+    ]
+  },
+  "data": { "type": "Instrument", "spec": "Local", "tagId": "PI", "loopNum": "101", "range": "0-1.6", "unit": "MPa" }
+}
+</file>
+
+<file path="src/graph/cells/data/p-inst-panel.json">
+{
+  "width": 40,
+  "height": 40,
+  "markup": [
+    { "tagName": "image", "selector": "body" },
+    { "tagName": "text", "selector": "topLabel" },
+    { "tagName": "text", "selector": "bottomLabel" }
+  ],
+  "attrs": {
+    "body": { "refWidth": "100%", "refHeight": "100%" },
+    "topLabel": { "refX": 0.5, "refY": 0.35, "textAnchor": "middle", "textVerticalAnchor": "middle", "fontSize": 9, "fontWeight": "bold", "fill": "#000", "text": "PI" },
+    "bottomLabel": { "refX": 0.5, "refY": 0.65, "textAnchor": "middle", "textVerticalAnchor": "middle", "fontSize": 9, "fontWeight": "bold", "fill": "#000", "text": "101" }
+  },
+  "ports": {
+    "groups": { "all": { "position": "absolute", "attrs": { "circle": { "r": 3, "magnet": true, "stroke": "#FFFFFF", "strokeWidth": 1, "fill": "#e3dedeff" } } } },
+    "items": [
+      { "id": "top", "group": "all", "args": { "x": "50%", "y": "0%" } },
+      { "id": "bottom", "group": "all", "args": { "x": "50%", "y": "100%" } },
+      { "id": "left", "group": "all", "args": { "x": "0%", "y": "50%" } },
+      { "id": "right", "group": "all", "args": { "x": "100%", "y": "50%" } }
+    ]
+  },
+  "data": { "type": "Instrument", "spec": "Panel", "tagId": "PI", "loopNum": "101", "range": "0-1.6", "unit": "MPa" }
+}
+</file>
+
+<file path="src/graph/cells/data/p-inst-remote.json">
+{
+  "width": 40,
+  "height": 40,
+  "markup": [
+    { "tagName": "image", "selector": "body" },
+    { "tagName": "text", "selector": "topLabel" },
+    { "tagName": "text", "selector": "bottomLabel" }
+  ],
+  "attrs": {
+    "body": { "refWidth": "100%", "refHeight": "100%" },
+    "topLabel": { "refX": 0.5, "refY": 0.35, "textAnchor": "middle", "textVerticalAnchor": "middle", "fontSize": 9, "fontWeight": "bold", "fill": "#000", "text": "PI" },
+    "bottomLabel": { "refX": 0.5, "refY": 0.65, "textAnchor": "middle", "textVerticalAnchor": "middle", "fontSize": 9, "fontWeight": "bold", "fill": "#000", "text": "101" }
+  },
+  "ports": {
+    "groups": { "all": { "position": "absolute", "attrs": { "circle": { "r": 3, "magnet": true, "stroke": "#FFFFFF", "strokeWidth": 1, "fill": "#e3dedeff" } } } },
+    "items": [
+      { "id": "top", "group": "all", "args": { "x": "50%", "y": "0%" } },
+      { "id": "bottom", "group": "all", "args": { "x": "50%", "y": "100%" } },
+      { "id": "left", "group": "all", "args": { "x": "0%", "y": "50%" } },
+      { "id": "right", "group": "all", "args": { "x": "100%", "y": "50%" } }
+    ]
+  },
+  "data": { "type": "Instrument", "spec": "Remote", "tagId": "PI", "loopNum": "101", "range": "0-1.6", "unit": "MPa" }
 }
 </file>
 
@@ -3084,6 +4142,37 @@ export default AttributeDesigner;
 </svg>
 </file>
 
+<file path="src/graph/cells/svgs/p-airtrap.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0.00 0.00 120 100" fill="none" stroke="black" stroke-width="2" width="120" height="100">
+  <!-- 主罐体 -->
+  <rect x="20" y="30" width="90" height="60" fill="white"/>
+
+  <!-- 内部挡板 -->
+  <!-- 右侧挡板：从上往下 -->
+  <line x1="75" y1="30" x2="75" y2="75"/>
+  <!-- 左侧挡板：从下往上 -->
+  <line x1="50" y1="90" x2="50" y2="45"/>
+
+  <!-- N1: 入口连接桩 (右上) - 已移除文字，增加法兰盖 -->
+  <line x1="85" y1="30" x2="85" y2="10"/>
+  <line x1="91" y1="30" x2="91" y2="10"/>
+  <!-- N1 法兰 -->
+  <line x1="82" y1="10" x2="94" y2="10"/>
+
+  <!-- N2: 出口连接桩 (左上) - 已移除文字，增加法兰盖 -->
+  <line x1="35" y1="30" x2="35" y2="10"/>
+  <line x1="41" y1="30" x2="41" y2="10"/>
+  <!-- N2 法兰 -->
+  <line x1="32" y1="10" x2="44" y2="10"/>
+
+  <!-- M1: 侧口 (左侧) - 保持不变 -->
+  <line x1="20" y1="50" x2="10" y2="50"/>
+  <line x1="20" y1="62" x2="10" y2="62"/>
+  <line x1="10" y1="46" x2="10" y2="66"/>
+  <text x="5" y="60" text-anchor="end" font-family="Arial" font-size="12" stroke="none" fill="black" font-weight="bold">M1</text>
+</svg>
+</file>
+
 <file path="src/graph/cells/svgs/p-centrifugalpump.svg">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
   <circle cx="50" cy="50" r="48" fill="white" />
@@ -3109,7 +4198,28 @@ export default AttributeDesigner;
 </svg>
 </file>
 
-<file path="src/graph/cells/svgs/p-controlvalve.svg">
+<file path="src/graph/cells/svgs/p-cvelectric.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  <line x1="30" y1="85" x2="30" y2="40" />
+  <circle cx="30" cy="25" r="15" fill="white" />
+  <!-- 文字 M -->
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">M</text>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-cvmanual.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  <line x1="30" y1="85" x2="30" y2="40" />
+  <circle cx="30" cy="25" r="15" fill="white" />
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">H</text>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-cvpiston.svg">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
   <!-- 阀体 (Bowtie) -->
   <polygon points="5,75 30,85 5,95" fill="white" />
@@ -3123,6 +4233,64 @@ export default AttributeDesigner;
   <rect x="15" y="25" width="30" height="15" fill="white" />
   <!-- 上矩形 -->
   <rect x="15" y="10" width="30" height="15" fill="white" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-cvpneumatic.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 阀体 (Bowtie) -->
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  <!-- 阀杆 -->
+  <line x1="30" y1="85" x2="30" y2="40" />
+  <!-- 执行机构 (圆头) -->
+  <circle cx="30" cy="25" r="15" fill="white" />
+  <!-- 文字 P -->
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">P</text>
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-cvpositioner.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 阀体 (底部双三角) -->
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  
+  <!-- 阀杆 -->
+  <line x1="30" y1="85" x2="30" y2="40" />
+  
+  <!-- 执行机构 (圆头) -->
+  <!-- 圆心(30,25), 半径15 -> 顶端y=10 -->
+  <circle cx="30" cy="25" r="15" fill="white" />
+  
+  <!-- 文字 P -->
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">P</text>
+  
+  <!-- 定位器方块 (外接于圆顶) -->
+  <!-- x居中: 30-7=23, y从0开始, 高度10 -> 底部y=10 (刚好接触圆顶) -->
+  <rect x="23" y="0" width="14" height="10" fill="white" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-cvsolenoid.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 阀体 (位于左侧，中心对齐圆 P) -->
+  <!-- 左三角形 -->
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <!-- 右三角形 -->
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  
+  <!-- 阀杆 -->
+  <line x1="30" y1="85" x2="30" y2="40" />
+
+  <!-- 主气动头 P (圆心 x=30, r=15) -->
+  <circle cx="30" cy="25" r="15" fill="white" />
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">P</text>
+
+  <!-- 电磁阀 S (圆心 x=60, r=15) -->
+  <!-- 与 P 水平相接，直径相同 -->
+  <circle cx="60" cy="25" r="15" fill="white" />
+  <text x="60" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">S</text>
 </svg>
 </file>
 
@@ -3304,6 +4472,41 @@ export default AttributeDesigner;
 </svg>
 </file>
 
+<file path="src/graph/cells/svgs/p-fan.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 外圆 (白底遮挡网格) -->
+  <circle cx="50" cy="50" r="48" fill="white" />
+  
+  <!-- 2. 梯形外壳 (直线两端均内接于圆) -->
+  <!-- 经过计算，确保线条内接于半径48的圆，且避开中心扇叶区域 -->
+  <!-- 左线: 顶部(28, 7.5) -> 底部(10, 76.5) -->
+  <line x1="28" y1="7.5" x2="10" y2="76.5" stroke-linecap="round" />
+  <!-- 右线: 顶部(72, 7.5) -> 底部(90, 76.5) -->
+  <line x1="72" y1="7.5" x2="90" y2="76.5" stroke-linecap="round" />
+
+  <!-- 3. 三叶螺旋桨 (柳叶型，不与直线相交) -->
+  <!-- 
+       中心点: (50,50)
+       叶片长度: 28 (小于直线到圆心的距离33，确保不相交)
+       控制点: 宽度适中，形成柳叶状
+  -->
+  <g fill="black" stroke="none" transform="translate(50, 50)">
+    <!-- 叶片1 (朝上 0度) -->
+    <!-- M 0 0 (圆心) -> Q 8 -14 (右控) 0 -28 (叶尖) -> Q -8 -14 (左控) 0 0 (回圆心) -->
+    <path d="M 0 0 Q 8 -14 0 -28 Q -8 -14 0 0" />
+    
+    <!-- 叶片2 (旋转120度) -->
+    <path d="M 0 0 Q 8 -14 0 -28 Q -8 -14 0 0" transform="rotate(120)" />
+    
+    <!-- 叶片3 (旋转240度) -->
+    <path d="M 0 0 Q 8 -14 0 -28 Q -8 -14 0 0" transform="rotate(240)" />
+  </g>
+  
+  <!-- 中心轴点 (白色小圆点缀) -->
+  <circle cx="50" cy="50" r="2" fill="white" stroke="none" />
+</svg>
+</file>
+
 <file path="src/graph/cells/svgs/p-fixedbedreactor.svg">
 <svg viewBox="0 0 260 300" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
   <!-- 1. 主体 (Body) - 保持加宽尺寸 -->
@@ -3431,6 +4634,40 @@ export default AttributeDesigner;
     <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
   </g>
 
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-gearpump.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+  <circle cx="50" cy="50" r="48" fill="white" />
+  <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
+  <!-- 两个齿轮 -->
+  <circle cx="35" cy="65" r="14" />
+  <circle cx="65" cy="65" r="14" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-inst-local.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" stroke="black" stroke-width="2">
+  <!-- 40x40 画布，圆心 20, 半径 18 -->
+  <circle cx="20" cy="20" r="18" fill="white" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-inst-panel.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" stroke="black" stroke-width="2">
+  <circle cx="20" cy="20" r="18" fill="white" />
+  <!-- 中间双横线 (上下各偏移 2px) -->
+  <line x1="2" y1="18" x2="38" y2="18" />
+  <line x1="2" y1="22" x2="38" y2="22" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-inst-remote.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" stroke="black" stroke-width="2">
+  <circle cx="20" cy="20" r="18" fill="white" />
+  <!-- 中间单横线 y=20 -->
+  <line x1="2" y1="20" x2="38" y2="20" />
 </svg>
 </file>
 
@@ -4467,7 +5704,8 @@ export const INLINE_TYPES = [
   'ControlValve', 
   'Valve', 
   'Fitting', 
-  'TappingPoint'
+  'TappingPoint',
+  'ManualValve'
 ];
 
 // 4. 路由默认配置
@@ -4480,27 +5718,17 @@ export const DEFAULT_ROUTER = {
 };
 </file>
 
-<file path="src/graph/cells/svgs/inst-local.svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" stroke="black" stroke-width="2">
-  <!-- 40x40 画布，圆心 20, 半径 18 -->
-  <circle cx="20" cy="20" r="18" fill="white" />
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/inst-panel.svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" stroke="black" stroke-width="2">
-  <circle cx="20" cy="20" r="18" fill="white" />
-  <!-- 中间双横线 (上下各偏移 2px) -->
-  <line x1="2" y1="18" x2="38" y2="18" />
-  <line x1="2" y1="22" x2="38" y2="22" />
-</svg>
-</file>
-
-<file path="src/graph/cells/svgs/inst-remote.svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" stroke="black" stroke-width="2">
-  <circle cx="20" cy="20" r="18" fill="white" />
-  <!-- 中间单横线 y=20 -->
-  <line x1="2" y1="20" x2="38" y2="20" />
+<file path="src/graph/cells/svgs/p-controlvalve.svg">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
+  <!-- 阀体 (Bowtie) -->
+  <polygon points="5,75 30,85 5,95" fill="white" />
+  <polygon points="55,75 30,85 55,95" fill="white" />
+  <!-- 阀杆 -->
+  <line x1="30" y1="85" x2="30" y2="40" />
+  <!-- 执行机构 (圆头) -->
+  <circle cx="30" cy="25" r="15" fill="white" />
+  <!-- 文字 P -->
+  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">P</text>
 </svg>
 </file>
 
@@ -7537,27 +8765,26 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         shapeName = 'p-valve'; 
       switch (props.type) {
           
-          case 'Reactor':      shapeName = 'p-reactor'; break;
-          case 'Exchanger':    shapeName = 'p-exchanger'; break;
-          case 'Pump':         shapeName = 'p-pump'; break;
-          case 'LiquidPump':   shapeName = 'p-pump-liquid'; break;
-          case 'CentrifugalPump': shapeName = 'p-pump-centrifugal'; break;
-          case 'DiaphragmPump': shapeName = 'p-pump-diaphragm'; break;
-          case 'PistonPump':   shapeName = 'p-pump-piston'; break;
-          case 'Compressor':   shapeName = 'p-pump-compressor'; break;
-          case 'GearPump':     shapeName = 'p-pump-gear'; break;
-          case 'Fan':          shapeName = 'p-pump-fan'; break;
-          case 'JetPump':      shapeName = 'p-pump-jet'; break;
+          case 'Reactor':      shapeName = 'p-r101'; break;
+          case 'Exchanger':    shapeName = 'p-e101'; break;
+          case 'Pump':         shapeName = 'p-centrifugalpump'; break;
+          case 'LiquidPump':   shapeName = 'p-p101'; break;
+          case 'CentrifugalPump': shapeName = 'p-centrifugalpump'; break;
+          case 'DiaphragmPump': shapeName = 'p-diaphragmpump'; break;
+          case 'PistonPump':   shapeName = 'p-pistonpump'; break;
+          case 'Compressor':   shapeName = 'p-compressor'; break;
+          case 'GearPump':     shapeName = 'p-gearpump'; break;
+          case 'Fan':          shapeName = 'p-fan'; break;
+          case 'JetPump':      shapeName = 'p-jetpump'; break;
           case 'ControlValve': shapeName = 'p-cv-pneumatic'; break;
           case 'Valve':        shapeName = 'p-cv-manual'; break;
           case 'Fitting':      shapeName = 'p-tee'; break; 
-          case 'Tank':         if (props.spec === 'Vertical') {shapeName = 'p-tank-vertical';} else {shapeName = 'p-tank-horizontal';} break;
-          case 'GasCooler':    shapeName = 'p-gas-cooler'; break;
+          case 'Tank':         if (props.spec === 'Vertical') {shapeName = 'p-tankvertical';} else {shapeName = 'p-tank';} break;
+          case 'GasCooler':    shapeName = 'p-gascooler'; break;
           case 'Trap':         shapeName = 'p-trap'; break;
-          case 'Trap':         shapeName = 'p-tv-trap'; break;
-          case 'FixedBedReactor': shapeName = 'p-fixed-bed-reactor'; break;
-          case 'VerticalExchanger': shapeName = 'p-exchanger-vertical'; break;
-          case 'Evaporator':   shapeName = 'p-naphthalene-evaporator'; break;
+          case 'FixedBedReactor': shapeName = 'p-fixedbedreactor'; break;
+          case 'VerticalExchanger': shapeName = 'p-exchangervertical'; break;
+          case 'Evaporator':   shapeName = 'p-e13'; break;
           case 'Instrument':   
             if(props.spec === 'Local') shapeName = 'p-inst-local';
             else if(props.spec === 'Panel') shapeName = 'p-inst-panel';
@@ -7695,42 +8922,8 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
 <file path="src/graph/cells/registry.ts">
 import { Graph } from '@antv/x6';
 
-// --- SVG Imports (保留用于手动注册的 SVG) ---
+// --- SVG Imports (保留用于手动注册的基础元素 SVG) ---
 import frameA2Svg from './svgs/frame-a2.svg?raw';
-import reactorSvg from './svgs/reactor.svg?raw';
-import exchangerSvg from './svgs/exchanger.svg?raw';
-import e13Svg from './svgs/E-13.svg?raw';
-
-import pumpLiquidSvg from './svgs/pump-liquid.svg?raw';
-import pumpCentrifugalSvg from './svgs/pump-centrifugal.svg?raw';
-import pumpDiaphragmSvg from './svgs/pump-diaphragm.svg?raw';
-import pumpPistonSvg from './svgs/pump-piston.svg?raw';
-import pumpCompressorSvg from './svgs/pump-compressor.svg?raw';
-import pumpGearSvg from './svgs/pump-gear.svg?raw';
-import pumpFanSvg from './svgs/pump-fan.svg?raw';
-import pumpJetSvg from './svgs/pump-jet.svg?raw';
-
-import cvPneumaticSvg from './svgs/cv-pneumatic.svg?raw';
-import cvPositionerSvg from './svgs/cv-positioner.svg?raw';
-import cvElectricSvg from './svgs/cv-electric.svg?raw';
-import cvSolenoidSvg from './svgs/cv-solenoid.svg?raw';
-import cvManualSvg from './svgs/cv-manual.svg?raw';
-import cvPistonSvg from './svgs/cv-piston.svg?raw';
-
-import instLocalSvg from './svgs/inst-local.svg?raw';
-import instRemoteSvg from './svgs/inst-remote.svg?raw';
-import instPanelSvg from './svgs/inst-panel.svg?raw';
-
-// 注意：teeSvg 和 trapSvg 的导入可以保留，也可以删除，因为它们将通过自动加载读取
-import teeSvg from './svgs/tee.svg?raw'; 
-import trapSvg from './svgs/trap.svg?raw';
-
-import tankHorizontalSvg from './svgs/tank-horizontal.svg?raw';
-import tankVerticalSvg from './svgs/tank-vertical.svg?raw';
-import gasCoolerSvg from './svgs/gas-cooler.svg?raw';
-import reactorFixedBedSvg from './svgs/reactor-fixed-bed.svg?raw';
-import exchangerVerticalSvg from './svgs/exchanger-vertical.svg?raw';
-import tvtrapSvg from './svgs/tv-Trap.svg?raw';
 
 // ============================================================
 // [关键修改 1] 将 glob 移到顶层，确保 HMR 时能扫描所有文件
@@ -7754,6 +8947,7 @@ interface ShapeConfig {
   height: number;
   ports: any;
   attrs?: any;
+  markup?: any[]; // [新增] 支持 markup 定义
   data: any;
 }
 
@@ -7770,15 +8964,19 @@ const registerNodeWithCache = (id: string, config: any) => {
   // 2. 存入缓存供设计器读取
   let rawSvg = '';
   // 尝试还原 SVG 源码供设计器回显
+  // 情况 A: 简单图元，SVG 在 imageUrl 中
   if (config.imageUrl && typeof config.imageUrl === 'string') {
     try {
       const base64Data = config.imageUrl.split(',')[1];
-      if (base64Data) {
-        rawSvg = decodeURIComponent(base64Data);
-      }
-    } catch (e) {
-      console.warn('Failed to decode SVG for designer:', id);
-    }
+      if (base64Data) rawSvg = decodeURIComponent(base64Data);
+    } catch (e) { console.warn('Failed to decode SVG:', id); }
+  }
+  // 情况 B: 复杂图元 (仪表)，SVG 在 attrs.body.xlinkHref 中
+  else if (config.attrs?.body?.xlinkHref) {
+    try {
+      const base64Data = config.attrs.body.xlinkHref.split(',')[1];
+      if (base64Data) rawSvg = decodeURIComponent(base64Data);
+    } catch (e) { console.warn('Failed to decode SVG:', id); }
   }
 
   SHAPE_LIBRARY[id] = {
@@ -7789,10 +8987,6 @@ const registerNodeWithCache = (id: string, config: any) => {
 
 // --- 通用样式常量 ---
 
-const PORT_ATTRS = {
-  circle: { r: 3, magnet: true, stroke: '#FFFFFF', strokeWidth: 1, fill: '#e3dedeff' },
-};
-
 const LABEL_ATTRS = {
   label: { refY: '100%', refY2: 8, textAnchor: 'middle', textVerticalAnchor: 'top', fontSize: 12, fill: '#333' }
 };
@@ -7802,10 +8996,8 @@ const LABEL_ATTRS = {
 // ============================================================
 
 const autoRegisterShapes = () => {
-  // [关键修改 2] 使用顶层定义的 JSON_MODULES
   console.log(`[Registry] Found ${Object.keys(JSON_MODULES).length} custom shapes in /data folder.`);
 
-  // 1.3 遍历 JSON 配置进行注册
   for (const path in JSON_MODULES) {
     try {
       const config = JSON_MODULES[path] as ShapeConfig;
@@ -7816,8 +9008,6 @@ const autoRegisterShapes = () => {
 
       // 查找对应的 SVG
       const svgPath = `./svgs/${shapeId}.svg`;
-      
-      // [关键修改 3] 使用顶层定义的 SVG_MODULES
       const svgContent = SVG_MODULES[svgPath] as string;
 
       if (!svgContent) {
@@ -7825,16 +9015,41 @@ const autoRegisterShapes = () => {
         continue;
       }
 
-      // 注册
-      registerNodeWithCache(shapeId, {
-        inherit: 'image',
-        width: config.width,
-        height: config.height,
-        imageUrl: svgToDataUrl(svgContent),
-        ports: config.ports,
-        attrs: config.attrs || LABEL_ATTRS,
-        data: config.data
-      });
+      const svgDataUrl = svgToDataUrl(svgContent);
+
+      // [核心逻辑升级] 区分简单图元和复杂图元
+      if (config.markup) {
+        // === 复杂图元 (如仪表) ===
+        // 必须将 SVG 注入到 attrs.body.xlinkHref 中
+        if (!config.attrs) config.attrs = {};
+        if (!config.attrs.body) config.attrs.body = {};
+        
+        // 动态注入 SVG
+        config.attrs.body.xlinkHref = svgDataUrl;
+
+        registerNodeWithCache(shapeId, {
+          // 不继承 image，完全使用自定义 markup
+          width: config.width,
+          height: config.height,
+          markup: config.markup,
+          attrs: config.attrs,
+          ports: config.ports,
+          data: config.data
+        });
+
+      } else {
+        // === 简单图元 (如设备) ===
+        // 继承 image，使用 imageUrl
+        registerNodeWithCache(shapeId, {
+          inherit: 'image',
+          width: config.width,
+          height: config.height,
+          imageUrl: svgDataUrl,
+          ports: config.ports,
+          attrs: config.attrs || LABEL_ATTRS,
+          data: config.data
+        });
+      }
       
     } catch (e) {
       console.error(`[Registry] Failed to register shape from ${path}`, e);
@@ -7843,194 +9058,11 @@ const autoRegisterShapes = () => {
 };
 
 // ============================================================
-// 2. 手动端口定义 (保留给尚未迁移的复杂图元)
-// ============================================================
-
-// E-13 端口定义
-const E13_PORTS = {
-  groups: { 
-    top: { position: 'absolute', attrs: PORT_ATTRS }, 
-    bottom: { position: 'absolute', attrs: PORT_ATTRS }, 
-    left: { position: 'absolute', attrs: PORT_ATTRS }, 
-    heater: { position: 'absolute', attrs: PORT_ATTRS } 
-  },
-  items: [
-    { id: 't1', group: 'top', args: { x: '22%', y: '1.1%' }, data: { desc: '顶部接口-1', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 't2', group: 'top', args: { x: '34%', y: '1.1%' }, data: { desc: '顶部接口-2', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 't3', group: 'top', args: { x: '46%', y: '1.1%' }, data: { desc: '顶部接口-3', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 't4', group: 'top', args: { x: '58%', y: '1.1%' }, data: { desc: '顶部接口-4', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 'l1', group: 'left', args: { x: '3%', y: '17.7%' }, data: { desc: '左侧接口-1(上)', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'in' } as PortData },
-    { id: 'l2', group: 'left', args: { x: '3%', y: '31.1%' }, data: { desc: '左侧接口-2(上)', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'in' } as PortData },
-    { id: 'l3', group: 'left', args: { x: '3%', y: '44.4%' }, data: { desc: '左侧接口-3(中上)', region: 'ShellSide:Vapor', phase: 'Gas', dir: 'in' } as PortData },
-    { id: 'b1', group: 'bottom', args: { x: '22%', y: '98.9%' }, data: { desc: '底部接口-1', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'bi' } as PortData },
-    { id: 'b2', group: 'bottom', args: { x: '34%', y: '98.9%' }, data: { desc: '底部接口-2', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'bi' } as PortData },
-    { id: 'b3', group: 'bottom', args: { x: '46%', y: '98.9%' }, data: { desc: '底部接口-3', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'bi' } as PortData },
-    { id: 'b4', group: 'bottom', args: { x: '58%', y: '98.9%' }, data: { desc: '底部接口-4', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'bi' } as PortData },
-    { id: 'l4', group: 'left', args: { x: '3%', y: '57.7%' }, data: { desc: '左侧接口-4(中下)', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'in' } as PortData },
-    { id: 'l5', group: 'left', args: { x: '3%', y: '71.1%' }, data: { desc: '左侧接口-5(下)', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'in' } as PortData },
-    { id: 'l6', group: 'left', args: { x: '3%', y: '84.4%' }, data: { desc: '左侧接口-6(下)', region: 'ShellSide:Liquid', phase: 'Liquid', dir: 'in' } as PortData },
-    { id: 'h_in', group: 'heater', args: { x: '83%', y: '51.1%' }, data: { desc: '蒸汽入口', region: 'TubeSide', phase: 'Gas', dir: 'in' } as PortData },
-    { id: 'h_out', group: 'heater', args: { x: '83%', y: '93.3%' }, data: { desc: '冷凝水出口', region: 'TubeSide', phase: 'Liquid', dir: 'out' } as PortData },
-  ],
-};
-
-const REACTOR_PORTS = {
-  groups: { 
-    top: { position: 'absolute', attrs: PORT_ATTRS }, 
-    left_side: { position: 'absolute', attrs: PORT_ATTRS }, 
-    right_side: { position: 'absolute', attrs: PORT_ATTRS }, 
-    jacket: { position: 'absolute', attrs: PORT_ATTRS },
-    bottom: { position: 'absolute', attrs: PORT_ATTRS } 
-  },
-  items: [
-    { id: 'n1', group: 'top', args: { x: '15%', y: '0%' }, data: { desc: '釜顶接口N1', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 'n2', group: 'top', args: { x: '30%', y: '0%' }, data: { desc: '釜顶接口N2', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 'n3', group: 'top', args: { x: '70%', y: '0%' }, data: { desc: '釜顶接口N3', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 'n4', group: 'top', args: { x: '85%', y: '0%' }, data: { desc: '釜顶接口N4', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 'feed_in', group: 'left_side', args: { x: '0%', y: '30%' }, data: { desc: '进料口', region: 'InnerVessel', phase: 'Gas', dir: 'in' } as PortData },
-    { id: 'overflow', group: 'right_side', args: { x: '100%', y: '30%' }, data: { desc: '溢流口', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
-    { id: 'j_in', group: 'jacket', args: { x: '0%', y: '45%' }, data: { desc: '半管夹套入口', region: 'Jacket', dir: 'in' } as PortData },
-    { id: 'j_out', group: 'jacket', args: { x: '100%', y: '75%' }, data: { desc: '半管夹套出口', region: 'Jacket', dir: 'out' } as PortData },
-    { id: 'discharge', group: 'bottom', args: { x: '50%', y: '100%' }, data: { desc: '釜底出料口', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
-    { id: 'temp_point', group: 'bottom', args: { x: '25%', y: '92%' }, attrs: { circle: { r: 3, fill: '#faad14', stroke: '#333' } }, data: { desc: '釜底温度口', region: 'InnerVessel', phase: 'Liquid', type: 'Instrument' } as PortData },
-  ],
-};
-
-const COMMON_PUMP_PORTS = {
-  groups: { in: { position: 'absolute', attrs: PORT_ATTRS }, out: { position: 'absolute', attrs: PORT_ATTRS } },
-  items: [
-    { id: 'in', group: 'in', args: { x: '50%', y: '100%' }, attrs: { circle: { title: '入口', cursor: 'help' } }, data: { desc: '泵入口', dir: 'in' } as PortData },
-    { id: 'out', group: 'out', args: { x: '50%', y: '0%' }, attrs: { circle: { title: '出口', cursor: 'help' } }, data: { desc: '泵出口', dir: 'out' } as PortData },
-  ],
-};
-
-const VALVE_PORTS = {
-  groups: { left: { position: 'absolute', attrs: PORT_ATTRS }, right: { position: 'absolute', attrs: PORT_ATTRS }, actuator: { position: 'absolute', attrs: PORT_ATTRS } },
-  items: [
-    { id: 'in', group: 'left', args: { x: '0%', y: '83.33%' }, data: { desc: '阀门入口', dir: 'bi' } as PortData },
-    { id: 'out', group: 'right', args: { x: '100%', y: '83.33%' }, data: { desc: '阀门出口', dir: 'bi' } as PortData },
-    { id: 'actuator', group: 'actuator', args: { x: '50%', y: '0%' }, attrs: { circle: { r: 4, magnet: true, stroke: '#fa8c16', strokeWidth: 1, fill: '#fff' } }, data: { desc: '执行机构', dir: 'in', type: 'signal' } as PortData },
-  ],
-};
-
-const TANK_HORIZONTAL_PORTS = {
-  groups: { 
-    top: { position: 'absolute', attrs: PORT_ATTRS }, 
-    bottom: { position: 'absolute', attrs: PORT_ATTRS }, 
-    left: { position: 'absolute', attrs: PORT_ATTRS }, 
-    right: { position: 'absolute', attrs: PORT_ATTRS } 
-  },
-  items: [
-    { id: 'n1', group: 'top', args: { x: '20%', y: '0%' }, data: { desc: '顶部口N1', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 'n2', group: 'top', args: { x: '35%', y: '0%' }, data: { desc: '顶部口N2', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 'n3', group: 'top', args: { x: '50%', y: '0%' }, data: { desc: '顶部口N3', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 'n4', group: 'top', args: { x: '65%', y: '0%' }, data: { desc: '顶部口N4', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 'n5', group: 'top', args: { x: '80%', y: '0%' }, data: { desc: '顶部口N5', region: 'InnerVessel', phase: 'Gas', dir: 'bi' } as PortData },
-    { id: 'n6', group: 'bottom', args: { x: '20%', y: '100%' }, data: { desc: '底部口N6', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
-    { id: 'n7', group: 'bottom', args: { x: '35%', y: '100%' }, data: { desc: '底部口N7', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
-    { id: 'n8', group: 'bottom', args: { x: '50%', y: '100%' }, data: { desc: '底部口N8', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
-    { id: 'n9', group: 'bottom', args: { x: '65%', y: '100%' }, data: { desc: '底部口N9', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
-    { id: 'n10', group: 'bottom', args: { x: '80%', y: '100%' }, data: { desc: '底部口N10', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
-    { id: 'n11', group: 'left', args: { x: '0%', y: '50%' }, data: { desc: '左侧口N11', region: 'InnerVessel', phase: 'Liquid', dir: 'bi' } as PortData },
-    { id: 'n14', group: 'right', args: { x: '100%', y: '50%' }, data: { desc: '右侧口N14', region: 'InnerVessel', phase: 'Liquid', dir: 'bi' } as PortData },
-  ],
-};
-
-const TANK_VERTICAL_PORTS = {
-  groups: { 
-    top: { position: 'absolute', attrs: PORT_ATTRS }, 
-    bottom: { position: 'absolute', attrs: PORT_ATTRS }, 
-    left_upper: { position: 'absolute', attrs: PORT_ATTRS }, 
-    left_lower: { position: 'absolute', attrs: PORT_ATTRS },
-    right_upper: { position: 'absolute', attrs: PORT_ATTRS },
-    right_lower: { position: 'absolute', attrs: PORT_ATTRS }
-  },
-  items: [
-    { id: 't1', group: 'top', args: { x: '50%', y: '10%' }, data: { desc: '顶部放空', region: 'InnerVessel', phase: 'Gas', dir: 'out' } as PortData },
-    { id: 'b1', group: 'bottom', args: { x: '50%', y: '90%' }, data: { desc: '底部出料', region: 'InnerVessel', phase: 'Liquid', dir: 'out' } as PortData },
-    { id: 'l_up', group: 'left_upper', args: { x: '10%', y: '30%' }, data: { desc: '上部侧口(左)', region: 'InnerVessel', phase: 'Gas', dir: 'in' } as PortData },
-    { id: 'r_up', group: 'right_upper', args: { x: '90%', y: '30%' }, data: { desc: '上部侧口(右)', region: 'InnerVessel', phase: 'Gas', dir: 'in' } as PortData },
-    { id: 'l_low', group: 'left_lower', args: { x: '10%', y: '70%' }, data: { desc: '下部侧口(左)', region: 'InnerVessel', phase: 'Liquid', dir: 'in' } as PortData },
-    { id: 'r_low', group: 'right_lower', args: { x: '90%', y: '70%' }, data: { desc: '下部侧口(右)', region: 'InnerVessel', phase: 'Liquid', dir: 'in' } as PortData },
-  ],
-};
-
-const GAS_COOLER_PORTS = {
-  groups: { 
-    main: { position: 'absolute', attrs: PORT_ATTRS }, 
-    burst: { position: 'absolute', attrs: PORT_ATTRS }, 
-    top_in: { position: 'absolute', attrs: PORT_ATTRS }, 
-    top_out: { position: 'absolute', attrs: PORT_ATTRS }, 
-    bottom_in: { position: 'absolute', attrs: PORT_ATTRS }, 
-    bottom_out: { position: 'absolute', attrs: PORT_ATTRS } 
-  },
-  items: [
-    { id: 'shell_in', group: 'main', args: { x: '0%', y: '58%' }, data: { desc: '壳程入口(产物气)', region: 'ShellSide', phase: 'Gas', dir: 'in' } as PortData },
-    { id: 'shell_out', group: 'main', args: { x: '100%', y: '58%' }, data: { desc: '壳程出口(产物气)', region: 'ShellSide', phase: 'Gas', dir: 'out' } as PortData },
-    { id: 'burst_left', group: 'burst', args: { x: '8.75%', y: '19%' }, data: { desc: '爆破片接口(左)', region: 'TubeSide', dir: 'out' } as PortData },
-    { id: 'burst_right', group: 'burst', args: { x: '91.25%', y: '19%' }, data: { desc: '爆破片接口(右)', region: 'TubeSide', dir: 'out' } as PortData },
-    { id: 'tube_top_in_1', group: 'top_in', args: { x: '21.25%', y: '15%' }, data: { desc: '高温段水入口', region: 'TubeSide', section: 'HighTemp', phase: 'Liquid', dir: 'in' } as PortData },
-    { id: 'tube_top_out_1', group: 'top_out', args: { x: '31.25%', y: '15%' }, data: { desc: '高温段水出口', region: 'TubeSide', section: 'HighTemp', phase: 'Liquid', dir: 'out' } as PortData },
-    { id: 'tube_top_out_2', group: 'top_out', args: { x: '41.25%', y: '15%' }, data: { desc: '低温段水出口', region: 'TubeSide', section: 'LowTemp', phase: 'Liquid', dir: 'out' } as PortData },
-    { id: 'tube_top_in_2', group: 'top_in', args: { x: '81.25%', y: '15%' }, data: { desc: '低温段水入口', region: 'TubeSide', section: 'LowTemp', phase: 'Liquid', dir: 'in' } as PortData },
-    { id: 'tube_bot_in_1', group: 'bottom_in', args: { x: '21.25%', y: '92%' }, data: { desc: '高温段水入口(下)', region: 'TubeSide', section: 'HighTemp', phase: 'Liquid', dir: 'in' } as PortData },
-    { id: 'tube_bot_out_1', group: 'bottom_out', args: { x: '31.25%', y: '92%' }, data: { desc: '高温段水出口(下)', region: 'TubeSide', section: 'HighTemp', phase: 'Liquid', dir: 'out' } as PortData },
-    { id: 'tube_bot_out_2', group: 'bottom_out', args: { x: '41.25%', y: '92%' }, data: { desc: '低温段水出口(下)', region: 'TubeSide', section: 'LowTemp', phase: 'Liquid', dir: 'out' } as PortData },
-    { id: 'tube_bot_in_2', group: 'bottom_in', args: { x: '81.25%', y: '92%' }, data: { desc: '低温段水入口(下)', region: 'TubeSide', section: 'LowTemp', phase: 'Liquid', dir: 'in' } as PortData },
-  ],
-};
-
-const INSTRUMENT_PORTS = {
-  groups: { all: { position: 'absolute', attrs: PORT_ATTRS } },
-  items: [
-    { id: 'top', group: 'all', args: { x: '50%', y: '0%' } },
-    { id: 'bottom', group: 'all', args: { x: '50%', y: '100%' } },
-    { id: 'left', group: 'all', args: { x: '0%', y: '50%' } },
-    { id: 'right', group: 'all', args: { x: '100%', y: '50%' } },
-  ],
-};
-
-const FIXED_BED_REACTOR_PORTS = {
-  groups: { gas: { position: 'absolute', attrs: PORT_ATTRS }, upper_salt: { position: 'absolute', attrs: PORT_ATTRS }, lower_salt: { position: 'absolute', attrs: PORT_ATTRS } },
-  items: [
-    { id: 'gas_in', group: 'gas', args: { x: '50%', y: '0%' }, data: { desc: '工艺气入口', region: 'TubeSide', dir: 'in' } as PortData },
-    { id: 'gas_out', group: 'gas', args: { x: '50%', y: '100%' }, data: { desc: '气体出口', region: 'TubeSide', dir: 'out' } as PortData },
-    { id: 'upper_L1', group: 'upper_salt', args: { x: '7.7%', y: '21.6%' }, data: { desc: '上盐道接口-L1', region: 'UpperSaltChannel', dir: 'in' } as PortData },
-    { id: 'upper_L2', group: 'upper_salt', args: { x: '7.7%', y: '24.1%' }, data: { desc: '上盐道接口-L2', region: 'UpperSaltChannel', dir: 'in' } as PortData },
-    { id: 'upper_L3', group: 'upper_salt', args: { x: '7.7%', y: '26.6%' }, data: { desc: '上盐道接口-L3', region: 'UpperSaltChannel', dir: 'out' } as PortData },
-    { id: 'upper_R1', group: 'upper_salt', args: { x: '92.3%', y: '22.6%' }, data: { desc: '上盐道接口-R1', region: 'UpperSaltChannel', dir: 'in' } as PortData },
-    { id: 'upper_R2', group: 'upper_salt', args: { x: '92.3%', y: '25.6%' }, data: { desc: '上盐道接口-R2', region: 'UpperSaltChannel', dir: 'out' } as PortData },
-    { id: 'lower_L1', group: 'lower_salt', args: { x: '7.7%', y: '73.3%' }, data: { desc: '下盐道接口-L1', region: 'LowerSaltChannel', dir: 'in' } as PortData },
-    { id: 'lower_L2', group: 'lower_salt', args: { x: '7.7%', y: '75.8%' }, data: { desc: '下盐道接口-L2', region: 'LowerSaltChannel', dir: 'out' } as PortData },
-    { id: 'lower_L3', group: 'lower_salt', args: { x: '7.7%', y: '78.3%' }, data: { desc: '下盐道接口-L3', region: 'LowerSaltChannel', dir: 'out' } as PortData },
-    { id: 'lower_R1', group: 'lower_salt', args: { x: '92.3%', y: '74.3%' }, data: { desc: '下盐道接口-R1', region: 'LowerSaltChannel', dir: 'in' } as PortData },
-    { id: 'lower_R2', group: 'lower_salt', args: { x: '92.3%', y: '77.3%' }, data: { desc: '下盐道接口-R2', region: 'LowerSaltChannel', dir: 'out' } as PortData },
-  ],
-};
-
-const VERTICAL_EXCHANGER_PORTS = {
-  groups: { 
-    side: { position: 'absolute', attrs: PORT_ATTRS }, 
-    head: { position: 'absolute', attrs: PORT_ATTRS } 
-  },
-  items: [
-    { id: 'side_left_top', group: 'side', args: { x: '0%', y: '20%' }, data: { desc: '壳程接口(左上)', region: 'ShellSide', dir: 'bi' } as PortData },
-    { id: 'side_left_bottom', group: 'side', args: { x: '0%', y: '80%' }, data: { desc: '壳程接口(左下)', region: 'ShellSide', dir: 'bi' } as PortData },
-    { id: 'side_right_top', group: 'side', args: { x: '100%', y: '15%' }, data: { desc: '壳程接口(右上)', region: 'ShellSide', dir: 'bi' } as PortData },
-    { id: 'side_right_bottom', group: 'side', args: { x: '100%', y: '85%' }, data: { desc: '壳程接口(右下)', region: 'ShellSide', dir: 'bi' } as PortData },
-    { id: 'head_top_left', group: 'head', args: { x: '30%', y: '2.5%' }, data: { desc: '管程接口(上左)', region: 'TubeSide', dir: 'bi' } as PortData },
-    { id: 'head_top_right', group: 'head', args: { x: '70%', y: '2.5%' }, data: { desc: '管程接口(上右)', region: 'TubeSide', dir: 'bi' } as PortData },
-    { id: 'head_bottom_left', group: 'head', args: { x: '30%', y: '97.5%' }, data: { desc: '管程接口(下左)', region: 'TubeSide', dir: 'bi' } as PortData },
-    { id: 'head_bottom_right', group: 'head', args: { x: '70%', y: '97.5%' }, data: { desc: '管程接口(下右)', region: 'TubeSide', dir: 'bi' } as PortData },
-  ],
-};
-
-// ============================================================
-// 3. 主注册函数
+// 2. 注册基础元素 (非业务图元)
 // ============================================================
 
 export const registerCustomCells = () => {
-  // 1. 优先执行自动化注册 (加载 data/*.json)
+  // 1. 优先执行自动化注册
   autoRegisterShapes();
 
   // 2. 注册基础元素
@@ -8057,173 +9089,20 @@ export const registerCustomCells = () => {
     ports: { items: [] }, attrs: { image: { style: { pointerEvents: 'none' } } },
     data: { type: 'Frame', isBackground: true }
   });
-
-  // 3. 手动注册复杂图元 (尚未迁移到 JSON 的部分)
   
-  registerNodeWithCache('p-reactor', {
-    inherit: 'image',
-    width: 80,
-    height: 120,
-    imageUrl: svgToDataUrl(reactorSvg),
-    ports: REACTOR_PORTS,
-    attrs: LABEL_ATTRS,
-    data: {
-      type: 'Reactor',
-      tag: 'R-101',
-      spec: 'HalfPipe-2000L',
-      volume: '2.0',
-      material: 'SS304',
-      designPressure: '0.6',
-      designTemp: '150'
-    },
-  });
-
-  registerNodeWithCache('p-exchanger', {
-    inherit: 'image',
-    width: 200,
-    height: 80,
-    imageUrl: svgToDataUrl(exchangerSvg),
-    ports: {
-      groups: {
-        shell: { position: 'absolute', attrs: PORT_ATTRS },
-        tube_left: { position: 'absolute', attrs: PORT_ATTRS },
-        tube_right: { position: 'absolute', attrs: PORT_ATTRS }
-      },
-      items: [
-        { id: 'n1', group: 'shell', args: { x: '35%', y: '0%' }, attrs: { circle: { title: 'N1 (壳程入口)', cursor: 'help' } }, data: { desc: '壳程入口(N1)', region: 'ShellSide', dir: 'in' } as PortData },
-        { id: 'n2', group: 'shell', args: { x: '75%', y: '100%' }, attrs: { circle: { title: 'N2 (壳程出口)', cursor: 'help' } }, data: { desc: '壳程出口(N2)', region: 'ShellSide', dir: 'out' } as PortData },
-        { id: 'n3', group: 'tube_left', args: { x: '0%', y: '67.5%' }, attrs: { circle: { title: 'N3 (管程入口)', cursor: 'help' } }, data: { desc: '管程入口(N3)', region: 'TubeSide', dir: 'in' } as PortData },
-        { id: 'n4', group: 'tube_left', args: { x: '0%', y: '32.5%' }, attrs: { circle: { title: 'N4 (管程出口)', cursor: 'help' } }, data: { desc: '管程出口(N4)', region: 'TubeSide', dir: 'out' } as PortData },
-        { id: 'n5', group: 'tube_right', args: { x: '98%', y: '12%' }, data: { desc: '放空(N5)', region: 'ShellSide', type: 'Vent', dir: 'out' } as PortData },
-        { id: 'n6', group: 'tube_right', args: { x: '98%', y: '88%' }, data: { desc: '排净(N6)', region: 'ShellSide', type: 'Drain', dir: 'out' } as PortData },
-      ],
-    },
-    attrs: LABEL_ATTRS, 
-    data: { 
-      type: 'Exchanger', 
-      tag: 'E-101', 
-      spec: 'BES-50', 
-      area: '50', 
-      material: 'CS/SS304', 
-      designPressure: '1.6' 
-    },
-  });
-
-  registerNodeWithCache('p-naphthalene-evaporator', {
-    inherit: 'image',
-    width: 200,
-    height: 90,
-    imageUrl: svgToDataUrl(e13Svg),
-    ports: E13_PORTS,
-    attrs: LABEL_ATTRS,
-    data: { type: 'Evaporator', spec: '蒸发器', tag: 'E-13' },
-  });
-
-  const pumps = [
-    { key: 'p-pump-liquid', name: '液体泵', svg: pumpLiquidSvg, type: 'LiquidPump' },
-    { key: 'p-pump-centrifugal', name: '离心泵', svg: pumpCentrifugalSvg, type: 'CentrifugalPump' },
-    { key: 'p-pump-diaphragm', name: '隔膜泵', svg: pumpDiaphragmSvg, type: 'DiaphragmPump' },
-    { key: 'p-pump-piston', name: '活塞泵', svg: pumpPistonSvg, type: 'PistonPump' },
-    { key: 'p-pump-compressor', name: '压缩机', svg: pumpCompressorSvg, type: 'Compressor' },
-    { key: 'p-pump-gear', name: '齿轮泵', svg: pumpGearSvg, type: 'GearPump' },
-    { key: 'p-pump-fan', name: '风扇', svg: pumpFanSvg, type: 'Fan' },
-    { key: 'p-pump-jet', name: '喷射泵', svg: pumpJetSvg, type: 'JetPump' },
-  ];
-
-  pumps.forEach(item => {
-    registerNodeWithCache(item.key, {
-      inherit: 'image', width: 60, height: 60, imageUrl: svgToDataUrl(item.svg),
-      ports: COMMON_PUMP_PORTS, attrs: LABEL_ATTRS,
-      data: { type: item.type, tag: 'P-101', spec: 'IH50-32-160', flow: '25', head: '30', power: '7.5', material: 'SS304' },
-    });
-  });
-
-  const controlValves = [
-    { key: 'p-cv-pneumatic', name: '气动调节阀', svg: cvPneumaticSvg, type: 'ControlValve' },
-    { key: 'p-cv-positioner', name: '带定位器阀', svg: cvPositionerSvg, type: 'ControlValve' },
-    { key: 'p-cv-electric', name: '电动调节阀', svg: cvElectricSvg, type: 'ControlValve' },
-    { key: 'p-cv-solenoid', name: '带电磁阀', svg: cvSolenoidSvg, type: 'ControlValve' },
-    { key: 'p-cv-manual', name: '手动调节阀', svg: cvManualSvg, type: 'ControlValve' },
-    { key: 'p-cv-piston', name: '气缸调节阀', svg: cvPistonSvg, type: 'ControlValve' },
-  ];
-
-  controlValves.forEach(v => {
-    registerNodeWithCache(v.key, {
-      inherit: 'image', width: 40, height: 60, imageUrl: svgToDataUrl(v.svg),
-      ports: VALVE_PORTS, attrs: LABEL_ATTRS,
-      data: { type: v.type || 'ControlValve', tag: 'FV-101', size: 'DN50', valveClass: 'PN16', failPosition: 'FC' },
-    });
-  });
-
-  const instruments = [
-    { key: 'p-inst-local', name: '就地仪表', svg: instLocalSvg, type: 'Instrument' },
-    { key: 'p-inst-remote', name: '远传仪表', svg: instRemoteSvg, type: 'Instrument' },
-    { key: 'p-inst-panel', name: '就地盘仪表', svg: instPanelSvg, type: 'Instrument' },
-  ];
-
-  instruments.forEach(inst => {
-    registerNodeWithCache(inst.key, {
-      width: 40, height: 40,
-      markup: [{ tagName: 'image', selector: 'body' }, { tagName: 'text', selector: 'topLabel' }, { tagName: 'text', selector: 'bottomLabel' }],
-      attrs: {
-        body: { refWidth: '100%', refHeight: '100%', xlinkHref: svgToDataUrl(inst.svg) },
-        topLabel: { refX: 0.5, refY: 0.35, textAnchor: 'middle', textVerticalAnchor: 'middle', fontSize: 9, fontWeight: 'bold', fill: '#000', text: 'PI' },
-        bottomLabel: { refX: 0.5, refY: 0.65, textAnchor: 'middle', textVerticalAnchor: 'middle', fontSize: 9, fontWeight: 'bold', fill: '#000', text: '101' },
-      },
-      ports: INSTRUMENT_PORTS, data: { type: inst.type, tagId: 'PI', loopNum: '101', range: '0-1.6', unit: 'MPa' },
-    });
-  });
-
-  // [迁移说明] p-tee (三通) 已移除手动注册，请确保 src/graph/cells/data/p-tee.json 存在
-  // [迁移说明] p-trap (捕集器) 已移除手动注册，请确保 src/graph/cells/data/p-trap.json 存在
-
-  registerNodeWithCache('p-tank-horizontal', {
-    inherit: 'image', width: 160, height: 80, imageUrl: svgToDataUrl(tankHorizontalSvg),
-    ports: TANK_HORIZONTAL_PORTS, attrs: { label: { text: 'V-100', refY: '100%', refY2: 10 } },
-    data: { type: 'Tank', spec: 'Horizontal', volume: '5.0' },
-  });
-
-  registerNodeWithCache('p-tank-vertical', {
-    inherit: 'image', 
-    width: 80, 
-    height: 160, 
-    imageUrl: svgToDataUrl(tankVerticalSvg), 
-    ports: TANK_VERTICAL_PORTS,
-    attrs: { label: { text: 'V-101', refY: '100%', refY2: 10 } },
-    data: { type: 'Tank', spec: 'Vertical', volume: '10.0' },
-  });
-
-  registerNodeWithCache('p-gas-cooler', {
-    inherit: 'image', width: 200, height: 130, imageUrl: svgToDataUrl(gasCoolerSvg),
-    ports: GAS_COOLER_PORTS, attrs: { label: { text: 'E-201', refY: '100%', refY2: 10 } },
-    data: { type: 'GasCooler', spec: 'AirCooled', area: '200' },
-  });
-
-  registerNodeWithCache('p-fixed-bed-reactor', {
-    inherit: 'image', width: 130, height: 150, imageUrl: svgToDataUrl(reactorFixedBedSvg),
-    ports: FIXED_BED_REACTOR_PORTS, attrs: { label: { text: 'D-14', refY: '100%', refY2: 10 } },
-    data: { type: 'FixedBedReactor', spec: '20000 Tubes', catalyst: 'V2O5' },
-  });
-
-  registerNodeWithCache('p-exchanger-vertical', {
-    inherit: 'image', width: 60, height: 200, imageUrl: svgToDataUrl(exchangerVerticalSvg),
-    ports: VERTICAL_EXCHANGER_PORTS, attrs: { label: { text: 'E-102', refY: '100%', refY2: 10 } },
-    data: { type: 'VerticalExchanger', spec: 'Vertical', area: '100' },
-  });
+  // [已删除] 所有手动注册的设备、泵、阀门、仪表代码
 };
 
 // ============================================================
-// [新增] 模块自启动与 HMR 处理
+// 模块自启动与 HMR 处理
 // ============================================================
 
-// 1. 立即执行注册，填充 SHAPE_LIBRARY
 try {
   registerCustomCells();
 } catch (e) {
   console.warn('[Registry] Auto-init failed:', e);
 }
 
-// 2. 显式接受 HMR 更新，确保模块重新评估时状态正确
 if (import.meta.hot) {
   import.meta.hot.accept(() => {
     console.log('[Registry] HMR updated. Library refreshed.');

@@ -28,7 +28,8 @@ export const INLINE_TYPES = [
   'ControlValve', 
   'Valve', 
   'Fitting', 
-  'TappingPoint'
+  'TappingPoint',
+  'ManualValve'
 ];
 
 // 4. 路由默认配置
