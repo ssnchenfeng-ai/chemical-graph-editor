@@ -520,7 +520,66 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     graph.on('node:change:angle', ({ node }) => updateNodeLabel(node as Node));
 
     // ============================================================
-    // [修复] 阀门打断逻辑 (增强容错)
+    // [优化] 辅助函数：计算节点上距离某点最近的端口 ID
+    // ============================================================
+    const getClosestPortId = (node: Node, point: { x: number; y: number }) => {
+      const ports = node.getPorts();
+      if (!ports.length) return undefined;
+
+      const pos = node.getPosition(); // 获取未旋转时的左上角坐标
+      const size = node.getSize();
+      const angle = node.getAngle();
+      
+      // 计算旋转中心
+      const cx = pos.x + size.width / 2;
+      const cy = pos.y + size.height / 2;
+      const rad = (angle * Math.PI) / 180;
+
+      let minDistance = Infinity;
+      let closestPortId = ports[0].id;
+
+      ports.forEach((port) => {
+        // 1. 解析端口相对坐标 (支持百分比和绝对数值)
+        const args = port.args || {};
+        let relX = 0;
+        let relY = 0;
+
+        if (typeof args.x === 'string' && args.x.endsWith('%')) {
+          relX = (parseFloat(args.x) / 100) * size.width;
+        } else {
+          relX = (args.x as number) || 0;
+        }
+
+        if (typeof args.y === 'string' && args.y.endsWith('%')) {
+          relY = (parseFloat(args.y) / 100) * size.height;
+        } else {
+          relY = (args.y as number) || 0;
+        }
+
+        // 2. 计算未旋转时的绝对坐标
+        const absoluteX = pos.x + relX;
+        const absoluteY = pos.y + relY;
+
+        // 3. 应用旋转变换 (绕中心点旋转)
+        // x' = (x - cx) * cos - (y - cy) * sin + cx
+        // y' = (x - cx) * sin + (y - cy) * cos + cy
+        const rotatedX = (absoluteX - cx) * Math.cos(rad) - (absoluteY - cy) * Math.sin(rad) + cx;
+        const rotatedY = (absoluteX - cx) * Math.sin(rad) + (absoluteY - cy) * Math.cos(rad) + cy;
+
+        // 4. 计算欧几里得距离
+        const dist = Math.sqrt(Math.pow(rotatedX - point.x, 2) + Math.pow(rotatedY - point.y, 2));
+
+        if (dist < minDistance) {
+          minDistance = dist;
+          closestPortId = port.id;
+        }
+      });
+
+      return closestPortId;
+    };
+
+    // ============================================================
+    // [修复] 阀门/管件打断逻辑 (支持任意端口 + 线段级邻近匹配)
     // ============================================================
     const handlePipeSplit = (node: Node) => {
       const nodeType = node.getData()?.type;
@@ -551,6 +610,10 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         
         let isPipeHorizontal = true; 
         let foundSegment = false;
+        
+        // [新增] 记录被打断的线段的起点和终点，用于计算最近端口
+        let segmentStart = targetEdge.getSourcePoint();
+        let segmentEnd = targetEdge.getTargetPoint();
 
         for (let i = 0; i < points.length - 1; i++) {
           const p1 = points[i];
@@ -570,6 +633,11 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
               isPipeHorizontal = false; 
             }
             foundSegment = true;
+            
+            // [核心修改] 捕获当前线段的端点
+            segmentStart = p1;
+            segmentEnd = p2;
+            
             break; 
           }
         }
@@ -578,13 +646,16 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
            const src = targetEdge.getSourcePoint();
            const tgt = targetEdge.getTargetPoint();
            isPipeHorizontal = Math.abs(src.x - tgt.x) > Math.abs(src.y - tgt.y);
+           // 如果没找到特定线段（极少情况），保持默认使用整条线的起终点
+           segmentStart = src;
+           segmentEnd = tgt;
         }
 
         const angle = node.getAngle();
         const normalizedAngle = (angle % 360 + 360) % 360;
         const isValveHorizontal = (normalizedAngle < 10 || normalizedAngle > 350) || (normalizedAngle > 170 && normalizedAngle < 190);
 
-        if (isValveHorizontal !== isPipeHorizontal) return; 
+        if (nodeType !== 'Fitting' && isValveHorizontal !== isPipeHorizontal) return; 
 
         const OFFSET = 20; 
         let newX = nodeBBox.x;
@@ -602,17 +673,14 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         
         node.setPosition(newX, newY);
 
-        const srcPoint = targetEdge.getSourcePoint();
-        const tgtPoint = targetEdge.getTargetPoint();
-        let portForSource = 'in';  
-        let portForTarget = 'out'; 
+        // [核心修改] 使用线段端点 (segmentStart/End) 而不是整条管线的端点 (srcPoint/tgtPoint)
+        // 这样可以确保连接到物理上最近的端口，解决 L 型或 U 型管路的连接错乱问题
+        const portForSource = getClosestPortId(node, segmentStart);
+        const portForTarget = getClosestPortId(node, segmentEnd);
 
-        if (isPipeHorizontal) {
-          if (srcPoint.x < tgtPoint.x) { portForSource = 'in'; portForTarget = 'out'; } 
-          else { portForSource = 'out'; portForTarget = 'in'; }
-        } else {
-          if (srcPoint.y < tgtPoint.y) { portForSource = 'in'; portForTarget = 'out'; } 
-          else { portForSource = 'out'; portForTarget = 'in'; }
+        if (!portForSource || !portForTarget) {
+          console.warn('无法找到合适的连接端口');
+          return;
         }
 
         const source = targetEdge.getSource();
@@ -644,7 +712,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         });
 
         graph.addCell([edge1, edge2]);
-        message.success('阀门已接入');
+        message.success('元件已接入管线');
       }
     };
 

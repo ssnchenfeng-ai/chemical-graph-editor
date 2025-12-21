@@ -126,6 +126,7 @@ src/
         p-diaphragmpump.svg
         p-e101.svg
         p-e13.svg
+        p-evaporator.svg
         p-exchangervertical.svg
         p-fan.svg
         p-fitting.svg
@@ -165,7 +166,6 @@ src/
         tower-packing.svg
         trap.svg
         tv-Trap.svg
-      icons.ts
       registry.ts
   services/
     neo4j.ts
@@ -189,201 +189,48 @@ vite.config.ts
 <files>
 This section contains the contents of the repository's files.
 
-<file path="src/graph/cells/data/p-hvnew.json">
-{
-  "width": 100,
-  "height": 100,
-  "ports": {
-    "groups": {
-      "all": {
-        "position": "absolute",
-        "attrs": {
-          "circle": {
-            "r": 3,
-            "magnet": true,
-            "stroke": "#FFFFFF",
-            "strokeWidth": 1,
-            "fill": "#e3dedeff"
-          }
-        }
-      }
-    },
-    "items": [
-      {
-        "id": "in",
-        "group": "all",
-        "args": {
-          "x": "25.5%",
-          "y": "55%"
-        },
-        "data": {
-          "desc": "新接口",
-          "region": "ShellSide",
-          "dir": "bi"
-        }
-      },
-      {
-        "id": "out",
-        "group": "all",
-        "args": {
-          "x": "75.5%",
-          "y": "56%"
-        },
-        "data": {
-          "desc": "新接口",
-          "region": "ShellSide",
-          "dir": "bi"
-        }
-      }
-    ]
-  },
-  "data": {
-    "type": "ManualValve",
-    "tag": "HV-New",
-    "spec": "Spec..."
-  }
-}
-</file>
+<file path="src/graph/cells/svgs/p-evaporator.svg">
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="220" viewBox="48 23 844 404" fill="none" stroke="black" stroke-width="2">
+  <defs>
+    <!-- 定义主罐体轮廓路径 (左侧封头已镜像为向外凸) -->
+    <path id="vessel-body" d="M100,25 L700,25 A50,200 0 0,1 700,425 L100,425 A50,200 0 0,1 100,25 Z" />
+    
+    <!-- 定义液位剪切蒙版 -->
+    <clipPath id="liquid-clip">
+      <use href="#vessel-body" />
+    </clipPath>
+  </defs>
 
-<file path="src/graph/cells/data/p-manualvalve.json">
-{
-  "width": 100,
-  "height": 100,
-  "ports": {
-    "groups": {
-      "all": {
-        "position": "absolute",
-        "attrs": {
-          "circle": {
-            "r": 3,
-            "magnet": true,
-            "stroke": "#FFFFFF",
-            "strokeWidth": 1,
-            "fill": "#e3dedeff"
-          }
-        }
-      }
-    },
-    "items": [
-      {
-        "id": "in",
-        "group": "all",
-        "args": {
-          "x": "25.5%",
-          "y": "55%"
-        },
-        "data": {
-          "desc": "新接口",
-          "region": "ShellSide",
-          "dir": "bi"
-        }
-      },
-      {
-        "id": "out",
-        "group": "all",
-        "args": {
-          "x": "75.5%",
-          "y": "56%"
-        },
-        "data": {
-          "desc": "新接口",
-          "region": "ShellSide",
-          "dir": "bi"
-        }
-      }
-    ]
-  },
-  "data": {
-    "type": "ManualValve",
-    "tag": "HV-New",
-    "spec": "Spec..."
-  }
-}
-</file>
-
-<file path="src/graph/cells/data/p-rupturedisc.json">
-{
-  "width": 60,
-  "height": 60,
-  "ports": {
-    "groups": {
-      "all": {
-        "position": "absolute",
-        "attrs": {
-          "circle": {
-            "r": 3,
-            "magnet": true,
-            "stroke": "#FFFFFF",
-            "strokeWidth": 1,
-            "fill": "#e3dedeff"
-          }
-        }
-      }
-    },
-    "items": [
-      {
-        "id": "in",
-        "group": "all",
-        "args": {
-          "x": "1%",
-          "y": "49%"
-        },
-        "data": {
-          "desc": "入口",
-          "region": "ShellSide",
-          "dir": "in"
-        }
-      },
-      {
-        "id": "out",
-        "group": "all",
-        "args": {
-          "x": "100%",
-          "y": "49%"
-        },
-        "data": {
-          "desc": "出口",
-          "region": "ShellSide",
-          "dir": "out"
-        }
-      }
-    ]
-  },
-  "data": {
-    "type": "Fitting",
-    "tag": "Rupturedisc",
-    "spec": "Spec..."
-  }
-}
-</file>
-
-<file path="src/graph/cells/svgs/p-fitting.svg">
-<svg width="29.104mm" height="30.427mm" version="1.1" viewBox="0 0 29.104 30.427" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs/><g transform="translate(-15.565 7.5317)"><g transform="matrix(.10102 0 0 .10102 27.472 2.5299)" fill="none"><g fill="none"><path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m20.004 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/><path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m34.974 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/><g pointer-events="all"><rect x="1" y="1" width="50" height="100"/><rect x="1" y="1" width="50" height="100" stroke="#000" stroke-width="2.9697"/><path d="m11 1v20c16.57 0 30 13.43 30 30s-13.43 30-30 30v20" stroke="#000" stroke-miterlimit="10" stroke-width="2.9697"/></g></g></g></g></svg>
-</file>
-
-<file path="src/graph/cells/svgs/p-hvnew.svg">
-<svg width="100" height="100" version="1.1" viewBox="-.5 -.5 100 100" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><g transform="translate(12.252 -74.364)"><g transform="translate(12.248 95.114)" fill="none" pointer-events="all" stroke="#000" stroke-linejoin="round" stroke-miterlimit="10"><path d="m12.5 7.5h25m-12.5 0v27.5"/><path d="m0 20 25 15-25 15zm50 0-25 15 25 15z"/></g></g></svg>
-</file>
-
-<file path="src/graph/cells/svgs/p-manualvalve.svg">
-<svg width="100" height="100" version="1.1" viewBox="-.5 -.5 100 100" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><g transform="translate(12.252 -74.364)"><g transform="translate(12.248 95.114)" fill="none" pointer-events="all" stroke="#000" stroke-linejoin="round" stroke-miterlimit="10"><path d="m12.5 7.5h25m-12.5 0v27.5"/><path d="m0 20 25 15-25 15zm50 0-25 15 25 15z"/></g></g></svg>
-</file>
-
-<file path="src/graph/cells/svgs/p-rupturedisc.svg">
-<svg width="60" height="60" viewBox="4.4 9.9 20.5 10.7" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <defs/>
-  <g transform="translate(-15.565 7.5317)">
-    <g transform="matrix(.10102 0 0 .10102 27.472 2.5299)" fill="none">
-      <g fill="none">
-        <path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m20.004 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/>
-        <path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m34.974 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/>
-        <g pointer-events="all">
-          <rect x="1" y="1" width="50" height="100"/>
-          <rect x="1" y="1" width="50" height="100" stroke="#000" stroke-width="2.9697"/>
-          <path d="m11 1v20c16.57 0 30 13.43 30 30s-13.43 30-30 30v20" stroke="#000" stroke-miterlimit="10" stroke-width="2.9697"/>
-        </g>
-      </g>
+  <g>
+    <!-- 1. 右侧加热器 (Heater) - 底层 -->
+    <rect x="500" y="250" width="310" height="150" fill="white" stroke="#000000" stroke-width="2"/>
+    <line x1="810" y1="245" x2="810" y2="405" stroke-width="4" />
+    <rect x="810" y="250" width="40" height="150" fill="white" stroke="#000000" stroke-width="2"/>
+    <path d="M850,250 A40,75 0 0,1 850,400" fill="white" stroke="#000000" stroke-width="2"/>
+    <line x1="810" y1="325" x2="890" y2="325" stroke-width="2" />
+    
+    <g stroke="#000000" stroke-width="1" opacity="0.6">
+      <line x1="510" y1="270" x2="810" y2="270" />
+      <line x1="510" y1="290" x2="810" y2="290" />
+      <line x1="510" y1="310" x2="810" y2="310" />
+      <line x1="510" y1="330" x2="810" y2="330" />
+      <line x1="510" y1="350" x2="810" y2="350" />
+      <line x1="510" y1="370" x2="810" y2="370" />
     </g>
+
+    <!-- 2. 主罐体 (Main Vessel) - 顶层覆盖 -->
+    
+    <!-- 2.1 罐体背景 -->
+    <use href="#vessel-body" fill="white" stroke="none" />
+    
+    <!-- 2.2 液相示意 (淡蓝色填充) -->
+    <rect x="0" y="225" width="800" height="300" fill="#e6f7ff" stroke="none" clip-path="url(#liquid-clip)" />
+    
+    <!-- 2.3 液面线 -->
+    <line x1="50" y1="225" x2="750" y2="225" stroke="#1890ff" stroke-width="1" stroke-dasharray="4 2" clip-path="url(#liquid-clip)" />
+
+    <!-- 2.4 罐体轮廓描边 -->
+    <use href="#vessel-body" fill="none" stroke="black" stroke-width="2" />
   </g>
 </svg>
 </file>
@@ -806,8 +653,8 @@ export default AttributeDesigner;
 
 <file path="src/graph/cells/data/p-centrifugalpump.json">
 {
-  "width": 100,
-  "height": 100,
+  "width": 60,
+  "height": 60,
   "ports": {
     "groups": {
       "in": {
@@ -1361,7 +1208,7 @@ export default AttributeDesigner;
         "group": "left",
         "args": {
           "x": "0%",
-          "y": "83.33%"
+          "y": "80%"
         },
         "data": {
           "desc": "阀门入口",
@@ -1374,7 +1221,7 @@ export default AttributeDesigner;
         "group": "right",
         "args": {
           "x": "100%",
-          "y": "83.33%"
+          "y": "80%"
         },
         "data": {
           "desc": "阀门出口",
@@ -1593,8 +1440,8 @@ export default AttributeDesigner;
 
 <file path="src/graph/cells/data/p-diaphragmpump.json">
 {
-  "width": 100,
-  "height": 100,
+  "width": 60,
+  "height": 60,
   "ports": {
     "groups": {
       "in": {
@@ -1793,8 +1640,8 @@ export default AttributeDesigner;
 
 <file path="src/graph/cells/data/p-e13.json">
 {
-  "width": 1000,
-  "height": 450,
+  "width": 500,
+  "height": 220,
   "ports": {
     "groups": {
       "top": {
@@ -1903,8 +1750,8 @@ export default AttributeDesigner;
         "id": "l1",
         "group": "left",
         "args": {
-          "x": "3%",
-          "y": "17.7%"
+          "x": "2%",
+          "y": "15%"
         },
         "data": {
           "desc": "左侧接口-1(上)",
@@ -1916,8 +1763,8 @@ export default AttributeDesigner;
         "id": "l2",
         "group": "left",
         "args": {
-          "x": "3%",
-          "y": "31.1%"
+          "x": "2%",
+          "y": "27%"
         },
         "data": {
           "desc": "左侧接口-2(上)",
@@ -1929,8 +1776,8 @@ export default AttributeDesigner;
         "id": "l3",
         "group": "left",
         "args": {
-          "x": "3%",
-          "y": "44.4%"
+          "x": "2%",
+          "y": "42%"
         },
         "data": {
           "desc": "左侧接口-3(中上)",
@@ -1942,8 +1789,8 @@ export default AttributeDesigner;
         "id": "b1",
         "group": "bottom",
         "args": {
-          "x": "22%",
-          "y": "98.9%"
+          "x": "21%",
+          "y": "99%"
         },
         "data": {
           "desc": "底部接口-1",
@@ -1994,8 +1841,8 @@ export default AttributeDesigner;
         "id": "l4",
         "group": "left",
         "args": {
-          "x": "3%",
-          "y": "57.7%"
+          "x": "2%",
+          "y": "59%"
         },
         "data": {
           "desc": "左侧接口-4(中下)",
@@ -2007,8 +1854,8 @@ export default AttributeDesigner;
         "id": "l5",
         "group": "left",
         "args": {
-          "x": "3%",
-          "y": "71.1%"
+          "x": "4%",
+          "y": "72%"
         },
         "data": {
           "desc": "左侧接口-5(下)",
@@ -2020,8 +1867,8 @@ export default AttributeDesigner;
         "id": "l6",
         "group": "left",
         "args": {
-          "x": "3%",
-          "y": "84.4%"
+          "x": "4%",
+          "y": "87%"
         },
         "data": {
           "desc": "左侧接口-6(下)",
@@ -2033,8 +1880,8 @@ export default AttributeDesigner;
         "id": "h_in",
         "group": "heater",
         "args": {
-          "x": "83%",
-          "y": "51.1%"
+          "x": "90%",
+          "y": "54%"
         },
         "data": {
           "desc": "蒸汽入口",
@@ -2046,8 +1893,8 @@ export default AttributeDesigner;
         "id": "h_out",
         "group": "heater",
         "args": {
-          "x": "83%",
-          "y": "93.3%"
+          "x": "90%",
+          "y": "94%"
         },
         "data": {
           "desc": "冷凝水出口",
@@ -2803,6 +2650,62 @@ export default AttributeDesigner;
 }
 </file>
 
+<file path="src/graph/cells/data/p-hvnew.json">
+{
+  "width": 100,
+  "height": 100,
+  "ports": {
+    "groups": {
+      "all": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "all",
+        "args": {
+          "x": "25.5%",
+          "y": "55%"
+        },
+        "data": {
+          "desc": "新接口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "all",
+        "args": {
+          "x": "75.5%",
+          "y": "56%"
+        },
+        "data": {
+          "desc": "新接口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "ManualValve",
+    "tag": "HV-New",
+    "spec": "Spec..."
+  }
+}
+</file>
+
 <file path="src/graph/cells/data/p-inst-local.json">
 {
   "width": 40,
@@ -2947,6 +2850,62 @@ export default AttributeDesigner;
   "data": {
     "type": "JetPump",
     "tag": "P-101",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/data/p-manualvalve.json">
+{
+  "width": 60,
+  "height": 60,
+  "ports": {
+    "groups": {
+      "all": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "all",
+        "args": {
+          "x": "0%",
+          "y": "68%"
+        },
+        "data": {
+          "desc": "新接口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "all",
+        "args": {
+          "x": "98%",
+          "y": "68%"
+        },
+        "data": {
+          "desc": "新接口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "ManualValve",
+    "tag": "HV-New",
     "spec": "Spec..."
   }
 }
@@ -3291,6 +3250,62 @@ export default AttributeDesigner;
   "data": {
     "type": "Reactor",
     "tag": "R-101",
+    "spec": "Spec..."
+  }
+}
+</file>
+
+<file path="src/graph/cells/data/p-rupturedisc.json">
+{
+  "width": 60,
+  "height": 60,
+  "ports": {
+    "groups": {
+      "all": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "all",
+        "args": {
+          "x": "0%",
+          "y": "50%"
+        },
+        "data": {
+          "desc": "入口",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "out",
+        "group": "all",
+        "args": {
+          "x": "100%",
+          "y": "50%"
+        },
+        "data": {
+          "desc": "出口",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Fitting",
+    "tag": "Rupturedisc",
     "spec": "Spec..."
   }
 }
@@ -4174,7 +4189,7 @@ export default AttributeDesigner;
 </file>
 
 <file path="src/graph/cells/svgs/p-centrifugalpump.svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="1 1 98 98" fill="none" stroke="black" stroke-width="2">
   <circle cx="50" cy="50" r="48" fill="white" />
   <path d="M 4 50 L 50 4 L 96 50" stroke-linejoin="round" />
   <!-- 中心垂直线 -->
@@ -4295,7 +4310,7 @@ export default AttributeDesigner;
 </file>
 
 <file path="src/graph/cells/svgs/p-diaphragmpump.svg">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="1 1 98 98" fill="none" stroke="black" stroke-width="2">
   <!-- 1. 外圆 (白底遮挡网格) -->
   <circle cx="50" cy="50" r="48" fill="white" />
   
@@ -4378,7 +4393,7 @@ export default AttributeDesigner;
 </file>
 
 <file path="src/graph/cells/svgs/p-e13.svg">
-<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="450" viewBox="0 0 1000 450" fill="none" stroke="black" stroke-width="2">
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="220" viewBox="48 23 844 404" fill="none" stroke="black" stroke-width="2">
   <defs>
     <!-- 定义主罐体轮廓路径 (左侧封头已镜像为向外凸) -->
     <path id="vessel-body" d="M100,25 L700,25 A50,200 0 0,1 700,425 L100,425 A50,200 0 0,1 100,25 Z" />
@@ -4412,11 +4427,9 @@ export default AttributeDesigner;
     <use href="#vessel-body" fill="white" stroke="none" />
     
     <!-- 2.2 液相示意 (淡蓝色填充) -->
-    <!-- 修改：y=225 (即 50% 高度) -->
     <rect x="0" y="225" width="800" height="300" fill="#e6f7ff" stroke="none" clip-path="url(#liquid-clip)" />
     
     <!-- 2.3 液面线 -->
-    <!-- 修改：y1=225, y2=225 -->
     <line x1="50" y1="225" x2="750" y2="225" stroke="#1890ff" stroke-width="1" stroke-dasharray="4 2" clip-path="url(#liquid-clip)" />
 
     <!-- 2.4 罐体轮廓描边 -->
@@ -4504,6 +4517,25 @@ export default AttributeDesigner;
   
   <!-- 中心轴点 (白色小圆点缀) -->
   <circle cx="50" cy="50" r="2" fill="white" stroke="none" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-fitting.svg">
+<svg width="60" height="60" viewBox="4.4 9.9 20.5 10.7" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs/>
+  <g transform="translate(-15.565 7.5317)">
+    <g transform="matrix(.10102 0 0 .10102 27.472 2.5299)" fill="none">
+      <g fill="none">
+        <path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m20.004 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/>
+        <path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m34.974 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/>
+        <g pointer-events="all">
+          <rect x="1" y="1" width="50" height="100"/>
+          <rect x="1" y="1" width="50" height="100" stroke="#000" stroke-width="2.9697"/>
+          <path d="m11 1v20c16.57 0 30 13.43 30 30s-13.43 30-30 30v20" stroke="#000" stroke-miterlimit="10" stroke-width="2.9697"/>
+        </g>
+      </g>
+    </g>
+  </g>
 </svg>
 </file>
 
@@ -4647,6 +4679,10 @@ export default AttributeDesigner;
 </svg>
 </file>
 
+<file path="src/graph/cells/svgs/p-hvnew.svg">
+<svg width="100" height="100" version="1.1" viewBox="-.5 -.5 100 100" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><g transform="translate(12.252 -74.364)"><g transform="translate(12.248 95.114)" fill="none" pointer-events="all" stroke="#000" stroke-linejoin="round" stroke-miterlimit="10"><path d="m12.5 7.5h25m-12.5 0v27.5"/><path d="m0 20 25 15-25 15zm50 0-25 15 25 15z"/></g></g></svg>
+</file>
+
 <file path="src/graph/cells/svgs/p-inst-local.svg">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" stroke="black" stroke-width="2">
   <!-- 40x40 画布，圆心 20, 半径 18 -->
@@ -4686,6 +4722,17 @@ export default AttributeDesigner;
   
   <!-- 右侧弧线: 起点在圆周(82,84) -> 向内收缩 -> 终点连接三角形右边(73,27) -->
   <path d="M 82 84 Q 55 65 73 27" stroke-linecap="round" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-manualvalve.svg">
+<svg width="60" height="60" version="1.1" viewBox="24 27.5 51 44" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(12.252 -74.364)">
+    <g transform="translate(12.248 95.114)" fill="none" pointer-events="all" stroke="#000" stroke-linejoin="round" stroke-miterlimit="10">
+      <path d="m12.5 7.5h25m-12.5 0v27.5"/>
+      <path d="m0 20 25 15-25 15zm50 0-25 15 25 15z"/>
+    </g>
+  </g>
 </svg>
 </file>
 
@@ -4788,6 +4835,25 @@ export default AttributeDesigner;
   <!-- 7. 内部挡板/套管 -->
   <line x1="65" y1="35" x2="65" y2="90" stroke="black" stroke-width="1"/>
 
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-rupturedisc.svg">
+<svg width="60" height="60" viewBox="4.4 9.9 20.5 10.7" version="1.1" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs/>
+  <g transform="translate(-15.565 7.5317)">
+    <g transform="matrix(.10102 0 0 .10102 27.472 2.5299)" fill="none">
+      <g fill="none">
+        <path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m20.004 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/>
+        <path transform="matrix(9.8991 0 0 9.8991 -271.95 -25.044)" d="m34.974 7.5847h5.256" stroke="#000" stroke-width=".15" style="paint-order:markers fill stroke"/>
+        <g pointer-events="all">
+          <rect x="1" y="1" width="50" height="100"/>
+          <rect x="1" y="1" width="50" height="100" stroke="#000" stroke-width="2.9697"/>
+          <path d="m11 1v20c16.57 0 30 13.43 30 30s-13.43 30-30 30v20" stroke="#000" stroke-miterlimit="10" stroke-width="2.9697"/>
+        </g>
+      </g>
+    </g>
+  </g>
 </svg>
 </file>
 
@@ -5673,51 +5739,6 @@ const Toolbar: React.FC<ToolbarProps> = ({ graph }) => {
 export default Toolbar;
 </file>
 
-<file path="src/config/rules.ts">
-// src/config/rules.ts
-// ============================================================================
-// 全局业务规则配置
-// ============================================================================
-
-// 1. 当前图纸 ID (为多页系统做准备，目前暂定为 Draft_V1)
-export const CURRENT_DRAWING_ID = 'Draft_V1';
-
-// 2. 介质颜色定义
-export const FLUID_COLORS: Record<string, string> = {
-  Water: '#1890ff',       // 工艺水 - 蓝
-  Steam: '#ff4d4f',       // 蒸汽 - 红
-  Air: '#52c41a',         // 空气 - 绿
-  N2: '#13c2c2',          // 氮气 - 青
-  Oil: '#fa8c16',         // 导热油 - 橙
-  Salt: '#722ed1',        // 熔盐 - 紫
-  Naphthalene: '#8c8c8c', // 萘 - 深灰
-  PA: '#eb2f96',          // 苯酐 - 洋红
-  CrudePA: '#f759ab',     // 粗苯酐 - 浅洋红
-  ProductGas: '#faad14',  // 产物气 - 金黄
-  TailGas: '#bfbfbf',     // 尾气 - 浅灰
-  Signal: '#888888',      // 信号线 - 灰
-};
-
-// 3. 在线元件列表
-// 这些设备被视为"管线的一部分"，路由算法会忽略它们的体积，允许直线穿过
-export const INLINE_TYPES = [
-  'ControlValve', 
-  'Valve', 
-  'Fitting', 
-  'TappingPoint',
-  'ManualValve'
-];
-
-// 4. 路由默认配置
-export const DEFAULT_ROUTER = {
-  name: 'manhattan',
-  args: {
-    padding: 10,
-    excludeNodes: ['SHEET_FRAME_A2'], // 默认排除背景框
-  },
-};
-</file>
-
 <file path="src/graph/cells/svgs/p-controlvalve.svg">
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
   <!-- 阀体 (Bowtie) -->
@@ -5843,40 +5864,6 @@ export const DEFAULT_ROUTER = {
   <line x1="10" y1="46" x2="10" y2="66" />
   <text x="5" y="60" text-anchor="end" font-family="Arial" font-size="12" stroke="none" fill="black" font-weight="bold">M1</text>
 </svg>
-</file>
-
-<file path="src/graph/cells/icons.ts">
-export const REACTOR_SVG = `
-<svg viewBox="0 0 80 120" xmlns="http://www.w3.org/2000/svg">
-  <path d="M10 30 V90 C10 110 70 110 70 90 V30 H10 Z" fill="#EFF4FF" stroke="#5F95FF" stroke-width="2"/>
-  <path d="M10 30 C10 10 70 10 70 30" fill="none" stroke="#5F95FF" stroke-width="2"/>
-  <rect x="35" y="0" width="10" height="20" fill="#fff" stroke="#5F95FF" stroke-width="2"/>
-  <line x1="10" y1="45" x2="70" y2="45" stroke="#5F95FF" stroke-width="1" stroke-dasharray="3 3"/>
-  <path d="M20 70 Q40 90 60 70" fill="none" stroke="#5F95FF" stroke-width="2"/>
-</svg>
-`;
-
-export const PUMP_SVG = `
-<svg viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="30" cy="35" r="20" fill="#EFF4FF" stroke="#5F95FF" stroke-width="2"/>
-  <path d="M30 15 V0 M50 35 H60" stroke="#5F95FF" stroke-width="2"/>
-  <path d="M30 35 L45 25 L45 45 Z" fill="#5F95FF"/>
-</svg>
-`;
-
-export const VALVE_SVG = `
-<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-  <path d="M0 10 L40 30 V10 L0 30 Z" fill="#EFF4FF" stroke="#5F95FF" stroke-width="2"/>
-  <line x1="20" y1="20" x2="20" y2="0" stroke="#5F95FF" stroke-width="2"/>
-  <line x1="10" y1="0" x2="30" y2="0" stroke="#5F95FF" stroke-width="2"/>
-</svg>
-`;
-
-export const TEE_SVG = `
-<svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <path d="M0 20 H40 M20 20 V40" stroke="#5F95FF" stroke-width="4" stroke-linecap="round"/>
-</svg>
-`;
 </file>
 
 <file path=".gitignore">
@@ -6135,6 +6122,51 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, type, onClose,
 };
 
 export default ContextMenu;
+</file>
+
+<file path="src/config/rules.ts">
+// src/config/rules.ts
+// ============================================================================
+// 全局业务规则配置
+// ============================================================================
+
+// 1. 当前图纸 ID (为多页系统做准备，目前暂定为 Draft_V1)
+export const CURRENT_DRAWING_ID = 'Draft_V1';
+
+// 2. 介质颜色定义
+export const FLUID_COLORS: Record<string, string> = {
+  Water: '#1890ff',       // 工艺水 - 蓝
+  Steam: '#ff4d4f',       // 蒸汽 - 红
+  Air: '#52c41a',         // 空气 - 绿
+  N2: '#13c2c2',          // 氮气 - 青
+  Oil: '#fa8c16',         // 导热油 - 橙
+  Salt: '#722ed1',        // 熔盐 - 紫
+  Naphthalene: '#8c8c8c', // 萘 - 深灰
+  PA: '#eb2f96',          // 苯酐 - 洋红
+  CrudePA: '#f759ab',     // 粗苯酐 - 浅洋红
+  ProductGas: '#faad14',  // 产物气 - 金黄
+  TailGas: '#bfbfbf',     // 尾气 - 浅灰
+  Signal: '#888888',      // 信号线 - 灰
+};
+
+// 3. 在线元件列表
+// 这些设备被视为"管线的一部分"，路由算法会忽略它们的体积，允许直线穿过
+export const INLINE_TYPES = [
+  'ControlValve', 
+  'Valve', 
+  'Fitting', 
+  'TappingPoint',
+  'ManualValve'
+];
+
+// 4. 路由默认配置
+export const DEFAULT_ROUTER = {
+  name: 'manhattan',
+  args: {
+    padding: 10,
+    excludeNodes: ['SHEET_FRAME_A2'], // 默认排除背景框
+  },
+};
 </file>
 
 <file path="src/graph/cells/svgs/E-13.svg">
@@ -8926,13 +8958,16 @@ import { Graph } from '@antv/x6';
 import frameA2Svg from './svgs/frame-a2.svg?raw';
 
 // ============================================================
-// [关键修改 1] 将 glob 移到顶层，确保 HMR 时能扫描所有文件
+// 1. 自动化扫描配置
 // ============================================================
+// 自动扫描 ./svgs 下的所有 .svg 文件 (作为字符串加载)
 const SVG_MODULES = import.meta.glob('./svgs/*.svg', { eager: true, query: '?raw', import: 'default' });
+// 自动扫描 ./data 下的所有 .json 文件 (作为对象加载)
 const JSON_MODULES = import.meta.glob('./data/*.json', { eager: true, import: 'default' });
 
 // --- 全局变量与类型定义 ---
 
+// 图元库缓存，供 ShapeDesigner 等工具回显使用
 export const SHAPE_LIBRARY: Record<string, any> = {};
 
 export type PortDir = 'in' | 'out' | 'bi';
@@ -8947,14 +8982,20 @@ interface ShapeConfig {
   height: number;
   ports: any;
   attrs?: any;
-  markup?: any[]; // [新增] 支持 markup 定义
+  markup?: any[]; // 支持自定义 markup (如仪表)
   data: any;
+  imageUrl?: string; // 兼容性字段
 }
 
 // --- 工具函数 ---
 
-// 确保使用 utf-8 编码
+// 确保使用 utf-8 编码构建 Data URL
 const svgToDataUrl = (svgStr: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgStr)}`;
+
+// 通用样式常量
+const LABEL_ATTRS = {
+  label: { refY: '100%', refY2: 8, textAnchor: 'middle', textVerticalAnchor: 'top', fontSize: 12, fill: '#333' }
+};
 
 // 内部注册函数：同时写入 X6 引擎和 SHAPE_LIBRARY 缓存
 const registerNodeWithCache = (id: string, config: any) => {
@@ -8985,14 +9026,8 @@ const registerNodeWithCache = (id: string, config: any) => {
   };
 };
 
-// --- 通用样式常量 ---
-
-const LABEL_ATTRS = {
-  label: { refY: '100%', refY2: 8, textAnchor: 'middle', textVerticalAnchor: 'top', fontSize: 12, fill: '#333' }
-};
-
 // ============================================================
-// 1. 自动化注册逻辑 (Auto Loader)
+// 2. 自动化注册逻辑 (Auto Loader)
 // ============================================================
 
 const autoRegisterShapes = () => {
@@ -9006,7 +9041,7 @@ const autoRegisterShapes = () => {
       const fileName = path.split('/').pop()?.replace('.json', '');
       const shapeId = fileName || 'unknown';
 
-      // 查找对应的 SVG
+      // 查找对应的 SVG (要求 SVG 文件名与 JSON 文件名一致)
       const svgPath = `./svgs/${shapeId}.svg`;
       const svgContent = SVG_MODULES[svgPath] as string;
 
@@ -9017,7 +9052,7 @@ const autoRegisterShapes = () => {
 
       const svgDataUrl = svgToDataUrl(svgContent);
 
-      // [核心逻辑升级] 区分简单图元和复杂图元
+      // [核心逻辑] 区分简单图元和复杂图元
       if (config.markup) {
         // === 复杂图元 (如仪表) ===
         // 必须将 SVG 注入到 attrs.body.xlinkHref 中
@@ -9058,20 +9093,23 @@ const autoRegisterShapes = () => {
 };
 
 // ============================================================
-// 2. 注册基础元素 (非业务图元)
+// 3. 注册入口函数
 // ============================================================
 
 export const registerCustomCells = () => {
-  // 1. 优先执行自动化注册
+  // 1. 执行自动化注册 (扫描 JSON + SVG)
   autoRegisterShapes();
 
-  // 2. 注册基础元素
+  // 2. 注册基础元素 (非业务图元)
+  
+  // 信号线
   Graph.registerEdge('signal-edge', {
     inherit: 'edge',
     attrs: { line: { stroke: '#888', strokeWidth: 1, strokeDasharray: '4 4', targetMarker: { name: 'classic', size: 3 } } },
     data: { type: 'Signal', fluid: 'Signal' },
   });
 
+  // 测点 (Tapping Point)
   registerNodeWithCache('tapping-point', {
     width: 12, height: 12,
     markup: [{ tagName: 'circle', selector: 'hitArea' }, { tagName: 'circle', selector: 'body' }],
@@ -9083,14 +9121,13 @@ export const registerCustomCells = () => {
     data: { type: 'TappingPoint', desc: '测量点' },
   });
 
+  // A2 图框背景
   registerNodeWithCache('drawing-frame-a2', {
     inherit: 'image', width: 2245, height: 1587,
     imageUrl: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(frameA2Svg)}`,
     ports: { items: [] }, attrs: { image: { style: { pointerEvents: 'none' } } },
     data: { type: 'Frame', isBackground: true }
   });
-  
-  // [已删除] 所有手动注册的设备、泵、阀门、仪表代码
 };
 
 // ============================================================

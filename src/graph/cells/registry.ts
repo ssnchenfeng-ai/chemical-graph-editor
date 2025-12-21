@@ -4,13 +4,16 @@ import { Graph } from '@antv/x6';
 import frameA2Svg from './svgs/frame-a2.svg?raw';
 
 // ============================================================
-// [关键修改 1] 将 glob 移到顶层，确保 HMR 时能扫描所有文件
+// 1. 自动化扫描配置
 // ============================================================
+// 自动扫描 ./svgs 下的所有 .svg 文件 (作为字符串加载)
 const SVG_MODULES = import.meta.glob('./svgs/*.svg', { eager: true, query: '?raw', import: 'default' });
+// 自动扫描 ./data 下的所有 .json 文件 (作为对象加载)
 const JSON_MODULES = import.meta.glob('./data/*.json', { eager: true, import: 'default' });
 
 // --- 全局变量与类型定义 ---
 
+// 图元库缓存，供 ShapeDesigner 等工具回显使用
 export const SHAPE_LIBRARY: Record<string, any> = {};
 
 export type PortDir = 'in' | 'out' | 'bi';
@@ -25,14 +28,20 @@ interface ShapeConfig {
   height: number;
   ports: any;
   attrs?: any;
-  markup?: any[]; // [新增] 支持 markup 定义
+  markup?: any[]; // 支持自定义 markup (如仪表)
   data: any;
+  imageUrl?: string; // 兼容性字段
 }
 
 // --- 工具函数 ---
 
-// 确保使用 utf-8 编码
+// 确保使用 utf-8 编码构建 Data URL
 const svgToDataUrl = (svgStr: string) => `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgStr)}`;
+
+// 通用样式常量
+const LABEL_ATTRS = {
+  label: { refY: '100%', refY2: 8, textAnchor: 'middle', textVerticalAnchor: 'top', fontSize: 12, fill: '#333' }
+};
 
 // 内部注册函数：同时写入 X6 引擎和 SHAPE_LIBRARY 缓存
 const registerNodeWithCache = (id: string, config: any) => {
@@ -63,14 +72,8 @@ const registerNodeWithCache = (id: string, config: any) => {
   };
 };
 
-// --- 通用样式常量 ---
-
-const LABEL_ATTRS = {
-  label: { refY: '100%', refY2: 8, textAnchor: 'middle', textVerticalAnchor: 'top', fontSize: 12, fill: '#333' }
-};
-
 // ============================================================
-// 1. 自动化注册逻辑 (Auto Loader)
+// 2. 自动化注册逻辑 (Auto Loader)
 // ============================================================
 
 const autoRegisterShapes = () => {
@@ -84,7 +87,7 @@ const autoRegisterShapes = () => {
       const fileName = path.split('/').pop()?.replace('.json', '');
       const shapeId = fileName || 'unknown';
 
-      // 查找对应的 SVG
+      // 查找对应的 SVG (要求 SVG 文件名与 JSON 文件名一致)
       const svgPath = `./svgs/${shapeId}.svg`;
       const svgContent = SVG_MODULES[svgPath] as string;
 
@@ -95,7 +98,7 @@ const autoRegisterShapes = () => {
 
       const svgDataUrl = svgToDataUrl(svgContent);
 
-      // [核心逻辑升级] 区分简单图元和复杂图元
+      // [核心逻辑] 区分简单图元和复杂图元
       if (config.markup) {
         // === 复杂图元 (如仪表) ===
         // 必须将 SVG 注入到 attrs.body.xlinkHref 中
@@ -136,20 +139,23 @@ const autoRegisterShapes = () => {
 };
 
 // ============================================================
-// 2. 注册基础元素 (非业务图元)
+// 3. 注册入口函数
 // ============================================================
 
 export const registerCustomCells = () => {
-  // 1. 优先执行自动化注册
+  // 1. 执行自动化注册 (扫描 JSON + SVG)
   autoRegisterShapes();
 
-  // 2. 注册基础元素
+  // 2. 注册基础元素 (非业务图元)
+  
+  // 信号线
   Graph.registerEdge('signal-edge', {
     inherit: 'edge',
     attrs: { line: { stroke: '#888', strokeWidth: 1, strokeDasharray: '4 4', targetMarker: { name: 'classic', size: 3 } } },
     data: { type: 'Signal', fluid: 'Signal' },
   });
 
+  // 测点 (Tapping Point)
   registerNodeWithCache('tapping-point', {
     width: 12, height: 12,
     markup: [{ tagName: 'circle', selector: 'hitArea' }, { tagName: 'circle', selector: 'body' }],
@@ -161,14 +167,13 @@ export const registerCustomCells = () => {
     data: { type: 'TappingPoint', desc: '测量点' },
   });
 
+  // A2 图框背景
   registerNodeWithCache('drawing-frame-a2', {
     inherit: 'image', width: 2245, height: 1587,
     imageUrl: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(frameA2Svg)}`,
     ports: { items: [] }, attrs: { image: { style: { pointerEvents: 'none' } } },
     data: { type: 'Frame', isBackground: true }
   });
-  
-  // [已删除] 所有手动注册的设备、泵、阀门、仪表代码
 };
 
 // ============================================================
