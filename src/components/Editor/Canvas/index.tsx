@@ -121,8 +121,10 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
             Tag: Tag,
             desc: data.desc || '',
             // [新增] 存入 layout 字段
-            layout: JSON.stringify(layoutData)
+            layout: JSON.stringify(layoutData),
             // [移除] x, y, width, height, angle 不再直接作为顶层属性
+            // [新增] 保存位号位置配置
+            labelPosition: data.labelPosition || 'bottom' 
           };
 
           // 业务属性提取逻辑 (保持不变)
@@ -212,29 +214,64 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     }
   }));
 
-  const updateNodeLabel = (node: Node) => {
+   const updateNodeLabel = (node: Node) => {
+    const data = node.getData() || {};
+    const position = data.labelPosition || 'bottom'; // 默认为下方
     const angle = node.getAngle();
-    if (angle === 0) {
-      node.setAttrs({
-        label: {
-          refX: 0.5, refY: '100%', refY2: 10, refX2: 0,
-          textAnchor: 'middle', textVerticalAnchor: 'top',
-          transform: null 
-        }
-      });
-      return;
-    }
     const size = node.getSize();
+    
+    // 基础偏移量 (文字距离设备的间距)
+    const PADDING = 15;
+
+    // 1. 计算视觉上的包围盒尺寸 (旋转后的投影尺寸)
     const rad = (angle * Math.PI) / 180;
-    const visualHeight = size.width * Math.abs(Math.sin(rad)) + size.height * Math.abs(Math.cos(rad));
-    const distance = visualHeight / 2 + 15;
-    const offsetX = distance * Math.sin(rad);
-    const offsetY = distance * Math.cos(rad);
+    const sin = Math.abs(Math.sin(rad));
+    const cos = Math.abs(Math.cos(rad));
+    
+    // 旋转后的视觉宽度和高度的一半
+    const visualHalfW = (size.width * cos + size.height * sin) / 2;
+    const visualHalfH = (size.width * sin + size.height * cos) / 2;
+
+    // 2. 确定视觉上的目标偏移向量 (相对于中心点)
+    let visualOffsetX = 0;
+    let visualOffsetY = 0;
+
+    switch (position) {
+      case 'top':
+        visualOffsetY = -(visualHalfH + PADDING);
+        break;
+      case 'bottom':
+        visualOffsetY = (visualHalfH + PADDING);
+        break;
+      case 'left':
+        visualOffsetX = -(visualHalfW + PADDING);
+        break;
+      case 'right':
+        visualOffsetX = (visualHalfW + PADDING);
+        break;
+      case 'center':
+        visualOffsetX = 0;
+        visualOffsetY = 0;
+        break;
+    }
+
+    // 3. 将视觉偏移向量逆旋转回节点的局部坐标系
+    // 屏幕向量 V_screen 转为局部向量 V_local，需要旋转 -A 度
+    const localRad = (-angle * Math.PI) / 180;
+    const localX = visualOffsetX * Math.cos(localRad) - visualOffsetY * Math.sin(localRad);
+    const localY = visualOffsetX * Math.sin(localRad) + visualOffsetY * Math.cos(localRad);
+
+    // 4. 设置属性
+    // refX/refY = 0.5 表示从中心点开始计算偏移
     node.setAttrs({
       label: {
-        refX: 0.5, refY: 0.5,
-        refX2: offsetX, refY2: offsetY,
-        textAnchor: 'middle', textVerticalAnchor: 'middle',
+        refX: 0.5,
+        refY: 0.5,
+        refX2: localX,
+        refY2: localY,
+        textAnchor: 'middle',
+        textVerticalAnchor: 'middle',
+        // 关键：抵消节点的旋转，使文字始终保持水平
         transform: `rotate(${-angle})`,
       }
     });
@@ -427,6 +464,16 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     if (!graph) return;
     
     const cell = cellId ? graph.getCellById(cellId) : null;
+    // [新增] 处理位号位置选择
+    if (action.startsWith('label:')) {
+      if (cell && cell.isNode()) {
+        const position = action.split(':')[1];
+        // 更新数据，这将触发 'node:change:data' 事件，进而调用 updateNodeLabel
+        cell.setData({ labelPosition: position });
+        message.success(`位号位置已更新`);
+      }
+      return;
+    }
     
     switch (action) {
       case 'copy': 
@@ -518,6 +565,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     graphRef.current = graph;
 
     graph.on('node:change:angle', ({ node }) => updateNodeLabel(node as Node));
+    graph.on('node:change:data', ({ node }) => updateNodeLabel(node as Node));
 
     // ============================================================
     // [优化] 辅助函数：计算节点上距离某点最近的端口 ID

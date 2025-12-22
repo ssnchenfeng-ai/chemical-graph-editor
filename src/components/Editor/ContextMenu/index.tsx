@@ -5,7 +5,12 @@ import {
   SnippetsOutlined, 
   InfoCircleOutlined, 
   ClearOutlined,
-  RotateRightOutlined 
+  RotateRightOutlined ,
+  ArrowUpOutlined,
+  ArrowDownOutlined,
+  ArrowLeftOutlined,
+  ArrowRightOutlined,
+  AlignCenterOutlined
 } from '@ant-design/icons';
 import './index.css';
 
@@ -72,6 +77,28 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, type, onClose,
                 <div className="context-menu-item" onClick={() => handleItemClick('rotate')}>
                   <RotateRightOutlined /> 旋转 90°
                 </div>
+                {/* ================= [新增开始] ================= */}
+                <div className="context-menu-divider" />
+                
+                <div style={{ padding: '4px 12px', fontSize: '12px', color: '#999', cursor: 'default' }}>
+                  位号位置
+                </div>
+                <div className="context-menu-item" onClick={() => handleItemClick('label:top')}>
+                  <ArrowUpOutlined /> 上方
+                </div>
+                <div className="context-menu-item" onClick={() => handleItemClick('label:bottom')}>
+                  <ArrowDownOutlined /> 下方
+                </div>
+                <div className="context-menu-item" onClick={() => handleItemClick('label:left')}>
+                  <ArrowLeftOutlined /> 左侧
+                </div>
+                <div className="context-menu-item" onClick={() => handleItemClick('label:right')}>
+                  <ArrowRightOutlined /> 右侧
+                </div>
+                <div className="context-menu-item" onClick={() => handleItemClick('label:center')}>
+                  <AlignCenterOutlined /> 居中
+                </div>
+                {/* ================= [新增结束] ================= */}
               </>
             )}
             
