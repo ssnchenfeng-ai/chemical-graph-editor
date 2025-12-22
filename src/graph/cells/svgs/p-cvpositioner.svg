@@ -1,19 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
-  <!-- 阀体 (底部双三角) -->
-  <polygon points="5,75 30,85 5,95" fill="white" />
-  <polygon points="55,75 30,85 55,95" fill="white" />
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="60" viewBox="4 -32 52 94" fill="none" stroke="black" stroke-width="2">
+  <!-- 阀体 (Bowtie) - 坐标与参考图一致 -->
+  <polygon points="5,33 30,45 5,60" fill="white" />
+  <polygon points="55,33 30,45 55,60" fill="white" />
   
-  <!-- 阀杆 -->
-  <line x1="30" y1="85" x2="30" y2="40" />
+  <!-- 阀杆 - 坐标与参考图一致 -->
+  <line x1="30" y1="45" x2="30" y2="5" />
   
-  <!-- 执行机构 (圆头) -->
-  <!-- 圆心(30,25), 半径15 -> 顶端y=10 -->
-  <circle cx="30" cy="25" r="15" fill="white" />
+  <!-- 执行机构 (圆头) - 坐标与参考图一致 (cy=-5) -->
+  <circle cx="30" cy="-5" r="15" fill="white" />
   
-  <!-- 文字 P -->
-  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">P</text>
-  
-  <!-- 定位器方块 (外接于圆顶) -->
-  <!-- x居中: 30-7=23, y从0开始, 高度10 -> 底部y=10 (刚好接触圆顶) -->
-  <rect x="23" y="0" width="14" height="10" fill="white" />
+  <!-- 定位器方块 (新增部分) -->
+  <!-- 圆顶位于 y=-20，方块高度10，因此方块 y=-30 -->
+  <rect x="23" y="-30" width="14" height="10" fill="white" />
+
+  <!-- 文字 P - 坐标与参考图一致 -->
+  <text x="30" y="0" text-anchor="middle" font-family="Arial" font-size="16" fill="black" stroke="none">P</text>
 </svg>

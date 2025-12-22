@@ -1,13 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="1 1 98 98" fill="none" stroke="black" stroke-width="2">
   <!-- 外圆 (白底遮挡网格) -->
   <circle cx="50" cy="50" r="48" fill="white" />
   
   <!-- 梯形结构 (修正版) -->
-  <!-- 
-       几何计算基于圆心(50,50) 半径48:
-       - 底部两点 (y=85): x=17, x=83 (更宽，贴合下部圆弧)
-       - 顶部两点 (y=5):  x=33, x=67 (较窄，贴合上部圆弧)
-  -->
   <line x1="17" y1="85" x2="33" y2="5" stroke-linecap="round" />
   <line x1="83" y1="85" x2="67" y2="5" stroke-linecap="round" />
 </svg>

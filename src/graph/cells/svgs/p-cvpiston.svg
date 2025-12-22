@@ -1,14 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="60" viewBox="4 -26 52 87" fill="none" stroke="black" stroke-width="2">
   <!-- 阀体 (Bowtie) -->
-  <polygon points="5,75 30,85 5,95" fill="white" />
-  <polygon points="55,75 30,85 55,95" fill="white" />
+  <polygon points="5,33 30,45 5,60" fill="white" />
+  <polygon points="55,33 30,45 55,60" fill="white" />
   
   <!-- 阀杆 -->
-  <line x1="30" y1="85" x2="30" y2="40" />
+  <line x1="30" y1="45" x2="30" y2="5" />
   
   <!-- 执行机构：两个大小相同的矩形 -->
-  <!-- 下矩形 -->
-  <rect x="15" y="25" width="30" height="15" fill="white" />
-  <!-- 上矩形 -->
-  <rect x="15" y="10" width="30" height="15" fill="white" />
+  <!-- 调整位置以匹配参考图中圆形(R15)的边界范围 (y从-20到10) -->
+  <!-- 上矩形 (y: -20 到 -5) -->
+  <rect x="15" y="-20" width="30" height="15" fill="white" />
+  <!-- 下矩形 (y: -5 到 10) -->
+  <rect x="15" y="-5" width="30" height="15" fill="white" />
 </svg>

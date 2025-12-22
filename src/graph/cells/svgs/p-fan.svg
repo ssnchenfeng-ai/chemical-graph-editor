@@ -1,32 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="black" stroke-width="2">
+<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="1 1 98 98" fill="none" stroke="black" stroke-width="2">
   <!-- 1. 外圆 (白底遮挡网格) -->
   <circle cx="50" cy="50" r="48" fill="white" />
   
   <!-- 2. 梯形外壳 (直线两端均内接于圆) -->
-  <!-- 经过计算，确保线条内接于半径48的圆，且避开中心扇叶区域 -->
-  <!-- 左线: 顶部(28, 7.5) -> 底部(10, 76.5) -->
   <line x1="28" y1="7.5" x2="10" y2="76.5" stroke-linecap="round" />
-  <!-- 右线: 顶部(72, 7.5) -> 底部(90, 76.5) -->
   <line x1="72" y1="7.5" x2="90" y2="76.5" stroke-linecap="round" />
 
-  <!-- 3. 三叶螺旋桨 (柳叶型，不与直线相交) -->
-  <!-- 
-       中心点: (50,50)
-       叶片长度: 28 (小于直线到圆心的距离33，确保不相交)
-       控制点: 宽度适中，形成柳叶状
-  -->
+  <!-- 3. 三叶螺旋桨 (柳叶型) -->
   <g fill="black" stroke="none" transform="translate(50, 50)">
-    <!-- 叶片1 (朝上 0度) -->
-    <!-- M 0 0 (圆心) -> Q 8 -14 (右控) 0 -28 (叶尖) -> Q -8 -14 (左控) 0 0 (回圆心) -->
+    <!-- 叶片1 -->
     <path d="M 0 0 Q 8 -14 0 -28 Q -8 -14 0 0" />
-    
-    <!-- 叶片2 (旋转120度) -->
+    <!-- 叶片2 -->
     <path d="M 0 0 Q 8 -14 0 -28 Q -8 -14 0 0" transform="rotate(120)" />
-    
-    <!-- 叶片3 (旋转240度) -->
+    <!-- 叶片3 -->
     <path d="M 0 0 Q 8 -14 0 -28 Q -8 -14 0 0" transform="rotate(240)" />
   </g>
   
-  <!-- 中心轴点 (白色小圆点缀) -->
+  <!-- 中心轴点 -->
   <circle cx="50" cy="50" r="2" fill="white" stroke="none" />
 </svg>

@@ -1,8 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
-  <polygon points="5,75 30,85 5,95" fill="white" />
-  <polygon points="55,75 30,85 55,95" fill="white" />
-  <line x1="30" y1="85" x2="30" y2="40" />
-  <circle cx="30" cy="25" r="15" fill="white" />
-  <!-- 文字 M -->
-  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">M</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="60" viewBox="4 -26 52 87" fill="none" stroke="black" stroke-width="2">
+  <!-- 阀体 (与参考图对齐) -->
+  <polygon points="5,33 30,45 5,60" fill="white" />
+  <polygon points="55,33 30,45 55,60" fill="white" />
+  
+  <!-- 阀杆 (与参考图对齐) -->
+  <line x1="30" y1="45" x2="30" y2="5" />
+  
+  <!-- 执行机构 (与参考图对齐) -->
+  <circle cx="30" cy="-5" r="15" fill="white" />
+  
+  <!-- 文字 M (位置调整为 y=0, 增加 stroke="none" 保证清晰度) -->
+  <text x="30" y="0" text-anchor="middle" font-family="Arial" font-size="16" fill="black" stroke="none">M</text>
 </svg>

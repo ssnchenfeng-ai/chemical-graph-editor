@@ -1,9 +1,21 @@
 {
-  "width": 100,
-  "height": 100,
+  "width": 60,
+  "height": 60,
   "ports": {
     "groups": {
-      "all": {
+      "in": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "out": {
         "position": "absolute",
         "attrs": {
           "circle": {
@@ -19,35 +31,35 @@
     "items": [
       {
         "id": "in",
-        "group": "all",
+        "group": "in",
         "args": {
-          "x": "25.5%",
-          "y": "55%"
+          "x": "50%",
+          "y": "100%"
         },
         "data": {
-          "desc": "新接口",
+          "desc": "泵入口",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "in"
         }
       },
       {
         "id": "out",
-        "group": "all",
+        "group": "out",
         "args": {
-          "x": "75.5%",
-          "y": "56%"
+          "x": "50%",
+          "y": "0%"
         },
         "data": {
-          "desc": "新接口",
+          "desc": "泵出口",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "out"
         }
       }
     ]
   },
   "data": {
-    "type": "ManualValve",
-    "tag": "HV-New",
+    "type": "LiquidPump",
+    "tag": "P-101",
     "spec": "Spec..."
   }
 }

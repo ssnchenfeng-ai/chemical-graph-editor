@@ -1,7 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" fill="none" stroke="black" stroke-width="2">
-  <polygon points="5,75 30,85 5,95" fill="white" />
-  <polygon points="55,75 30,85 55,95" fill="white" />
-  <line x1="30" y1="85" x2="30" y2="40" />
-  <circle cx="30" cy="25" r="15" fill="white" />
-  <text x="30" y="30" text-anchor="middle" font-family="Arial" font-size="16" fill="black">H</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="60" viewBox="4 -26 52 87" fill="none" stroke="black" stroke-width="2">
+  <!-- 阀体 (坐标已对齐参考图: 中心点 30,45) -->
+  <polygon points="5,33 30,45 5,60" fill="white" />
+  <polygon points="55,33 30,45 55,60" fill="white" />
+  
+  <!-- 阀杆 (坐标已对齐参考图: y从45到5) -->
+  <line x1="30" y1="45" x2="30" y2="5" />
+  
+  <!-- 执行机构 (坐标已对齐参考图: 圆心 30,-5) -->
+  <circle cx="30" cy="-5" r="15" fill="white" />
+  
+  <!-- 文字 H (位置调整为 y=0 以居中于圆内) -->
+  <text x="30" y="-5" text-anchor="middle" font-family="Arial" font-size="16" fill="black" stroke="none" dy="5">H</text>
 </svg>
