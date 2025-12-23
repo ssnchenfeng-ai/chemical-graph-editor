@@ -132,6 +132,40 @@ Once data is stored in Neo4j, you can use Cypher or LLMs to answer complex engin
 3.  **控制回路提取**:
     > "找出 R-101 反应釜上所有的温度控制仪表及其关联的调节阀。"
 
+## 🔗 生态系统与应用 (Ecosystem)
+
+本项目是**工业 AI 数据的生产者**。
+This project serves as the **Data Producer** for Industrial AI.
+
+如果您想了解如何利用生成的图谱数据进行 **RAG（检索增强生成）**、**智能问答**或**工艺推理**，请查看我们的配套开源项目：
+
+👉 **[Industrial GraphRAG Chatbot](https://github.com/ssnchenfeng-ai/my_rag_project)**
+*(基于 Python + Streamlit + LangChain + Neo4j 的工业问答系统)*
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center"><b>Step 1: Data Production</b></td>
+      <td align="center"><b>Step 2: Data Consumption</b></td>
+    </tr>
+    <tr>
+      <td align="center">
+        <a href=".">
+          <b>Chemical Graph Editor</b><br/>
+          (React / AntV X6)
+        </a>
+      </td>
+      <td align="center">➡️ Data Sync ➡️</td>
+      <td align="center">
+        <a href="https://github.com/ssnchenfeng-ai/my_rag_project">
+          <b>GraphRAG Chatbot</b><br/>
+          (Python / LangChain)
+        </a>
+      </td>
+    </tr>
+  </table>
+</div>
+
 ### 🚀 快速开始
 
 1.  **环境准备**: 确保已安装 Node.js (v16+) 和 Neo4j Desktop。
