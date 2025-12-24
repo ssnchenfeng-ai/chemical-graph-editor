@@ -41,11 +41,13 @@ const TYPE_MAPPING: Record<string, string[]> = {
   // 阀门类 (包括手动阀和调节阀)
   'Valve':             ['Equipment', 'Valve'],
   'ControlValve':      ['Equipment', 'Valve', 'ControlValve'], // 调节阀既是阀门，也是控制元件
-  'Trap':              ['Equipment', 'Trap'],
+  //'Trap':              ['Equipment', 'Trap'],
   
   // 容器类
-  'Tank':              ['Equipment', 'Vessel'],
+  'Tank':              ['Equipment', 'Vessel', 'Storage'],
   //'Trap':              ['Equipment', 'Vessel'],
+  'Separator':         ['Equipment', 'Vessel', 'Separator'], 
+
   
   // 管件
   'Fitting':           ['Equipment', 'Fitting'],
@@ -53,6 +55,22 @@ const TYPE_MAPPING: Record<string, string[]> = {
   // 仪表类
   'Instrument':        ['Instrument'],
   'TappingPoint':      ['Instrument', 'Connection'], // 测点
+
+  // === [新增] 安全设施 ===
+  // 给它们打上 SafetyDevice 标签，方便 AI 查询所有安全设施
+  'SafetyValve':       ['Equipment', 'Valve', 'SafetyDevice'],
+  'RuptureDisc':       ['Equipment', 'SafetyDevice', 'Fitting'],
+  'BreatherValve':     ['Equipment', 'Valve', 'SafetyDevice'],
+
+  // === [新增] 疏水阀 ===
+  'Trap':              ['Equipment', 'Valve', 'Trap'],
+
+  // === [新增] 附件 ===
+  'Filter':            ['Equipment', 'Fitting', 'Filter'],
+  'FlameArrester':     ['Equipment', 'SafetyDevice', 'Fitting'],
+  'SightGlass':        ['Equipment', 'Fitting', 'Indicator'],
+  'Silencer':          ['Equipment', 'Fitting'],
+
   
   // 默认
   'default':           ['Equipment', 'Other']

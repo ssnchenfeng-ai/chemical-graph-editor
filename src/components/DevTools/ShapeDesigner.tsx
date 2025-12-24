@@ -48,11 +48,26 @@ const EQUIPMENT_TYPES = [
   { value: 'Pump', label: '泵 (Pump)', prefix: 'P' },
   { value: 'Compressor', label: '压缩机 (Compressor)', prefix: 'C' },
   { value: 'Fan', label: '风机 (Fan)', prefix: 'K' },
+
+  // === [新增] 分离器 ===
+  // 建议 Prefix 使用 'V' (Vessel) 或 'S' (Separator)，视你们工厂习惯而定
+  { value: 'Separator', label: '分离器 (Separator)', prefix: 'V' }, 
+
+  // === [新增] 安全与特种阀门 ===
+  { value: 'SafetyValve', label: '安全阀 (Safety Valve)', prefix: 'PSV' }, // 对应“按钻阀”
+  { value: 'RuptureDisc', label: '爆破片 (Rupture Disc)', prefix: 'PSE' },
+  { value: 'BreatherValve', label: '呼吸阀 (Breather Valve)', prefix: 'PV' },
   
   { value: 'Valve', label: '通用阀门 (Valve)', prefix: 'V' },
   { value: 'ControlValve', label: '调节阀 (ControlValve)', prefix: 'FV' },
   { value: 'ManualValve', label: '手动阀 (ManualValve)', prefix: 'HV' },
   { value: 'Trap', label: '疏水阀 (Trap)', prefix: 'S' },
+
+  // === [新增] 管道附件 ===
+  { value: 'Filter', label: '过滤器 (Filter)', prefix: 'FIL' },
+  { value: 'FlameArrester', label: '阻火器 (Flame Arrester)', prefix: 'FA' },
+  { value: 'SightGlass', label: '视镜 (Sight Glass)', prefix: 'SG' },
+  { value: 'Silencer', label: '消音器 (Silencer)', prefix: 'SL' },
   
   { value: 'Instrument', label: '仪表 (Instrument)', prefix: 'PI' },
   { value: 'Fitting', label: '管件 (Fitting)', prefix: '' },
@@ -521,11 +536,26 @@ ${itemsStr}
             </Row>
             <Form.Item name="desc" label="描述 (语义)"><Input /></Form.Item>
             <Form.Item name="region" label="区域 (Region)">
-              <Select>
-                <Option value="ShellSide">ShellSide (壳程)</Option>
-                <Option value="TubeSide">TubeSide (管程)</Option>
+              <Select dropdownMatchSelectWidth={false}>
+                {/* 通用区域 */}
+                <Option value="ShellSide">ShellSide (壳程-通用)</Option>
+                <Option value="TubeSide">TubeSide (管程-通用)</Option>
+                
+                {/* 精细化相态 - 用于换热器/容器 AI 分析 */}
+                <Option value="ShellSide:Liquid">ShellSide:Liquid (壳程液相)</Option>
+                <Option value="ShellSide:Vapor">ShellSide:Vapor (壳程气相)</Option>
+                <Option value="TubeSide:Liquid">TubeSide:Liquid (管程液相)</Option>
+                <Option value="TubeSide:Vapor">TubeSide:Vapor (管程气相)</Option>
+                
+                {/* 反应釜/储罐 */}
+                <Option value="InnerVessel">InnerVessel (内胆/釜内)</Option>
                 <Option value="Jacket">Jacket (夹套)</Option>
-                <Option value="InnerVessel">InnerVessel (内胆)</Option>
+                <Option value="UpperSaltChannel">UpperSaltChannel (上盐道)</Option>
+                <Option value="LowerSaltChannel">LowerSaltChannel (下盐道)</Option>
+
+                {/* 控制与仪表 */}
+                <Option value="ControlSignal">ControlSignal (控制信号/执行机构)</Option>
+                <Option value="Signal">Signal (通用信号)</Option>
               </Select>
             </Form.Item>
             <Form.Item name="dir" label="流向"><Select><Option value="in">In</Option><Option value="out">Out</Option><Option value="bi">Bi</Option></Select></Form.Item>

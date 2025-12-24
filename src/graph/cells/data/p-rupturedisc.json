@@ -46,8 +46,8 @@
     ]
   },
   "data": {
-    "type": "Fitting",
-    "tag": "Rupturedisc",
+    "type": "RuptureDisc",
+    "tag": "PSE-New",
     "spec": "Spec..."
   }
 }

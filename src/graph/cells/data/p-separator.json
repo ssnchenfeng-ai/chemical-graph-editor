@@ -1,0 +1,92 @@
+{
+  "width": 100,
+  "height": 200,
+  "ports": {
+    "groups": {
+      "all": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "p1",
+        "group": "all",
+        "args": {
+          "x": "0%",
+          "y": "85%"
+        },
+        "data": {
+          "desc": "液位计液相",
+          "region": "ShellSide:Liquid",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "p2",
+        "group": "all",
+        "args": {
+          "x": "0%",
+          "y": "65%"
+        },
+        "data": {
+          "desc": "液位计气相",
+          "region": "ShellSide:Vapor",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "p3",
+        "group": "all",
+        "args": {
+          "x": "51%",
+          "y": "100%"
+        },
+        "data": {
+          "desc": "底部排液",
+          "region": "ShellSide:Liquid",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "in",
+        "group": "all",
+        "args": {
+          "x": "0%",
+          "y": "40%"
+        },
+        "data": {
+          "desc": "气体进口",
+          "region": "ShellSide:Vapor",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "all",
+        "args": {
+          "x": "50%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "气体出口",
+          "region": "ShellSide:Vapor",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Separator",
+    "tag": "V-New",
+    "spec": "Spec..."
+  }
+}

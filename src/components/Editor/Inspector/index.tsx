@@ -121,6 +121,71 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
 
   const renderSpecificFields = () => {
     if (!isNode) return null;
+    // 1. 安全设施 (安全阀、爆破片、呼吸阀)
+    if (['SafetyValve', 'RuptureDisc', 'BreatherValve'].includes(type)) {
+      return (
+        <>
+          <Divider orientation={"left" as any}><SettingOutlined /> 设定参数</Divider>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="设定压力 (MPa)" name="setPressure" style={{ flex: 1 }}>
+              <Input placeholder="1.0" />
+            </Form.Item>
+            <Form.Item label="泄放面积 (mm²)" name="area" style={{ flex: 1 }}>
+              <Input placeholder="-" />
+            </Form.Item>
+          </div>
+          <Form.Item label="进/出口尺寸" name="size">
+             <Input placeholder="DN50 / DN80" />
+          </Form.Item>
+        </>
+      );
+    }
+
+    // 2. 疏水阀 (Trap)
+    if (type === 'Trap') {
+      return (
+        <>
+          <Divider orientation={"left" as any}><SettingOutlined /> 疏水参数</Divider>
+          <Form.Item label="类型" name="trapType">
+            <Select>
+              <Option value="Thermodynamic">热动力式 (圆盘)</Option>
+              <Option value="BallFloat">浮球式</Option>
+              <Option value="InvertedBucket">倒吊桶式</Option>
+              <Option value="Bimetallic">双金属片</Option>
+            </Select>
+          </Form.Item>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="排量 (kg/h)" name="capacity" style={{ flex: 1 }}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="最大压差 (MPa)" name="maxDiffPress" style={{ flex: 1 }}>
+              <Input />
+            </Form.Item>
+          </div>
+        </>
+      );
+    }
+
+    // 3. 过滤器 (Filter)
+    if (type === 'Filter') {
+      return (
+        <>
+          <Divider orientation={"left" as any}><SettingOutlined /> 过滤参数</Divider>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <Form.Item label="滤网目数 (Mesh)" name="mesh" style={{ flex: 1 }}>
+              <Input placeholder="40" />
+            </Form.Item>
+            <Form.Item label="形式" name="filterType" style={{ flex: 1 }}>
+              <Select>
+                <Option value="Y-Type">Y型</Option>
+                <Option value="T-Type">T型</Option>
+                <Option value="Basket">篮式</Option>
+              </Select>
+            </Form.Item>
+          </div>
+        </>
+      );
+    }
     
     if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
       return (
@@ -142,10 +207,21 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
         </>
       );
     }
-    if (['Reactor', 'Tank', 'Evaporator'].includes(type)) {
+    if (['Reactor', 'Tank', 'Evaporator', 'Separator'].includes(type)) {
       return (
         <>
           <Divider orientation={"left" as any}><ExperimentOutlined /> 设备参数</Divider>
+          {/* 针对分离器特有的属性 (可选) */}
+          {type === 'Separator' && (
+             <Form.Item label="内件类型" name="internals">
+               <Select allowClear>
+                 <Option value="Demister">丝网除沫器</Option>
+                 <Option value="Vane">叶片式</Option>
+                 <Option value="Cyclone">旋风式</Option>
+                 <Option value="None">无 (重力沉降)</Option>
+               </Select>
+             </Form.Item>
+          )}
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="容积 (m³)" name="volume" style={{ flex: 1 }}><Input placeholder="2000" /></Form.Item>
             <Form.Item label="材质" name="material" style={{ flex: 1 }}>
