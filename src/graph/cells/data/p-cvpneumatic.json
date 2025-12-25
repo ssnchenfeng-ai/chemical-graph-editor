@@ -71,12 +71,12 @@
         "id": "actuator",
         "group": "actuator",
         "args": {
-          "x": "50%",
+          "x": "58%",
           "y": "0%"
         },
         "data": {
           "desc": "执行机构",
-          "region": "ShellSide",
+          "region": "ControlSignal",
           "dir": "in"
         }
       }

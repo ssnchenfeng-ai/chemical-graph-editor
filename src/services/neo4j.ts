@@ -340,7 +340,10 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         if (relType === 'PIPE' && rel.tag) {
             labels.push({
             attrs: { label: { text: rel.tag }, body: { fill: '#fff', stroke: '#333' } },
-            position: { distance: 0.5, args: { y: -15 } } 
+            position: { distance: 0.5, args: { y: -10 }, options: { 
+                  keepGradient: true, 
+                  ensureLegibility: true 
+                } } 
             });
         }
 

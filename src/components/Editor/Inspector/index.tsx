@@ -1,5 +1,5 @@
 // src/components/Editor/Inspector/index.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef  } from 'react';
 import { Form, Input, Card, Empty, Select, Divider, Collapse } from 'antd';
 import { Cell } from '@antv/x6';
 import { 
@@ -16,11 +16,15 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   const [form] = Form.useForm();
   const [, setTick] = useState(0);
 
+  // 2. [新增] 定义一个锁，用于区分是“用户输入”还是“外部更新”
+  const isUpdatingFromForm = useRef(false);
+
   // 1. 监听选中 cell 变化及数据变更
   useEffect(() => {
     if (!cell) return;
 
     const updateForm = () => {
+      if (isUpdatingFromForm.current) return;
       const data = cell.getData() || {};
       const attrs = cell.getAttrs();
       
@@ -47,6 +51,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
           loopNum: data.loopNum,
           range: data.range,
           unit: data.unit,
+          internals: data.internals, // 特定于分离器
         });
       } else if (cell.isEdge()) {
         const labelObj = cell.getLabelAt(0);
@@ -79,38 +84,54 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   const handleValuesChange = (changedValues: any, allValues: any) => {
     if (!cell) return;
 
-    const currentData = cell.getData() || {};
-    cell.setData({ ...currentData, ...allValues });
+    // 4. [新增] 上锁：标记当前操作源自表单
+    isUpdatingFromForm.current = true;
 
-    if (cell.isNode()) {
-      if (currentData.type === 'Instrument') {
-        if (changedValues.tagId !== undefined) cell.attr('topLabel/text', changedValues.tagId);
-        if (changedValues.loopNum !== undefined) cell.attr('bottomLabel/text', changedValues.loopNum);
-      } else {
-        if (changedValues.tag !== undefined) {
-          cell.setAttrs({ label: { text: changedValues.tag } });
-        }
-      }
-    } else if (cell.isEdge()) {
-      if (changedValues.tag !== undefined) {
-        cell.setLabelAt(0, { attrs: { label: { text: changedValues.tag } }, position: { distance: 0.5 } });
-      }
-      if (changedValues.fluid !== undefined || changedValues.insulation !== undefined) {
-        const fluid = allValues.fluid;
-        const insulation = allValues.insulation;
-        const color = FLUID_COLORS[fluid] || '#5F95FF';
+    try {
+      // --- 原有业务逻辑开始 ---
+      const currentData = cell.getData() || {};
+      cell.setData({ ...currentData, ...allValues });
 
-        if (insulation && insulation.startsWith('Jacket')) {
-          cell.setAttrs({ line: { strokeWidth: 4, stroke: '#fa8c16', strokeDasharray: null } });
-        } else if (['ST', 'ET', 'OT'].includes(insulation)) {
-          cell.setAttrs({ line: { strokeWidth: 2, stroke: color, strokeDasharray: '5 5' } });
+      if (cell.isNode()) {
+        if (currentData.type === 'Instrument') {
+          if (changedValues.tagId !== undefined) cell.attr('topLabel/text', changedValues.tagId);
+          if (changedValues.loopNum !== undefined) cell.attr('bottomLabel/text', changedValues.loopNum);
         } else {
-          cell.setAttrs({ line: { strokeWidth: 2, stroke: color, strokeDasharray: null } });
+          if (changedValues.tag !== undefined) {
+            cell.setAttrs({ label: { text: changedValues.tag } });
+          }
+        }
+      } else if (cell.isEdge()) {
+        if (changedValues.tag !== undefined) {
+          cell.setLabelAt(0, { attrs: { label: { text: changedValues.tag } }, position: { distance: 0.5,options: {
+                keepGradient: true,
+                ensureLegibility: true,
+              } } });
+        }
+        if (changedValues.fluid !== undefined || changedValues.insulation !== undefined) {
+          const fluid = allValues.fluid;
+          const insulation = allValues.insulation;
+          const color = FLUID_COLORS[fluid] || '#5F95FF';
+
+          if (insulation && insulation.startsWith('Jacket')) {
+            cell.setAttrs({ line: { strokeWidth: 4, stroke: '#fa8c16', strokeDasharray: null } });
+          } else if (['ST', 'ET', 'OT'].includes(insulation)) {
+            cell.setAttrs({ line: { strokeWidth: 2, stroke: color, strokeDasharray: '5 5' } });
+          } else {
+            cell.setAttrs({ line: { strokeWidth: 2, stroke: color, strokeDasharray: null } });
+          }
         }
       }
+      // --- 原有业务逻辑结束 ---
+      
+    } finally {
+      // 5. [新增] 解锁：必须在 finally 中执行，确保无论逻辑是否报错都能解锁
+      // 使用 setTimeout 将解锁推迟到当前事件循环结束，防止 X6 的同步事件立即触发更新
+      setTimeout(() => {
+        isUpdatingFromForm.current = false;
+      }, 0);
     }
   };
-
   if (!cell) return <Empty description="请选择对象" style={{ marginTop: 100 }} />;
 
   const data = cell.getData() || {};
@@ -228,7 +249,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
               <Select>
                 <Option value="SS304">S30408</Option>
                 <Option value="SS316L">S31603</Option>
-                <Option value="GL">搪玻璃</Option>
+                <Option value="CS">碳钢</Option>
                 <Option value="Ti">钛材</Option>
               </Select>
             </Form.Item>

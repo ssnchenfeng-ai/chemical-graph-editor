@@ -131,8 +131,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
           let specificProps = {};
           if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
              specificProps = pick(data, ['spec', 'flow', 'head', 'power', 'material']);
-          } else if (['Reactor', 'Tank', 'Evaporator'].includes(type)) {
-             specificProps = pick(data, ['spec', 'volume', 'material', 'designPressure', 'designTemp']);
+          } else if (['Reactor', 'Tank', 'Evaporator', 'Separator'].includes(type)) {
+             specificProps = pick(data, ['spec', 'volume', 'material', 'designPressure', 'designTemp', 'internals']);
           } else if (type === 'Exchanger') {
              specificProps = pick(data, ['spec', 'area', 'material', 'designPressure', 'tubePressure']);
           } else if (['ControlValve', 'Valve'].includes(type)) {
