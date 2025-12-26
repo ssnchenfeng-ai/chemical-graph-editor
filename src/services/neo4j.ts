@@ -276,17 +276,46 @@ export const saveGraphData = async (drawingId: string, nodes: any[], edges: any[
       }
     }
 
-    // 5. 自动建立跨页连接 (Auto-Link Off-Page Connectors)
+    // ============================================================
+    // 5. [修改] 自动建立有向跨页连接 (Directional Off-Page Links)
+    // ============================================================
+    
+    // 情况 A: 当前 OPC 作为流出点 (Pipe -> OPC.in)
+    // 逻辑：如果管线连接到了当前 OPC 的 'in' 端口，说明流体流出当前页。
+    // 关系方向：(当前 OPC) -[:LINKS_TO]-> (远程 OPC)
     await tx.run(`
-      MATCH (a:OffPageConnector {drawingId: $drawingId})
-      WHERE a.Tag IS NOT NULL AND a.Tag <> ''
+      MATCH (curr:OffPageConnector {drawingId: $drawingId})
+      WHERE curr.Tag IS NOT NULL AND curr.Tag <> ''
       
-      MATCH (b:OffPageConnector)
-      WHERE b.Tag = a.Tag 
-        AND b.drawingId <> $drawingId
+      // 检查是否有管线连接到了 'in' 端口 (作为终点)
+      MATCH ()-[:PIPE {toPort: 'in'}]->(curr)
       
-      // 建立关系 (使用 MERGE 避免重复创建)
-      MERGE (a)-[:LINKS_TO]-(b)
+      // 寻找远程匹配的 OPC
+      MATCH (remote:OffPageConnector)
+      WHERE remote.Tag = curr.Tag 
+        AND remote.drawingId <> $drawingId
+      
+      // 建立有向连接: Current -> Remote
+      MERGE (curr)-[:LINKS_TO]->(remote)
+    `, { drawingId });
+
+    // 情况 B: 当前 OPC 作为流入点 (OPC.out -> Pipe)
+    // 逻辑：如果管线从当前 OPC 的 'out' 端口接出，说明流体流入当前页。
+    // 关系方向：(远程 OPC) -[:LINKS_TO]-> (当前 OPC)
+    await tx.run(`
+      MATCH (curr:OffPageConnector {drawingId: $drawingId})
+      WHERE curr.Tag IS NOT NULL AND curr.Tag <> ''
+      
+      // 检查是否有管线从 'out' 端口接出 (作为起点)
+      MATCH (curr)-[:PIPE {fromPort: 'out'}]->()
+      
+      // 寻找远程匹配的 OPC
+      MATCH (remote:OffPageConnector)
+      WHERE remote.Tag = curr.Tag 
+        AND remote.drawingId <> $drawingId
+      
+      // 建立有向连接: Remote -> Current
+      MERGE (remote)-[:LINKS_TO]->(curr)
     `, { drawingId });
 
     await tx.commit();

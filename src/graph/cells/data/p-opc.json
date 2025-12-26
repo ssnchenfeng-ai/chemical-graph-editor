@@ -37,9 +37,9 @@
           "y": "50%"
         },
         "data": {
-          "desc": "左侧接口 (通常用于流出)",
+          "desc": "流出当前页 (To Next Page)",
           "region": "Connector",
-          "dir": "bi"
+          "dir": "in" 
         }
       },
       {
@@ -50,9 +50,9 @@
           "y": "50%"
         },
         "data": {
-          "desc": "右侧接口 (通常用于流入)",
+          "desc": "流入当前页 (From Prev Page)",
           "region": "Connector",
-          "dir": "bi"
+          "dir": "out"
         }
       }
     ]
