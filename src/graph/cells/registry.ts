@@ -1,3 +1,4 @@
+// src/graph/cells/registry.ts
 import { Graph } from '@antv/x6';
 
 // --- SVG Imports (保留用于手动注册的基础元素 SVG) ---
@@ -45,8 +46,12 @@ const LABEL_ATTRS = {
 
 // 内部注册函数：同时写入 X6 引擎和 SHAPE_LIBRARY 缓存
 const registerNodeWithCache = (id: string, config: any) => {
-  // 1. 注册到 X6
-  Graph.registerNode(id, config);
+  // [修改点 1] 使用 try-catch 捕获重复注册错误
+  try {
+    Graph.registerNode(id, config);
+  } catch (e) {
+    // 忽略 "already registered" 错误，继续执行以更新缓存
+  }
 
   // 2. 存入缓存供设计器读取
   let rawSvg = '';
@@ -148,12 +153,14 @@ export const registerCustomCells = () => {
 
   // 2. 注册基础元素 (非业务图元)
   
-  // 信号线
-  Graph.registerEdge('signal-edge', {
-    inherit: 'edge',
-    attrs: { line: { stroke: '#888', strokeWidth: 1, strokeDasharray: '4 4', targetMarker: { name: 'classic', size: 3 } } },
-    data: { type: 'Signal', fluid: 'Signal' },
-  });
+  // 信号线 [修改点 2] 使用 try-catch
+  try {
+    Graph.registerEdge('signal-edge', {
+      inherit: 'edge',
+      attrs: { line: { stroke: '#888', strokeWidth: 1, strokeDasharray: '4 4', targetMarker: { name: 'classic', size: 3 } } },
+      data: { type: 'Signal', fluid: 'Signal' },
+    });
+  } catch (e) { /* ignore */ }
 
   // 测点 (Tapping Point)
   registerNodeWithCache('tapping-point', {

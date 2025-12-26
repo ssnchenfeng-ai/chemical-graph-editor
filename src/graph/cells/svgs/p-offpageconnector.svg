@@ -1,0 +1,4 @@
+<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 五边形箭头 -->
+  <path d="M2,2 L40,2 L58,20 L40,38 L2,38 Z" fill="white" />
+</svg>

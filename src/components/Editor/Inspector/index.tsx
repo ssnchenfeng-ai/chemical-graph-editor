@@ -6,6 +6,7 @@ import {
   InfoCircleOutlined, SettingOutlined, DashboardOutlined, ExperimentOutlined 
 } from '@ant-design/icons';
 import { FLUID_COLORS } from '../../../config/rules';
+import { useDrawingStore } from '../../../store/drawingStore';
 
 interface InspectorProps { cell: Cell | null; }
 
@@ -15,6 +16,8 @@ const { Panel } = Collapse;
 const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   const [form] = Form.useForm();
   const [, setTick] = useState(0);
+  // [新增] 获取图纸列表和当前图纸ID
+  const { drawings, currentDrawingId } = useDrawingStore();
 
   // 2. [新增] 定义一个锁，用于区分是“用户输入”还是“外部更新”
   const isUpdatingFromForm = useRef(false);
@@ -52,6 +55,8 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
           range: data.range,
           unit: data.unit,
           internals: data.internals, // 特定于分离器
+          targetDrawingId: data.targetDrawingId,
+          connectorLabel: data.connectorLabel
         });
       } else if (cell.isEdge()) {
         const labelObj = cell.getLabelAt(0);
@@ -142,6 +147,37 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
 
   const renderSpecificFields = () => {
     if (!isNode) return null;
+    // [新增] 跨页连接符 (OffPageConnector) 配置
+    if (type === 'OffPageConnector') {
+      return (
+        <>
+          <Divider orientation={"left" as any}><SettingOutlined /> 跨页配置</Divider>
+          
+          <Form.Item label="目标图纸" name="targetDrawingId" help="双击图元可跳转">
+            <Select placeholder="选择要连接的图纸" allowClear>
+              {drawings
+                .filter(d => d.id !== currentDrawingId) // 排除当前页
+                .map(d => (
+                  <Option key={d.id} value={d.id}>
+                    {d.name}
+                  </Option>
+                ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="配对编号 (Tag)" name="tag" help="两张图纸中此编号必须一致">
+            <Input placeholder="例如: OPC-01" />
+          </Form.Item>
+          
+          <div style={{ fontSize: '12px', color: '#999', marginTop: 8 }}>
+            <InfoCircleOutlined /> 说明：<br/>
+            1. 选择目标图纸建立逻辑连接。<br/>
+            2. 确保两张图纸上的连接符 Tag 一致。<br/>
+            3. 双击画布上的连接符可跳转。
+          </div>
+        </>
+      );
+    }
     // 1. 安全设施 (安全阀、爆破片、呼吸阀)
     if (['SafetyValve', 'RuptureDisc', 'BreatherValve'].includes(type)) {
       return (

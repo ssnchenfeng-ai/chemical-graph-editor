@@ -1,0 +1,65 @@
+{
+  "width": 60,
+  "height": 40,
+  "ports": {
+    "groups": {
+      "left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "left",
+        "args": {
+          "x": "0%",
+          "y": "50%"
+        },
+        "data": {
+          "desc": "左侧接口 (通常用于流出)",
+          "region": "Connector",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "right",
+        "args": {
+          "x": "100%",
+          "y": "50%"
+        },
+        "data": {
+          "desc": "右侧接口 (通常用于流入)",
+          "region": "Connector",
+          "dir": "bi"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "OffPageConnector",
+    "tag": "OPC-New",
+    "targetDrawingId": ""
+  }
+}

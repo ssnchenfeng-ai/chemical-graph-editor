@@ -1,6 +1,6 @@
 // src/services/neo4j.ts
 import neo4j from 'neo4j-driver';
-import { FLUID_COLORS, CURRENT_DRAWING_ID } from '../config/rules';
+import { FLUID_COLORS } from '../config/rules'; // 注意：这里不再引用 CURRENT_DRAWING_ID
 
 const uri = import.meta.env.VITE_NEO4J_URI || 'bolt://localhost:7687';
 const user = import.meta.env.VITE_NEO4J_USER || 'neo4j';
@@ -14,8 +14,7 @@ const driver = neo4j.driver(
 
 export default driver;
 
-// [新增] 类型映射表：定义 X6 type 到 Neo4j Labels 的映射关系
-// 所有的节点都会自动带上 :Asset 标签
+// 类型映射表
 const TYPE_MAPPING: Record<string, string[]> = {
   // 反应器类
   'Reactor':           ['Equipment', 'Reactor'],
@@ -35,99 +34,195 @@ const TYPE_MAPPING: Record<string, string[]> = {
   'PistonPump':        ['Equipment', 'Pump'],
   'GearPump':          ['Equipment', 'Pump'],
   'JetPump':           ['Equipment', 'Pump'],
-  'Compressor':        ['Equipment', 'Pump', 'Compressor'], // 压缩机也是流体输送设备，但也可是独立分类
+  'Compressor':        ['Equipment', 'Pump', 'Compressor'],
   'Fan':               ['Equipment', 'Pump', 'Fan'],
   
-  // 阀门类 (包括手动阀和调节阀)
+  // 阀门类
   'Valve':             ['Equipment', 'Valve'],
-  'ControlValve':      ['Equipment', 'Valve', 'ControlValve'], // 调节阀既是阀门，也是控制元件
-  //'Trap':              ['Equipment', 'Trap'],
+  'ControlValve':      ['Equipment', 'Valve', 'ControlValve'],
   
   // 容器类
   'Tank':              ['Equipment', 'Vessel', 'Storage'],
-  //'Trap':              ['Equipment', 'Vessel'],
   'Separator':         ['Equipment', 'Vessel', 'Separator'], 
-
   
   // 管件
   'Fitting':           ['Equipment', 'Fitting'],
   
   // 仪表类
   'Instrument':        ['Instrument'],
-  'TappingPoint':      ['Instrument', 'Connection'], // 测点
+  'TappingPoint':      ['Instrument', 'Connection'],
 
-  // === [新增] 安全设施 ===
-  // 给它们打上 SafetyDevice 标签，方便 AI 查询所有安全设施
+  // 安全设施
   'SafetyValve':       ['Equipment', 'Valve', 'SafetyDevice'],
   'RuptureDisc':       ['Equipment', 'SafetyDevice', 'Fitting'],
   'BreatherValve':     ['Equipment', 'Valve', 'SafetyDevice'],
 
-  // === [新增] 疏水阀 ===
+  // 疏水阀
   'Trap':              ['Equipment', 'Valve', 'Trap'],
 
-  // === [新增] 附件 ===
+  // 附件
   'Filter':            ['Equipment', 'Fitting', 'Filter'],
   'FlameArrester':     ['Equipment', 'SafetyDevice', 'Fitting'],
   'SightGlass':        ['Equipment', 'Fitting', 'Indicator'],
   'Silencer':          ['Equipment', 'Fitting'],
 
-  
+  // === [新增] 跨页连接符 ===
+  'OffPageConnector':  ['Instrument', 'Connector', 'OffPageConnector'],
+
   // 默认
   'default':           ['Equipment', 'Other']
 };
 
-export const saveGraphData = async (nodes: any[], edges: any[]) => {
+// ============================================================
+// 图纸管理 API (新增)
+// ============================================================
+
+// 1. 获取图纸列表
+export const fetchDrawingsList = async () => {
+  const session = driver.session();
+  try {
+    // === 核心修改：自动发现旧图纸并注册 (优化版) ===
+    // 逻辑：
+    // 1. 找到所有 Asset 上的 drawingId
+    // 2. 使用 MERGE 确保每个 drawingId 只对应一个 Drawing 节点
+    // 3. 仅当 Drawing 节点是新创建时 (ON CREATE)，才设置名称和时间
+    await session.run(`
+      MATCH (n:Asset)
+      WHERE n.drawingId IS NOT NULL
+      MERGE (d:Drawing {id: n.drawingId})
+      ON CREATE SET 
+        d.name = CASE WHEN n.drawingId = 'Draft_V1' THEN '默认草稿 (V1)' ELSE 'Recovered-' + n.drawingId END,
+        d.createdAt = datetime()
+    `);
+
+    // === 新增：清理重复的 Drawing 节点 (防御性编程) ===
+    // 如果数据库中已经存在多个 id 相同的 Drawing 节点（虽然 MERGE 应该防止这种情况，但为了保险起见）
+    // 我们保留创建时间最早的那个，删除其他的
+    /* 
+       注意：正常情况下 MERGE {id: ...} 会保证唯一性。
+       出现重复可能是因为之前手动创建过没有 id 约束的节点，或者逻辑有误。
+       下面的语句会清理掉 id 相同但节点 ID 不同的重复项。
+    */
+    await session.run(`
+      MATCH (d:Drawing)
+      WITH d.id as id, collect(d) as nodes
+      WHERE size(nodes) > 1
+      // 保留第一个，删除其余的
+      FOREACH (n IN tail(nodes) | DETACH DELETE n)
+    `);
+
+    // 然后再查询列表
+    const result = await session.run(
+      `MATCH (d:Drawing) RETURN d.id as id, d.name as name ORDER BY d.createdAt`
+    );
+    return result.records.map(r => ({
+      id: r.get('id'),
+      name: r.get('name')
+    }));
+  } finally {
+    await session.close();
+  }
+};
+
+// 2. 创建新图纸
+export const createDrawing = async (name: string) => {
+  const session = driver.session();
+  const id = crypto.randomUUID();
+  try {
+    await session.run(
+      `CREATE (d:Drawing {id: $id, name: $name, createdAt: datetime()}) RETURN d`,
+      { id, name }
+    );
+    return { id, name };
+  } finally {
+    await session.close();
+  }
+};
+
+// 3. 删除图纸
+export const deleteDrawing = async (drawingId: string) => {
+  const session = driver.session();
+  try {
+    await session.run(
+      `MATCH (d:Drawing {id: $drawingId})
+       OPTIONAL MATCH (a:Asset {drawingId: $drawingId})
+       DETACH DELETE d, a`,
+      { drawingId }
+    );
+  } finally {
+    await session.close();
+  }
+};
+
+// ============================================================
+// [在此处插入] 重命名图纸函数
+// ============================================================
+export const renameDrawing = async (id: string, newName: string) => {
+  const session = driver.session();
+  try {
+    await session.run(
+      `MATCH (d:Drawing {id: $id}) SET d.name = $newName, d.updatedAt = datetime()`,
+      { id, newName }
+    );
+  } finally {
+    await session.close();
+  }
+};
+// ============================================================
+
+// ============================================================
+// 图谱保存与加载 (重构)
+// ============================================================
+
+export const saveGraphData = async (drawingId: string, nodes: any[], edges: any[]) => {
   const session = driver.session();
   const tx = session.beginTransaction();
   try {
-    // 1. [修改] 删除当前图纸的所有资产 (使用基类标签 :Asset)
+    // 1. 确保 Drawing 节点存在并更新时间
     await tx.run(
-      `MATCH (n:Asset {drawingId: $drawingId}) DETACH DELETE n`,
-      { drawingId: CURRENT_DRAWING_ID }
+      `MERGE (d:Drawing {id: $drawingId}) 
+       SET d.updatedAt = datetime()`,
+      { drawingId }
     );
 
-    // 2. [重构] 保存节点 - 根据类型进行分组批量插入
+    // 2. 删除当前图纸下的旧数据
+    await tx.run(
+      `MATCH (n:Asset {drawingId: $drawingId}) DETACH DELETE n`,
+      { drawingId }
+    );
+
+    // 3. 保存节点
     if (nodes.length) {
-      // 2.1 在内存中对节点进行分组
       const groups: Record<string, any[]> = {};
       
       nodes.forEach(node => {
         const type = node.type || 'Unknown';
-        // 获取对应的标签列表，例如 ['Equipment', 'Pump']
         const labels = TYPE_MAPPING[type] || TYPE_MAPPING['default'];
-        // 生成唯一的 Group Key，例如 "Equipment_Pump"
         const groupKey = labels.join(':');
-        
         if (!groups[groupKey]) groups[groupKey] = [];
         groups[groupKey].push(node);
       });
 
-      // 2.2 针对每一组生成特定的 Cypher 语句
       for (const [labelString, batch] of Object.entries(groups)) {
-        // labelString 是 "Equipment:Pump"，我们需要把它拼接到 Cypher 中
-        // 注意：Cypher 不支持参数化 Label，所以这里必须使用字符串拼接
-        // 但由于 labelString 来自我们内部定义的 TYPE_MAPPING，所以是安全的
         const labels = `:Asset:${labelString}`; 
-        
         await tx.run(
           `UNWIND $batch AS n 
            CREATE (e${labels} {x6Id: n.x6Id, drawingId: $drawingId}) 
            SET e += n`, 
-          { batch, drawingId: CURRENT_DRAWING_ID }
+          { batch, drawingId }
         );
       }
     }
 
-    // 3. 保存连线 (匹配 :Asset)
+    // 4. 保存连线
     if (edges.length) {
       const pipes = edges.filter(e => e.type !== 'Signal');
       const signals = edges.filter(e => e.type === 'Signal');
 
-      // 3.1 保存工艺管线
       if (pipes.length) {
         await tx.run(
           `UNWIND $pipes AS r 
-           MATCH (s:Asset {x6Id: r.source}), (t:Asset {x6Id: r.target}) 
+           MATCH (s:Asset {x6Id: r.source, drawingId: $drawingId}), (t:Asset {x6Id: r.target, drawingId: $drawingId}) 
            CREATE (s)-[:PIPE {
              fromPort:   r.sourcePort, 
              toPort:     r.targetPort,
@@ -143,11 +238,10 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
              toDesc:     r.targetDesc,
              vertices:   r.vertices
            }]->(t)`, 
-          { pipes }
+          { pipes, drawingId }
         );
       }
 
-      // 3.2 保存信号线
       if (signals.length) {
         const controlSignals = signals.filter((s: any) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
         const measureSignals = signals.filter((s: any) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
@@ -155,32 +249,45 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         if (controlSignals.length) {
           await tx.run(
             `UNWIND $batch AS r 
-             MATCH (s:Asset {x6Id: r.source}), (t:Asset {x6Id: r.target}) 
+             MATCH (s:Asset {x6Id: r.source, drawingId: $drawingId}), (t:Asset {x6Id: r.target, drawingId: $drawingId}) 
              CREATE (s)-[:CONTROLS {
                fromPort:   r.sourcePort, 
                toPort:     r.targetPort,
                fluid:      'Signal',
                vertices:   r.vertices 
              }]->(t)`, 
-            { batch: controlSignals }
+            { batch: controlSignals, drawingId }
           );
         }
 
         if (measureSignals.length) {
           await tx.run(
             `UNWIND $batch AS r 
-             MATCH (inst:Asset {x6Id: r.target}), (tp:Asset {x6Id: r.source}) 
+             MATCH (inst:Asset {x6Id: r.target, drawingId: $drawingId}), (tp:Asset {x6Id: r.source, drawingId: $drawingId}) 
              CREATE (inst)-[:MEASURES {
                fromPort:   r.targetPort,
                toPort:     r.sourcePort,
                fluid:      'Signal',
                vertices:   r.vertices
              }]->(tp)`, 
-            { batch: measureSignals }
+            { batch: measureSignals, drawingId }
           );
         }
       }
     }
+
+    // 5. 自动建立跨页连接 (Auto-Link Off-Page Connectors)
+    await tx.run(`
+      MATCH (a:OffPageConnector {drawingId: $drawingId})
+      WHERE a.Tag IS NOT NULL AND a.Tag <> ''
+      
+      MATCH (b:OffPageConnector)
+      WHERE b.Tag = a.Tag 
+        AND b.drawingId <> $drawingId
+      
+      // 建立关系 (使用 MERGE 避免重复创建)
+      MERGE (a)-[:LINKS_TO]-(b)
+    `, { drawingId });
 
     await tx.commit();
   } catch (e) {
@@ -191,20 +298,19 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
   }
 };
 
-
-  export const loadGraphData = async () => {
+export const loadGraphData = async (drawingId: string) => {
   const session = driver.session();
   try {
     // 1. 加载节点
     const nodesResult = await session.run(
       `MATCH (n:Asset {drawingId: $drawingId}) RETURN n`,
-      { drawingId: CURRENT_DRAWING_ID }
+      { drawingId }
     );
     
     const nodes = nodesResult.records.map(record => {
       const props = record.get('n').properties;
       
-      // 1. 解析 layout JSON
+      // 解析 layout JSON
       let layout: any = { x: 0, y: 0, w: 40, h: 40, a: 0, s: ''  };
       if (props.layout) {
         try {
@@ -224,17 +330,14 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         };
       }
 
-      // ... (Tag 处理逻辑保持不变) ...
       if (props.Tag) { props.tag = props.Tag; }
       const isTee = props.type === 'Fitting';
       if (isTee) { props.tag = 'TEE'; props.Tag = 'TEE'; }
 
-      // ... (Shape 映射逻辑保持不变) ...
       let shapeName = layout.s || props.shape; 
       if (!shapeName) {
         shapeName = 'p-valve'; 
-      switch (props.type) {
-          
+        switch (props.type) {
           case 'Reactor':      shapeName = 'p-r101'; break;
           case 'Exchanger':    shapeName = 'p-e101'; break;
           case 'Pump':         shapeName = 'p-centrifugalpump'; break;
@@ -261,29 +364,23 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
             else shapeName = 'p-inst-remote';
             break;
           case 'TappingPoint': shapeName = 'tapping-point'; break;
+          // [新增] OPC 映射
+          case 'OffPageConnector': shapeName = 'p-opc'; break;
           default: break;
+        }
       }
-    }
 
-      // [核心修正 1] 清理 props，分离出纯业务数据
-      // 我们不希望 data 里包含 layout 字符串，也不希望包含旧的 x,y
       const { layout: _layoutStr, x, y, width, height, angle, ...businessData } = props;
 
       return {
         id: props.x6Id,
         shape: shapeName, 
-        
-        // [核心修正 2] 使用解析后的 layout 变量
-        // 注意：保存时用的键是 w, h, a，这里要对应上
         x: layout.x,
         y: layout.y,
         width: layout.w, 
         height: layout.h,
         angle: layout.a, 
-        
-        // [核心修正 3] data 只放入清洗后的业务数据
         data: { ...businessData }, 
-        
         attrs: { 
           label: { 
             text: isTee ? '' : (props.Tag || props.tag || props.label),
@@ -295,15 +392,13 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
       };
     });
 
-    // 2. [修改] 加载连线 (匹配 :Asset)
+    // 2. 加载连线
     const edgesResult = await session.run(`
       MATCH (s:Asset {drawingId: $drawingId})-[r:PIPE|MEASURES|CONTROLS]->(t:Asset {drawingId: $drawingId}) 
       RETURN s.x6Id as sourceId, t.x6Id as targetId, r, type(r) as relType
-    `, { drawingId: CURRENT_DRAWING_ID });
+    `, { drawingId });
     
-    // ... (edges map 逻辑保持不变) ...
     const edges = edgesResult.records.map(record => {
-        // ... 保持原样 ...
         const rel = record.get('r').properties;
         const relType = record.get('relType'); 
         const sourceId = record.get('sourceId');
@@ -330,10 +425,10 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         } else {
             targetMarker = { name: 'classic', width: 8, height: 6 }; 
             if (rel.insulation && rel.insulation.startsWith('Jacket')) {
-            strokeWidth = 4;
-            strokeColor = FLUID_COLORS.Oil; 
+              strokeWidth = 4;
+              strokeColor = FLUID_COLORS.Oil; 
             } else if (['ST', 'ET', 'OT'].includes(rel.insulation)) {
-            dashArray = '5 5'; 
+              dashArray = '5 5'; 
             }
         }
 
@@ -374,13 +469,13 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
             },
             labels: labels,
             data: { 
-            type: edgeType, 
-            relationType: relType, 
-            material: rel.material, 
-            fluid: rel.fluid,
-            dn: rel.dn,
-            pn: rel.pn,
-            insulation: rel.insulation
+              type: edgeType, 
+              relationType: relType, 
+              material: rel.material, 
+              fluid: rel.fluid,
+              dn: rel.dn,
+              pn: rel.pn,
+              insulation: rel.insulation
             }
         };
     });

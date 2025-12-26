@@ -58,6 +58,8 @@ src/
       ContextMenu/
         index.css
         index.tsx
+      DrawingManager/
+        index.tsx
       Inspector/
         index.tsx
       Toolbar/
@@ -91,6 +93,7 @@ src/
         p-jetpump.json
         p-liquidpump.json
         p-manualvalve.json
+        p-opc.json
         p-pistonpump.json
         p-r101.json
         p-rupturedisc.json
@@ -140,6 +143,8 @@ src/
         p-jetpump.svg
         p-liquidpump.svg
         p-manualvalve.svg
+        p-offpageconnector.svg
+        p-opc.svg
         p-p101.svg
         p-pistonpump.svg
         p-r101.svg
@@ -171,6 +176,8 @@ src/
       registry.ts
   services/
     neo4j.ts
+  store/
+    drawingStore.ts
   App.css
   App.tsx
   index.css
@@ -190,6 +197,337 @@ vite.config.ts
 
 <files>
 This section contains the contents of the repository's files.
+
+<file path="src/components/Editor/DrawingManager/index.tsx">
+// src/components/Editor/DrawingManager/index.tsx
+import React, { useEffect, useState } from 'react';
+import { Button, Input, Modal, Dropdown, message } from 'antd';
+import type { MenuProps } from 'antd'; // 单独导入类型
+import { PlusOutlined, EditOutlined, DeleteOutlined, FileOutlined } from '@ant-design/icons';
+import { useDrawingStore } from '../../../store/drawingStore';
+
+const DrawingManager: React.FC = () => {
+  const { drawings, currentDrawingId, init, addDrawing, removeDrawing, setCurrentDrawing, updateDrawingName } = useDrawingStore();
+  
+  // Modal 状态
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [newDrawingName, setNewDrawingName] = useState('');
+  const [isRenameModalVisible, setIsRenameModalVisible] = useState(false);
+  const [renameTarget, setRenameTarget] = useState<{id: string, name: string} | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+
+  useEffect(() => { init(); }, []);
+
+  // --- 动作处理 ---
+  const handleCreate = async () => {
+    if (!newDrawingName.trim()) return;
+    await addDrawing(newDrawingName);
+    setIsCreateModalVisible(false);
+    setNewDrawingName('');
+  };
+
+  const handleRename = async () => {
+    if (!renameTarget || !renameValue.trim()) return;
+    await updateDrawingName(renameTarget.id, renameValue);
+    setIsRenameModalVisible(false);
+    setRenameTarget(null);
+  };
+
+  const triggerRename = (drawing: {id: string, name: string}) => {
+    setRenameTarget(drawing);
+    setRenameValue(drawing.name);
+    setIsRenameModalVisible(true);
+  };
+
+  const handleDelete = (id: string) => {
+    if (drawings.length <= 1) {
+      message.warning("至少保留一张图纸");
+      return;
+    }
+    Modal.confirm({
+      title: '删除图纸',
+      content: '确定要删除这张图纸及其所有内容吗？此操作不可恢复。',
+      okType: 'danger',
+      onOk: () => removeDrawing(id)
+    });
+  };
+
+  // --- 渲染 ---
+  return (
+    <div style={{ 
+      height: '36px', 
+      background: '#f0f0f0', 
+      borderTop: '1px solid #d9d9d9', 
+      display: 'flex', 
+      alignItems: 'flex-end', // 让 Tab 底部对齐
+      paddingLeft: '10px',
+      userSelect: 'none'
+    }}>
+      {/* 1. Tab 列表区域 */}
+      <div style={{ display: 'flex', overflowX: 'auto', maxWidth: 'calc(100% - 40px)' }}>
+        {drawings.map(drawing => {
+          const isActive = drawing.id === currentDrawingId;
+          
+          // 右键菜单配置
+          const menuItems: MenuProps['items'] = [
+            { key: 'rename', label: '重命名', icon: <EditOutlined />, onClick: () => triggerRename(drawing) },
+            { key: 'delete', label: '删除', icon: <DeleteOutlined />, danger: true, onClick: () => handleDelete(drawing.id), disabled: drawings.length <= 1 },
+          ];
+
+          return (
+            <Dropdown key={drawing.id} menu={{ items: menuItems }} trigger={['contextMenu']}>
+              <div
+                onClick={() => setCurrentDrawing(drawing.id)}
+                onDoubleClick={() => triggerRename(drawing)} // 双击重命名
+                style={{
+                  padding: '0 15px',
+                  height: '30px',
+                  lineHeight: '30px',
+                  background: isActive ? '#fff' : '#e0e0e0',
+                  borderRight: '1px solid #ccc',
+                  borderTop: isActive ? '2px solid #1890ff' : '1px solid transparent', // 激活时顶部有蓝条
+                  borderBottom: isActive ? 'none' : '1px solid #ccc', // 激活时底部与画布连通
+                  color: isActive ? '#1890ff' : '#666',
+                  fontWeight: isActive ? 600 : 400,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  minWidth: '80px',
+                  maxWidth: '150px',
+                  transition: 'all 0.1s'
+                }}
+              >
+                <FileOutlined style={{ fontSize: 12 }} />
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {drawing.name}
+                </span>
+              </div>
+            </Dropdown>
+          );
+        })}
+      </div>
+
+      {/* 2. 新建按钮 */}
+      <div 
+        onClick={() => setIsCreateModalVisible(true)}
+        style={{
+          width: '30px',
+          height: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          marginLeft: '5px',
+          marginBottom: '3px',
+          borderRadius: '4px',
+          color: '#666'
+        }}
+        className="hover:bg-gray-200" // 如果你有 tailwind，否则用 style hover
+      >
+        <PlusOutlined />
+      </div>
+
+      {/* Modals */}
+      <Modal title="新建图纸" open={isCreateModalVisible} onOk={handleCreate} onCancel={() => setIsCreateModalVisible(false)} width={400}>
+        <Input placeholder="图纸名称 (如: Page-002)" value={newDrawingName} onChange={e => setNewDrawingName(e.target.value)} onPressEnter={handleCreate} autoFocus />
+      </Modal>
+
+      <Modal title="重命名图纸" open={isRenameModalVisible} onOk={handleRename} onCancel={() => setIsRenameModalVisible(false)} width={400}>
+        <Input placeholder="新名称" value={renameValue} onChange={e => setRenameValue(e.target.value)} onPressEnter={handleRename} autoFocus />
+      </Modal>
+    </div>
+  );
+};
+
+export default DrawingManager;
+</file>
+
+<file path="src/graph/cells/data/p-opc.json">
+{
+  "width": 60,
+  "height": 40,
+  "ports": {
+    "groups": {
+      "left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "left",
+        "args": {
+          "x": "0%",
+          "y": "50%"
+        },
+        "data": {
+          "desc": "左侧接口 (通常用于流出)",
+          "region": "Connector",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "right",
+        "args": {
+          "x": "100%",
+          "y": "50%"
+        },
+        "data": {
+          "desc": "右侧接口 (通常用于流入)",
+          "region": "Connector",
+          "dir": "bi"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "OffPageConnector",
+    "tag": "OPC-New",
+    "targetDrawingId": ""
+  }
+}
+</file>
+
+<file path="src/graph/cells/svgs/p-offpageconnector.svg">
+<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 五边形箭头 -->
+  <path d="M2,2 L40,2 L58,20 L40,38 L2,38 Z" fill="white" />
+</svg>
+</file>
+
+<file path="src/graph/cells/svgs/p-opc.svg">
+<svg viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 五边形箭头 -->
+  <path d="M2,2 L40,2 L58,20 L40,38 L2,38 Z" fill="white" />
+</svg>
+</file>
+
+<file path="src/store/drawingStore.ts">
+// src/store/drawingStore.ts
+import { create } from 'zustand';
+// [修改点 1] 引入 renameDrawing
+import { fetchDrawingsList, createDrawing, deleteDrawing, renameDrawing } from '../services/neo4j';
+
+interface Drawing {
+  id: string;
+  name: string;
+}
+
+interface DrawingState {
+  drawings: Drawing[];
+  currentDrawingId: string | null;
+  currentDrawingName: string;
+  isLoading: boolean;
+  
+  init: () => Promise<void>;
+  addDrawing: (name: string) => Promise<void>;
+  removeDrawing: (id: string) => Promise<void>;
+  setCurrentDrawing: (id: string) => void;
+  // [修改点 2] 新增接口定义
+  updateDrawingName: (id: string, newName: string) => Promise<void>;
+}
+
+export const useDrawingStore = create<DrawingState>((set, get) => ({
+  drawings: [],
+  currentDrawingId: null,
+  currentDrawingName: '',
+  isLoading: false,
+
+  init: async () => {
+    set({ isLoading: true });
+    try {
+      const list = await fetchDrawingsList();
+      set({ drawings: list });
+      if (!get().currentDrawingId && list.length > 0) {
+        set({ currentDrawingId: list[0].id, currentDrawingName: list[0].name });
+      } else if (list.length === 0) {
+        await get().addDrawing('PID-001');
+      }
+    } catch (e) {
+      console.error("Failed to init drawings", e);
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  addDrawing: async (name: string) => {
+    set({ isLoading: true });
+    try {
+      const newDrawing = await createDrawing(name);
+      set(state => ({ 
+        drawings: [...state.drawings, newDrawing],
+        currentDrawingId: newDrawing.id,
+        currentDrawingName: newDrawing.name
+      }));
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  removeDrawing: async (id: string) => {
+    await deleteDrawing(id);
+    set(state => {
+      const newDrawings = state.drawings.filter(d => d.id !== id);
+      let nextId = state.currentDrawingId;
+      let nextName = state.currentDrawingName;
+      if (id === state.currentDrawingId) {
+        nextId = newDrawings[0]?.id || null;
+        nextName = newDrawings[0]?.name || '';
+      }
+      return { drawings: newDrawings, currentDrawingId: nextId, currentDrawingName: nextName };
+    });
+  },
+
+  setCurrentDrawing: (id: string) => {
+    const drawing = get().drawings.find(d => d.id === id);
+    if (drawing) {
+      set({ currentDrawingId: id, currentDrawingName: drawing.name });
+    }
+  },
+
+  // [修改点 3] 新增实现
+  updateDrawingName: async (id: string, newName: string) => {
+    // 1. 乐观更新前端状态 (UI 立即响应)
+    set(state => ({
+      drawings: state.drawings.map(d => d.id === id ? { ...d, name: newName } : d),
+      // 如果改的是当前选中的图纸，顺便更新 header 上的标题
+      currentDrawingName: state.currentDrawingId === id ? newName : state.currentDrawingName
+    }));
+
+    // 2. 发送请求到后端
+    try {
+      await renameDrawing(id, newName);
+    } catch (e) {
+      console.error("Rename failed", e);
+      // 如果失败，重新拉取列表以回滚状态
+      await get().init(); 
+    }
+  }
+}));
+</file>
 
 <file path="public/vite.svg">
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" class="iconify iconify--logos" width="31.88" height="32" preserveAspectRatio="xMidYMid meet" viewBox="0 0 256 257"><defs><linearGradient id="IconifyId1813088fe1fbc01fb466" x1="-.828%" x2="57.636%" y1="7.652%" y2="78.411%"><stop offset="0%" stop-color="#41D1FF"></stop><stop offset="100%" stop-color="#BD34FE"></stop></linearGradient><linearGradient id="IconifyId1813088fe1fbc01fb467" x1="43.376%" x2="50.316%" y1="2.242%" y2="89.03%"><stop offset="0%" stop-color="#FFEA83"></stop><stop offset="8.333%" stop-color="#FFDD35"></stop><stop offset="100%" stop-color="#FFA800"></stop></linearGradient></defs><path fill="url(#IconifyId1813088fe1fbc01fb466)" d="M255.153 37.938L134.897 252.976c-2.483 4.44-8.862 4.466-11.382.048L.875 37.958c-2.746-4.814 1.371-10.646 6.827-9.67l120.385 21.517a6.537 6.537 0 0 0 2.322-.004l117.867-21.483c5.438-.991 9.574 4.796 6.877 9.62Z"></path><path fill="url(#IconifyId1813088fe1fbc01fb467)" d="M185.432.063L96.44 17.501a3.268 3.268 0 0 0-2.634 3.014l-5.474 92.456a3.268 3.268 0 0 0 3.997 3.378l24.777-5.718c2.318-.535 4.413 1.507 3.936 3.838l-7.361 36.047c-.495 2.426 1.782 4.5 4.151 3.78l15.304-4.649c2.372-.72 4.652 1.36 4.15 3.788l-11.698 56.621c-.732 3.542 3.979 5.473 5.943 2.437l1.313-2.028l72.516-144.72c1.215-2.423-.88-5.186-3.54-4.672l-25.505 4.922c-2.396.462-4.435-1.77-3.759-4.114l16.646-57.705c.677-2.35-1.37-4.583-3.769-4.113Z"></path></svg>
@@ -6102,99 +6440,6 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ visible, x, y, type, onClose,
 export default ContextMenu;
 </file>
 
-<file path="src/graph/cells/data/p-cvpneumatic.json">
-{
-  "width": 40,
-  "height": 60,
-  "ports": {
-    "groups": {
-      "left": {
-        "position": "absolute",
-        "attrs": {
-          "circle": {
-            "r": 3,
-            "magnet": true,
-            "stroke": "#FFFFFF",
-            "strokeWidth": 1,
-            "fill": "#e3dedeff"
-          }
-        }
-      },
-      "right": {
-        "position": "absolute",
-        "attrs": {
-          "circle": {
-            "r": 3,
-            "magnet": true,
-            "stroke": "#FFFFFF",
-            "strokeWidth": 1,
-            "fill": "#e3dedeff"
-          }
-        }
-      },
-      "actuator": {
-        "position": "absolute",
-        "attrs": {
-          "circle": {
-            "r": 3,
-            "magnet": true,
-            "stroke": "#FFFFFF",
-            "strokeWidth": 1,
-            "fill": "#e3dedeff"
-          }
-        }
-      }
-    },
-    "items": [
-      {
-        "id": "in",
-        "group": "left",
-        "args": {
-          "x": "0%",
-          "y": "84%"
-        },
-        "data": {
-          "desc": "阀门入口",
-          "region": "ShellSide",
-          "dir": "bi"
-        }
-      },
-      {
-        "id": "out",
-        "group": "right",
-        "args": {
-          "x": "100%",
-          "y": "83%"
-        },
-        "data": {
-          "desc": "阀门出口",
-          "region": "ShellSide",
-          "dir": "bi"
-        }
-      },
-      {
-        "id": "actuator",
-        "group": "actuator",
-        "args": {
-          "x": "50.5%",
-          "y": "0%"
-        },
-        "data": {
-          "desc": "执行机构",
-          "region": "ControlSignal",
-          "dir": "in"
-        }
-      }
-    ]
-  },
-  "data": {
-    "type": "ControlValve",
-    "tag": "cv-pneumatic",
-    "spec": "Spec..."
-  }
-}
-</file>
-
 <file path="src/graph/cells/svgs/p-manualvalve.svg">
 <svg width="40" height="40" version="1.1" viewBox="24 27.5 51 44" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
   <g transform="translate(12.252 -74.364)">
@@ -6209,6 +6454,7 @@ export default ContextMenu;
 </file>
 
 <file path="src/App.tsx">
+// src/App.tsx
 import { useRef, useState } from 'react';
 import { Button, Layout, message, Radio } from 'antd';
 import { 
@@ -6223,20 +6469,23 @@ import GraphCanvas from './components/Editor/Canvas';
 import type { GraphCanvasRef } from './components/Editor/Canvas';
 import ShapeDesigner from './components/DevTools/ShapeDesigner';
 import AttributeDesigner from './components/DevTools/AttributeDesigner';
+import DrawingManager from './components/Editor/DrawingManager';
+import { useDrawingStore } from './store/drawingStore';
 
 const { Header, Content } = Layout;
 
 function App() {
   const [saving, setSaving] = useState(false);
-  // mode 增加 'attributes' 状态
   const [mode, setMode] = useState<'editor' | 'designer' | 'attributes'>('editor');
   const graphRef = useRef<GraphCanvasRef>(null);
+  
+  const { currentDrawingId, currentDrawingName } = useDrawingStore();
 
   const handleSaveClick = async () => {
-    if (graphRef.current) {
+    if (graphRef.current && currentDrawingId) {
       setSaving(true);
       try {
-        await graphRef.current.handleSave();
+        await graphRef.current.handleSave(currentDrawingId);
       } catch (e) {
         console.error(e);
         message.error('保存操作异常');
@@ -6244,11 +6493,11 @@ function App() {
         setSaving(false);
       }
     } else {
-        console.warn("GraphRef is null");
+        if(!currentDrawingId) message.warning("未选择图纸");
     }
   };
 
-  // --- 渲染开发者模式 (包含 图元设计 和 属性设计) ---
+  // --- 渲染开发者模式 ---
   if (mode === 'designer' || mode === 'attributes') {
     return (
       <Layout style={{ height: '100vh' }}>
@@ -6262,7 +6511,6 @@ function App() {
               <ToolOutlined /> 开发者工具箱
             </div>
             
-            {/* 顶部切换 Tab */}
             <Radio.Group 
               value={mode} 
               onChange={e => setMode(e.target.value)} 
@@ -6290,7 +6538,7 @@ function App() {
     );
   }
 
-  // --- 渲染主编辑器 ---
+  // --- 渲染主编辑器 (布局修改) ---
   return (
     <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header style={{ 
@@ -6300,14 +6548,20 @@ function App() {
       }}>
         <div style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 10 }}>
           <DatabaseOutlined />
-          🧪 化工 P&ID 编辑器
+          {/* 显示当前图纸名称 */}
+          <span>
+            🧪 化工 P&ID 编辑器 
+            <span style={{ fontSize: '0.8em', fontWeight: 'normal', marginLeft: 10, opacity: 0.8 }}>
+               - {currentDrawingName || 'Loading...'}
+            </span>
+          </span>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <Button 
               type="dashed" 
               ghost 
               icon={<ToolOutlined />} 
-              onClick={() => setMode('designer')} // 默认进入图形设计
+              onClick={() => setMode('designer')} 
             >
               DevTools
             </Button>
@@ -6322,8 +6576,19 @@ function App() {
         </div>
       </Header>
       
-      <Content style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex' }}>
-        <GraphCanvas ref={graphRef} />
+      {/* 修改点：Content 改为 column 布局 */}
+      <Content style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+        
+        {/* 1. 画布区域 (flex: 1 占据剩余空间) */}
+        <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+           <GraphCanvas ref={graphRef} drawingId={currentDrawingId} />
+        </div>
+
+        {/* 2. 底部图纸栏 (固定高度，由 DrawingManager 内部控制) */}
+        <div style={{ flexShrink: 0, zIndex: 100 }}>
+          <DrawingManager />
+        </div>
+
       </Content>
     </Layout>
   );
@@ -6557,6 +6822,99 @@ Special thanks to **AntV X6** team and **Google Gemini**.
 ## 📄 License
 
 MIT License
+</file>
+
+<file path="src/graph/cells/data/p-cvpneumatic.json">
+{
+  "width": 40,
+  "height": 60,
+  "ports": {
+    "groups": {
+      "left": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "actuator": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "left",
+        "args": {
+          "x": "0%",
+          "y": "84%"
+        },
+        "data": {
+          "desc": "阀门入口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "right",
+        "args": {
+          "x": "100%",
+          "y": "83%"
+        },
+        "data": {
+          "desc": "阀门出口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "actuator",
+        "group": "actuator",
+        "args": {
+          "x": "50.5%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "执行机构",
+          "region": "ControlSignal",
+          "dir": "in"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "ControlValve",
+    "tag": "cv-pneumatic",
+    "spec": "Spec..."
+  }
+}
 </file>
 
 <file path="src/graph/cells/data/p-manualvalve.json">
@@ -7314,6 +7672,7 @@ import {
   InfoCircleOutlined, SettingOutlined, DashboardOutlined, ExperimentOutlined 
 } from '@ant-design/icons';
 import { FLUID_COLORS } from '../../../config/rules';
+import { useDrawingStore } from '../../../store/drawingStore';
 
 interface InspectorProps { cell: Cell | null; }
 
@@ -7323,6 +7682,8 @@ const { Panel } = Collapse;
 const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   const [form] = Form.useForm();
   const [, setTick] = useState(0);
+  // [新增] 获取图纸列表和当前图纸ID
+  const { drawings, currentDrawingId } = useDrawingStore();
 
   // 2. [新增] 定义一个锁，用于区分是“用户输入”还是“外部更新”
   const isUpdatingFromForm = useRef(false);
@@ -7450,6 +7811,37 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
 
   const renderSpecificFields = () => {
     if (!isNode) return null;
+    // [新增] 跨页连接符 (OffPageConnector) 配置
+    if (type === 'OffPageConnector') {
+      return (
+        <>
+          <Divider orientation={"left" as any}><SettingOutlined /> 跨页配置</Divider>
+          
+          <Form.Item label="目标图纸" name="targetDrawingId" help="双击图元可跳转">
+            <Select placeholder="选择要连接的图纸" allowClear>
+              {drawings
+                .filter(d => d.id !== currentDrawingId) // 排除当前页
+                .map(d => (
+                  <Option key={d.id} value={d.id}>
+                    {d.name}
+                  </Option>
+                ))}
+            </Select>
+          </Form.Item>
+
+          <Form.Item label="配对编号 (Tag)" name="tag" help="两张图纸中此编号必须一致">
+            <Input placeholder="例如: OPC-01" />
+          </Form.Item>
+          
+          <div style={{ fontSize: '12px', color: '#999', marginTop: 8 }}>
+            <InfoCircleOutlined /> 说明：<br/>
+            1. 选择目标图纸建立逻辑连接。<br/>
+            2. 确保两张图纸上的连接符 Tag 一致。<br/>
+            3. 双击画布上的连接符可跳转。
+          </div>
+        </>
+      );
+    }
     // 1. 安全设施 (安全阀、爆破片、呼吸阀)
     if (['SafetyValve', 'RuptureDisc', 'BreatherValve'].includes(type)) {
       return (
@@ -7741,6 +8133,7 @@ export default Inspector;
 </file>
 
 <file path="src/components/Editor/Canvas/index.tsx">
+// src/components/Editor/Canvas/index.tsx
 import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 import { Graph, Cell, Edge, Node } from '@antv/x6';
 import { Stencil } from '@antv/x6-plugin-stencil';
@@ -7758,16 +8151,17 @@ import {
 import Inspector from '../Inspector';
 import ContextMenu, { type MenuState } from '../ContextMenu';
 import './index.css';
-//import { registerCustomCells } from '../../../graph/cells/registry';
 import { saveGraphData, loadGraphData } from '../../../services/neo4j';
 import { FLUID_COLORS, INLINE_TYPES } from '../../../config/rules';
-import { registerCustomCells, SHAPE_LIBRARY } from '../../../graph/cells/registry';
-
-// 确保注册自定义图形
-try { registerCustomCells(); } catch (e) { console.warn(e); }
+import { SHAPE_LIBRARY } from '../../../graph/cells/registry'; // 移除 registerCustomCells 导入，避免误用
+import { useDrawingStore } from '../../../store/drawingStore'; // [新增] 引入 Store
 
 export interface GraphCanvasRef {
-  handleSave: () => Promise<void>;
+  handleSave: (drawingId: string) => Promise<void>; // [修改] 增加参数
+}
+
+interface GraphCanvasProps {
+  drawingId: string | null; // [新增] 接收 drawingId
 }
 
 const pick = (obj: any, keys: string[]) => {
@@ -7780,7 +8174,7 @@ const pick = (obj: any, keys: string[]) => {
   return ret;
 };
 
-const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
+const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const stencilRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<Graph | null>(null);
@@ -7825,7 +8219,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
 
   // --- 保存功能 ---
   useImperativeHandle(ref, () => ({
-    handleSave: async () => {
+    handleSave: async (saveId: string) => { // [修改] 接收 saveId
       if (!graphRef.current) return;
       const graph = graphRef.current;
       
@@ -7836,10 +8230,9 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
           const data = node.getData() || {};
           const pos = node.getPosition();
           const size = node.getSize();
-          const angle = node.getAngle(); // 获取角度
+          const angle = node.getAngle(); 
           const type = data.type || 'Unknown';
 
-          // Tag 处理逻辑
           let Tag = data.tag || node.getAttrs()?.label?.text || '';
           if (type === 'Instrument') {
             const func = data.tagId || '';
@@ -7847,8 +8240,6 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
             if (func || loop) Tag = `${func}${loop ? '-' + loop : ''}`;
           }
 
-          // [核心修改] 将 x, y, w, h, a 打包成 layout JSON 字符串
-          // 使用 Math.round 取整，减少存储体积
           const layoutData = {
             x: Math.round(pos.x),
             y: Math.round(pos.y),
@@ -7863,14 +8254,10 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
             type: type, 
             Tag: Tag,
             desc: data.desc || '',
-            // [新增] 存入 layout 字段
             layout: JSON.stringify(layoutData),
-            // [移除] x, y, width, height, angle 不再直接作为顶层属性
-            // [新增] 保存位号位置配置
             labelPosition: data.labelPosition || 'bottom' 
           };
 
-          // 业务属性提取逻辑 (保持不变)
           let specificProps = {};
           if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
              specificProps = pick(data, ['spec', 'flow', 'head', 'power', 'material']);
@@ -7882,6 +8269,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
              specificProps = pick(data, ['spec', 'size', 'valveClass', 'failPosition']);
           } else if (type === 'Instrument') {
              specificProps = pick(data, ['spec', 'range', 'unit', 'tagId', 'loopNum']);
+          } else if (type === 'OffPageConnector') { // [新增] OPC 属性
+             specificProps = pick(data, ['spec', 'targetDrawingId', 'connectorLabel']);
           } else {
              specificProps = pick(data, ['spec', 'material']);
           }
@@ -7896,27 +8285,19 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         const targetNode = edge.getTargetNode();
         const vertices = edge.getVertices(); 
         
-        // [核心修改] 提取端口元数据逻辑
         const getPortMeta = (node: Cell | null, portId: string | undefined) => {
           if (!node || !node.isNode() || !portId) return { group: 'default', desc: 'unknown' };
           
           const port = node.getPort(portId);
           if (!port) return { group: 'default', desc: 'unknown' };
 
-          // 优先级逻辑：
-          // 1. 优先使用语义化的 region (如 "ShellSide:Liquid", "TubeSide")
-          // 2. 其次使用 section (如 "HighTemp")
-          // 3. 最后降级使用视觉 group (如 "top", "left")
           let region = port.data?.region || port.group || 'default';
-          
-          // 如果有 section (如气体冷却器的高温段)，可以拼接到 region 中，或者单独存储
-          // 这里为了简化，如果存在 section，我们将其追加到 region 描述中，例如 "TubeSide:HighTemp"
           if (port.data?.region && port.data?.section) {
             region = `${port.data.region}:${port.data.section}`;
           }
 
           return {
-            group: region, // 这里将语义 region 赋值给 group 字段，后续会存入 Neo4j 的 fromRegion/toRegion
+            group: region, 
             desc: port.data?.desc || port.attrs?.circle?.title || port.id
           };
         };
@@ -7930,7 +8311,6 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
           sourcePort: edge.getSourcePortId(),
           targetPort: edge.getTargetPortId(),
           
-          // 这里 srcMeta.group 现在携带的是 "ShellSide:Liquid" 等高价值语义
           sourceRegion: srcMeta.group, 
           sourceDesc: srcMeta.desc,
           targetRegion: tgtMeta.group, 
@@ -7948,7 +8328,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       });
 
       try {
-        await saveGraphData(nodes, edges);
+        await saveGraphData(saveId, nodes, edges); // [修改] 传入 saveId
         message.success(`保存成功！节点: ${nodes.length}, 连线: ${edges.length}`);
       } catch (error) {
         console.error(error);
@@ -7959,123 +8339,70 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
 
    const updateNodeLabel = (node: Node) => {
     const data = node.getData() || {};
-    const position = data.labelPosition || 'bottom'; // 默认为下方
+    const position = data.labelPosition || 'bottom'; 
     const angle = node.getAngle();
     const size = node.getSize();
-    
-    // 基础偏移量 (文字距离设备的间距)
     const PADDING = 15;
-
-    // 1. 计算视觉上的包围盒尺寸 (旋转后的投影尺寸)
     const rad = (angle * Math.PI) / 180;
     const sin = Math.abs(Math.sin(rad));
     const cos = Math.abs(Math.cos(rad));
-    
-    // 旋转后的视觉宽度和高度的一半
     const visualHalfW = (size.width * cos + size.height * sin) / 2;
     const visualHalfH = (size.width * sin + size.height * cos) / 2;
 
-    // 2. 确定视觉上的目标偏移向量 (相对于中心点)
     let visualOffsetX = 0;
     let visualOffsetY = 0;
 
     switch (position) {
-      case 'top':
-        visualOffsetY = -(visualHalfH + PADDING);
-        break;
-      case 'bottom':
-        visualOffsetY = (visualHalfH + PADDING);
-        break;
-      case 'left':
-        visualOffsetX = -(visualHalfW + PADDING);
-        break;
-      case 'right':
-        visualOffsetX = (visualHalfW + PADDING);
-        break;
-      case 'center':
-        visualOffsetX = 0;
-        visualOffsetY = 0;
-        break;
+      case 'top': visualOffsetY = -(visualHalfH + PADDING); break;
+      case 'bottom': visualOffsetY = (visualHalfH + PADDING); break;
+      case 'left': visualOffsetX = -(visualHalfW + PADDING); break;
+      case 'right': visualOffsetX = (visualHalfW + PADDING); break;
+      case 'center': visualOffsetX = 0; visualOffsetY = 0; break;
     }
 
-    // 3. 将视觉偏移向量逆旋转回节点的局部坐标系
-    // 屏幕向量 V_screen 转为局部向量 V_local，需要旋转 -A 度
     const localRad = (-angle * Math.PI) / 180;
     const localX = visualOffsetX * Math.cos(localRad) - visualOffsetY * Math.sin(localRad);
     const localY = visualOffsetX * Math.sin(localRad) + visualOffsetY * Math.cos(localRad);
 
-    // 4. 设置属性
-    // refX/refY = 0.5 表示从中心点开始计算偏移
     node.setAttrs({
       label: {
-        refX: 0.5,
-        refY: 0.5,
-        refX2: localX,
-        refY2: localY,
-        textAnchor: 'middle',
-        textVerticalAnchor: 'middle',
-        // 关键：抵消节点的旋转，使文字始终保持水平
+        refX: 0.5, refY: 0.5, refX2: localX, refY2: localY,
+        textAnchor: 'middle', textVerticalAnchor: 'middle',
         transform: `rotate(${-angle})`,
       }
     });
   };
 
-  // ============================================================
-  // [修复] 复制粘贴逻辑 (手动序列化，解决管线报错问题)
-  // ============================================================
   const performCopy = (targetCell?: Cell) => {
     const graph = graphRef.current;
     if (!graph) return;
-    
     try {
       let cells = graph.getSelectedCells();
-      
-      // 如果当前没有选中任何东西，但传入了目标对象（右键菜单触发），则使用目标对象
       if (cells.length === 0 && targetCell) {
         cells = [targetCell];
         graph.select(targetCell);
       }
-
       if (cells.length === 0) {
         message.info('请先选中要复制的对象');
         return;
       }
-
-      // [核心修改] 过滤掉背景图框 AND 过滤掉管线 (只复制设备节点)
-      const cellsToCopy = cells.filter(cell => 
-        !cell.getData()?.isBackground && cell.isNode()
-      );
-
+      const cellsToCopy = cells.filter(cell => !cell.getData()?.isBackground && cell.isNode());
       if (cellsToCopy.length === 0) {
         message.warning('没有可复制的设备对象 (管线已忽略)');
         return;
       }
-
-      // 手动序列化
       const jsonList = cellsToCopy.map(cell => {
         try {
-          // 尝试深拷贝 data，防止引用问题
           const safeData = cell.getData() ? JSON.parse(JSON.stringify(cell.getData())) : {};
-          
-          // 只处理 Node，因为上面已经 filter 过了
           if (cell.isNode()) {
             return {
-              id: cell.id,
-              shape: cell.shape,
-              position: cell.getPosition(),
-              size: cell.getSize(),
-              angle: cell.getAngle(),
-              zIndex: cell.getZIndex(),
-              attrs: cell.getAttrs(),
-              data: safeData,
-              ports: cell.getPorts(), // 必须保留端口信息
+              id: cell.id, shape: cell.shape, position: cell.getPosition(), size: cell.getSize(),
+              angle: cell.getAngle(), zIndex: cell.getZIndex(), attrs: cell.getAttrs(),
+              data: safeData, ports: cell.getPorts(), 
             };
           }
           return null;
-        } catch (err) {
-          console.error(`Failed to serialize cell ${cell.id}:`, err);
-          return null;
-        }
+        } catch (err) { return null; }
       }).filter(item => item !== null);
 
       if (jsonList.length > 0) {
@@ -8091,20 +8418,13 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     }
   };
 
-  // ============================================================
-  // [修复] 粘贴逻辑 (增加数据清洗，防止 History 报错)
-  // ============================================================
   const performPaste = (offsetPoint?: { x: number, y: number }) => {
     const graph = graphRef.current;
     if (!graph || !clipboardRef.current || clipboardRef.current.length === 0) return;
-
     try {
       const cellsJSON = clipboardRef.current;
-      console.log('Paste Start. Clipboard items:', cellsJSON.length);
-
       let dx = 20;
       let dy = 20;
-
       if (offsetPoint) {
         const nodesOnly = cellsJSON.filter((c: any) => c.position && typeof c.position.x === 'number');
         if (nodesOnly.length > 0) {
@@ -8114,17 +8434,13 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
           dy = offsetPoint.y - minY;
         }
       }
-
       graph.cleanSelection();
       const newCells: Cell[] = [];
       const idMap: Record<string, string> = {};
-
-      // 辅助函数：深度清洗对象，移除 undefined/null
       const cleanData = (obj: any): any => {
         if (obj === null || obj === undefined) return {};
         if (typeof obj !== 'object') return obj;
         if (Array.isArray(obj)) return obj.map(cleanData);
-        
         const res: any = {};
         for (const key in obj) {
           if (obj[key] !== undefined && obj[key] !== null) {
@@ -8133,43 +8449,27 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         }
         return res;
       };
-
-      // 1. 粘贴节点
       cellsJSON.forEach((cellData: any) => {
         if (!cellData.position) return;
-        
         try {
           const oldId = cellData.id;
           const { id, zIndex, ...otherData } = cellData;
-          
-          // 确保 data 和 attrs 是纯净对象
           const safeData = cleanData(otherData.data || {});
           const safeAttrs = cleanData(otherData.attrs || {});
-          
           const newNode = graph.createNode({
-            ...otherData,
-            data: safeData,
-            attrs: safeAttrs,
-            x: (otherData.position.x) + dx,
-            y: (otherData.position.y) + dy,
+            ...otherData, data: safeData, attrs: safeAttrs,
+            x: (otherData.position.x) + dx, y: (otherData.position.y) + dy,
             zIndex: (zIndex || 2) + 1
           });
-          
           idMap[oldId] = newNode.id;
           newCells.push(newNode);
-        } catch (nodeErr) {
-          console.error('Failed to create node:', nodeErr);
-        }
+        } catch (nodeErr) { console.error('Failed to create node:', nodeErr); }
       });
-
-      // (已移除连线粘贴逻辑，因为复制时已经过滤掉了)
-
       if (newCells.length > 0) {
         graph.addCell(newCells);
         graph.select(newCells);
         message.success(`已粘贴 ${newCells.length} 个设备`);
       }
-
       if (!offsetPoint) {
          clipboardRef.current = cellsJSON.map((c: any) => {
            if (c.position) {
@@ -8205,24 +8505,18 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     const { cellId } = menu;
     const graph = graphRef.current;
     if (!graph) return;
-    
     const cell = cellId ? graph.getCellById(cellId) : null;
-    // [新增] 处理位号位置选择
     if (action.startsWith('label:')) {
       if (cell && cell.isNode()) {
         const position = action.split(':')[1];
-        // 更新数据，这将触发 'node:change:data' 事件，进而调用 updateNodeLabel
         cell.setData({ labelPosition: position });
         message.success(`位号位置已更新`);
       }
       return;
     }
-    
     switch (action) {
       case 'copy': 
-        if (cell && !graph.isSelected(cell)) {
-          graph.resetSelection(cell); 
-        }
+        if (cell && !graph.isSelected(cell)) { graph.resetSelection(cell); }
         performCopy(cell || undefined); 
         break;
       case 'paste': 
@@ -8234,11 +8528,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       case 'fit': onZoomToFit(); break;
       case 'delete': 
         const selected = graph.getSelectedCells();
-        if (selected.length > 0) {
-          graph.removeCells(selected);
-        } else if (cell) {
-          graph.removeCell(cell);
-        }
+        if (selected.length > 0) { graph.removeCells(selected); } else if (cell) { graph.removeCell(cell); }
         break;
       case 'rotate': 
         if (cell && cell.isNode() && !cell.getData()?.isBackground) { cell.rotate(90); } break;
@@ -8310,148 +8600,97 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     graph.on('node:change:angle', ({ node }) => updateNodeLabel(node as Node));
     graph.on('node:change:data', ({ node }) => updateNodeLabel(node as Node));
 
-    // ============================================================
-    // [优化] 辅助函数：计算节点上距离某点最近的端口 ID
-    // ============================================================
     const getClosestPortId = (node: Node, point: { x: number; y: number }) => {
       const ports = node.getPorts();
       if (!ports.length) return undefined;
-
-      const pos = node.getPosition(); // 获取未旋转时的左上角坐标
+      const pos = node.getPosition(); 
       const size = node.getSize();
       const angle = node.getAngle();
-      
-      // 计算旋转中心
       const cx = pos.x + size.width / 2;
       const cy = pos.y + size.height / 2;
       const rad = (angle * Math.PI) / 180;
-
       let minDistance = Infinity;
       let closestPortId = ports[0].id;
-
       ports.forEach((port) => {
-        // 1. 解析端口相对坐标 (支持百分比和绝对数值)
         const args = port.args || {};
         let relX = 0;
         let relY = 0;
-
         if (typeof args.x === 'string' && args.x.endsWith('%')) {
           relX = (parseFloat(args.x) / 100) * size.width;
         } else {
           relX = (args.x as number) || 0;
         }
-
         if (typeof args.y === 'string' && args.y.endsWith('%')) {
           relY = (parseFloat(args.y) / 100) * size.height;
         } else {
           relY = (args.y as number) || 0;
         }
-
-        // 2. 计算未旋转时的绝对坐标
         const absoluteX = pos.x + relX;
         const absoluteY = pos.y + relY;
-
-        // 3. 应用旋转变换 (绕中心点旋转)
-        // x' = (x - cx) * cos - (y - cy) * sin + cx
-        // y' = (x - cx) * sin + (y - cy) * cos + cy
         const rotatedX = (absoluteX - cx) * Math.cos(rad) - (absoluteY - cy) * Math.sin(rad) + cx;
         const rotatedY = (absoluteX - cx) * Math.sin(rad) + (absoluteY - cy) * Math.cos(rad) + cy;
-
-        // 4. 计算欧几里得距离
         const dist = Math.sqrt(Math.pow(rotatedX - point.x, 2) + Math.pow(rotatedY - point.y, 2));
-
         if (dist < minDistance) {
           minDistance = dist;
           closestPortId = port.id;
         }
       });
-
       return closestPortId;
     };
 
-    // ============================================================
-    // [修复] 阀门/管件打断逻辑 (支持任意端口 + 线段级邻近匹配)
-    // ============================================================
     const handlePipeSplit = (node: Node) => {
       const nodeType = node.getData()?.type;
       if (!INLINE_TYPES.includes(nodeType)) return; 
-      
       const connectedEdges = graph.getConnectedEdges(node);
       if (connectedEdges.length > 0) return; 
-
       const nodeBBox = node.getBBox();
       const center = nodeBBox.center;
       const allEdges = graph.getEdges();
-
       const targetEdge = allEdges.find(edge => {
         if (edge.getData()?.type === 'Signal') return false;
         return edge.getBBox().intersectsWithRect(nodeBBox);
       });
-
       if (targetEdge) {
         const targetView = graph.findViewByCell(targetEdge);
         if (!targetView) return;
-
         // @ts-ignore
         const closestPoint = targetView.getClosestPoint(center);
         // @ts-ignore
         const routePoints = targetView.routePoints || [];
-        
         const points = [targetEdge.getSourcePoint(), ...routePoints, targetEdge.getTargetPoint()];
-        
         let isPipeHorizontal = true; 
         let foundSegment = false;
-        
-        // [新增] 记录被打断的线段的起点和终点，用于计算最近端口
         let segmentStart = targetEdge.getSourcePoint();
         let segmentEnd = targetEdge.getTargetPoint();
-
         for (let i = 0; i < points.length - 1; i++) {
           const p1 = points[i];
           const p2 = points[i + 1];
-          
           const minX = Math.min(p1.x, p2.x) - 5;
           const maxX = Math.max(p1.x, p2.x) + 5;
           const minY = Math.min(p1.y, p2.y) - 5;
           const maxY = Math.max(p1.y, p2.y) + 5;
-
-          if (closestPoint.x >= minX && closestPoint.x <= maxX &&
-              closestPoint.y >= minY && closestPoint.y <= maxY) {
-            
-            if (Math.abs(p1.y - p2.y) < 5) { 
-              isPipeHorizontal = true; 
-            } else {
-              isPipeHorizontal = false; 
-            }
+          if (closestPoint.x >= minX && closestPoint.x <= maxX && closestPoint.y >= minY && closestPoint.y <= maxY) {
+            if (Math.abs(p1.y - p2.y) < 5) { isPipeHorizontal = true; } else { isPipeHorizontal = false; }
             foundSegment = true;
-            
-            // [核心修改] 捕获当前线段的端点
             segmentStart = p1;
             segmentEnd = p2;
-            
             break; 
           }
         }
-
         if (!foundSegment) {
            const src = targetEdge.getSourcePoint();
            const tgt = targetEdge.getTargetPoint();
            isPipeHorizontal = Math.abs(src.x - tgt.x) > Math.abs(src.y - tgt.y);
-           // 如果没找到特定线段（极少情况），保持默认使用整条线的起终点
            segmentStart = src;
            segmentEnd = tgt;
         }
-
         const angle = node.getAngle();
         const normalizedAngle = (angle % 360 + 360) % 360;
         const isValveHorizontal = (normalizedAngle < 10 || normalizedAngle > 350) || (normalizedAngle > 170 && normalizedAngle < 190);
-
         if (nodeType !== 'Fitting' && isValveHorizontal !== isPipeHorizontal) return; 
-
         const OFFSET = 20; 
         let newX = nodeBBox.x;
         let newY = nodeBBox.y;
-
         if (isPipeHorizontal) {
           const pipeY = closestPoint.y;
           newY = Math.round((pipeY - OFFSET) / 10) * 10; 
@@ -8461,65 +8700,47 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
           newX = Math.round((pipeX + OFFSET) / 10) * 10;
           newY = Math.round(nodeBBox.y / 10) * 10; 
         }
-        
         node.setPosition(newX, newY);
-
-        // [核心修改] 使用线段端点 (segmentStart/End) 而不是整条管线的端点 (srcPoint/tgtPoint)
-        // 这样可以确保连接到物理上最近的端口，解决 L 型或 U 型管路的连接错乱问题
         const portForSource = getClosestPortId(node, segmentStart);
         const portForTarget = getClosestPortId(node, segmentEnd);
-
         if (!portForSource || !portForTarget) {
           console.warn('无法找到合适的连接端口');
           return;
         }
-
         const source = targetEdge.getSource();
         const target = targetEdge.getTarget();
         const edgeData = targetEdge.getData();
         const edgeAttrs = targetEdge.getAttrs(); 
         const sourceCellId = (source as any).cell;
         const targetCellId = (target as any).cell;
-
         graph.removeCell(targetEdge);
-
         const exclude1 = ['SHEET_FRAME_A2', node.id];
         if (isInlineComponent(sourceCellId)) exclude1.push(sourceCellId);
-
         const exclude2 = ['SHEET_FRAME_A2', node.id];
         if (isInlineComponent(targetCellId)) exclude2.push(targetCellId);
-
         const router1 = { name: 'manhattan', args: { padding: 10, excludeNodes: exclude1 } };
         const router2 = { name: 'manhattan', args: { padding: 10, excludeNodes: exclude2 } };
-
         const edge1 = graph.createEdge({
           shape: 'edge', source: source, target: { cell: node.id, port: portForSource }, 
           data: { ...edgeData }, attrs: edgeAttrs, labels: [], router: router1 
         });
-
         const edge2 = graph.createEdge({
           shape: 'edge', source: { cell: node.id, port: portForTarget }, target: target,
           data: { ...edgeData }, attrs: edgeAttrs, labels: [], router: router2 
         });
-
         graph.addCell([edge1, edge2]);
         message.success('元件已接入管线');
       }
     };
 
-    // ============================================================
-    // [修复] 智能测点 (Z-Index 修复)
-    // ============================================================
     const handleSignalDrop = (args: any) => {
       const { e, edge } = args;
       const sourceNode = edge.getSourceNode();
       if (sourceNode?.getData()?.type !== 'Instrument') return;
       const sourcePortId = edge.getSourcePortId(); 
-
       let hitPipe: Edge | null = null;
       const point = graph.clientToLocal(e.clientX, e.clientY);
       const targetCell = edge.getTargetCell();
-      
       if (targetCell && targetCell.isEdge()) {
         hitPipe = targetCell as Edge;
       } else {
@@ -8528,7 +8749,6 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         const pipeView = views.find(v => v.isEdgeElement() && v.cell.id !== edge.id && v.cell.getData()?.type !== 'Signal');
         if (pipeView) hitPipe = pipeView.cell as Edge;
       }
-
       if (hitPipe) {
         const src = hitPipe.getSourcePoint();
         const tgt = hitPipe.getTargetPoint();
@@ -8536,34 +8756,26 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
         let tapY = point.y;
         const isHorizontal = Math.abs(src.y - tgt.y) < 5; 
         const isVertical = Math.abs(src.x - tgt.x) < 5;
-
         if (isHorizontal) { tapY = src.y; tapX = Math.round(point.x / 10) * 10; } 
         else if (isVertical) { tapX = src.x; tapY = Math.round(point.y / 10) * 10; } 
         else { tapX = Math.round(point.x / 10) * 10; tapY = Math.round(point.y / 10) * 10; }
-
         const tappingPoint = graph.createNode({
           shape: 'tapping-point', x: tapX - 6, y: tapY - 6, data: { type: 'TappingPoint' },
           zIndex: 10 
         });
-        
         graph.removeCell(edge); 
         const signalEdge = graph.createEdge({
           shape: 'signal-edge', source: { cell: tappingPoint.id },  target: { cell: sourceNode.id, port: sourcePortId },
           data: { 
-            type: 'Signal', 
-            relationType: 'MEASURES',
-            fluid: 'Signal',
-            // 显式清除工艺属性
+            type: 'Signal', relationType: 'MEASURES', fluid: 'Signal',
             material: undefined, dn: undefined, pn: undefined, insulation: undefined
           }
         });
-
         const source = hitPipe.getSource();
         const target = hitPipe.getTarget();
         const pipeData = hitPipe.getData();
         const pipeAttrs = hitPipe.getAttrs(); 
         graph.removeCell(hitPipe);
-
         const pipe1 = graph.createEdge({
           shape: 'edge', source: source, target: { cell: tappingPoint.id },
           data: pipeData, attrs: pipeAttrs, labels: []
@@ -8572,7 +8784,6 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
           shape: 'edge', source: { cell: tappingPoint.id }, target: target,
           data: pipeData, attrs: pipeAttrs, labels: []
         });
-        
         graph.addCell([tappingPoint, pipe1, pipe2, signalEdge]);
         setTimeout(refreshRouting, 50);
         message.success('已生成测点');
@@ -8590,7 +8801,6 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       const targetPortId = edge.getTargetPortId();
       const isSourceInstrument = sourceNode?.getData()?.type === 'Instrument';
       const isTargetActuator = targetPortId === 'actuator';
-
       if (isSourceInstrument || isTargetActuator) {
         edge.setAttrs({
           line: { stroke: '#888', strokeWidth: 1, strokeDasharray: '4 4', targetMarker: { name: 'classic', size: 3 } } 
@@ -8628,29 +8838,20 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     graph.on('cell:contextmenu', ({ e, cell }) => { if (cell.getData()?.isBackground) return; setMenu({ visible: true, x: e.clientX, y: e.clientY, type: cell.isNode() ? 'node' : 'edge', cellId: cell.id }); });
     graph.on('blank:contextmenu', ({ e }) => { setMenu({ visible: true, x: e.clientX, y: e.clientY, type: 'blank' }); });
 
-    // --- Stencil (动态加载逻辑) ---
     const stencil = new Stencil({
-      title: '组件库', 
-      target: graph, 
-      stencilGraphWidth: 240, 
-      stencilGraphHeight: 0, 
-      collapsable: true,
+      title: '组件库', target: graph, stencilGraphWidth: 240, stencilGraphHeight: 0, collapsable: true,
       search: { visible: true, placeholder: '搜索设备...' },
       groups: [
-        { title: '主工艺设备', name: 'main_equip', layoutOptions: { columns: 2, columnWidth: 105, rowHeight: 100 } }, // 改为2列，更紧凑
+        { title: '主工艺设备', name: 'main_equip', layoutOptions: { columns: 2, columnWidth: 105, rowHeight: 100 } }, 
         { title: '泵类设备', name: 'pumps', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 100 } },
         { title: '仪表控制', name: 'instruments', layoutOptions: { columns: 3, columnWidth: 60, rowHeight: 70 } },
         { title: '管路附件', name: 'parts', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 80 } }
       ],
-      // [新增] 核心逻辑：拖拽放置时恢复原始尺寸
       getDropNode(node) {
         const clone = node.clone();
         const data = clone.getData();
-        
-        // 如果有原始尺寸记录，则恢复
         if (data?.originalSize) {
           clone.setSize(data.originalSize.width, data.originalSize.height);
-          // 清理掉临时数据，不让它带入画布
           const { originalSize, ...rest } = data;
           clone.setData(rest);
         }
@@ -8659,156 +8860,65 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
     });
     stencilRef.current.appendChild(stencil.container);
 
-    // ============================================================
-    // 动态分拣算法：根据 Type 自动归类
-    // ============================================================
-    
-    // 1. 定义类型到分组的映射表
     const TYPE_TO_GROUP: Record<string, string> = {
-      // 主设备
-      'Reactor': 'main_equip',
-      'FixedBedReactor': 'main_equip',
-      'Exchanger': 'main_equip',
-      'VerticalExchanger': 'main_equip',
-      'Evaporator': 'main_equip',
-      'Tank': 'main_equip',
-      'GasCooler': 'main_equip',
-      'Trap': 'main_equip', 
-      
-      // 泵类
-      'Pump': 'pumps',
-      'LiquidPump': 'pumps',
-      'CentrifugalPump': 'pumps',
-      'DiaphragmPump': 'pumps',
-      'PistonPump': 'pumps',
-      'GearPump': 'pumps',
-      'Compressor': 'pumps',
-      'Fan': 'pumps',
-      'JetPump': 'pumps',
-      
-      // 仪表
+      'Reactor': 'main_equip', 'FixedBedReactor': 'main_equip', 'Exchanger': 'main_equip', 'VerticalExchanger': 'main_equip',
+      'Evaporator': 'main_equip', 'Tank': 'main_equip', 'GasCooler': 'main_equip', 'Trap': 'main_equip', 
+      'Pump': 'pumps', 'LiquidPump': 'pumps', 'CentrifugalPump': 'pumps', 'DiaphragmPump': 'pumps', 'PistonPump': 'pumps',
+      'GearPump': 'pumps', 'Compressor': 'pumps', 'Fan': 'pumps', 'JetPump': 'pumps',
       'Instrument': 'instruments',
-      
-      // 附件
-      'Valve': 'parts',
-      'ControlValve': 'parts',
-      'ManualValve': 'parts', // 确保包含
-      'Fitting': 'parts',
-      'TappingPoint': 'ignore', 
-      'Frame': 'ignore'         
+      'Valve': 'parts', 'ControlValve': 'parts', 'ManualValve': 'parts', 'Fitting': 'parts', 'OffPageConnector': 'parts',
+      'TappingPoint': 'ignore', 'Frame': 'ignore'         
     };
 
-    // 2. 初始化分组容器
-    const stencilNodes: Record<string, Node[]> = {
-      main_equip: [],
-      pumps: [],
-      instruments: [],
-      parts: []
-    };
-    // [新增] 预计算每个 Type 的数量，用于决定是否显示后缀
+    const stencilNodes: Record<string, Node[]> = { main_equip: [], pumps: [], instruments: [], parts: [] };
     const typeCounts: Record<string, number> = {};
     Object.values(SHAPE_LIBRARY).forEach((config: any) => {
       const t = config.data?.type || 'Unknown';
       typeCounts[t] = (typeCounts[t] || 0) + 1;
     });
-
-    // [新增] 用于同名 Type 的计数器
     const typeIterators: Record<string, number> = {};
 
-    // 3. 遍历注册表，自动创建节点实例
     Object.keys(SHAPE_LIBRARY).forEach(shapeId => {
       const config = SHAPE_LIBRARY[shapeId];
       const type = config.data?.type || 'Unknown';
-      
-      // 获取目标分组，默认为 'parts'
       let groupName = TYPE_TO_GROUP[type];
-      
       if (!groupName) {
         if (type.includes('Pump')) groupName = 'pumps';
         else if (type.includes('Valve')) groupName = 'parts';
         else groupName = 'parts'; 
       }
-
       if (groupName === 'ignore') return;
 
-      // [新增] 尺寸自适应计算
-      const MAX_W = 70; // 侧边栏图标最大宽度
-      const MAX_H = 70; // 侧边栏图标最大高度
-      
-      const originalW = config.width || 80;
-      const originalH = config.height || 80;
-      
-      let displayW = originalW;
-      let displayH = originalH;
-
-      // 如果原始尺寸超过限制，按比例缩放
+      const MAX_W = 70; const MAX_H = 70; 
+      const originalW = config.width || 80; const originalH = config.height || 80;
+      let displayW = originalW; let displayH = originalH;
       if (originalW > MAX_W || originalH > MAX_H) {
         const ratio = originalW / originalH;
-        if (ratio > 1) {
-          // 宽 > 高
-          displayW = MAX_W;
-          displayH = displayW / ratio;
-        } else {
-          // 高 > 宽
-          displayH = MAX_H;
-          displayW = displayH * ratio;
-        }
+        if (ratio > 1) { displayW = MAX_W; displayH = displayW / ratio; } else { displayH = MAX_H; displayW = displayH * ratio; }
       }
 
-      // [新增] 标签优化逻辑
-      // 侧边栏显示 Type (如 "Reactor") 或 Tag (如 "R-101")，而不是 Spec
-      // 如果有中文别名映射更好，这里暂时用 Type
       let displayLabel = type;
-      // 特殊处理：如果是仪表，显示简短的 PI/TI
-      if (type === 'Instrument') {
-         displayLabel = config.data?.tagId || 'Inst';
-      }
-      // 如果该类型有多个图元，则添加后缀
+      if (type === 'Instrument') { displayLabel = config.data?.tagId || 'Inst'; }
       else if (typeCounts[type] > 1) {
-         // 尝试从 ID 中提取后缀 (例如 p-cv-electric -> electric)
          const parts = shapeId.split('-');
-         let suffix = parts[parts.length - 1]; // 取最后一段
-
-         // 如果后缀就是类型本身 (例如 p-reactor -> reactor)，则使用数字编号
+         let suffix = parts[parts.length - 1]; 
          if (type.toLowerCase().includes(suffix.toLowerCase())) {
             typeIterators[type] = (typeIterators[type] || 0) + 1;
             suffix = `${typeIterators[type]}`;
          } else {
-            // 首字母大写
             suffix = suffix.charAt(0).toUpperCase() + suffix.slice(1);
          }
-         
          displayLabel = `${type} ${suffix}`;
       }
 
-      // 创建用于 Stencil 显示的节点
       const node = graph.createNode({
-        shape: shapeId,
-        width: displayW,   // 使用缩放后的尺寸
-        height: displayH,
-        label: displayLabel, // 使用优化后的标签
-        attrs: {
-          // 强制调整 label 位置，防止在缩略图中跑偏
-          label: { 
-            fontSize: 10, 
-            refY: '100%', 
-            refY2: 4,
-            textWrap: { width: 90, ellipsis: true } // 防止文字过长
-          }
-        },
-        data: { 
-          ...config.data,
-          // [关键] 记录原始尺寸，供 getDropNode 恢复
-          originalSize: { width: originalW, height: originalH } 
-        } 
+        shape: shapeId, width: displayW, height: displayH, label: displayLabel, 
+        attrs: { label: { fontSize: 10, refY: '100%', refY2: 4, textWrap: { width: 90, ellipsis: true } } },
+        data: { ...config.data, originalSize: { width: originalW, height: originalH } } 
       });
-
-      if (stencilNodes[groupName]) {
-        stencilNodes[groupName].push(node);
-      }
+      if (stencilNodes[groupName]) { stencilNodes[groupName].push(node); }
     });
 
-    // 4. 一次性加载所有分组
     stencil.load(stencilNodes.main_equip, 'main_equip');
     stencil.load(stencilNodes.pumps, 'pumps');
     stencil.load(stencilNodes.instruments, 'instruments');
@@ -8819,13 +8929,19 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
       graph.addNode({ shape: 'drawing-frame-a2', id: 'SHEET_FRAME_A2', x: 0, y: 0, zIndex: -1, movable: false, selectable: false, data: { type: 'Frame', isBackground: true } });
     };
 
+    // [修改] 监听 drawingId 变化加载数据
     const initCanvasData = async () => {
+      if (!drawingId) return;
+      
+      // 清空画布 (保留背景框)
+      const cellsToRemove = graph.getCells().filter(cell => !cell.getData()?.isBackground);
+      graph.removeCells(cellsToRemove);
       setupBackgroundFrame();
+
       try {
-        const data = await loadGraphData();
+        const data = await loadGraphData(drawingId); // [修改] 传入 drawingId
         if (data && data.nodes.length > 0) {
           graph.fromJSON(data as any);
-          
           graph.batchUpdate(() => {
             const nodes = graph.getNodes();
             const edges = graph.getEdges();
@@ -8838,20 +8954,40 @@ const GraphCanvas = forwardRef<GraphCanvasRef, {}>((_, ref) => {
             edges.forEach(edge => edge.setZIndex(1));
             refreshRouting();
           });
-
           setupBackgroundFrame();
           graph.centerContent();
           message.success('数据已恢复');
         }
       } catch (error) {
         console.error('Data Load Error:', error);
-        message.error('数据加载失败，已重置');
+        message.error('数据加载失败');
       }
     };
-    setTimeout(initCanvasData, 100);
+    
+    initCanvasData();
 
     return () => { graph.dispose(); if (stencilRef.current) stencilRef.current.innerHTML = ''; };
-  }, []);
+  }, [drawingId]); // [修改] 依赖 drawingId
+
+  // [新增] 双击跳转逻辑 (独立 useEffect)
+  useEffect(() => {
+    if (!graphRef.current) return;
+    const handleNodeDblClick = ({ node }: { node: Node }) => {
+      const data = node.getData();
+      if (data?.type === 'OffPageConnector' && data.targetDrawingId) {
+        const targetName = useDrawingStore.getState().drawings.find(d => d.id === data.targetDrawingId)?.name;
+        Modal.confirm({
+          title: '跳转页面',
+          content: `是否跳转到关联图纸 "${targetName || 'Unknown'}"?`,
+          onOk: () => {
+            useDrawingStore.getState().setCurrentDrawing(data.targetDrawingId);
+          }
+        });
+      }
+    };
+    graphRef.current.on('node:dblclick', handleNodeDblClick);
+    return () => { graphRef.current?.off('node:dblclick', handleNodeDblClick); };
+  }, []); // 空依赖，只注册一次
 
   return (
     <div className="editor-container">
@@ -8880,7 +9016,7 @@ export default GraphCanvas;
 <file path="src/services/neo4j.ts">
 // src/services/neo4j.ts
 import neo4j from 'neo4j-driver';
-import { FLUID_COLORS, CURRENT_DRAWING_ID } from '../config/rules';
+import { FLUID_COLORS } from '../config/rules'; // 注意：这里不再引用 CURRENT_DRAWING_ID
 
 const uri = import.meta.env.VITE_NEO4J_URI || 'bolt://localhost:7687';
 const user = import.meta.env.VITE_NEO4J_USER || 'neo4j';
@@ -8894,8 +9030,7 @@ const driver = neo4j.driver(
 
 export default driver;
 
-// [新增] 类型映射表：定义 X6 type 到 Neo4j Labels 的映射关系
-// 所有的节点都会自动带上 :Asset 标签
+// 类型映射表
 const TYPE_MAPPING: Record<string, string[]> = {
   // 反应器类
   'Reactor':           ['Equipment', 'Reactor'],
@@ -8915,99 +9050,195 @@ const TYPE_MAPPING: Record<string, string[]> = {
   'PistonPump':        ['Equipment', 'Pump'],
   'GearPump':          ['Equipment', 'Pump'],
   'JetPump':           ['Equipment', 'Pump'],
-  'Compressor':        ['Equipment', 'Pump', 'Compressor'], // 压缩机也是流体输送设备，但也可是独立分类
+  'Compressor':        ['Equipment', 'Pump', 'Compressor'],
   'Fan':               ['Equipment', 'Pump', 'Fan'],
   
-  // 阀门类 (包括手动阀和调节阀)
+  // 阀门类
   'Valve':             ['Equipment', 'Valve'],
-  'ControlValve':      ['Equipment', 'Valve', 'ControlValve'], // 调节阀既是阀门，也是控制元件
-  //'Trap':              ['Equipment', 'Trap'],
+  'ControlValve':      ['Equipment', 'Valve', 'ControlValve'],
   
   // 容器类
   'Tank':              ['Equipment', 'Vessel', 'Storage'],
-  //'Trap':              ['Equipment', 'Vessel'],
   'Separator':         ['Equipment', 'Vessel', 'Separator'], 
-
   
   // 管件
   'Fitting':           ['Equipment', 'Fitting'],
   
   // 仪表类
   'Instrument':        ['Instrument'],
-  'TappingPoint':      ['Instrument', 'Connection'], // 测点
+  'TappingPoint':      ['Instrument', 'Connection'],
 
-  // === [新增] 安全设施 ===
-  // 给它们打上 SafetyDevice 标签，方便 AI 查询所有安全设施
+  // 安全设施
   'SafetyValve':       ['Equipment', 'Valve', 'SafetyDevice'],
   'RuptureDisc':       ['Equipment', 'SafetyDevice', 'Fitting'],
   'BreatherValve':     ['Equipment', 'Valve', 'SafetyDevice'],
 
-  // === [新增] 疏水阀 ===
+  // 疏水阀
   'Trap':              ['Equipment', 'Valve', 'Trap'],
 
-  // === [新增] 附件 ===
+  // 附件
   'Filter':            ['Equipment', 'Fitting', 'Filter'],
   'FlameArrester':     ['Equipment', 'SafetyDevice', 'Fitting'],
   'SightGlass':        ['Equipment', 'Fitting', 'Indicator'],
   'Silencer':          ['Equipment', 'Fitting'],
 
-  
+  // === [新增] 跨页连接符 ===
+  'OffPageConnector':  ['Instrument', 'Connector', 'OffPageConnector'],
+
   // 默认
   'default':           ['Equipment', 'Other']
 };
 
-export const saveGraphData = async (nodes: any[], edges: any[]) => {
+// ============================================================
+// 图纸管理 API (新增)
+// ============================================================
+
+// 1. 获取图纸列表
+export const fetchDrawingsList = async () => {
+  const session = driver.session();
+  try {
+    // === 核心修改：自动发现旧图纸并注册 (优化版) ===
+    // 逻辑：
+    // 1. 找到所有 Asset 上的 drawingId
+    // 2. 使用 MERGE 确保每个 drawingId 只对应一个 Drawing 节点
+    // 3. 仅当 Drawing 节点是新创建时 (ON CREATE)，才设置名称和时间
+    await session.run(`
+      MATCH (n:Asset)
+      WHERE n.drawingId IS NOT NULL
+      MERGE (d:Drawing {id: n.drawingId})
+      ON CREATE SET 
+        d.name = CASE WHEN n.drawingId = 'Draft_V1' THEN '默认草稿 (V1)' ELSE 'Recovered-' + n.drawingId END,
+        d.createdAt = datetime()
+    `);
+
+    // === 新增：清理重复的 Drawing 节点 (防御性编程) ===
+    // 如果数据库中已经存在多个 id 相同的 Drawing 节点（虽然 MERGE 应该防止这种情况，但为了保险起见）
+    // 我们保留创建时间最早的那个，删除其他的
+    /* 
+       注意：正常情况下 MERGE {id: ...} 会保证唯一性。
+       出现重复可能是因为之前手动创建过没有 id 约束的节点，或者逻辑有误。
+       下面的语句会清理掉 id 相同但节点 ID 不同的重复项。
+    */
+    await session.run(`
+      MATCH (d:Drawing)
+      WITH d.id as id, collect(d) as nodes
+      WHERE size(nodes) > 1
+      // 保留第一个，删除其余的
+      FOREACH (n IN tail(nodes) | DETACH DELETE n)
+    `);
+
+    // 然后再查询列表
+    const result = await session.run(
+      `MATCH (d:Drawing) RETURN d.id as id, d.name as name ORDER BY d.createdAt`
+    );
+    return result.records.map(r => ({
+      id: r.get('id'),
+      name: r.get('name')
+    }));
+  } finally {
+    await session.close();
+  }
+};
+
+// 2. 创建新图纸
+export const createDrawing = async (name: string) => {
+  const session = driver.session();
+  const id = crypto.randomUUID();
+  try {
+    await session.run(
+      `CREATE (d:Drawing {id: $id, name: $name, createdAt: datetime()}) RETURN d`,
+      { id, name }
+    );
+    return { id, name };
+  } finally {
+    await session.close();
+  }
+};
+
+// 3. 删除图纸
+export const deleteDrawing = async (drawingId: string) => {
+  const session = driver.session();
+  try {
+    await session.run(
+      `MATCH (d:Drawing {id: $drawingId})
+       OPTIONAL MATCH (a:Asset {drawingId: $drawingId})
+       DETACH DELETE d, a`,
+      { drawingId }
+    );
+  } finally {
+    await session.close();
+  }
+};
+
+// ============================================================
+// [在此处插入] 重命名图纸函数
+// ============================================================
+export const renameDrawing = async (id: string, newName: string) => {
+  const session = driver.session();
+  try {
+    await session.run(
+      `MATCH (d:Drawing {id: $id}) SET d.name = $newName, d.updatedAt = datetime()`,
+      { id, newName }
+    );
+  } finally {
+    await session.close();
+  }
+};
+// ============================================================
+
+// ============================================================
+// 图谱保存与加载 (重构)
+// ============================================================
+
+export const saveGraphData = async (drawingId: string, nodes: any[], edges: any[]) => {
   const session = driver.session();
   const tx = session.beginTransaction();
   try {
-    // 1. [修改] 删除当前图纸的所有资产 (使用基类标签 :Asset)
+    // 1. 确保 Drawing 节点存在并更新时间
     await tx.run(
-      `MATCH (n:Asset {drawingId: $drawingId}) DETACH DELETE n`,
-      { drawingId: CURRENT_DRAWING_ID }
+      `MERGE (d:Drawing {id: $drawingId}) 
+       SET d.updatedAt = datetime()`,
+      { drawingId }
     );
 
-    // 2. [重构] 保存节点 - 根据类型进行分组批量插入
+    // 2. 删除当前图纸下的旧数据
+    await tx.run(
+      `MATCH (n:Asset {drawingId: $drawingId}) DETACH DELETE n`,
+      { drawingId }
+    );
+
+    // 3. 保存节点
     if (nodes.length) {
-      // 2.1 在内存中对节点进行分组
       const groups: Record<string, any[]> = {};
       
       nodes.forEach(node => {
         const type = node.type || 'Unknown';
-        // 获取对应的标签列表，例如 ['Equipment', 'Pump']
         const labels = TYPE_MAPPING[type] || TYPE_MAPPING['default'];
-        // 生成唯一的 Group Key，例如 "Equipment_Pump"
         const groupKey = labels.join(':');
-        
         if (!groups[groupKey]) groups[groupKey] = [];
         groups[groupKey].push(node);
       });
 
-      // 2.2 针对每一组生成特定的 Cypher 语句
       for (const [labelString, batch] of Object.entries(groups)) {
-        // labelString 是 "Equipment:Pump"，我们需要把它拼接到 Cypher 中
-        // 注意：Cypher 不支持参数化 Label，所以这里必须使用字符串拼接
-        // 但由于 labelString 来自我们内部定义的 TYPE_MAPPING，所以是安全的
         const labels = `:Asset:${labelString}`; 
-        
         await tx.run(
           `UNWIND $batch AS n 
            CREATE (e${labels} {x6Id: n.x6Id, drawingId: $drawingId}) 
            SET e += n`, 
-          { batch, drawingId: CURRENT_DRAWING_ID }
+          { batch, drawingId }
         );
       }
     }
 
-    // 3. 保存连线 (匹配 :Asset)
+    // 4. 保存连线
     if (edges.length) {
       const pipes = edges.filter(e => e.type !== 'Signal');
       const signals = edges.filter(e => e.type === 'Signal');
 
-      // 3.1 保存工艺管线
       if (pipes.length) {
         await tx.run(
           `UNWIND $pipes AS r 
-           MATCH (s:Asset {x6Id: r.source}), (t:Asset {x6Id: r.target}) 
+           MATCH (s:Asset {x6Id: r.source, drawingId: $drawingId}), (t:Asset {x6Id: r.target, drawingId: $drawingId}) 
            CREATE (s)-[:PIPE {
              fromPort:   r.sourcePort, 
              toPort:     r.targetPort,
@@ -9023,11 +9254,10 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
              toDesc:     r.targetDesc,
              vertices:   r.vertices
            }]->(t)`, 
-          { pipes }
+          { pipes, drawingId }
         );
       }
 
-      // 3.2 保存信号线
       if (signals.length) {
         const controlSignals = signals.filter((s: any) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
         const measureSignals = signals.filter((s: any) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
@@ -9035,32 +9265,45 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         if (controlSignals.length) {
           await tx.run(
             `UNWIND $batch AS r 
-             MATCH (s:Asset {x6Id: r.source}), (t:Asset {x6Id: r.target}) 
+             MATCH (s:Asset {x6Id: r.source, drawingId: $drawingId}), (t:Asset {x6Id: r.target, drawingId: $drawingId}) 
              CREATE (s)-[:CONTROLS {
                fromPort:   r.sourcePort, 
                toPort:     r.targetPort,
                fluid:      'Signal',
                vertices:   r.vertices 
              }]->(t)`, 
-            { batch: controlSignals }
+            { batch: controlSignals, drawingId }
           );
         }
 
         if (measureSignals.length) {
           await tx.run(
             `UNWIND $batch AS r 
-             MATCH (inst:Asset {x6Id: r.target}), (tp:Asset {x6Id: r.source}) 
+             MATCH (inst:Asset {x6Id: r.target, drawingId: $drawingId}), (tp:Asset {x6Id: r.source, drawingId: $drawingId}) 
              CREATE (inst)-[:MEASURES {
                fromPort:   r.targetPort,
                toPort:     r.sourcePort,
                fluid:      'Signal',
                vertices:   r.vertices
              }]->(tp)`, 
-            { batch: measureSignals }
+            { batch: measureSignals, drawingId }
           );
         }
       }
     }
+
+    // 5. 自动建立跨页连接 (Auto-Link Off-Page Connectors)
+    await tx.run(`
+      MATCH (a:OffPageConnector {drawingId: $drawingId})
+      WHERE a.Tag IS NOT NULL AND a.Tag <> ''
+      
+      MATCH (b:OffPageConnector)
+      WHERE b.Tag = a.Tag 
+        AND b.drawingId <> $drawingId
+      
+      // 建立关系 (使用 MERGE 避免重复创建)
+      MERGE (a)-[:LINKS_TO]-(b)
+    `, { drawingId });
 
     await tx.commit();
   } catch (e) {
@@ -9071,20 +9314,19 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
   }
 };
 
-
-  export const loadGraphData = async () => {
+export const loadGraphData = async (drawingId: string) => {
   const session = driver.session();
   try {
     // 1. 加载节点
     const nodesResult = await session.run(
       `MATCH (n:Asset {drawingId: $drawingId}) RETURN n`,
-      { drawingId: CURRENT_DRAWING_ID }
+      { drawingId }
     );
     
     const nodes = nodesResult.records.map(record => {
       const props = record.get('n').properties;
       
-      // 1. 解析 layout JSON
+      // 解析 layout JSON
       let layout: any = { x: 0, y: 0, w: 40, h: 40, a: 0, s: ''  };
       if (props.layout) {
         try {
@@ -9104,17 +9346,14 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         };
       }
 
-      // ... (Tag 处理逻辑保持不变) ...
       if (props.Tag) { props.tag = props.Tag; }
       const isTee = props.type === 'Fitting';
       if (isTee) { props.tag = 'TEE'; props.Tag = 'TEE'; }
 
-      // ... (Shape 映射逻辑保持不变) ...
       let shapeName = layout.s || props.shape; 
       if (!shapeName) {
         shapeName = 'p-valve'; 
-      switch (props.type) {
-          
+        switch (props.type) {
           case 'Reactor':      shapeName = 'p-r101'; break;
           case 'Exchanger':    shapeName = 'p-e101'; break;
           case 'Pump':         shapeName = 'p-centrifugalpump'; break;
@@ -9141,29 +9380,23 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
             else shapeName = 'p-inst-remote';
             break;
           case 'TappingPoint': shapeName = 'tapping-point'; break;
+          // [新增] OPC 映射
+          case 'OffPageConnector': shapeName = 'p-opc'; break;
           default: break;
+        }
       }
-    }
 
-      // [核心修正 1] 清理 props，分离出纯业务数据
-      // 我们不希望 data 里包含 layout 字符串，也不希望包含旧的 x,y
       const { layout: _layoutStr, x, y, width, height, angle, ...businessData } = props;
 
       return {
         id: props.x6Id,
         shape: shapeName, 
-        
-        // [核心修正 2] 使用解析后的 layout 变量
-        // 注意：保存时用的键是 w, h, a，这里要对应上
         x: layout.x,
         y: layout.y,
         width: layout.w, 
         height: layout.h,
         angle: layout.a, 
-        
-        // [核心修正 3] data 只放入清洗后的业务数据
         data: { ...businessData }, 
-        
         attrs: { 
           label: { 
             text: isTee ? '' : (props.Tag || props.tag || props.label),
@@ -9175,15 +9408,13 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
       };
     });
 
-    // 2. [修改] 加载连线 (匹配 :Asset)
+    // 2. 加载连线
     const edgesResult = await session.run(`
       MATCH (s:Asset {drawingId: $drawingId})-[r:PIPE|MEASURES|CONTROLS]->(t:Asset {drawingId: $drawingId}) 
       RETURN s.x6Id as sourceId, t.x6Id as targetId, r, type(r) as relType
-    `, { drawingId: CURRENT_DRAWING_ID });
+    `, { drawingId });
     
-    // ... (edges map 逻辑保持不变) ...
     const edges = edgesResult.records.map(record => {
-        // ... 保持原样 ...
         const rel = record.get('r').properties;
         const relType = record.get('relType'); 
         const sourceId = record.get('sourceId');
@@ -9210,10 +9441,10 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
         } else {
             targetMarker = { name: 'classic', width: 8, height: 6 }; 
             if (rel.insulation && rel.insulation.startsWith('Jacket')) {
-            strokeWidth = 4;
-            strokeColor = FLUID_COLORS.Oil; 
+              strokeWidth = 4;
+              strokeColor = FLUID_COLORS.Oil; 
             } else if (['ST', 'ET', 'OT'].includes(rel.insulation)) {
-            dashArray = '5 5'; 
+              dashArray = '5 5'; 
             }
         }
 
@@ -9254,13 +9485,13 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
             },
             labels: labels,
             data: { 
-            type: edgeType, 
-            relationType: relType, 
-            material: rel.material, 
-            fluid: rel.fluid,
-            dn: rel.dn,
-            pn: rel.pn,
-            insulation: rel.insulation
+              type: edgeType, 
+              relationType: relType, 
+              material: rel.material, 
+              fluid: rel.fluid,
+              dn: rel.dn,
+              pn: rel.pn,
+              insulation: rel.insulation
             }
         };
     });
@@ -9273,6 +9504,7 @@ export const saveGraphData = async (nodes: any[], edges: any[]) => {
 </file>
 
 <file path="src/graph/cells/registry.ts">
+// src/graph/cells/registry.ts
 import { Graph } from '@antv/x6';
 
 // --- SVG Imports (保留用于手动注册的基础元素 SVG) ---
@@ -9320,8 +9552,12 @@ const LABEL_ATTRS = {
 
 // 内部注册函数：同时写入 X6 引擎和 SHAPE_LIBRARY 缓存
 const registerNodeWithCache = (id: string, config: any) => {
-  // 1. 注册到 X6
-  Graph.registerNode(id, config);
+  // [修改点 1] 使用 try-catch 捕获重复注册错误
+  try {
+    Graph.registerNode(id, config);
+  } catch (e) {
+    // 忽略 "already registered" 错误，继续执行以更新缓存
+  }
 
   // 2. 存入缓存供设计器读取
   let rawSvg = '';
@@ -9423,12 +9659,14 @@ export const registerCustomCells = () => {
 
   // 2. 注册基础元素 (非业务图元)
   
-  // 信号线
-  Graph.registerEdge('signal-edge', {
-    inherit: 'edge',
-    attrs: { line: { stroke: '#888', strokeWidth: 1, strokeDasharray: '4 4', targetMarker: { name: 'classic', size: 3 } } },
-    data: { type: 'Signal', fluid: 'Signal' },
-  });
+  // 信号线 [修改点 2] 使用 try-catch
+  try {
+    Graph.registerEdge('signal-edge', {
+      inherit: 'edge',
+      attrs: { line: { stroke: '#888', strokeWidth: 1, strokeDasharray: '4 4', targetMarker: { name: 'classic', size: 3 } } },
+      data: { type: 'Signal', fluid: 'Signal' },
+    });
+  } catch (e) { /* ignore */ }
 
   // 测点 (Tapping Point)
   registerNodeWithCache('tapping-point', {
