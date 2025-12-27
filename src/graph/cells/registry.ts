@@ -86,11 +86,28 @@ const autoRegisterShapes = () => {
 
   for (const path in JSON_MODULES) {
     try {
-      const config = JSON_MODULES[path] as ShapeConfig;
+      // 深拷贝配置，防止修改原始模块导致 HMR 问题
+      const config = JSON.parse(JSON.stringify(JSON_MODULES[path])) as ShapeConfig;
       
       // 从文件名推导 ID: ./data/p-reactor.json -> p-reactor
       const fileName = path.split('/').pop()?.replace('.json', '');
       const shapeId = fileName || 'unknown';
+
+      // [新增] 端口 ID 去重清洗逻辑 (防止 Duplicated port id 错误)
+      if (config.ports && Array.isArray(config.ports.items)) {
+        const seenIds = new Set<string>();
+        const uniqueItems: any[] = [];
+        
+        config.ports.items.forEach((item: any) => {
+          if (seenIds.has(item.id)) {
+            console.warn(`[Registry] ⚠️ Duplicate port ID '${item.id}' detected in ${shapeId}. Skipping duplicate.`);
+          } else {
+            seenIds.add(item.id);
+            uniqueItems.push(item);
+          }
+        });
+        config.ports.items = uniqueItems;
+      }
 
       // 查找对应的 SVG (要求 SVG 文件名与 JSON 文件名一致)
       const svgPath = `./svgs/${shapeId}.svg`;

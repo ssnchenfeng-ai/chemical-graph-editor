@@ -1,0 +1,92 @@
+{
+  "width": 224,
+  "height": 406,
+  "ports": {
+    "groups": {
+      "all": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "all",
+        "args": {
+          "x": "49%",
+          "y": "99%"
+        },
+        "data": {
+          "desc": "混合气进口",
+          "region": "ShellSide:Vapor",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "",
+        "group": "all",
+        "args": {
+          "x": "98%",
+          "y": "10%"
+        },
+        "data": {
+          "desc": "新接口",
+          "region": "ShellSide",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "zb",
+        "group": "all",
+        "args": {
+          "x": "49%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "防爆口",
+          "region": "ShellSide:Vapor",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "p4",
+        "group": "all",
+        "args": {
+          "x": "0%",
+          "y": "20%"
+        },
+        "data": {
+          "desc": "仪表接口",
+          "region": "ShellSide:Vapor",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "out",
+        "group": "all",
+        "args": {
+          "x": "98%",
+          "y": "10%"
+        },
+        "data": {
+          "desc": "混合气出口",
+          "region": "ShellSide:Vapor",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Filter",
+    "tag": "FIL-New",
+    "spec": "Spec..."
+  }
+}

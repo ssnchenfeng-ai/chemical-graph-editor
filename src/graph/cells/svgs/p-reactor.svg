@@ -1,0 +1,52 @@
+<svg width="224" height="406" viewBox="38 36 224 406" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 定义斜线填充图案 (用于 HI80 加热器) -->
+    <pattern id="hatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+      <line x1="0" y1="0" x2="0" y2="6" style="stroke:black; stroke-width:2" />
+    </pattern>
+  </defs>
+
+  <!-- 样式设置 -->
+  <style>
+    text { font-family: Arial, sans-serif; font-weight: bold; fill: black; }
+    .main-lines { fill: none; stroke: black; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+    .thin-lines { fill: none; stroke: black; stroke-width: 2; }
+    .dashed-lines { fill: none; stroke: black; stroke-width: 2; stroke-dasharray: 8,6; }
+  </style>
+
+  <!-- 1. 内部过滤器 -->
+  <polyline class="dashed-lines" points="80,60 110,240 190,240 220,60" />
+
+  <!-- 2. 主体轮廓 -->
+  <!-- 顶部法兰 -->
+  <line x1="60" y1="50" x2="240" y2="50" class="main-lines" />
+  <line x1="60" y1="56" x2="240" y2="56" class="main-lines" />
+  
+  <!-- 罐体及底部 -->
+  <path d="M 75 56 L 75 320 L 135 400 L 135 440 L 165 440 L 165 400 L 225 320 L 225 56" class="main-lines" />
+  
+  <!-- 底部出口横线 -->
+  <line x1="130" y1="440" x2="170" y2="440" class="main-lines" />
+
+  <!-- 3. 管口与附件 -->
+  
+  <!-- 顶部小口 -->
+  <rect x="135" y="38" width="30" height="12" class="main-lines" fill="none"/>
+
+  <!-- 左侧管口 (修改为与右侧相同形式，中心位置保持在 y=120 附近) -->
+  <g>
+    <!-- 上下两条线 -->
+    <line x1="75" y1="112.5" x2="45" y2="112.5" class="main-lines" />
+    <line x1="75" y1="127.5" x2="45" y2="127.5" class="main-lines" />
+    <!-- 法兰面 -->
+    <rect x="40" y="107.5" width="5" height="25" class="main-lines" fill="none"/> 
+  </g>
+
+  <!-- 右侧管口 -->
+  <g>
+    <line x1="225" y1="70" x2="255" y2="70" class="main-lines" />
+    <line x1="225" y1="85" x2="255" y2="85" class="main-lines" />
+    <rect x="255" y="65" width="5" height="25" class="main-lines" fill="none"/> 
+  </g>
+
+</svg>

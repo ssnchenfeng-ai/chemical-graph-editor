@@ -154,7 +154,7 @@
         "data": {
           "desc": "底部口N8",
           "region": "InnerVessel",
-          "dir": "out"
+          "dir": "in"
         }
       },
       {
@@ -167,7 +167,7 @@
         "data": {
           "desc": "底部口N9",
           "region": "InnerVessel",
-          "dir": "out"
+          "dir": "in"
         }
       },
       {
@@ -180,7 +180,7 @@
         "data": {
           "desc": "底部口N10",
           "region": "InnerVessel",
-          "dir": "out"
+          "dir": "in"
         }
       },
       {
@@ -213,7 +213,7 @@
   },
   "data": {
     "type": "Tank",
-    "tag": "TANK-HORIZONTAL",
+    "tag": "TANK-HORIZ",
     "spec": "Spec..."
   }
 }
