@@ -10,11 +10,13 @@ export const CURRENT_DRAWING_ID = 'Draft_V1';
 export const FLUID_COLORS: Record<string, string> = {
   Water: '#1890ff',       // 工艺水 - 蓝
   Steam: '#ff4d4f',       // 蒸汽 - 红
+  SteamWaterMix: '#722ed1', // 蒸汽水混合物 - 紫
   Air: '#52c41a',         // 空气 - 绿
   N2: '#13c2c2',          // 氮气 - 青
   Oil: '#fa8c16',         // 导热油 - 橙
   Salt: '#722ed1',        // 熔盐 - 紫
   Naphthalene: '#8c8c8c', // 萘 - 深灰
+   NaphthaleneVapor: '#aba3a3ff', // [新增] 萘蒸汽 - 浅灰 (或根据实际标准调整)
   PA: '#eb2f96',          // 苯酐 - 洋红
   CrudePA: '#f759ab',     // 粗苯酐 - 浅洋红
   ProductGas: '#faad14',  // 产物气 - 金黄

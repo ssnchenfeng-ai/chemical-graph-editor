@@ -232,6 +232,7 @@ export const saveGraphData = async (drawingId: string, nodes: any[], edges: any[
              dn:         r.dn,
              pn:         r.pn,
              insulation: r.insulation,
+             desc:       r.desc,
              fromRegion: r.sourceRegion, 
              fromDesc:   r.sourceDesc,
              toRegion:   r.targetRegion,
@@ -504,7 +505,8 @@ export const loadGraphData = async (drawingId: string) => {
               fluid: rel.fluid,
               dn: rel.dn,
               pn: rel.pn,
-              insulation: rel.insulation
+              insulation: rel.insulation,
+              desc: rel.desc
             }
         };
     });

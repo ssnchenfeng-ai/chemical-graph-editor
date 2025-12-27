@@ -191,6 +191,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
         dn: data.dn || 'DN50',
         pn: data.pn || 'PN16',
         insulation: data.insulation || 'None',
+        desc: data.desc || '', 
         label: edge.getLabelAt(0)?.attrs?.label?.text || '',
         vertices: JSON.stringify(vertices) 
       };
@@ -516,34 +517,106 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
     const handlePipeSplit = (node: Node) => {
       const nodeType = node.getData()?.type;
       if (!INLINE_TYPES.includes(nodeType)) return; 
+      
       const connectedEdges = graph.getConnectedEdges(node);
       if (connectedEdges.length > 0) return; 
+
       const nodeBBox = node.getBBox();
-      const center = nodeBBox.center;
       const allEdges = graph.getEdges();
-      const targetEdge = allEdges.find(edge => {
-        if (edge.getData()?.type === 'Signal') return false;
-        return edge.getBBox().intersectsWithRect(nodeBBox);
-      });
+      const ports = node.getPorts(); // 获取所有端口
+
+      // 定义吸附阈值 (像素)
+      const SNAP_THRESHOLD = 25; 
+
+      // 1. 找出最佳匹配的管线
+      const candidates = allEdges
+        .filter(edge => {
+          if (edge.getData()?.type === 'Signal') return false;
+          // 粗筛：包围盒相交
+          return edge.getBBox().intersectsWithRect(nodeBBox);
+        })
+        .map(edge => {
+          const view = graph.findViewByCell(edge);
+          if (!view) return null;
+          
+          // 计算节点上所有端口到该管线的最小距离
+          let minPortDist = Infinity;
+          let bestPortId = null;
+          let bestClosestPoint = null; // 管线上的最近点
+
+          ports.forEach(port => {
+            // 计算端口的绝对坐标
+            const portPos = node.getPortProp(port.id, 'args');
+            // 注意：这里需要将相对坐标转换为画布绝对坐标
+            // 简单起见，假设 args.x/y 是百分比或像素，结合 nodeBBox 计算
+            // 更稳妥的方式是使用 graph.clientToLocal 或 node.getPortsPosition() 如果有的话
+            // 这里手动计算一下绝对坐标：
+            let px = nodeBBox.x;
+            let py = nodeBBox.y;
+            
+            if (typeof portPos.x === 'string' && portPos.x.endsWith('%')) {
+               px += (parseFloat(portPos.x) / 100) * nodeBBox.width;
+            } else {
+               px += (portPos.x as number) || 0;
+            }
+            
+            if (typeof portPos.y === 'string' && portPos.y.endsWith('%')) {
+               py += (parseFloat(portPos.y) / 100) * nodeBBox.height;
+            } else {
+               py += (portPos.y as number) || 0;
+            }
+
+            // @ts-ignore
+            const closest = view.getClosestPoint({ x: px, y: py });
+            const dist = Math.sqrt(Math.pow(closest.x - px, 2) + Math.pow(closest.y - py, 2));
+
+            if (dist < minPortDist) {
+              minPortDist = dist;
+              bestPortId = port.id;
+              bestClosestPoint = closest;
+            }
+          });
+
+          return { 
+            edge, 
+            distance: minPortDist, 
+            closestPoint: bestClosestPoint,
+            refPortId: bestPortId // 记录是哪个端口“吸”住了管线
+          };
+        })
+        .filter(item => item !== null && item.distance <= SNAP_THRESHOLD)
+        .sort((a, b) => a!.distance - b!.distance);
+
+      if (candidates.length === 0) return;
+
+      const bestMatch = candidates[0]!;
+      const targetEdge = bestMatch.edge;
+      const closestPoint = bestMatch.closestPoint!;
+      const refPortId = bestMatch.refPortId;
+
       if (targetEdge) {
         const targetView = graph.findViewByCell(targetEdge);
         if (!targetView) return;
-        // @ts-ignore
-        const closestPoint = targetView.getClosestPoint(center);
+        
         // @ts-ignore
         const routePoints = targetView.routePoints || [];
         const points = [targetEdge.getSourcePoint(), ...routePoints, targetEdge.getTargetPoint()];
+        
         let isPipeHorizontal = true; 
         let foundSegment = false;
         let segmentStart = targetEdge.getSourcePoint();
         let segmentEnd = targetEdge.getTargetPoint();
+
+        // 寻找最近点所在的线段
         for (let i = 0; i < points.length - 1; i++) {
           const p1 = points[i];
           const p2 = points[i + 1];
-          const minX = Math.min(p1.x, p2.x) - 5;
-          const maxX = Math.max(p1.x, p2.x) + 5;
-          const minY = Math.min(p1.y, p2.y) - 5;
-          const maxY = Math.max(p1.y, p2.y) + 5;
+          const buffer = 2;
+          const minX = Math.min(p1.x, p2.x) - buffer;
+          const maxX = Math.max(p1.x, p2.x) + buffer;
+          const minY = Math.min(p1.y, p2.y) - buffer;
+          const maxY = Math.max(p1.y, p2.y) + buffer;
+
           if (closestPoint.x >= minX && closestPoint.x <= maxX && closestPoint.y >= minY && closestPoint.y <= maxY) {
             if (Math.abs(p1.y - p2.y) < 5) { isPipeHorizontal = true; } else { isPipeHorizontal = false; }
             foundSegment = true;
@@ -552,6 +625,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
             break; 
           }
         }
+
         if (!foundSegment) {
            const src = targetEdge.getSourcePoint();
            const tgt = targetEdge.getTargetPoint();
@@ -559,50 +633,92 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
            segmentStart = src;
            segmentEnd = tgt;
         }
+
+        // 校验方向 (保持不变)
         const angle = node.getAngle();
         const normalizedAngle = (angle % 360 + 360) % 360;
         const isValveHorizontal = (normalizedAngle < 10 || normalizedAngle > 350) || (normalizedAngle > 170 && normalizedAngle < 190);
         if (nodeType !== 'Fitting' && isValveHorizontal !== isPipeHorizontal) return; 
-        const OFFSET = 20; 
+
+        // ============================================================
+        // [核心修改] 基于端口位置修正节点坐标
+        // ============================================================
+        
+        // 获取参考端口相对于节点左上角的偏移量
+        const portArgs = node.getPortProp(refPortId!, 'args');
+        let portOffsetX = 0;
+        let portOffsetY = 0;
+        
+        if (typeof portArgs.x === 'string' && portArgs.x.endsWith('%')) {
+           portOffsetX = (parseFloat(portArgs.x) / 100) * nodeBBox.width;
+        } else {
+           portOffsetX = (portArgs.x as number) || 0;
+        }
+        
+        if (typeof portArgs.y === 'string' && portArgs.y.endsWith('%')) {
+           portOffsetY = (parseFloat(portArgs.y) / 100) * nodeBBox.height;
+        } else {
+           portOffsetY = (portArgs.y as number) || 0;
+        }
+
         let newX = nodeBBox.x;
         let newY = nodeBBox.y;
+
         if (isPipeHorizontal) {
           const pipeY = closestPoint.y;
-          newY = Math.round((pipeY - OFFSET) / 10) * 10; 
+          // 目标：让端口的 Y 坐标等于 pipeY
+          // nodeY + portOffsetY = pipeY  =>  nodeY = pipeY - portOffsetY
+          newY = Math.round((pipeY - portOffsetY) / 10) * 10; 
+          // X 轴保持当前拖拽位置 (对齐网格)
           newX = Math.round(nodeBBox.x / 10) * 10; 
         } else {
           const pipeX = closestPoint.x;
-          newX = Math.round((pipeX + OFFSET) / 10) * 10;
+          // 目标：让端口的 X 坐标等于 pipeX
+          // nodeX + portOffsetX = pipeX => nodeX = pipeX - portOffsetX
+          newX = Math.round((pipeX - portOffsetX) / 10) * 10;
+          // Y 轴保持当前拖拽位置
           newY = Math.round(nodeBBox.y / 10) * 10; 
         }
+        
         node.setPosition(newX, newY);
+
+        // ... (后续打断连线逻辑保持不变)
         const portForSource = getClosestPortId(node, segmentStart);
         const portForTarget = getClosestPortId(node, segmentEnd);
+        
         if (!portForSource || !portForTarget) {
           console.warn('无法找到合适的连接端口');
           return;
         }
+
         const source = targetEdge.getSource();
         const target = targetEdge.getTarget();
         const edgeData = targetEdge.getData();
         const edgeAttrs = targetEdge.getAttrs(); 
         const sourceCellId = (source as any).cell;
         const targetCellId = (target as any).cell;
+
         graph.removeCell(targetEdge);
+
         const exclude1 = ['SHEET_FRAME_A2', node.id];
         if (isInlineComponent(sourceCellId)) exclude1.push(sourceCellId);
+        
         const exclude2 = ['SHEET_FRAME_A2', node.id];
         if (isInlineComponent(targetCellId)) exclude2.push(targetCellId);
+
         const router1 = { name: 'manhattan', args: { padding: 10, excludeNodes: exclude1 } };
         const router2 = { name: 'manhattan', args: { padding: 10, excludeNodes: exclude2 } };
+
         const edge1 = graph.createEdge({
           shape: 'edge', source: source, target: { cell: node.id, port: portForSource }, 
           data: { ...edgeData }, attrs: edgeAttrs, labels: [], router: router1 
         });
+
         const edge2 = graph.createEdge({
           shape: 'edge', source: { cell: node.id, port: portForTarget }, target: target,
           data: { ...edgeData }, attrs: edgeAttrs, labels: [], router: router2 
         });
+
         graph.addCell([edge1, edge2]);
         message.success('元件已接入管线');
       }
