@@ -1,0 +1,21 @@
+<svg width="15.5" height="25.5" viewBox="-0.25 -0.25 15.5 25.5" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#000000" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- 主体外框 (15x25) -->
+    <path d="M 0,0 H 15 V 25 H 0 Z" />
+    
+    <!-- 内部水平虚线 -->
+    <path d="M 0,5 H 15" stroke-dasharray="3, 3" />
+    
+    <!-- 内部V形滤网虚线 -->
+    <path d="M 0,17.5 L 7.5,25 L 15,17.5" stroke-dasharray="3, 3" />
+    
+    <!-- 内部左侧短横线 -->
+    <path d="M 0,7.5 H 5" />
+    
+    <!-- 内部右侧短横线 -->
+    <path d="M 10,7.5 H 15" />
+    
+    <!-- 中间滤芯框 (点划线) -->
+    <path d="M 5,7.5 V 17.5 H 10 V 7.5" stroke-dasharray="3, 1" />
+  </g>
+</svg>

@@ -1,0 +1,43 @@
+<svg viewBox="50 0 300 280" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 外框 (Frame) - 保持不变 -->
+  <!-- 范围：Y=60 到 Y=240 -->
+  <path d="M70,60 L330,60 L330,240 L70,240 Z" fill="white" />
+
+  <!-- 2. 左右连接桩 - 保持不变 -->
+  <line x1="50" y1="150" x2="70" y2="150" stroke-width="3" />
+  <line x1="330" y1="150" x2="350" y2="150" stroke-width="3" />
+
+  <!-- 3. 换热管束 (5组) - 高度拉长以穿透下方 -->
+  <!-- 修改：height=220, 底部横线y=200, 竖线V195 -->
+  
+  <g transform="translate(85, 40)"> <!-- 第1组 -->
+    <rect x="0" y="0" width="30" height="220" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="200" x2="30" y2="200" />
+    <path d="M6,25 V195 M12,25 V195 M18,25 V195 M24,25 V195" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(135, 40)"> <!-- 第2组 -->
+    <rect x="0" y="0" width="30" height="220" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="200" x2="30" y2="200" />
+    <path d="M6,25 V195 M12,25 V195 M18,25 V195 M24,25 V195" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(185, 40)"> <!-- 第3组 -->
+    <rect x="0" y="0" width="30" height="220" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="200" x2="30" y2="200" />
+    <path d="M6,25 V195 M12,25 V195 M18,25 V195 M24,25 V195" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(235, 40)"> <!-- 第4组 -->
+    <rect x="0" y="0" width="30" height="220" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="200" x2="30" y2="200" />
+    <path d="M6,25 V195 M12,25 V195 M18,25 V195 M24,25 V195" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(285, 40)"> <!-- 第5组 -->
+    <rect x="0" y="0" width="30" height="220" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="200" x2="30" y2="200" />
+    <path d="M6,25 V195 M12,25 V195 M18,25 V195 M24,25 V195" stroke-width="1"/>
+  </g>
+
+</svg>

@@ -1,0 +1,66 @@
+<svg viewBox="0 0 400 260" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="black" stroke-width="2">
+  <!-- 1. 外框 (Frame) - 保持不变 -->
+  <path d="M20,60 L380,60 L380,240 L60,240 L20,200 Z" fill="white" />
+
+  <!-- 2. 左右连接桩 - 保持不变 -->
+  <line x1="0" y1="150" x2="20" y2="150" stroke-width="3" />
+  <line x1="380" y1="150" x2="400" y2="150" stroke-width="3" />
+
+  <!-- 3. 顶部爆破片法兰 - 保持不变 -->
+  <g>
+    <rect x="25" y="50" width="20" height="10" fill="white" />
+    <line x1="35" y1="50" x2="35" y2="60" />
+  </g>
+  <g>
+    <rect x="355" y="50" width="20" height="10" fill="white" />
+    <line x1="365" y1="50" x2="365" y2="60" />
+  </g>
+
+  <!-- 4. 换热管束 (7组) -->
+  <!-- 修改说明：所有 translate 的 x 坐标增加 15 (半个管束宽) -->
+  <!-- 原坐标: 55, 95, 135, 175, 215, 255, 295 -->
+  <!-- 新坐标: 70, 110, 150, 190, 230, 270, 310 -->
+  
+  <g transform="translate(70, 40)"> <!-- 第1组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(110, 40)"> <!-- 第2组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(150, 40)"> <!-- 第3组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(190, 40)"> <!-- 第4组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(230, 40)"> <!-- 第5组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(270, 40)"> <!-- 第6组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+  <g transform="translate(310, 40)"> <!-- 第7组 -->
+    <rect x="0" y="0" width="30" height="200" rx="15" ry="15" fill="white" />
+    <line x1="0" y1="20" x2="30" y2="20" /> <line x1="0" y1="180" x2="30" y2="180" />
+    <path d="M6,25 V175 M12,25 V175 M18,25 V175 M24,25 V175" stroke-width="1"/>
+  </g>
+
+</svg>

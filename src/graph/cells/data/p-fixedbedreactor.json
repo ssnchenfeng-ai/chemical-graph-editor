@@ -38,6 +38,18 @@
             "fill": "#e3dedeff"
           }
         }
+      },
+      "Instrument": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
       }
     },
     "items": [
@@ -196,11 +208,37 @@
           "region": "LowerSaltChannel",
           "dir": "out"
         }
+      },
+      {
+        "id": "p13",
+        "group": "Instrument",
+        "args": {
+          "x": "35%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "温度测量",
+          "region": "TubeSide:Vapor",
+          "dir": "bi"
+        }
+      },
+      {
+        "id": "p14",
+        "group": "Instrument",
+        "args": {
+          "x": "65%",
+          "y": "0%"
+        },
+        "data": {
+          "desc": "温度测量",
+          "region": "ShellSide:Liquid",
+          "dir": "bi"
+        }
       }
     ]
   },
   "data": {
-    "type": "FixedBedReactor",
+    "type": "Reactor",
     "tag": "FIXED-BED-REACTOR",
     "spec": "Spec..."
   }

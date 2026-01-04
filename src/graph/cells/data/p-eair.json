@@ -1,0 +1,183 @@
+{
+  "width": 300,
+  "height": 280,
+  "ports": {
+    "groups": {
+      "all": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      }
+    },
+    "items": [
+      {
+        "id": "in",
+        "group": "all",
+        "args": {
+          "x": "0%",
+          "y": "54%"
+        },
+        "data": {
+          "desc": "空气入口",
+          "region": "ShellSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "out",
+        "group": "all",
+        "args": {
+          "x": "100%",
+          "y": "54%"
+        },
+        "data": {
+          "desc": "空气出口",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "p3",
+        "group": "all",
+        "args": {
+          "x": "17%",
+          "y": "14%"
+        },
+        "data": {
+          "desc": "蒸汽入口",
+          "region": "TubeSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "p4",
+        "group": "all",
+        "args": {
+          "x": "33%",
+          "y": "14%"
+        },
+        "data": {
+          "desc": "蒸汽入口",
+          "region": "TubeSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "p5",
+        "group": "all",
+        "args": {
+          "x": "50%",
+          "y": "14%"
+        },
+        "data": {
+          "desc": "蒸汽入口",
+          "region": "TubeSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "p6",
+        "group": "all",
+        "args": {
+          "x": "67%",
+          "y": "14%"
+        },
+        "data": {
+          "desc": "蒸汽入口",
+          "region": "TubeSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "p7",
+        "group": "all",
+        "args": {
+          "x": "83%",
+          "y": "14%"
+        },
+        "data": {
+          "desc": "蒸汽入口",
+          "region": "TubeSide",
+          "dir": "in"
+        }
+      },
+      {
+        "id": "p8",
+        "group": "all",
+        "args": {
+          "x": "17%",
+          "y": "93%"
+        },
+        "data": {
+          "desc": "蒸汽出口",
+          "region": "ShellSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "p9",
+        "group": "all",
+        "args": {
+          "x": "33%",
+          "y": "93%"
+        },
+        "data": {
+          "desc": "蒸汽出口",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "p10",
+        "group": "all",
+        "args": {
+          "x": "50%",
+          "y": "93%"
+        },
+        "data": {
+          "desc": "蒸汽出口",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "p11",
+        "group": "all",
+        "args": {
+          "x": "67%",
+          "y": "93%"
+        },
+        "data": {
+          "desc": "新接口",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      },
+      {
+        "id": "p12",
+        "group": "all",
+        "args": {
+          "x": "83%",
+          "y": "93%"
+        },
+        "data": {
+          "desc": "新接口",
+          "region": "TubeSide",
+          "dir": "out"
+        }
+      }
+    ]
+  },
+  "data": {
+    "type": "Exchanger",
+    "tag": "E-Air",
+    "spec": "Spec..."
+  }
+}
