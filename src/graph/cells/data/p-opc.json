@@ -39,7 +39,9 @@
         "data": {
           "desc": "流出当前页 (To Next Page)",
           "region": "Connector",
-          "dir": "in" 
+          "dir": "in",
+          "chamber": "Connector",
+          "phase": "None"
         }
       },
       {
@@ -52,7 +54,9 @@
         "data": {
           "desc": "流入当前页 (From Prev Page)",
           "region": "Connector",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "Connector",
+          "phase": "None"
         }
       }
     ]

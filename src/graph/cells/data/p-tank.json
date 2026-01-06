@@ -63,7 +63,9 @@
         "data": {
           "desc": "顶部口N1",
           "region": "InnerVessel",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -76,7 +78,9 @@
         "data": {
           "desc": "顶部口N2",
           "region": "InnerVessel",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -89,7 +93,9 @@
         "data": {
           "desc": "顶部口N3",
           "region": "InnerVessel",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -102,7 +108,9 @@
         "data": {
           "desc": "顶部口N4",
           "region": "InnerVessel",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -115,7 +123,9 @@
         "data": {
           "desc": "顶部口N5",
           "region": "InnerVessel",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -128,7 +138,9 @@
         "data": {
           "desc": "底部口N6",
           "region": "InnerVessel",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -141,7 +153,9 @@
         "data": {
           "desc": "底部口N7",
           "region": "InnerVessel",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -154,7 +168,9 @@
         "data": {
           "desc": "底部口N8",
           "region": "InnerVessel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -167,7 +183,9 @@
         "data": {
           "desc": "底部口N9",
           "region": "InnerVessel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -180,7 +198,9 @@
         "data": {
           "desc": "底部口N10",
           "region": "InnerVessel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -193,7 +213,9 @@
         "data": {
           "desc": "左侧口N11",
           "region": "InnerVessel",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -206,7 +228,9 @@
         "data": {
           "desc": "右侧口N14",
           "region": "InnerVessel",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       }
     ]

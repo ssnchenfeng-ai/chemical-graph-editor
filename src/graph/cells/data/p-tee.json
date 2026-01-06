@@ -27,7 +27,9 @@
         "data": {
           "desc": "三通接口-1",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -40,7 +42,9 @@
         "data": {
           "desc": "三通接口-2",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -53,7 +57,9 @@
         "data": {
           "desc": "三通接口-3",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       }
     ]

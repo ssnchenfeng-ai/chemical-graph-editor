@@ -27,7 +27,9 @@
         "data": {
           "desc": "混合气进口",
           "region": "ShellSide:Vapor",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -40,7 +42,9 @@
         "data": {
           "desc": "新接口",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -53,7 +57,9 @@
         "data": {
           "desc": "防爆口",
           "region": "ShellSide:Vapor",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -66,7 +72,9 @@
         "data": {
           "desc": "仪表接口",
           "region": "ShellSide:Vapor",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -79,7 +87,9 @@
         "data": {
           "desc": "混合气出口",
           "region": "ShellSide:Vapor",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       }
     ]

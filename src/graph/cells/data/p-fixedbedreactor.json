@@ -63,7 +63,9 @@
         "data": {
           "desc": "工艺气入口",
           "region": "TubeSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -76,7 +78,9 @@
         "data": {
           "desc": "气体出口",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -89,7 +93,9 @@
         "data": {
           "desc": "上盐道接口-L1",
           "region": "UpperSaltChannel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "Jacket",
+          "phase": "Liquid"
         }
       },
       {
@@ -102,7 +108,9 @@
         "data": {
           "desc": "上盐道接口-L2",
           "region": "UpperSaltChannel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "Jacket",
+          "phase": "Liquid"
         }
       },
       {
@@ -115,7 +123,9 @@
         "data": {
           "desc": "上盐道接口-L3",
           "region": "UpperSaltChannel",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "Jacket",
+          "phase": "Liquid"
         }
       },
       {
@@ -128,7 +138,9 @@
         "data": {
           "desc": "上盐道接口-R1",
           "region": "UpperSaltChannel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "Jacket",
+          "phase": "Liquid"
         }
       },
       {
@@ -141,7 +153,9 @@
         "data": {
           "desc": "上盐道接口-R2",
           "region": "UpperSaltChannel",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "Jacket",
+          "phase": "Liquid"
         }
       },
       {
@@ -154,7 +168,9 @@
         "data": {
           "desc": "下盐道接口-L1",
           "region": "LowerSaltChannel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "Jacket",
+          "phase": "Liquid"
         }
       },
       {
@@ -167,7 +183,9 @@
         "data": {
           "desc": "下盐道接口-L2",
           "region": "LowerSaltChannel",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "Jacket",
+          "phase": "Liquid"
         }
       },
       {
@@ -180,7 +198,9 @@
         "data": {
           "desc": "下盐道接口-L3",
           "region": "LowerSaltChannel",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "Jacket",
+          "phase": "Liquid"
         }
       },
       {
@@ -193,7 +213,9 @@
         "data": {
           "desc": "下盐道接口-R1",
           "region": "LowerSaltChannel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "Jacket",
+          "phase": "Liquid"
         }
       },
       {
@@ -206,7 +228,9 @@
         "data": {
           "desc": "下盐道接口-R2",
           "region": "LowerSaltChannel",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "Jacket",
+          "phase": "Liquid"
         }
       },
       {
@@ -219,7 +243,9 @@
         "data": {
           "desc": "温度测量",
           "region": "TubeSide:Vapor",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "TubeSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -232,7 +258,9 @@
         "data": {
           "desc": "温度测量",
           "region": "ShellSide:Liquid",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Liquid"
         }
       }
     ]

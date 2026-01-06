@@ -27,7 +27,9 @@
         "data": {
           "desc": "接口",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -40,7 +42,9 @@
         "data": {
           "desc": "接口",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       }
     ]

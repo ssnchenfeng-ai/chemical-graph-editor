@@ -27,7 +27,9 @@
         "data": {
           "desc": "空气入口",
           "region": "ShellSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -40,7 +42,9 @@
         "data": {
           "desc": "空气出口",
           "region": "ShellSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -53,7 +57,9 @@
         "data": {
           "desc": "蒸汽入口",
           "region": "TubeSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -66,7 +72,9 @@
         "data": {
           "desc": "蒸汽入口",
           "region": "TubeSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -79,7 +87,9 @@
         "data": {
           "desc": "蒸汽入口",
           "region": "TubeSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -92,7 +102,9 @@
         "data": {
           "desc": "蒸汽入口",
           "region": "TubeSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -105,7 +117,9 @@
         "data": {
           "desc": "蒸汽入口",
           "region": "TubeSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -118,7 +132,9 @@
         "data": {
           "desc": "蒸汽出口",
           "region": "ShellSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -131,7 +147,9 @@
         "data": {
           "desc": "蒸汽出口",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -144,7 +162,9 @@
         "data": {
           "desc": "蒸汽出口",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -157,7 +177,9 @@
         "data": {
           "desc": "新接口",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -170,7 +192,9 @@
         "data": {
           "desc": "新接口",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       }
     ]

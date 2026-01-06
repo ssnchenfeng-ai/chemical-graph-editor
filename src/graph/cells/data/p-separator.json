@@ -27,7 +27,9 @@
         "data": {
           "desc": "液位计液相",
           "region": "ShellSide:Liquid",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Liquid"
         }
       },
       {
@@ -40,7 +42,9 @@
         "data": {
           "desc": "液位计气相",
           "region": "ShellSide:Vapor",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -53,7 +57,9 @@
         "data": {
           "desc": "底部排液",
           "region": "ShellSide:Liquid",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "ShellSide",
+          "phase": "Liquid"
         }
       },
       {
@@ -66,7 +72,9 @@
         "data": {
           "desc": "气体进口",
           "region": "ShellSide:Vapor",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -79,7 +87,9 @@
         "data": {
           "desc": "气体出口",
           "region": "ShellSide:Vapor",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       }
     ]

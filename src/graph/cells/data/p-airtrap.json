@@ -26,7 +26,8 @@
         },
         "data": {
           "desc": "捕集器入口",
-          "region": "ShellSide",
+          "chamber": "Body",
+          "phase": "Vapor",
           "dir": "in"
         }
       },
@@ -39,7 +40,8 @@
         },
         "data": {
           "desc": "捕集器出口",
-          "region": "ShellSide",
+          "chamber": "Body",
+          "phase": "Vapor",
           "dir": "out"
         }
       }

@@ -51,7 +51,9 @@
         "data": {
           "desc": "壳程入口(N1)",
           "region": "ShellSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -64,7 +66,9 @@
         "data": {
           "desc": "壳程出口(N2)",
           "region": "ShellSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -77,7 +81,9 @@
         "data": {
           "desc": "管程入口(N3)",
           "region": "TubeSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -90,7 +96,9 @@
         "data": {
           "desc": "管程出口(N4)",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -103,7 +111,9 @@
         "data": {
           "desc": "放空(N5)",
           "region": "ShellSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -116,7 +126,9 @@
         "data": {
           "desc": "排净(N6)",
           "region": "ShellSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       }
     ]

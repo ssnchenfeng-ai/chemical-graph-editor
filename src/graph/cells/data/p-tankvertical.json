@@ -87,7 +87,9 @@
         "data": {
           "desc": "顶部放空",
           "region": "InnerVessel",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -100,7 +102,9 @@
         "data": {
           "desc": "底部出料",
           "region": "InnerVessel",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -113,7 +117,9 @@
         "data": {
           "desc": "上部侧口(左)",
           "region": "InnerVessel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -126,7 +132,9 @@
         "data": {
           "desc": "上部侧口(右)",
           "region": "InnerVessel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -139,7 +147,9 @@
         "data": {
           "desc": "下部侧口(左)",
           "region": "InnerVessel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -152,7 +162,9 @@
         "data": {
           "desc": "下部侧口(右)",
           "region": "InnerVessel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       }
     ]

@@ -63,7 +63,9 @@
         "data": {
           "desc": "顶部接口-1",
           "region": "ShellSide:Vapor",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -76,7 +78,9 @@
         "data": {
           "desc": "顶部接口-2",
           "region": "ShellSide:Vapor",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -89,7 +93,9 @@
         "data": {
           "desc": "顶部接口-3",
           "region": "ShellSide:Vapor",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -102,7 +108,9 @@
         "data": {
           "desc": "顶部接口-4",
           "region": "ShellSide:Vapor",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -115,7 +123,9 @@
         "data": {
           "desc": "左侧接口-1(上)",
           "region": "ShellSide:Vapor",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -128,7 +138,9 @@
         "data": {
           "desc": "左侧接口-2(上)",
           "region": "ShellSide:Vapor",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -141,7 +153,9 @@
         "data": {
           "desc": "左侧接口-3(中上)",
           "region": "ShellSide:Vapor",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "ShellSide",
+          "phase": "Vapor"
         }
       },
       {
@@ -154,7 +168,9 @@
         "data": {
           "desc": "底部接口-1",
           "region": "ShellSide:Liquid",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Liquid"
         }
       },
       {
@@ -167,7 +183,9 @@
         "data": {
           "desc": "底部接口-2",
           "region": "ShellSide:Liquid",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Liquid"
         }
       },
       {
@@ -180,7 +198,9 @@
         "data": {
           "desc": "底部接口-3",
           "region": "ShellSide:Liquid",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Liquid"
         }
       },
       {
@@ -193,7 +213,9 @@
         "data": {
           "desc": "底部接口-4",
           "region": "ShellSide:Liquid",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Liquid"
         }
       },
       {
@@ -206,7 +228,9 @@
         "data": {
           "desc": "左侧接口-4(中下)",
           "region": "ShellSide:Liquid",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "ShellSide",
+          "phase": "Liquid"
         }
       },
       {
@@ -219,7 +243,9 @@
         "data": {
           "desc": "左侧接口-5(下)",
           "region": "ShellSide:Liquid",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "ShellSide",
+          "phase": "Liquid"
         }
       },
       {
@@ -232,7 +258,9 @@
         "data": {
           "desc": "左侧接口-6(下)",
           "region": "ShellSide:Liquid",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "ShellSide",
+          "phase": "Liquid"
         }
       },
       {
@@ -245,7 +273,9 @@
         "data": {
           "desc": "蒸汽入口",
           "region": "TubeSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -258,7 +288,9 @@
         "data": {
           "desc": "冷凝水出口",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       }
     ]

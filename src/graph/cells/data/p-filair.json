@@ -27,7 +27,9 @@
         "data": {
           "desc": "新接口",
           "region": "ShellSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       }
     ]

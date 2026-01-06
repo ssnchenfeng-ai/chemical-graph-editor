@@ -87,7 +87,9 @@
         "data": {
           "desc": "壳程入口(产物气)",
           "region": "ShellSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -100,7 +102,9 @@
         "data": {
           "desc": "壳程出口(产物气)",
           "region": "ShellSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -113,7 +117,9 @@
         "data": {
           "desc": "爆破片接口(左)",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -126,7 +132,9 @@
         "data": {
           "desc": "爆破片接口(右)",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -139,7 +147,9 @@
         "data": {
           "desc": "高温段水入口",
           "region": "TubeSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -152,7 +162,9 @@
         "data": {
           "desc": "高温段水出口",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -165,7 +177,9 @@
         "data": {
           "desc": "低温段水出口",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -178,7 +192,9 @@
         "data": {
           "desc": "低温段水入口",
           "region": "TubeSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -191,7 +207,9 @@
         "data": {
           "desc": "高温段水入口(下)",
           "region": "TubeSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -204,7 +222,9 @@
         "data": {
           "desc": "高温段水出口(下)",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -217,7 +237,9 @@
         "data": {
           "desc": "低温段水出口(下)",
           "region": "TubeSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -230,7 +252,9 @@
         "data": {
           "desc": "低温段水入口(下)",
           "region": "TubeSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       }
     ]

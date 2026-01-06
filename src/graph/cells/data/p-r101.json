@@ -75,7 +75,9 @@
         "data": {
           "desc": "釜顶接口N1",
           "region": "InnerVessel",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -88,7 +90,9 @@
         "data": {
           "desc": "釜顶接口N2",
           "region": "InnerVessel",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -101,7 +105,9 @@
         "data": {
           "desc": "釜顶接口N3",
           "region": "InnerVessel",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -114,7 +120,9 @@
         "data": {
           "desc": "釜顶接口N4",
           "region": "InnerVessel",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -127,7 +135,9 @@
         "data": {
           "desc": "进料口",
           "region": "InnerVessel",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -140,7 +150,9 @@
         "data": {
           "desc": "溢流口",
           "region": "InnerVessel",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -153,7 +165,9 @@
         "data": {
           "desc": "半管夹套入口",
           "region": "Jacket",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "Jacket",
+          "phase": "Liquid"
         }
       },
       {
@@ -166,7 +180,9 @@
         "data": {
           "desc": "半管夹套出口",
           "region": "Jacket",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "Jacket",
+          "phase": "Liquid"
         }
       },
       {
@@ -179,7 +195,9 @@
         "data": {
           "desc": "釜底出料口",
           "region": "InnerVessel",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       },
       {
@@ -192,7 +210,9 @@
         "data": {
           "desc": "釜底温度口",
           "region": "InnerVessel",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "InnerVessel",
+          "phase": "Liquid"
         }
       }
     ]

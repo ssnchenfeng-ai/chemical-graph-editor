@@ -38,7 +38,8 @@
         },
         "data": {
           "desc": "泵入口",
-          "region": "ShellSide",
+          "chamber": "Body",
+          "phase": "Liquid",
           "dir": "in"
         }
       },
@@ -51,7 +52,8 @@
         },
         "data": {
           "desc": "泵出口",
-          "region": "ShellSide",
+          "chamber": "Body",
+          "phase": "Liquid",
           "dir": "out"
         }
       }

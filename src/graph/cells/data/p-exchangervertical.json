@@ -39,7 +39,9 @@
         "data": {
           "desc": "壳程接口(左上)",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -52,7 +54,9 @@
         "data": {
           "desc": "壳程接口(左下)",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -65,7 +69,9 @@
         "data": {
           "desc": "壳程接口(右上)",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -78,7 +84,9 @@
         "data": {
           "desc": "壳程接口(右下)",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -91,7 +99,9 @@
         "data": {
           "desc": "管程接口(上左)",
           "region": "TubeSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -104,7 +114,9 @@
         "data": {
           "desc": "管程接口(上右)",
           "region": "TubeSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -117,7 +129,9 @@
         "data": {
           "desc": "管程接口(下左)",
           "region": "TubeSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       },
       {
@@ -130,7 +144,9 @@
         "data": {
           "desc": "管程接口(下右)",
           "region": "TubeSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "TubeSide",
+          "phase": "Mix"
         }
       }
     ]

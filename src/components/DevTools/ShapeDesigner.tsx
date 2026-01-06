@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Layout, Input, Button, Form, Select, Row, Col, Typography, message, Divider, Collapse, Tooltip, Checkbox, Slider, Space, InputNumber, Radio } from 'antd';
 import { 
-  CopyOutlined, DeleteOutlined, QuestionCircleOutlined, InfoCircleOutlined, 
-  ZoomInOutlined, ZoomOutOutlined, ReloadOutlined, FileAddOutlined, 
+  CopyOutlined, DeleteOutlined, InfoCircleOutlined, 
+  ZoomInOutlined, ZoomOutOutlined, ReloadOutlined, 
   ColumnHeightOutlined, AimOutlined,
   ImportOutlined, CloudUploadOutlined 
 } from '@ant-design/icons';
@@ -22,13 +22,76 @@ const DEFAULT_SVG = `<svg viewBox="0 0 200 100" xmlns="http://www.w3.org/2000/sv
   <line x1="10" y1="50" x2="190" y2="50" stroke="#1890ff" stroke-dasharray="4 2" />
 </svg>`;
 
+// [新增] 语义选项常量
+const CHAMBER_OPTIONS = [
+  { value: 'ShellSide', label: '壳程 (ShellSide)' },
+  { value: 'TubeSide', label: '管程 (TubeSide)' },
+  { value: 'InnerVessel', label: '内胆/釜体 (InnerVessel)' },
+  { value: 'Jacket', label: '夹套 (Jacket)' },
+  // === [新增] 阀门/管件/仪表专用 ===
+  { value: 'Body', label: '本体/阀体 (Body)' }, // 阀门、三通、过滤器的主通道
+  { value: 'ProcessConnection', label: '过程接口 (Process)' }, // 仪表接触介质的探头
+  { value: 'SignalTerminal', label: '信号端子 (Signal)' }, // 仪表接线端
+  { value: 'Actuator', label: '执行机构 (Actuator)' },
+  { value: 'Connector', label: '连接器 (Connector)' },
+  { value: 'Atmosphere', label: '大气 (Atmosphere)' },
+];
+
+const PHASE_OPTIONS = [
+  { value: 'Liquid', label: '液相 (Liquid)' },
+  { value: 'Vapor', label: '气相 (Vapor)' },
+  { value: 'Mix', label: '气液混合 (Mix)' },
+  { value: 'Solid', label: '固相 (Solid)' },
+  // === [新增] 动态/特殊相态 ===
+  { value: 'Any', label: '任意/跟随介质 (Any)' }, // 阀门、三通必选此项
+  { value: 'Signal', label: '电/气信号 (Signal)' }, // 仪表信号线
+  { value: 'None', label: '无 (None)' },
+];
+// ... (PHASE_OPTIONS 定义之后)
+
+// [新增] 语义自动推导规则配置
+// 键是设备类型，值是一个函数，根据端口分组(group)返回默认属性
+const AUTO_SEMANTIC_RULES: Record<string, (group: string) => { chamber: string, phase: string }> = {
+  // 1. 纯流体通道类 (完全写死：Body / Any)
+  'Valve': () => ({ chamber: 'Body', phase: 'Any' }),
+  'ManualValve': () => ({ chamber: 'Body', phase: 'Any' }),
+  'Fitting': () => ({ chamber: 'Body', phase: 'Any' }),
+  'Filter': () => ({ chamber: 'Body', phase: 'Any' }),
+  'Trap': () => ({ chamber: 'Body', phase: 'Any' }),
+  'SightGlass': () => ({ chamber: 'Body', phase: 'Any' }),
+  'Silencer': () => ({ chamber: 'Body', phase: 'Any' }),
+  'FlameArrester': () => ({ chamber: 'Body', phase: 'Any' }),
+  'SafetyValve': () => ({ chamber: 'Body', phase: 'Any' }),
+  'BreatherValve': () => ({ chamber: 'Body', phase: 'Any' }),
+  'RuptureDisc': () => ({ chamber: 'Body', phase: 'Any' }),
+  'OffPageConnector': () => ({ chamber: 'Connector', phase: 'Any' }),
+
+  // 2. 调节阀 (半自动：尝试根据 group 区分)
+  'ControlValve': (group) => {
+    // 常见的执行机构分组名
+    if (['actuator', 'top', 'signal'].includes(group.toLowerCase())) {
+      return { chamber: 'Actuator', phase: 'Signal' };
+    }
+    return { chamber: 'Body', phase: 'Any' };
+  },
+
+  // 3. 仪表 (半自动)
+  'Instrument': (group) => {
+    return { chamber: 'ProcessConnection', phase: 'Any' };
+  },
+};
+
+// ... (interface PortConfig 定义)
+
 interface PortConfig {
   id: string;
   group: string;
   x: number;
   y: number;
   desc: string;
-  region: string;
+  // [修改] 拆分属性
+  chamber: string;
+  phase: string;
   dir: 'in' | 'out' | 'bi';
 }
 
@@ -48,29 +111,21 @@ const EQUIPMENT_TYPES = [
   { value: 'Pump', label: '泵 (Pump)', prefix: 'P' },
   { value: 'Compressor', label: '压缩机 (Compressor)', prefix: 'C' },
   { value: 'Fan', label: '风机 (Fan)', prefix: 'K' },
-
-  // === [新增] 分离器 ===
-  // 建议 Prefix 使用 'V' (Vessel) 或 'S' (Separator)，视你们工厂习惯而定
   { value: 'Separator', label: '分离器 (Separator)', prefix: 'V' }, 
-
-  // === [新增] 安全与特种阀门 ===
-  { value: 'SafetyValve', label: '安全阀 (Safety Valve)', prefix: 'PSV' }, // 对应“按钻阀”
+  { value: 'SafetyValve', label: '安全阀 (Safety Valve)', prefix: 'PSV' },
   { value: 'RuptureDisc', label: '爆破片 (Rupture Disc)', prefix: 'PSE' },
   { value: 'BreatherValve', label: '呼吸阀 (Breather Valve)', prefix: 'PV' },
-  
   { value: 'Valve', label: '通用阀门 (Valve)', prefix: 'V' },
   { value: 'ControlValve', label: '调节阀 (ControlValve)', prefix: 'FV' },
   { value: 'ManualValve', label: '手动阀 (ManualValve)', prefix: 'HV' },
   { value: 'Trap', label: '疏水阀 (Trap)', prefix: 'S' },
-
-  // === [新增] 管道附件 ===
   { value: 'Filter', label: '过滤器 (Filter)', prefix: 'FIL' },
   { value: 'FlameArrester', label: '阻火器 (Flame Arrester)', prefix: 'FA' },
   { value: 'SightGlass', label: '视镜 (Sight Glass)', prefix: 'SG' },
   { value: 'Silencer', label: '消音器 (Silencer)', prefix: 'SL' },
-  
   { value: 'Instrument', label: '仪表 (Instrument)', prefix: 'PI' },
   { value: 'Fitting', label: '管件 (Fitting)', prefix: '' },
+  { value: 'OffPageConnector', label: '跨页连接符 (OPC)', prefix: 'OPC' },
   { value: 'Other', label: '其他 (Other)', prefix: 'M' },
 ];
 
@@ -81,8 +136,6 @@ const ShapeDesigner: React.FC = () => {
   
   const [nodeType, setNodeType] = useState('Reactor');
   const [nodeTag, setNodeTag] = useState('R-New');
-  
-  // [新增] 命名模式：按类型保存 vs 按Tag保存
   const [namingMode, setNamingMode] = useState<'type' | 'tag'>('type');
 
   const [showGrid, setShowGrid] = useState(true);
@@ -97,11 +150,10 @@ const ShapeDesigner: React.FC = () => {
   const [gridSize, setGridSize] = useState(10); 
 
   const imgContainerRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [form] = Form.useForm();
 
   const [selectedLibraryShape, setSelectedLibraryShape] = useState<string | null>(null);
-  const [libraryTick, setLibraryTick] = useState(0);
+  const [, setLibraryTick] = useState(0);
 
   const refreshLibrary = () => {
     try {
@@ -152,13 +204,26 @@ const ShapeDesigner: React.FC = () => {
             y = Number(item.args.y);
           }
         }
+
+        // [核心修改] 兼容旧数据，解析新数据
+        let chamber = item.data?.chamber;
+        let phase = item.data?.phase;
+
+        // 如果没有新字段，尝试从旧 region 字段解析
+        if (!chamber && item.data?.region) {
+          const parts = item.data.region.split(':');
+          chamber = parts[0];
+          phase = parts[1] || 'Mix';
+        }
+
         return {
           id: item.id,
           group: item.group || 'default',
           x: isNaN(x) ? 0 : x,
           y: isNaN(y) ? 0 : y,
           desc: item.data?.desc || item.attrs?.circle?.title || '未命名端口',
-          region: item.data?.region || 'ShellSide',
+          chamber: chamber || 'ShellSide',
+          phase: phase || 'Mix',
           dir: item.data?.dir || 'bi'
         };
       });
@@ -171,23 +236,18 @@ const ShapeDesigner: React.FC = () => {
     setSelectedLibraryShape(shapeId);
   };
 
-  // [新增] 获取文件基础名称的辅助函数
   const getFileBaseName = () => {
     if (namingMode === 'type') {
-      // 模式1：按类型 (如 Reactor -> reactor)
       return nodeType.toLowerCase();
     } else {
-      // 模式2：按Tag (如 R-101 -> r101)
       return nodeTag.replace(/[-_]/g, '').toLowerCase();
     }
   };
 
   const handleSaveToProject = async () => {
-    // 1. 构造文件名
     const baseName = getFileBaseName();
-    const fileName = `p-${baseName}`; // 例如 p-reactor 或 p-r101
+    const fileName = `p-${baseName}`;
 
-    // 2. 构造 JSON 配置内容
     const jsonContent = {
       width: originalSize.w,
       height: originalSize.h,
@@ -202,12 +262,18 @@ const ShapeDesigner: React.FC = () => {
           id: p.id,
           group: p.group,
           args: { x: `${p.x}%`, y: `${p.y}%` },
-          data: { desc: p.desc, region: p.region, dir: p.dir }
+          // [核心修改] 保存拆分后的属性
+          data: { 
+            desc: p.desc, 
+            chamber: p.chamber,
+            phase: p.phase,
+            dir: p.dir 
+          }
         }))
       },
       data: {
         type: nodeType,
-        tag: nodeTag, // 即使按类型保存，Tag 也会作为默认值写入 data
+        tag: nodeTag,
         spec: 'Spec...' 
       }
     };
@@ -226,11 +292,10 @@ const ShapeDesigner: React.FC = () => {
       const res = await response.json();
       if (res.success) {
         message.success(`保存成功！文件: ${fileName}.json`);
-        message.loading({ content: '正在同步图元库...', key: 'sync_lib' });
         setTimeout(() => {
           refreshLibrary();
           message.success({ content: '图元库已同步', key: 'sync_lib' });
-        }, 2000);
+        }, 1000);
       } else {
         message.error('保存失败: ' + res.message);
       }
@@ -302,15 +367,6 @@ const ShapeDesigner: React.FC = () => {
     setContainerSize(prev => ({ ...prev, h: newH }));
   };
 
-  const handleWheel = (e: React.WheelEvent) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const delta = e.deltaY > 0 ? -0.1 : 0.1;
-      const newZoom = Math.max(0.5, Math.min(5.0, zoom + delta));
-      setZoom(parseFloat(newZoom.toFixed(1)));
-    }
-  };
-
   const getSvgCoordinates = (clientX: number, clientY: number) => {
     if (!imgContainerRef.current) return { x: 0, y: 0 };
     const rect = imgContainerRef.current.getBoundingClientRect();
@@ -322,12 +378,10 @@ const ShapeDesigner: React.FC = () => {
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    // 1. 计算当前鼠标在 SVG 坐标系下的位置
     const coords = getSvgCoordinates(e.clientX, e.clientY);
     let svgX = coords.x;
     let svgY = coords.y;
 
-    // 2. 如果开启了吸附，先对 SVG 坐标进行吸附计算
     if (enableSnap) {
       const relativeX = svgX - svgViewBox.x;
       const relativeY = svgY - svgViewBox.y;
@@ -337,25 +391,19 @@ const ShapeDesigner: React.FC = () => {
       svgY = svgViewBox.y + snappedRelY;
     }
 
-    // 更新左下角显示的坐标信息
     setMouseSvgPos({ x: Math.round(svgX * 10) / 10, y: Math.round(svgY * 10) / 10 });
 
-    // 3. [核心逻辑] 如果正在拖拽某个端口
     if (draggingPortId) {
       isDraggingRef.current = true;
-      // 计算百分比坐标
       let pctX = ((svgX - svgViewBox.x) / svgViewBox.w) * 100;
       let pctY = ((svgY - svgViewBox.y) / svgViewBox.h) * 100;
 
-      // 智能取整 (0, 50, 100 等特殊值吸附)
       pctX = Math.max(0, Math.min(100, smartRoundPercent(pctX)));
       pctY = Math.max(0, Math.min(100, smartRoundPercent(pctY)));
 
-      // 更新 ports 状态
       setPorts(prev => prev.map(p => {
         if (p.id === draggingPortId) {
           const updated = { ...p, x: pctX, y: pctY };
-          // 同时更新表单显示，实现联动
           form.setFieldsValue({ x: pctX, y: pctY });
           return updated;
         }
@@ -363,20 +411,17 @@ const ShapeDesigner: React.FC = () => {
       }));
     }
   };
-  // [新增] 开始拖拽
+
   const handlePortMouseDown = (e: React.MouseEvent, portId: string) => {
-    e.stopPropagation(); // 阻止冒泡，防止触发画布的点击添加功能
-    e.preventDefault();  // 防止选中文本
+    e.stopPropagation();
+    e.preventDefault();
     isDraggingRef.current = false;
     setDraggingPortId(portId);
     setSelectedPortId(portId);
-    
-    // 选中该端口并回填表单
     const port = ports.find(p => p.id === portId);
     if (port) form.setFieldsValue(port);
   };
 
-  // [新增] 结束拖拽
   const handleMouseUp = () => {
     setDraggingPortId(null);
   };
@@ -411,9 +456,17 @@ const ShapeDesigner: React.FC = () => {
     let pctY = ((svgY - svgViewBox.y) / svgViewBox.h) * 100;
     pctX = Math.max(0, Math.min(100, smartRoundPercent(pctX)));
     pctY = Math.max(0, Math.min(100, smartRoundPercent(pctY)));
+    const defaults = getAutoSemantics(nodeType, 'all');
+
     const newPort: PortConfig = {
-      id: `p${ports.length + 1}`, group: 'all', x: pctX, y: pctY,
-      desc: '新接口', region: 'ShellSide', dir: 'bi'
+      id: `p${ports.length + 1}`, 
+      group: 'all', 
+      x: pctX, 
+      y: pctY,
+      desc: '接口', 
+      chamber: defaults.chamber, // 自动填入
+      phase: defaults.phase,     // 自动填入
+      dir: 'bi'
     };
     setPorts([...ports, newPort]);
     setSelectedPortId(newPort.id);
@@ -432,14 +485,47 @@ const ShapeDesigner: React.FC = () => {
     setPorts(ports.filter(p => p.id !== id));
     if (selectedPortId === id) setSelectedPortId(null);
   };
+  // ... (handleDeletePort 函数之后)
 
+  // [新增] 辅助函数：获取自动语义
+  const getAutoSemantics = (type: string, group: string) => {
+    const rule = AUTO_SEMANTIC_RULES[type];
+    if (rule) {
+      return rule(group);
+    }
+    // 默认值
+    return { chamber: 'ShellSide', phase: 'Mix' };
+  };
+
+  // [修改] 切换类型时，自动刷新所有端口属性
   const handleTypeChange = (value: string) => {
     setNodeType(value);
     const typeInfo = EQUIPMENT_TYPES.find(t => t.value === value);
     if (typeInfo && typeInfo.prefix) {
       setNodeTag(`${typeInfo.prefix}-New`);
     }
+
+    // === 核心逻辑：如果该类型有规则，强制更新现有端口 ===
+    if (AUTO_SEMANTIC_RULES[value]) {
+      const updatedPorts = ports.map(p => {
+        const defaults = getAutoSemantics(value, p.group);
+        return { ...p, ...defaults };
+      });
+      setPorts(updatedPorts);
+      
+      // 如果当前正选中某个端口，立即更新表单显示
+      if (selectedPortId) {
+        const currentPort = updatedPorts.find(p => p.id === selectedPortId);
+        if (currentPort) form.setFieldsValue(currentPort);
+      }
+      
+      message.info(`已应用 ${value} 的标准语义规则`);
+    }
   };
+
+  // ... (generateCode 函数)
+
+ 
 
   const generateCode = () => {
     const baseName = getFileBaseName();
@@ -449,11 +535,10 @@ const ShapeDesigner: React.FC = () => {
 
     const groups = Array.from(new Set(ports.map(p => p.group)));
     const groupsStr = groups.map(g => `        ${g}: { position: 'absolute', attrs: PORT_ATTRS }`).join(',\n');
+    // [核心修改] 生成代码包含 chamber 和 phase
     const itemsStr = ports.map(p => 
-      `        { id: '${p.id}', group: '${p.group}', args: { x: '${p.x}%', y: '${p.y}%' }, data: { desc: '${p.desc}', region: '${p.region}', dir: '${p.dir}' } as PortData }`
+      `        { id: '${p.id}', group: '${p.group}', args: { x: '${p.x}%', y: '${p.y}%' }, data: { desc: '${p.desc}', chamber: '${p.chamber}', phase: '${p.phase}', dir: '${p.dir}' } as PortData }`
     ).join(',\n');
-
-    const neo4jLabels = nodeType === 'Instrument' ? `['Instrument']` : `['Equipment', '${nodeType}']`;
 
     return `/** 
  * 文件: src/graph/cells/svgs/${fileName}
@@ -521,8 +606,8 @@ ${itemsStr}
             <Text type="secondary" style={{ fontSize: 12 }}>
               <ul style={{ paddingLeft: 16, margin: 0 }}>
                 <li><b>Group</b>: 视觉分组 (如 top, left)。</li>
-                <li><b>Region</b>: <b>AI 语义核心</b> (ShellSide, TubeSide, Jacket)。</li>
-                <li><b>Dir</b>: 流向 (in, out, bi)。</li>
+                <li><b>Chamber</b>: 物理腔室 (ShellSide, TubeSide)。</li>
+                <li><b>Phase</b>: 物理相态 (Liquid, Vapor)。</li>
               </ul>
             </Text>
           </Panel>
@@ -535,29 +620,36 @@ ${itemsStr}
               <Col span={12}><Form.Item name="group" label="Group"><Input /></Form.Item></Col>
             </Row>
             <Form.Item name="desc" label="描述 (语义)"><Input /></Form.Item>
-            <Form.Item name="region" label="区域 (Region)">
-              <Select dropdownMatchSelectWidth={false}>
-                {/* 通用区域 */}
-                <Option value="ShellSide">ShellSide (壳程-通用)</Option>
-                <Option value="TubeSide">TubeSide (管程-通用)</Option>
-                
-                {/* 精细化相态 - 用于换热器/容器 AI 分析 */}
-                <Option value="ShellSide:Liquid">ShellSide:Liquid (壳程液相)</Option>
-                <Option value="ShellSide:Vapor">ShellSide:Vapor (壳程气相)</Option>
-                <Option value="TubeSide:Liquid">TubeSide:Liquid (管程液相)</Option>
-                <Option value="TubeSide:Vapor">TubeSide:Vapor (管程气相)</Option>
-                
-                {/* 反应釜/储罐 */}
-                <Option value="InnerVessel">InnerVessel (内胆/釜内)</Option>
-                <Option value="Jacket">Jacket (夹套)</Option>
-                <Option value="UpperSaltChannel">UpperSaltChannel (上盐道)</Option>
-                <Option value="LowerSaltChannel">LowerSaltChannel (下盐道)</Option>
+            
+            {/* [修改] 替换原来的 Chamber/Phase Row */}
+            <Row gutter={8}>
+              <Col span={12}>
+                <Form.Item name="chamber" label="物理腔室 (Chamber)">
+                  <Select 
+                    options={CHAMBER_OPTIONS} 
+                    // 如果有规则且不是调节阀(调节阀可能需要微调)，则禁用
+                    disabled={!!AUTO_SEMANTIC_RULES[nodeType] && nodeType !== 'ControlValve'} 
+                  />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name="phase" label="相态 (Phase)">
+                  <Select 
+                    options={PHASE_OPTIONS} 
+                    // 同上
+                    disabled={!!AUTO_SEMANTIC_RULES[nodeType] && nodeType !== 'ControlValve'} 
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
 
-                {/* 控制与仪表 */}
-                <Option value="ControlSignal">ControlSignal (控制信号/执行机构)</Option>
-                <Option value="Signal">Signal (通用信号)</Option>
-              </Select>
-            </Form.Item>
+            {/* [新增] 提示信息 */}
+            {!!AUTO_SEMANTIC_RULES[nodeType] && nodeType !== 'ControlValve' && (
+               <div style={{ fontSize: 12, color: '#faad14', marginBottom: 12, background: '#fffbe6', padding: '4px 8px', borderRadius: 4 }}>
+                 <InfoCircleOutlined /> 此组件语义已锁定为标准值
+               </div>
+            )}
+
             <Form.Item name="dir" label="流向"><Select><Option value="in">In</Option><Option value="out">Out</Option><Option value="bi">Bi</Option></Select></Form.Item>
             <Button danger icon={<DeleteOutlined />} onClick={() => handleDeletePort(selectedPortId)} block>删除此端口</Button>
           </Form>
@@ -610,8 +702,8 @@ ${itemsStr}
             ref={imgContainerRef}
             onClick={handleCanvasClick}
             onMouseMove={handleMouseMove}
-            onMouseLeave={() => { setMouseSvgPos(null); handleMouseUp(); }} // 离开画布也停止拖拽
-            onMouseUp={handleMouseUp} // [新增] 松开鼠标停止拖拽
+            onMouseLeave={() => { setMouseSvgPos(null); handleMouseUp(); }}
+            onMouseUp={handleMouseUp}
           >
             <img src={`data:image/svg+xml;utf8,${encodeURIComponent(svgInput)}`} style={{ width: '100%', height: '100%', display: 'block', pointerEvents: 'none', userSelect: 'none' }} draggable={false} />
             
@@ -621,9 +713,7 @@ ${itemsStr}
               <div
                 key={port.id}
                 className="port-dot"
-                // [修改] 绑定 MouseDown 事件
                 onMouseDown={(e) => handlePortMouseDown(e, port.id)}
-                // [移除] 原来的 onClick，因为 MouseDown 已经处理了选中逻辑
                 onClick={(e) => e.stopPropagation()}
                 style={{
                   position: 'absolute',
@@ -635,7 +725,7 @@ ${itemsStr}
                   background: selectedPortId === port.id ? '#1890ff' : 'red',
                   border: '2px solid white',
                   transform: 'translate(-50%, -50%)',
-                  cursor: 'move', // [修改] 鼠标样式改为 move
+                  cursor: 'move',
                   boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                   zIndex: 10
                 }}

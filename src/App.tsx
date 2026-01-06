@@ -1,18 +1,20 @@
 // src/App.tsx
 import { useRef, useState } from 'react';
-import { Button, Layout, message, Radio, Modal } from 'antd'; // [新增] Modal
+import { Button, Layout, message, Radio, Modal } from 'antd'; 
 import { 
   SaveOutlined, 
   DatabaseOutlined, 
   ToolOutlined, 
   ArrowLeftOutlined,
-  FormOutlined 
+  FormOutlined,
+  DeploymentUnitOutlined // [新增]
 } from '@ant-design/icons';
 
 import GraphCanvas from './components/Editor/Canvas';
 import type { GraphCanvasRef } from './components/Editor/Canvas';
 import ShapeDesigner from './components/DevTools/ShapeDesigner';
 import AttributeDesigner from './components/DevTools/AttributeDesigner';
+import OntologyDesigner from './components/DevTools/OntologyDesigner'; // [新增]
 import DrawingManager from './components/Editor/DrawingManager';
 import { useDrawingStore } from './store/drawingStore';
 
@@ -20,10 +22,10 @@ const { Header, Content } = Layout;
 
 function App() {
   const [saving, setSaving] = useState(false);
-  const [mode, setMode] = useState<'editor' | 'designer' | 'attributes'>('editor');
+  // [修改] 增加 'ontology' 模式
+  const [mode, setMode] = useState<'editor' | 'designer' | 'attributes' | 'ontology'>('editor');
   const graphRef = useRef<GraphCanvasRef>(null);
   
-  // [修改] 获取 isDirty 和 setCurrentDrawing
   const { currentDrawingId, currentDrawingName, isDirty, setCurrentDrawing } = useDrawingStore();
 
   const handleSaveClick = async () => {
@@ -42,22 +44,19 @@ function App() {
     }
   };
 
-  // [新增] 切换图纸前的拦截逻辑
   const handleSwitchDrawing = (targetId: string) => {
-    // 如果当前有未保存的修改，且当前有选中的图纸
     if (isDirty && currentDrawingId) {
       Modal.confirm({
         title: '未保存的更改',
         content: '当前图纸有未保存的修改，是否保存？',
         okText: '保存并切换',
         cancelText: '不保存',
-        // 自定义底部按钮以区分 "取消操作" 和 "不保存直接切换"
         footer: (_, { OkBtn }) => (
           <>
             <Button onClick={() => Modal.destroyAll()}>取消</Button>
             <Button danger onClick={() => {
               Modal.destroyAll();
-              setCurrentDrawing(targetId); // 不保存，直接切换
+              setCurrentDrawing(targetId); 
             }}>
               不保存
             </Button>
@@ -68,12 +67,9 @@ function App() {
           if (graphRef.current) {
             try {
               setSaving(true);
-              // 先保存当前图纸
               await graphRef.current.handleSave(currentDrawingId);
-              // 保存成功后切换
               setCurrentDrawing(targetId);
             } catch (e) {
-              // 保存失败，停留在当前页，不切换
               console.error("Save failed during switch", e);
             } finally {
               setSaving(false);
@@ -82,13 +78,12 @@ function App() {
         }
       });
     } else {
-      // 没有修改，直接切换
       setCurrentDrawing(targetId);
     }
   };
 
   // --- 渲染开发者模式 ---
-  if (mode === 'designer' || mode === 'attributes') {
+  if (mode === 'designer' || mode === 'attributes' || mode === 'ontology') {
     return (
       <Layout style={{ height: '100vh' }}>
         <Header style={{ 
@@ -107,8 +102,10 @@ function App() {
               buttonStyle="solid"
               size="small"
             >
-              <Radio.Button value="designer"><ToolOutlined /> 图形设计 (Shape)</Radio.Button>
-              <Radio.Button value="attributes"><FormOutlined /> 属性定义 (Attribute)</Radio.Button>
+              <Radio.Button value="designer"><ToolOutlined /> 图形 (Shape)</Radio.Button>
+              <Radio.Button value="attributes"><FormOutlined /> 属性 (Attr)</Radio.Button>
+              {/* [新增] 本体编辑器按钮 */}
+              <Radio.Button value="ontology"><DeploymentUnitOutlined /> 本体 (Ontology)</Radio.Button>
             </Radio.Group>
           </div>
 
@@ -122,7 +119,9 @@ function App() {
           </Button>
         </Header>
         <Content style={{ height: 'calc(100vh - 50px)', overflow: 'hidden' }}>
-          {mode === 'designer' ? <ShapeDesigner /> : <AttributeDesigner />}
+          {mode === 'designer' && <ShapeDesigner />}
+          {mode === 'attributes' && <AttributeDesigner />}
+          {mode === 'ontology' && <OntologyDesigner />}
         </Content>
       </Layout>
     );
@@ -138,12 +137,11 @@ function App() {
       }}>
         <div style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 10 }}>
           <DatabaseOutlined />
-          {/* 显示当前图纸名称 */}
           <span>
             🧪 化工 P&ID 编辑器 
             <span style={{ fontSize: '0.8em', fontWeight: 'normal', marginLeft: 10, opacity: 0.8 }}>
                - {currentDrawingName || 'Loading...'}
-               {isDirty && <span style={{ color: '#ffec3d', marginLeft: 5 }}>*</span>} {/* 显示未保存标记 */}
+               {isDirty && <span style={{ color: '#ffec3d', marginLeft: 5 }}>*</span>} 
             </span>
           </span>
         </div>
@@ -168,18 +166,12 @@ function App() {
       </Header>
       
       <Content style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-        
-        {/* 1. 画布区域 (flex: 1 占据剩余空间) */}
         <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
            <GraphCanvas ref={graphRef} drawingId={currentDrawingId} />
         </div>
-
-        {/* 2. 底部图纸栏 (固定高度) */}
         <div style={{ flexShrink: 0, zIndex: 100 }}>
-          {/* [修改] 传入 onSwitch 处理函数 */}
           <DrawingManager onSwitch={handleSwitchDrawing} />
         </div>
-
       </Content>
     </Layout>
   );

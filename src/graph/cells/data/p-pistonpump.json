@@ -39,7 +39,9 @@
         "data": {
           "desc": "泵入口",
           "region": "ShellSide",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -52,7 +54,9 @@
         "data": {
           "desc": "泵出口",
           "region": "ShellSide",
-          "dir": "out"
+          "dir": "out",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       }
     ]

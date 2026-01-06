@@ -51,7 +51,9 @@
         "data": {
           "desc": "阀门入口",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -64,7 +66,9 @@
         "data": {
           "desc": "阀门出口",
           "region": "ShellSide",
-          "dir": "bi"
+          "dir": "bi",
+          "chamber": "ShellSide",
+          "phase": "Mix"
         }
       },
       {
@@ -77,7 +81,9 @@
         "data": {
           "desc": "执行机构",
           "region": "ControlSignal",
-          "dir": "in"
+          "dir": "in",
+          "chamber": "Actuator",
+          "phase": "Signal"
         }
       }
     ]
