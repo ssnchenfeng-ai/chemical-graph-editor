@@ -17,17 +17,28 @@ interface ToolbarProps {
   graph: Graph | null;
 }
 
+interface GraphHistory {
+  canUndo: () => boolean;
+  canRedo: () => boolean;
+  on: (event: string, handler: () => void) => void;
+  off: (event: string, handler: () => void) => void;
+  undo: () => void;
+  redo: () => void;
+}
+
+const getGraphHistory = (graph: Graph): GraphHistory | undefined =>
+  (graph as unknown as { history?: GraphHistory }).history;
+
 const Toolbar: React.FC<ToolbarProps> = ({ graph }) => {
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
-  const [designerVisible, setDesignerVisible] = useState(false);
 
   useEffect(() => {
     if (!graph) return;
 
     // [修复类型报错]
     // X6 的 Graph 类型定义中不包含 history 属性，需要断言为 any 才能访问插件实例
-    const history = (graph as any).history;
+    const history = getGraphHistory(graph);
     
     // 防御性检查：确保插件已加载
     if (!history) return;
@@ -54,7 +65,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ graph }) => {
   if (!graph) return null;
 
   // 辅助函数：安全调用 history
-  const getHistory = () => (graph as any).history;
+  const getHistory = () => getGraphHistory(graph);
 
   return (
     <>

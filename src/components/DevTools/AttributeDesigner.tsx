@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Form, Input, Select, InputNumber, Typography, Button, Card, Row, Col, Tabs, message, Divider } from 'antd';
+import { Layout, Form, Input, Select, InputNumber, Typography, Button, Card, Row, Col, Tabs, message } from 'antd';
 import { CopyOutlined, CodeOutlined, SettingOutlined, ExperimentOutlined, ThunderboltOutlined, FilterOutlined } from '@ant-design/icons';
+import { BASE_ATTRIBUTE_FIELDS } from '../../config/attributeSchema';
 
 const { Content, Sider } = Layout;
 const { Title, Paragraph } = Typography;
@@ -13,13 +14,60 @@ const { TextArea } = Input; // 确保这一行存在
 //    定义不同设备类型拥有的特有属性字段
 // ============================================================================
 
-const COMMON_FIELDS = [
-  { name: 'tag', label: '位号 (Tag)', type: 'string', default: 'New-Tag' },
-  { name: 'desc', label: '描述 (Description)', type: 'string', default: '' },
-  { name: 'spec', label: '规格型号 (Spec)', type: 'string', default: '' },
-];
+type FieldOption = string | { val: string; label: string };
+interface SchemaField {
+  name: string;
+  label: string;
+  type: 'string' | 'number' | 'select';
+  default?: string | number;
+  unit?: string;
+  options?: FieldOption[];
+}
+interface EquipmentSchema {
+  label: string;
+  icon: React.ReactNode;
+  fields: SchemaField[];
+}
 
-const EQUIPMENT_SCHEMAS: Record<string, any> = {
+const toSchemaField = (field: (typeof BASE_ATTRIBUTE_FIELDS)[number]): SchemaField => ({
+  name: field.name,
+  label: field.label,
+  type: field.type,
+  default: field.default,
+  options: field.options,
+});
+
+const BASE_FIELD_INDEX: Record<string, SchemaField> = BASE_ATTRIBUTE_FIELDS.reduce<Record<string, SchemaField>>((acc, field) => {
+  acc[field.name] = toSchemaField(field);
+  return acc;
+}, {});
+
+const pickBaseFields = (names: string[]) => names
+  .map((name) => BASE_FIELD_INDEX[name])
+  .filter((field): field is SchemaField => Boolean(field));
+
+const BASE_ATTRIBUTE_TEMPLATES: Record<string, { label: string; fields: SchemaField[] }> = {
+  minimal: {
+    label: '最小集 (Identity)',
+    fields: pickBaseFields(['tag', 'desc', 'spec'])
+  },
+  process: {
+    label: '工艺集 (Identity + Process)',
+    fields: pickBaseFields(['tag', 'desc', 'spec', 'material', 'fluid'])
+  },
+  piping: {
+    label: '管道集 (含 DN/PN 结构化)',
+    fields: [
+      ...pickBaseFields(['tag', 'desc', 'spec', 'material', 'fluid']),
+      { name: 'dnSeries', label: 'DN系列', type: 'select', default: 'DN', options: ['DN', 'NPS'] },
+      { name: 'dnValue', label: 'DN数值', type: 'string', default: '50' },
+      { name: 'pnSeries', label: '等级系列', type: 'select', default: 'PN', options: ['PN', 'CL'] },
+      { name: 'pnValue', label: '等级数值', type: 'string', default: '16' },
+    ],
+  }
+};
+
+const EQUIPMENT_SCHEMAS: Record<string, EquipmentSchema> = {
   'Pump': {
     label: '泵类设备 (Pump)',
     icon: <ThunderboltOutlined />,
@@ -99,28 +147,44 @@ const EQUIPMENT_SCHEMAS: Record<string, any> = {
 
 const AttributeDesigner: React.FC = () => {
   const [selectedType, setSelectedType] = useState('Pump');
-  const [form] = Form.useForm();
-  const [formData, setFormData] = useState<any>({});
+  const [baseTemplate, setBaseTemplate] = useState<keyof typeof BASE_ATTRIBUTE_TEMPLATES>('minimal');
+  const [form] = Form.useForm<Record<string, unknown>>();
+  const formData = (Form.useWatch([], form) || {}) as Record<string, unknown>;
+  const commonFields = BASE_ATTRIBUTE_TEMPLATES[baseTemplate].fields;
 
   // 初始化表单默认值
   useEffect(() => {
     const schema = EQUIPMENT_SCHEMAS[selectedType];
-    const initialValues: any = { type: selectedType };
+    const initialValues: Record<string, unknown> = { type: selectedType };
     
-    COMMON_FIELDS.forEach(f => initialValues[f.name] = f.default);
-    schema.fields.forEach((f: any) => initialValues[f.name] = f.default);
+    commonFields.forEach(f => initialValues[f.name] = f.default);
+    schema.fields.forEach((f) => {
+      initialValues[f.name] = f.default ?? '';
+    });
     
-    form.setFieldsValue(initialValues);
-    setFormData(initialValues);
-  }, [selectedType, form]);
-
-  const handleValuesChange = (_: any, allValues: any) => {
-    setFormData(allValues);
-  };
+    form.setFieldsValue(initialValues as Parameters<typeof form.setFieldsValue>[0]);
+  }, [selectedType, baseTemplate, commonFields, form]);
 
   // 生成注册用的 data 对象代码
   const generateDataCode = () => {
-    const jsonString = JSON.stringify(formData, null, 2);
+    const payload = { ...formData } as Record<string, unknown>;
+    if (typeof payload.dnSeries === 'string' && typeof payload.dnValue === 'string') {
+      payload.dn = `${payload.dnSeries}${payload.dnValue}`;
+      payload.dnSpec = {
+        series: payload.dnSeries,
+        value: payload.dnValue,
+        unit: payload.dnSeries === 'DN' ? 'mm' : 'inch'
+      };
+    }
+    if (typeof payload.pnSeries === 'string' && typeof payload.pnValue === 'string') {
+      payload.pn = `${payload.pnSeries}${payload.pnValue}`;
+      payload.pnSpec = {
+        series: payload.pnSeries,
+        value: payload.pnValue,
+        unit: payload.pnSeries === 'PN' ? 'bar' : 'class'
+      };
+    }
+    const jsonString = JSON.stringify(payload, null, 2);
     // 去掉 key 的引号，使其更像 JS 代码
     const jsObj = jsonString.replace(/"([^"]+)":/g, '$1:');
     
@@ -135,11 +199,11 @@ Graph.registerNode('custom-${selectedType.toLowerCase()}', {
   const generateInspectorCode = () => {
     const schema = EQUIPMENT_SCHEMAS[selectedType];
     
-    const fieldRenders = schema.fields.map((f: any) => {
+    const fieldRenders = schema.fields.map((f) => {
       let inputComponent = `<Input />`;
       if (f.type === 'number') inputComponent = `<InputNumber style={{ width: '100%' }} />`;
       if (f.type === 'select') {
-        const options = f.options.map((opt: any) => {
+        const options = (f.options || []).map((opt) => {
           const val = typeof opt === 'string' ? opt : opt.val;
           const label = typeof opt === 'string' ? opt : opt.label;
           return `<Option value="${val}">${label}</Option>`;
@@ -166,6 +230,8 @@ ${fieldRenders}
   );
 }`;
   };
+
+  const schema = EQUIPMENT_SCHEMAS[selectedType];
 
   return (
     <Layout style={{ height: '100vh', background: '#fff' }}>
@@ -194,16 +260,38 @@ ${fieldRenders}
       <Content style={{ padding: '24px', overflowY: 'auto', background: '#fff' }}>
         <Title level={4}>属性配置预览</Title>
         <Paragraph type="secondary">
-          在此处配置 {EQUIPMENT_SCHEMAS[selectedType].label} 的默认属性值和字段结构。
+          在此处配置 {schema.label} 的默认属性值和字段结构。
         </Paragraph>
+
+        <Card size="small" style={{ marginBottom: 16 }}>
+          <Form layout="vertical">
+            <Form.Item label="基础属性模板">
+              <Select value={baseTemplate} onChange={(value) => setBaseTemplate(value)}>
+                {Object.entries(BASE_ATTRIBUTE_TEMPLATES).map(([key, val]) => (
+                  <Option key={key} value={key}>{val.label}</Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Form>
+        </Card>
         
         <Card title="基础属性 (Common)" size="small" style={{ marginBottom: 16 }}>
-          <Form layout="vertical" form={form} onValuesChange={handleValuesChange}>
+          <Form layout="vertical" form={form}>
             <Row gutter={16}>
-              {COMMON_FIELDS.map(f => (
+              {commonFields.map(f => (
                 <Col span={8} key={f.name}>
                   <Form.Item label={f.label} name={f.name}>
-                    <Input />
+                    {f.type === 'select' ? (
+                      <Select>
+                        {(f.options || []).map((opt) => {
+                          const val = typeof opt === 'string' ? opt : opt.val;
+                          const label = typeof opt === 'string' ? opt : opt.label;
+                          return <Option key={val} value={val}>{label}</Option>;
+                        })}
+                      </Select>
+                    ) : (
+                      <Input />
+                    )}
                   </Form.Item>
                 </Col>
               ))}
@@ -212,14 +300,14 @@ ${fieldRenders}
         </Card>
 
         <Card title="业务属性 (Specific)" size="small" headStyle={{ background: '#fafafa' }}>
-          <Form layout="vertical" form={form} onValuesChange={handleValuesChange}>
+          <Form layout="vertical" form={form}>
             <Row gutter={16}>
-              {EQUIPMENT_SCHEMAS[selectedType].fields.map((f: any) => (
+              {schema.fields.map((f) => (
                 <Col span={12} key={f.name}>
                   <Form.Item label={f.label} name={f.name}>
                     {f.type === 'select' ? (
                       <Select>
-                        {f.options.map((opt: any) => {
+                        {(f.options || []).map((opt) => {
                           const val = typeof opt === 'string' ? opt : opt.val;
                           const label = typeof opt === 'string' ? opt : opt.label;
                           return <Option key={val} value={val}>{label}</Option>;

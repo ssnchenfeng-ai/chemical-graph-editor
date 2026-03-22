@@ -2,20 +2,25 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import fs from 'node:fs'
 import path from 'node:path'
+import type { IncomingMessage, ServerResponse } from 'node:http'
+import type { ViteDevServer } from 'vite'
 
 // 自定义中间件：处理文件保存请求
 const saveFilePlugin = () => ({
   name: 'vite-plugin-save-shape',
-  configureServer(server) {
+  configureServer(server: ViteDevServer) {
     // 注册一个 API 路由 /_api/save-shape
-    server.middlewares.use('/_api/save-shape', async (req, res, next) => {
+    server.middlewares.use('/_api/save-shape', async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
       if (req.method === 'POST') {
-        const chunks = []
-        req.on('data', chunk => chunks.push(chunk))
+        const chunks: Buffer[] = []
+        req.on('data', (chunk: Buffer) => chunks.push(chunk))
         req.on('end', () => {
           try {
             const body = JSON.parse(Buffer.concat(chunks).toString())
             const { filename, svgContent, jsonContent } = body
+            if (!/^[a-zA-Z0-9_-]+$/.test(filename)) {
+              throw new Error('Invalid filename')
+            }
             
             // 1. 确定保存路径 (基于项目根目录)
             // 注意：这里假设你的代码结构是 src/graph/cells/svgs 和 src/graph/cells/data

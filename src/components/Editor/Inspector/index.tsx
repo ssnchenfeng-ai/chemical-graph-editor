@@ -6,12 +6,47 @@ import {
   InfoCircleOutlined, SettingOutlined, DashboardOutlined, ExperimentOutlined 
 } from '@ant-design/icons';
 import { FLUID_COLORS } from '../../../config/rules';
+import { BASE_ATTRIBUTE_FIELDS } from '../../../config/attributeSchema';
 import { useDrawingStore } from '../../../store/drawingStore';
 
 interface InspectorProps { cell: Cell | null; }
 
 const { Option } = Select;
 const { Panel } = Collapse;
+
+const DN_VALUES = ['15', '20', '25', '32', '40', '50', '65', '80', '100', '125', '150', '200', '250', '300', '350', '400', '450', '500', '600', '700', '800', '900', '1000', '1200', '1400'];
+const NPS_VALUES = ['1/2', '3/4', '1', '1-1/2', '2', '2-1/2', '3', '4', '5', '6', '8', '10', '12', '14', '16', '18', '20', '24'];
+const PN_VALUES = ['6', '10', '16', '25', '40', '63', '100'];
+const CL_VALUES = ['150', '300', '600', '900', '1500'];
+
+const buildDnLabel = (series: string, value: string) => (series && value ? `${series}${value}` : '');
+const buildPnLabel = (series: string, value: string) => (series && value ? `${series}${value}` : '');
+
+const parseDnSpec = (raw: unknown) => {
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    const obj = raw as Record<string, unknown>;
+    const series = String(obj.series || 'DN').toUpperCase();
+    const value = String(obj.value || '50');
+    return { series, value };
+  }
+  const label = String(raw || 'DN50').toUpperCase();
+  if (label.startsWith('NPS')) return { series: 'NPS', value: label.replace('NPS', '') || '2' };
+  if (label.startsWith('DN')) return { series: 'DN', value: label.replace('DN', '') || '50' };
+  return { series: 'DN', value: '50' };
+};
+
+const parsePnSpec = (raw: unknown) => {
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    const obj = raw as Record<string, unknown>;
+    const series = String(obj.series || 'PN').toUpperCase();
+    const value = String(obj.value || '16');
+    return { series, value };
+  }
+  const label = String(raw || 'PN16').toUpperCase();
+  if (label.startsWith('CL')) return { series: 'CL', value: label.replace('CL', '') || '150' };
+  if (label.startsWith('PN')) return { series: 'PN', value: label.replace('PN', '') || '16' };
+  return { series: 'PN', value: '16' };
+};
 
 const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   const [form] = Form.useForm();
@@ -21,6 +56,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
 
   // 2. [新增] 定义一个锁，用于区分是“用户输入”还是“外部更新”
   const isUpdatingFromForm = useRef(false);
+  type FormValues = Record<string, unknown>;
 
   // 1. 监听选中 cell 变化及数据变更
   useEffect(() => {
@@ -31,10 +67,11 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
       const data = cell.getData() || {};
       const attrs = cell.getAttrs();
       
-      const formData: any = {
+      const formData: FormValues = {
         type: data.type || 'Unknown',
         tag: data.tag || attrs?.label?.text || '', 
         desc: data.desc || '',
+        spec: data.spec || '',
       };
 
       if (cell.isNode()) {
@@ -61,12 +98,18 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
       } else if (cell.isEdge()) {
         const labelObj = cell.getLabelAt(0);
         const labelText = typeof labelObj === 'string' ? labelObj : (labelObj?.attrs?.label?.text || '');
+        const dnSpec = parseDnSpec((data as Record<string, unknown>).dnSpec || data.dn);
+        const pnSpec = parsePnSpec((data as Record<string, unknown>).pnSpec || data.pn);
         Object.assign(formData, {
           tag: labelText,
           fluid: data.fluid || 'Water',
           material: data.material || 'CS',
-          dn: data.dn || 'DN50',
-          pn: data.pn || 'PN16',
+          dn: buildDnLabel(dnSpec.series, dnSpec.value) || 'DN50',
+          pn: buildPnLabel(pnSpec.series, pnSpec.value) || 'PN16',
+          dnSeries: dnSpec.series,
+          dnValue: dnSpec.value,
+          pnSeries: pnSpec.series,
+          pnValue: pnSpec.value,
           insulation: data.insulation || 'None',
         });
       }
@@ -86,7 +129,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   }, [cell, form]);
 
   // 2. 表单变更处理
-  const handleValuesChange = (changedValues: any, allValues: any) => {
+  const handleValuesChange = (changedValues: FormValues, allValues: FormValues) => {
     if (!cell) return;
 
     // 4. [新增] 上锁：标记当前操作源自表单
@@ -95,30 +138,53 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     try {
       // --- 原有业务逻辑开始 ---
       const currentData = cell.getData() || {};
-      cell.setData({ ...currentData, ...allValues });
+      const nextData = { ...currentData, ...allValues };
+      if (cell.isNode() && typeof changedValues.tag === 'string') {
+        nextData.autoTag = false;
+      }
+      cell.setData(nextData);
 
       if (cell.isNode()) {
         if (currentData.type === 'Instrument') {
-          if (changedValues.tagId !== undefined) cell.attr('topLabel/text', changedValues.tagId);
-          if (changedValues.loopNum !== undefined) cell.attr('bottomLabel/text', changedValues.loopNum);
+          if (typeof changedValues.tagId === 'string') cell.attr('topLabel/text', changedValues.tagId);
+          if (typeof changedValues.loopNum === 'string') cell.attr('bottomLabel/text', changedValues.loopNum);
         } else {
-          if (changedValues.tag !== undefined) {
+          if (typeof changedValues.tag === 'string') {
             cell.setAttrs({ label: { text: changedValues.tag } });
           }
         }
       } else if (cell.isEdge()) {
-        if (changedValues.tag !== undefined) {
+        const mergedValues = { ...allValues };
+        if (typeof mergedValues.dnSeries === 'string' && typeof mergedValues.dnValue === 'string') {
+          mergedValues.dn = buildDnLabel(mergedValues.dnSeries, mergedValues.dnValue);
+          mergedValues.dnSpec = {
+            series: mergedValues.dnSeries,
+            value: mergedValues.dnValue,
+            unit: mergedValues.dnSeries === 'DN' ? 'mm' : 'inch'
+          };
+        }
+        if (typeof mergedValues.pnSeries === 'string' && typeof mergedValues.pnValue === 'string') {
+          mergedValues.pn = buildPnLabel(mergedValues.pnSeries, mergedValues.pnValue);
+          mergedValues.pnSpec = {
+            series: mergedValues.pnSeries,
+            value: mergedValues.pnValue,
+            unit: mergedValues.pnSeries === 'PN' ? 'bar' : 'class'
+          };
+        }
+        cell.setData({ ...currentData, ...mergedValues });
+
+        if (typeof changedValues.tag === 'string') {
           cell.setLabelAt(0, { attrs: { label: { text: changedValues.tag } }, position: { distance: 0.5,options: {
                 keepGradient: true,
                 ensureLegibility: true,
               } } });
         }
         if (changedValues.fluid !== undefined || changedValues.insulation !== undefined) {
-          const fluid = allValues.fluid;
-          const insulation = allValues.insulation;
+          const fluid = typeof allValues.fluid === 'string' ? allValues.fluid : 'Water';
+          const insulation = typeof allValues.insulation === 'string' ? allValues.insulation : 'None';
           const color = FLUID_COLORS[fluid] || '#5F95FF';
 
-          if (insulation && insulation.startsWith('Jacket')) {
+          if (insulation.startsWith('Jacket')) {
             cell.setAttrs({ line: { strokeWidth: 4, stroke: '#fa8c16', strokeDasharray: null } });
           } else if (['ST', 'ET', 'OT'].includes(insulation)) {
             cell.setAttrs({ line: { strokeWidth: 2, stroke: color, strokeDasharray: '5 5' } });
@@ -144,6 +210,34 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   const isNode = cell.isNode();
   const isEdge = cell.isEdge();
   const isSignal = isEdge && type === 'Signal';
+  const baseFields = BASE_ATTRIBUTE_FIELDS.filter((field) => {
+    if (isSignal) return field.name === 'desc';
+    if (field.name === 'tag' && type === 'Instrument') return false;
+    if (field.appliesTo === 'both') return true;
+    if (field.appliesTo === 'node') return isNode;
+    return isEdge;
+  });
+
+  const renderBaseField = (field: (typeof BASE_ATTRIBUTE_FIELDS)[number]) => {
+    if (field.type === 'select') {
+      return (
+        <Form.Item key={field.name} label={field.label} name={field.name}>
+          <Select>
+            {(field.options || []).map((opt) => {
+              const val = typeof opt === 'string' ? opt : opt.val;
+              const label = typeof opt === 'string' ? opt : opt.label;
+              return <Option key={val} value={val}>{label}</Option>;
+            })}
+          </Select>
+        </Form.Item>
+      );
+    }
+    return (
+      <Form.Item key={field.name} label={field.label} name={field.name}>
+        <Input placeholder={field.name === 'tag' ? (isNode ? 'R-101' : 'PL-1001-50-CS') : undefined} />
+      </Form.Item>
+    );
+  };
 
   const renderSpecificFields = () => {
     if (!isNode) return null;
@@ -151,7 +245,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (type === 'OffPageConnector') {
       return (
         <>
-          <Divider orientation={"left" as any}><SettingOutlined /> 跨页配置</Divider>
+          <Divider><SettingOutlined /> 跨页配置</Divider>
           
           <Form.Item label="目标图纸" name="targetDrawingId" help="双击图元可跳转">
             <Select placeholder="选择要连接的图纸" allowClear>
@@ -182,7 +276,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (['SafetyValve', 'RuptureDisc', 'BreatherValve'].includes(type)) {
       return (
         <>
-          <Divider orientation={"left" as any}><SettingOutlined /> 设定参数</Divider>
+          <Divider><SettingOutlined /> 设定参数</Divider>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="设定压力 (MPa)" name="setPressure" style={{ flex: 1 }}>
               <Input placeholder="1.0" />
@@ -202,7 +296,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (type === 'Trap') {
       return (
         <>
-          <Divider orientation={"left" as any}><SettingOutlined /> 疏水参数</Divider>
+          <Divider><SettingOutlined /> 疏水参数</Divider>
           <Form.Item label="类型" name="trapType">
             <Select>
               <Option value="Thermodynamic">热动力式 (圆盘)</Option>
@@ -227,7 +321,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (type === 'Filter') {
       return (
         <>
-          <Divider orientation={"left" as any}><SettingOutlined /> 过滤参数</Divider>
+          <Divider><SettingOutlined /> 过滤参数</Divider>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="滤网目数 (Mesh)" name="mesh" style={{ flex: 1 }}>
               <Input placeholder="40" />
@@ -247,7 +341,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (['LiquidPump', 'CentrifugalPump', 'DiaphragmPump', 'PistonPump', 'GearPump', 'Compressor', 'Fan', 'JetPump'].includes(type)) {
       return (
         <>
-          <Divider orientation={"left" as any}><DashboardOutlined /> 性能参数</Divider>
+          <Divider><DashboardOutlined /> 性能参数</Divider>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="流量 (m³/h)" name="flow" style={{ flex: 1 }}><Input placeholder="50" /></Form.Item>
             <Form.Item label="扬程 (m)" name="head" style={{ flex: 1 }}><Input placeholder="30" /></Form.Item>
@@ -267,7 +361,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (['Reactor', 'Tank', 'Evaporator', 'Separator'].includes(type)) {
       return (
         <>
-          <Divider orientation={"left" as any}><ExperimentOutlined /> 设备参数</Divider>
+          <Divider><ExperimentOutlined /> 设备参数</Divider>
           {/* 针对分离器特有的属性 (可选) */}
           {type === 'Separator' && (
              <Form.Item label="内件类型" name="internals">
@@ -300,7 +394,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (['Exchanger'].includes(type)) {
       return (
         <>
-          <Divider orientation={"left" as any}><ExperimentOutlined /> 换热参数</Divider>
+          <Divider><ExperimentOutlined /> 换热参数</Divider>
           <Form.Item label="换热面积 (㎡)" name="area"><Input placeholder="10" /></Form.Item>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="壳程压力" name="designPressure" style={{ flex: 1 }}><Input placeholder="1.6" /></Form.Item>
@@ -313,7 +407,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (['ControlValve', 'Valve'].includes(type)) {
       return (
         <>
-          <Divider orientation={"left" as any}><SettingOutlined /> 阀门规格</Divider>
+          <Divider><SettingOutlined /> 阀门规格</Divider>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="尺寸" name="size" style={{ flex: 1 }}>
               <Select>
@@ -347,7 +441,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
     if (['Instrument'].includes(type)) {
       return (
         <>
-          <Divider orientation={"left" as any}><DashboardOutlined /> 仪表定义</Divider>
+          <Divider><DashboardOutlined /> 仪表定义</Divider>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item label="功能 (Tag)" name="tagId" style={{ flex: 1 }} help="如: PI, TT"><Input /></Form.Item>
             <Form.Item label="回路 (Loop)" name="loopNum" style={{ flex: 1 }} help="如: 101"><Input /></Form.Item>
@@ -379,14 +473,16 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange} size="small">
         <Collapse defaultActiveKey={['1']} ghost>
           <Panel header="基础信息" key="1">
-            {type !== 'Instrument' && !isSignal && (
-              <Form.Item label={isNode ? "位号 (Tag No.)" : "管段号 (Line No.)"} name="tag">
-                <Input placeholder={isNode ? "R-101" : "PL-1001-50-CS"} />
-              </Form.Item>
-            )}
-            <Form.Item label="描述" name="desc">
-              <Input.TextArea rows={2} placeholder="设备或管线的功能描述" />
-            </Form.Item>
+            {baseFields.map((field) => {
+              if (field.name === 'desc') {
+                return (
+                  <Form.Item key={field.name} label={field.label} name={field.name}>
+                    <Input.TextArea rows={2} placeholder="设备或管线的功能描述" />
+                  </Form.Item>
+                );
+              }
+              return renderBaseField(field);
+            })}
           </Panel>
         </Collapse>
 
@@ -394,7 +490,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
 
         {isEdge && !isSignal && (
           <>
-            <Divider orientation={"left" as any}>管道规格</Divider>
+            <Divider>管道规格</Divider>
             <div style={{ display: 'flex', gap: 8 }}>
               <Form.Item label="介质" name="fluid" style={{ flex: 1 }}>
                 <Select showSearch optionFilterProp="children">
@@ -412,30 +508,32 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
               </Form.Item>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
-              <Form.Item label="管径" name="dn" style={{ flex: 1 }}>
-                <Select showSearch>
-                  {[
-                    'DN15', 'DN20', 'DN25', 'DN32', 'DN40', 'DN50', 'DN65', 'DN80', 
-                    'DN100', 'DN125', 'DN150', 'DN200', 'DN250', 'DN300', 'DN350', 
-                    'DN400', 'DN450', 'DN500', 'DN600', 'DN700', 'DN800', 'DN900', 
-                    'DN1000', 'DN1200', 'DN1400' // [新增] 大口径规格
-                  ].map(d => <Option key={d} value={d}>{d}</Option>)}
+              <Form.Item label="DN系列" name="dnSeries" style={{ flex: 1 }}>
+                <Select>
+                  <Option value="DN">DN</Option>
+                  <Option value="NPS">NPS</Option>
                 </Select>
               </Form.Item>
-              <Form.Item label="等级" name="pn" style={{ flex: 1 }}>
+              <Form.Item label="DN数值" name="dnValue" style={{ flex: 1 }}>
                 <Select showSearch>
-                  <Option value="PN6">PN6</Option>
-                  <Option value="PN10">PN10</Option>
-                  <Option value="PN16">PN16</Option>
-                  <Option value="PN25">PN25</Option>
-                  <Option value="PN40">PN40</Option>
-                  <Option value="PN63">PN63</Option>
-                  <Option value="PN100">PN100</Option>
-                  <Option value="CL150">CL150</Option>
-                  <Option value="CL300">CL300</Option>
-                  <Option value="CL600">CL600</Option>
-                  <Option value="CL900">CL900</Option>
-                  <Option value="CL1500">CL1500</Option>
+                  {((form.getFieldValue('dnSeries') === 'NPS' ? NPS_VALUES : DN_VALUES)).map((v) => (
+                    <Option key={v} value={v}>{v}</Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Form.Item label="等级系列" name="pnSeries" style={{ flex: 1 }}>
+                <Select>
+                  <Option value="PN">PN</Option>
+                  <Option value="CL">CL</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item label="等级数值" name="pnValue" style={{ flex: 1 }}>
+                <Select showSearch>
+                  {((form.getFieldValue('pnSeries') === 'CL' ? CL_VALUES : PN_VALUES)).map((v) => (
+                    <Option key={v} value={v}>{v}</Option>
+                  ))}
                 </Select>
               </Form.Item>
             </div>

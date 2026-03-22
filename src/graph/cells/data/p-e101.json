@@ -50,10 +50,9 @@
         },
         "data": {
           "desc": "壳程入口(N1)",
-          "region": "ShellSide",
-          "dir": "in",
           "chamber": "ShellSide",
-          "phase": "Mix"
+          "phase": "Liquid",
+          "dir": "in"
         }
       },
       {
@@ -65,10 +64,9 @@
         },
         "data": {
           "desc": "壳程出口(N2)",
-          "region": "ShellSide",
-          "dir": "out",
           "chamber": "ShellSide",
-          "phase": "Mix"
+          "phase": "Liquid",
+          "dir": "out"
         }
       },
       {
@@ -80,10 +78,9 @@
         },
         "data": {
           "desc": "管程入口(N3)",
-          "region": "TubeSide",
-          "dir": "in",
           "chamber": "TubeSide",
-          "phase": "Mix"
+          "phase": "Liquid",
+          "dir": "in"
         }
       },
       {
@@ -95,10 +92,9 @@
         },
         "data": {
           "desc": "管程出口(N4)",
-          "region": "TubeSide",
-          "dir": "out",
           "chamber": "TubeSide",
-          "phase": "Mix"
+          "phase": "Liquid",
+          "dir": "out"
         }
       },
       {
@@ -110,10 +106,9 @@
         },
         "data": {
           "desc": "放空(N5)",
-          "region": "ShellSide",
-          "dir": "out",
           "chamber": "ShellSide",
-          "phase": "Mix"
+          "phase": "Mix",
+          "dir": "out"
         }
       },
       {
@@ -125,10 +120,9 @@
         },
         "data": {
           "desc": "排净(N6)",
-          "region": "ShellSide",
-          "dir": "out",
           "chamber": "ShellSide",
-          "phase": "Mix"
+          "phase": "Mix",
+          "dir": "out"
         }
       }
     ]

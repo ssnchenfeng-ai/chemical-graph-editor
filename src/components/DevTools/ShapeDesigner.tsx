@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Layout, Input, Button, Form, Select, Row, Col, Typography, message, Divider, Collapse, Tooltip, Checkbox, Slider, Space, InputNumber, Radio } from 'antd';
+import { Layout, Input, Button, Form, Select, Row, Col, Typography, message, Divider, Collapse, Tooltip, Checkbox, Slider, Space, InputNumber, Modal } from 'antd';
 import { 
   CopyOutlined, DeleteOutlined, InfoCircleOutlined, 
   ZoomInOutlined, ZoomOutOutlined, ReloadOutlined, 
@@ -76,7 +76,7 @@ const AUTO_SEMANTIC_RULES: Record<string, (group: string) => { chamber: string, 
   },
 
   // 3. 仪表 (半自动)
-  'Instrument': (group) => {
+  'Instrument': () => {
     return { chamber: 'ProcessConnection', phase: 'Any' };
   },
 };
@@ -100,6 +100,25 @@ interface ViewBox {
   y: number;
   w: number;
   h: number;
+}
+
+interface ShapeJsonContent {
+  width: number;
+  height: number;
+  ports: {
+    groups: Record<string, unknown>;
+    items: Array<{
+      id: string;
+      group: string;
+      args: { x: string; y: string };
+      data: { desc: string; chamber: string; phase: string; dir: 'in' | 'out' | 'bi' };
+    }>;
+  };
+  data: {
+    type: string;
+    tag: string;
+    spec: string;
+  };
 }
 
 // 预置设备类型列表
@@ -129,6 +148,12 @@ const EQUIPMENT_TYPES = [
   { value: 'Other', label: '其他 (Other)', prefix: 'M' },
 ];
 
+const slugifyName = (value: string) => value
+  .trim()
+  .toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-+|-+$/g, '');
+
 const ShapeDesigner: React.FC = () => {
   const [svgInput, setSvgInput] = useState(DEFAULT_SVG);
   const [ports, setPorts] = useState<PortConfig[]>([]);
@@ -136,14 +161,14 @@ const ShapeDesigner: React.FC = () => {
   
   const [nodeType, setNodeType] = useState('Reactor');
   const [nodeTag, setNodeTag] = useState('R-New');
-  const [namingMode, setNamingMode] = useState<'type' | 'tag'>('type');
+  const [nameSuffix, setNameSuffix] = useState('');
 
   const [showGrid, setShowGrid] = useState(true);
   const [zoom, setZoom] = useState(1.0);
   const [containerSize, setContainerSize] = useState({ w: 600, h: 300 });
   const [originalSize, setOriginalSize] = useState({ w: 100, h: 100 });
   const [svgViewBox, setSvgViewBox] = useState<ViewBox>({ x: 0, y: 0, w: 100, h: 100 });
-  const [mouseSvgPos, setMouseSvgPos] = useState<{x: number, y: number} | null>(null);
+  const [, setMouseSvgPos] = useState<{x: number, y: number} | null>(null);
   const [draggingPortId, setDraggingPortId] = useState<string | null>(null);
   const isDraggingRef = useRef(false);
   const [enableSnap, setEnableSnap] = useState(true);
@@ -154,6 +179,7 @@ const ShapeDesigner: React.FC = () => {
 
   const [selectedLibraryShape, setSelectedLibraryShape] = useState<string | null>(null);
   const [, setLibraryTick] = useState(0);
+  const [publishing, setPublishing] = useState(false);
 
   const refreshLibrary = () => {
     try {
@@ -166,7 +192,8 @@ const ShapeDesigner: React.FC = () => {
   };
 
   useEffect(() => {
-    refreshLibrary();
+    const timer = window.setTimeout(() => refreshLibrary(), 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const handleLoadFromLibrary = (shapeId: string) => {
@@ -184,47 +211,61 @@ const ShapeDesigner: React.FC = () => {
     setContainerSize({ w, h });
 
     if (config.data) {
-      setNodeType(config.data.type || 'Equipment');
-      setNodeTag(config.data.tag || shapeId.replace('p-', '').toUpperCase());
+      const type = typeof config.data.type === 'string' ? config.data.type : 'Equipment';
+      const tag = typeof config.data.tag === 'string' ? config.data.tag : shapeId.replace('p-', '').toUpperCase();
+      setNodeType(type);
+      setNodeTag(tag);
+      const typeSlug = slugifyName(type);
+      const shapeBase = shapeId.startsWith('p-') ? shapeId.slice(2) : shapeId;
+      if (shapeBase === typeSlug) {
+        setNameSuffix('');
+      } else if (shapeBase.startsWith(`${typeSlug}-`)) {
+        setNameSuffix(shapeBase.slice(typeSlug.length + 1));
+      } else {
+        setNameSuffix('');
+      }
     }
 
     if (config.ports && Array.isArray(config.ports.items)) {
-      const restoredPorts: PortConfig[] = config.ports.items.map((item: any) => {
+      const restoredPorts: PortConfig[] = config.ports.items.map((item: Record<string, unknown>) => {
+        const args = (item.args || {}) as { x?: string | number; y?: string | number };
+        const data = (item.data || {}) as { chamber?: string; phase?: string; region?: string; desc?: string; dir?: 'in' | 'out' | 'bi' };
+        const attrs = (item.attrs || {}) as { circle?: { title?: string } };
         let x = 0;
         let y = 0;
         if (item.args) {
-          if (typeof item.args.x === 'string' && item.args.x.includes('%')) {
-            x = parseFloat(item.args.x);
+          if (typeof args.x === 'string' && args.x.includes('%')) {
+            x = parseFloat(args.x);
           } else {
-            x = Number(item.args.x);
+            x = Number(args.x);
           }
-          if (typeof item.args.y === 'string' && item.args.y.includes('%')) {
-            y = parseFloat(item.args.y);
+          if (typeof args.y === 'string' && args.y.includes('%')) {
+            y = parseFloat(args.y);
           } else {
-            y = Number(item.args.y);
+            y = Number(args.y);
           }
         }
 
         // [核心修改] 兼容旧数据，解析新数据
-        let chamber = item.data?.chamber;
-        let phase = item.data?.phase;
+        let chamber = data.chamber;
+        let phase = data.phase;
 
         // 如果没有新字段，尝试从旧 region 字段解析
-        if (!chamber && item.data?.region) {
-          const parts = item.data.region.split(':');
+        if (!chamber && data.region) {
+          const parts = data.region.split(':');
           chamber = parts[0];
           phase = parts[1] || 'Mix';
         }
 
         return {
-          id: item.id,
-          group: item.group || 'default',
+          id: String(item.id || ''),
+          group: String(item.group || 'default'),
           x: isNaN(x) ? 0 : x,
           y: isNaN(y) ? 0 : y,
-          desc: item.data?.desc || item.attrs?.circle?.title || '未命名端口',
+          desc: data.desc || attrs.circle?.title || '未命名端口',
           chamber: chamber || 'ShellSide',
           phase: phase || 'Mix',
-          dir: item.data?.dir || 'bi'
+          dir: data.dir || 'bi'
         };
       });
       setPorts(restoredPorts);
@@ -237,47 +278,83 @@ const ShapeDesigner: React.FC = () => {
   };
 
   const getFileBaseName = () => {
-    if (namingMode === 'type') {
-      return nodeType.toLowerCase();
-    } else {
-      return nodeTag.replace(/[-_]/g, '').toLowerCase();
-    }
+    const typeBase = slugifyName(nodeType) || 'equipment';
+    const suffix = slugifyName(nameSuffix);
+    return suffix ? `${typeBase}-${suffix}` : typeBase;
   };
 
-  const handleSaveToProject = async () => {
-    const baseName = getFileBaseName();
-    const fileName = `p-${baseName}`;
-
-    const jsonContent = {
-      width: originalSize.w,
-      height: originalSize.h,
-      ports: {
-        groups: {
-            ...Array.from(new Set(ports.map(p => p.group))).reduce((acc, g) => ({
-                ...acc,
-                [g]: { position: 'absolute', attrs: { circle: { r: 3, magnet: true, stroke: '#FFFFFF', strokeWidth: 1, fill: '#e3dedeff' } } }
-            }), {})
-        },
-        items: ports.map(p => ({
-          id: p.id,
-          group: p.group,
-          args: { x: `${p.x}%`, y: `${p.y}%` },
-          // [核心修改] 保存拆分后的属性
-          data: { 
-            desc: p.desc, 
-            chamber: p.chamber,
-            phase: p.phase,
-            dir: p.dir 
+  const buildJsonContent = (): ShapeJsonContent => ({
+    width: originalSize.w,
+    height: originalSize.h,
+    ports: {
+      groups: {
+        ...Array.from(new Set(ports.map(p => p.group))).reduce<Record<string, unknown>>((acc, group) => ({
+          ...acc,
+          [group]: {
+            position: 'absolute',
+            attrs: { circle: { r: 3, magnet: true, stroke: '#FFFFFF', strokeWidth: 1, fill: '#e3dedeff' } }
           }
-        }))
+        }), {})
       },
-      data: {
-        type: nodeType,
-        tag: nodeTag,
-        spec: 'Spec...' 
-      }
-    };
+      items: ports.map(p => ({
+        id: p.id,
+        group: p.group,
+        args: { x: `${p.x}%`, y: `${p.y}%` },
+        data: {
+          desc: p.desc,
+          chamber: p.chamber,
+          phase: p.phase,
+          dir: p.dir
+        }
+      }))
+    },
+    data: {
+      type: nodeType,
+      tag: nodeTag,
+      spec: 'Spec...'
+    }
+  });
 
+  const validatePublishPayload = (fileName: string, jsonContent: ShapeJsonContent) => {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+
+    if (!/^p-[a-z0-9][a-z0-9-]*$/.test(fileName)) {
+      errors.push('文件名不合法，仅允许小写字母/数字/短横线，且必须以 p- 开头。');
+    }
+    if (!svgInput.includes('<svg')) {
+      errors.push('SVG 源码不完整，未检测到 <svg> 根节点。');
+    }
+    if (!jsonContent.data.type) {
+      errors.push('设备类型不能为空。');
+    }
+    if (!jsonContent.data.tag) {
+      warnings.push('Tag 为空，建议填写位号后再发布。');
+    }
+
+    const seenPortIds = new Set<string>();
+    jsonContent.ports.items.forEach((port, index) => {
+      if (!port.id.trim()) errors.push(`端口 #${index + 1} 的 ID 为空。`);
+      if (!port.group.trim()) errors.push(`端口 ${port.id || `#${index + 1}`} 的 Group 为空。`);
+      if (seenPortIds.has(port.id)) errors.push(`端口 ID 重复：${port.id}`);
+      seenPortIds.add(port.id);
+
+      const x = Number(port.args.x.replace('%', ''));
+      const y = Number(port.args.y.replace('%', ''));
+      if (Number.isNaN(x) || x < 0 || x > 100 || Number.isNaN(y) || y < 0 || y > 100) {
+        errors.push(`端口 ${port.id} 坐标超出范围（应为 0%~100%）。`);
+      }
+    });
+
+    if (jsonContent.ports.items.length === 0) {
+      warnings.push('当前图元没有端口，发布后可能无法连线。');
+    }
+
+    return { errors, warnings };
+  };
+
+  const persistShapeToProject = async (fileName: string, jsonContent: ShapeJsonContent) => {
+    setPublishing(true);
     try {
       const response = await fetch('/_api/save-shape', {
         method: 'POST',
@@ -285,11 +362,11 @@ const ShapeDesigner: React.FC = () => {
         body: JSON.stringify({
           filename: fileName,
           svgContent: svgInput,
-          jsonContent: jsonContent
+          jsonContent
         })
       });
 
-      const res = await response.json();
+      const res = await response.json() as { success?: boolean; message?: string };
       if (res.success) {
         message.success(`保存成功！文件: ${fileName}.json`);
         setTimeout(() => {
@@ -297,11 +374,53 @@ const ShapeDesigner: React.FC = () => {
           message.success({ content: '图元库已同步', key: 'sync_lib' });
         }, 1000);
       } else {
-        message.error('保存失败: ' + res.message);
+        message.error(`保存失败: ${res.message || '未知错误'}`);
       }
-    } catch (e) {
+    } catch {
       message.error('网络请求失败');
+    } finally {
+      setPublishing(false);
     }
+  };
+
+  const handlePublishWithValidation = async () => {
+    const baseName = getFileBaseName();
+    const fileName = `p-${baseName}`;
+    const jsonContent = buildJsonContent();
+    const { errors, warnings } = validatePublishPayload(fileName, jsonContent);
+    const finalWarnings = [...warnings];
+    if (SHAPE_LIBRARY[fileName] && fileName !== selectedLibraryShape) {
+      finalWarnings.push(`图元 ${fileName} 已存在，本次发布会覆盖原有配置。`);
+    }
+
+    if (errors.length > 0) {
+      Modal.error({
+        title: '发布校验未通过',
+        content: (
+          <ul style={{ paddingLeft: 18, margin: 0 }}>
+            {errors.map((error) => <li key={error}>{error}</li>)}
+          </ul>
+        )
+      });
+      return;
+    }
+
+    if (finalWarnings.length > 0) {
+      Modal.confirm({
+        title: '发布校验通过（有警告）',
+        content: (
+          <ul style={{ paddingLeft: 18, margin: 0 }}>
+            {finalWarnings.map((warning) => <li key={warning}>{warning}</li>)}
+          </ul>
+        ),
+        okText: '继续发布',
+        cancelText: '取消',
+        onOk: () => persistShapeToProject(fileName, jsonContent),
+      });
+      return;
+    }
+
+    await persistShapeToProject(fileName, jsonContent);
   };
 
   // ... (SVG 解析、规整化、缩放等逻辑保持不变) ...
@@ -323,11 +442,13 @@ const ShapeDesigner: React.FC = () => {
         const attrH = parseFloat(svg.getAttribute('height') || '100');
         vb = { x: 0, y: 0, w: attrW, h: attrH };
       }
-      setSvgViewBox(vb);
       const rawW = parseFloat(svg.getAttribute('width') || String(vb.w));
       const rawH = parseFloat(svg.getAttribute('height') || String(vb.h));
-      setOriginalSize({ w: rawW, h: rawH });
-    } catch (e) { console.warn(e); }
+      queueMicrotask(() => {
+        setSvgViewBox(vb);
+        setOriginalSize({ w: rawW, h: rawH });
+      });
+    } catch (error) { console.warn(error); }
   }, [svgInput]);
 
   const normalizeDimensions = () => {
@@ -358,7 +479,7 @@ const ShapeDesigner: React.FC = () => {
       setOriginalSize({ w: newW, h: newH });
       setContainerSize({ w: newW, h: newH }); 
       message.success(`SVG 已规整: ${newW}x${newH}`);
-    } catch (e) { message.error('规整化失败'); }
+    } catch { message.error('规整化失败'); }
   };
 
   const fitAspectRatio = () => {
@@ -473,10 +594,10 @@ const ShapeDesigner: React.FC = () => {
     form.setFieldsValue(newPort);
   };
 
-  const handleFormChange = (changedValues: any, allValues: any) => {
+  const handleFormChange = (changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => {
     if (!selectedPortId) return;
     setPorts(ports.map(p => p.id === selectedPortId ? { ...p, ...allValues } : p));
-    if (changedValues.id && changedValues.id !== selectedPortId) {
+    if (typeof changedValues.id === 'string' && changedValues.id !== selectedPortId) {
       setSelectedPortId(changedValues.id);
     }
   };
@@ -743,12 +864,9 @@ ${itemsStr}
         <Title level={4}>4. 生成代码</Title>
         <div style={{ marginBottom: 16 }}>
           <div style={{ marginBottom: 12 }}>
-            <Text strong>命名模式 (文件名):</Text>
-            <div style={{ marginTop: 4 }}>
-              <Radio.Group value={namingMode} onChange={e => setNamingMode(e.target.value)} buttonStyle="solid">
-                <Radio.Button value="type">按类型 (p-{nodeType.toLowerCase()})</Radio.Button>
-                <Radio.Button value="tag">按 Tag (p-{nodeTag.replace(/[-_]/g, '').toLowerCase()})</Radio.Button>
-              </Radio.Group>
+            <Text strong>文件名规则: 固定按类型命名</Text>
+            <div style={{ marginTop: 4, fontSize: 12, color: '#666' }}>
+              主键格式为 <b>p-{slugifyName(nodeType)}</b>，可选后缀用于区分同类型不同外形。
             </div>
           </div>
 
@@ -758,6 +876,13 @@ ${itemsStr}
               {EQUIPMENT_TYPES.map(t => <Option key={t.value} value={t.value} label={t.label}>{t.label}</Option>)}
             </Select>
           </div>
+          <Input
+            addonBefore="Suffix"
+            value={nameSuffix}
+            onChange={(e) => setNameSuffix(e.target.value)}
+            placeholder="可选，例如 tall / hx-a / v2"
+            style={{ marginBottom: 8 }}
+          />
           <Input addonBefore="Tag" value={nodeTag} onChange={e => setNodeTag(e.target.value)} placeholder="如 R-101" />
           <div style={{ marginTop: 8, fontSize: 12, color: '#1890ff' }}>
             将保存为: <b>p-{getFileBaseName()}.json</b>
@@ -767,7 +892,7 @@ ${itemsStr}
         
         <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
           <Button type="primary" icon={<CopyOutlined />} onClick={() => { navigator.clipboard.writeText(generateCode()); message.success('代码已复制'); }} style={{ flex: 1 }}>复制</Button>
-          <Button type="primary" danger icon={<CloudUploadOutlined />} onClick={handleSaveToProject} style={{ flex: 1 }}>保存到项目</Button>
+          <Button type="primary" icon={<CloudUploadOutlined />} onClick={handlePublishWithValidation} loading={publishing} style={{ flex: 1 }}>发布与校验</Button>
         </div>
       </Sider>
     </Layout>

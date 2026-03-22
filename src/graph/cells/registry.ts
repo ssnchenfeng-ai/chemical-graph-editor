@@ -13,24 +13,34 @@ const SVG_MODULES = import.meta.glob('./svgs/*.svg', { eager: true, query: '?raw
 const JSON_MODULES = import.meta.glob('./data/*.json', { eager: true, import: 'default' });
 
 // --- 全局变量与类型定义 ---
+type JsonObject = Record<string, unknown>;
+interface ShapeLibraryEntry extends JsonObject {
+  width?: number;
+  height?: number;
+  data?: JsonObject;
+  rawSvg?: string;
+  imageUrl?: string;
+  attrs?: JsonObject & { body?: JsonObject & { xlinkHref?: string } };
+  ports?: { items?: Array<{ id: string } & JsonObject> } & JsonObject;
+}
 
 // 图元库缓存，供 ShapeDesigner 等工具回显使用
-export const SHAPE_LIBRARY: Record<string, any> = {};
+export const SHAPE_LIBRARY: Record<string, ShapeLibraryEntry> = {};
 
 export type PortDir = 'in' | 'out' | 'bi';
 export interface PortData {
   dir?: PortDir;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // JSON 配置文件结构接口
 interface ShapeConfig {
   width: number;
   height: number;
-  ports: any;
-  attrs?: any;
-  markup?: any[]; // 支持自定义 markup (如仪表)
-  data: any;
+  ports: { items?: Array<{ id: string }> } & JsonObject;
+  attrs?: JsonObject & { body?: JsonObject & { xlinkHref?: string } };
+  markup?: unknown[]; // 支持自定义 markup (如仪表)
+  data: JsonObject;
   imageUrl?: string; // 兼容性字段
 }
 
@@ -45,11 +55,11 @@ const LABEL_ATTRS = {
 };
 
 // 内部注册函数：同时写入 X6 引擎和 SHAPE_LIBRARY 缓存
-const registerNodeWithCache = (id: string, config: any) => {
+const registerNodeWithCache = (id: string, config: ShapeLibraryEntry) => {
   // [修改点 1] 使用 try-catch 捕获重复注册错误
   try {
-    Graph.registerNode(id, config);
-  } catch (e) {
+    Graph.registerNode(id, config as never);
+  } catch {
     // 忽略 "already registered" 错误，继续执行以更新缓存
   }
 
@@ -61,14 +71,14 @@ const registerNodeWithCache = (id: string, config: any) => {
     try {
       const base64Data = config.imageUrl.split(',')[1];
       if (base64Data) rawSvg = decodeURIComponent(base64Data);
-    } catch (e) { console.warn('Failed to decode SVG:', id); }
+    } catch { console.warn('Failed to decode SVG:', id); }
   }
   // 情况 B: 复杂图元 (仪表)，SVG 在 attrs.body.xlinkHref 中
   else if (config.attrs?.body?.xlinkHref) {
     try {
       const base64Data = config.attrs.body.xlinkHref.split(',')[1];
       if (base64Data) rawSvg = decodeURIComponent(base64Data);
-    } catch (e) { console.warn('Failed to decode SVG:', id); }
+    } catch { console.warn('Failed to decode SVG:', id); }
   }
 
   SHAPE_LIBRARY[id] = {
@@ -96,9 +106,9 @@ const autoRegisterShapes = () => {
       // [新增] 端口 ID 去重清洗逻辑 (防止 Duplicated port id 错误)
       if (config.ports && Array.isArray(config.ports.items)) {
         const seenIds = new Set<string>();
-        const uniqueItems: any[] = [];
+        const uniqueItems: Array<{ id: string } & JsonObject> = [];
         
-        config.ports.items.forEach((item: any) => {
+        config.ports.items.forEach((item) => {
           if (seenIds.has(item.id)) {
             console.warn(`[Registry] ⚠️ Duplicate port ID '${item.id}' detected in ${shapeId}. Skipping duplicate.`);
           } else {
@@ -154,8 +164,8 @@ const autoRegisterShapes = () => {
         });
       }
       
-    } catch (e) {
-      console.error(`[Registry] Failed to register shape from ${path}`, e);
+    } catch (error) {
+      console.error(`[Registry] Failed to register shape from ${path}`, error);
     }
   }
 };
@@ -177,7 +187,7 @@ export const registerCustomCells = () => {
       attrs: { line: { stroke: '#888', strokeWidth: 1, strokeDasharray: '4 4', targetMarker: { name: 'classic', size: 3 } } },
       data: { type: 'Signal', fluid: 'Signal' },
     });
-  } catch (e) { /* ignore */ }
+  } catch { /* ignore */ }
 
   // 测点 (Tapping Point)
   registerNodeWithCache('tapping-point', {
@@ -206,8 +216,8 @@ export const registerCustomCells = () => {
 
 try {
   registerCustomCells();
-} catch (e) {
-  console.warn('[Registry] Auto-init failed:', e);
+} catch (error) {
+  console.warn('[Registry] Auto-init failed:', error);
 }
 
 if (import.meta.hot) {

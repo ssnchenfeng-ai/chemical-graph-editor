@@ -1,6 +1,6 @@
 // src/components/Editor/DrawingManager/index.tsx
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Modal, Dropdown, message } from 'antd';
+import { Input, Modal, Dropdown, message } from 'antd';
 import type { MenuProps } from 'antd'; // 单独导入类型
 import { PlusOutlined, EditOutlined, DeleteOutlined, FileOutlined } from '@ant-design/icons';
 import { useDrawingStore } from '../../../store/drawingStore';
@@ -20,7 +20,7 @@ const DrawingManager: React.FC<DrawingManagerProps> = ({ onSwitch }) => {
   const [renameTarget, setRenameTarget] = useState<{id: string, name: string} | null>(null);
   const [renameValue, setRenameValue] = useState('');
 
-  useEffect(() => { init(); }, []);
+  useEffect(() => { init(); }, [init]);
 
   // --- 动作处理 ---
   const handleCreate = async () => {

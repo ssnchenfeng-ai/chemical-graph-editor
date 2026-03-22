@@ -1,5 +1,5 @@
 // src/components/Editor/Canvas/index.tsx
-import { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import { useCallback, useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 import { Graph, Cell, Edge, Node } from '@antv/x6';
 import { Stencil } from '@antv/x6-plugin-stencil';
 import { Keyboard } from '@antv/x6-plugin-keyboard';
@@ -29,9 +29,46 @@ interface GraphCanvasProps {
   drawingId: string | null;
 }
 
+type ClipboardCell = {
+  id: string;
+  shape: string;
+  position: { x: number; y: number };
+  size?: { width: number; height: number };
+  angle?: number;
+  zIndex?: number;
+  attrs?: Record<string, unknown>;
+  data?: Record<string, unknown>;
+  ports?: Node.Metadata['ports'];
+};
+
+const TYPE_TAG_PREFIX: Record<string, string> = {
+  Reactor: 'R',
+  FixedBedReactor: 'R',
+  Tank: 'V',
+  Exchanger: 'E',
+  VerticalExchanger: 'E',
+  Evaporator: 'EV',
+  GasCooler: 'GC',
+  Trap: 'TR',
+  Pump: 'P',
+  LiquidPump: 'P',
+  CentrifugalPump: 'P',
+  DiaphragmPump: 'P',
+  PistonPump: 'P',
+  GearPump: 'P',
+  Compressor: 'C',
+  Fan: 'F',
+  JetPump: 'JP',
+  Valve: 'VLV',
+  ControlValve: 'CV',
+  ManualValve: 'MV',
+  Fitting: 'FT',
+  OffPageConnector: 'OPC',
+};
+
 // 辅助函数：提取对象中的指定属性
-const pick = (obj: any, keys: string[]) => {
-  const ret: any = {};
+const pick = (obj: Record<string, unknown>, keys: string[]) => {
+  const ret: Record<string, unknown> = {};
   keys.forEach(key => {
     if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
       ret[key] = obj[key];
@@ -45,7 +82,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
   const stencilRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<Graph | null>(null);
   const historyRef = useRef<History | null>(null);
-  const clipboardRef = useRef<any>(null);
+  const clipboardRef = useRef<ClipboardCell[] | null>(null);
+  const isLoadingRef = useRef(false);
 
   const [selectedCell, setSelectedCell] = useState<Cell | null>(null);
   const [canUndo, setCanUndo] = useState(false);
@@ -57,15 +95,15 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
   const { setDirty, isDirty, setCurrentDrawing, drawings } = useDrawingStore();
 
   // --- 辅助函数：判断是否为在线元件 ---
-  const isInlineComponent = (cellId: string) => {
+  const isInlineComponent = useCallback((cellId: string) => {
     if (!graphRef.current) return false;
     const cell = graphRef.current.getCellById(cellId);
     if (!cell || !cell.isNode()) return false;
     return INLINE_TYPES.includes(cell.getData()?.type);
-  };
+  }, []);
 
   // --- 辅助函数：刷新所有管线的路由策略 ---
-  const refreshRouting = () => {
+  const refreshRouting = useCallback(() => {
     const graph = graphRef.current;
     if (!graph) return;
     
@@ -84,10 +122,61 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
         });
       }
     });
-  };
+  }, [isInlineComponent]);
+
+  const ensureNodeTypeTag = useCallback((node: Node) => {
+    const graph = graphRef.current;
+    if (!graph) return;
+    const data = node.getData() || {};
+    const type = typeof data.type === 'string' ? data.type : '';
+    if (!type || data.isBackground || type === 'Frame' || type === 'TappingPoint' || type === 'Instrument') return;
+
+    const prefix = TYPE_TAG_PREFIX[type] || type.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 4) || 'EQ';
+    const reg = new RegExp(`^${prefix}-(\\d{3,})$`);
+    const siblingTags = new Set<string>();
+    let maxIndex = 0;
+    graph.getNodes().forEach((n) => {
+      if (n.id === node.id || n.getData()?.isBackground) return;
+      const nData = n.getData() || {};
+      if (nData.type !== type) return;
+      const tag = typeof nData.tag === 'string' ? nData.tag.trim().toUpperCase() : '';
+      if (!tag) return;
+      siblingTags.add(tag);
+      const match = tag.match(reg);
+      if (match) {
+        const idx = Number.parseInt(match[1], 10);
+        if (Number.isFinite(idx)) {
+          maxIndex = Math.max(maxIndex, idx);
+        }
+      }
+    });
+
+    const currentTag = typeof data.tag === 'string' ? data.tag.trim().toUpperCase() : '';
+    const currentMatch = currentTag.match(reg);
+    const isCurrentAvailable = Boolean(currentTag) && !siblingTags.has(currentTag);
+    if (isCurrentAvailable && (data.autoTag !== true || currentMatch)) return;
+
+    let nextIndex = 1;
+    while (siblingTags.has(`${prefix}-${String(nextIndex).padStart(3, '0')}`)) {
+      nextIndex += 1;
+    }
+    if (nextIndex <= maxIndex) {
+      for (let i = 1; i <= maxIndex + 1; i += 1) {
+        const candidate = `${prefix}-${String(i).padStart(3, '0')}`;
+        if (!siblingTags.has(candidate)) {
+          nextIndex = i;
+          break;
+        }
+      }
+    }
+
+    const nextTag = `${prefix}-${String(nextIndex).padStart(3, '0')}`;
+    node.setData({ ...data, tag: nextTag, autoTag: true });
+    node.setAttrs({ label: { text: nextTag } });
+  }, []);
 
   // --- [重构] 核心保存逻辑 ---
-  const executeSave = async (saveId: string) => {
+  const executeSave = useCallback(async (saveId: string) => {
     if (!graphRef.current) return;
     const graph = graphRef.current;
     
@@ -123,7 +212,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
           Tag: Tag,
           desc: data.desc || '',
           layout: JSON.stringify(layoutData),
-          labelPosition: data.labelPosition || 'bottom' 
+          labelPosition: data.labelPosition || 'auto',
+          labelPinned: Boolean(data.labelPinned),
         };
 
         let specificProps = {};
@@ -173,6 +263,14 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
 
       const srcMeta = getPortMeta(sourceNode, edge.getSourcePortId());
       const tgtMeta = getPortMeta(targetNode, edge.getTargetPortId());
+      const dnSpecRaw = (data as Record<string, unknown>).dnSpec;
+      const pnSpecRaw = (data as Record<string, unknown>).pnSpec;
+      const dnSpec = dnSpecRaw && typeof dnSpecRaw === 'object'
+        ? dnSpecRaw
+        : { series: 'DN', value: String(data.dn || '50'), unit: 'mm' };
+      const pnSpec = pnSpecRaw && typeof pnSpecRaw === 'object'
+        ? pnSpecRaw
+        : { series: 'PN', value: String(data.pn || '16'), unit: 'bar' };
 
       return {
         source: edge.getSourceCell()?.id,
@@ -190,6 +288,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
         fluid: data.fluid || 'Water',
         dn: data.dn || 'DN50',
         pn: data.pn || 'PN16',
+        dnSpecJson: JSON.stringify(dnSpec),
+        pnSpecJson: JSON.stringify(pnSpec),
         insulation: data.insulation || 'None',
         desc: data.desc || '', 
         label: edge.getLabelAt(0)?.attrs?.label?.text || '',
@@ -206,7 +306,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
       message.error('保存失败，请检查数据库连接');
       throw error; // 抛出错误供调用方处理
     }
-  };
+  }, [setDirty]);
 
   // --- 暴露给父组件的方法 ---
   useImperativeHandle(ref, () => ({
@@ -215,26 +315,103 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
 
    const updateNodeLabel = (node: Node) => {
     const data = node.getData() || {};
-    const position = data.labelPosition || 'bottom'; 
+    const graph = graphRef.current;
+    const position = data.labelPosition || 'auto';
+    const isManual = data.labelPinned === true;
+    const preferredOrder = ['bottom', 'right', 'top', 'left'] as const;
+    type LabelPosition = typeof preferredOrder[number] | 'center';
     const angle = node.getAngle();
     const size = node.getSize();
-    const PADDING = 15;
+    const PADDING = 26;
     const rad = (angle * Math.PI) / 180;
     const sin = Math.abs(Math.sin(rad));
     const cos = Math.abs(Math.cos(rad));
     const visualHalfW = (size.width * cos + size.height * sin) / 2;
     const visualHalfH = (size.width * sin + size.height * cos) / 2;
+    const center = node.getBBox().getCenter();
 
-    let visualOffsetX = 0;
-    let visualOffsetY = 0;
+    const labelText = String(node.attr('label/text') || '');
+    const labelWidth = Math.max(36, Math.min(220, 12 + labelText.length * 7));
+    const labelHeight = 20;
 
-    switch (position) {
-      case 'top': visualOffsetY = -(visualHalfH + PADDING); break;
-      case 'bottom': visualOffsetY = (visualHalfH + PADDING); break;
-      case 'left': visualOffsetX = -(visualHalfW + PADDING); break;
-      case 'right': visualOffsetX = (visualHalfW + PADDING); break;
-      case 'center': visualOffsetX = 0; visualOffsetY = 0; break;
+    const getOffsetByPosition = (current: LabelPosition) => {
+      let visualOffsetX = 0;
+      let visualOffsetY = 0;
+      switch (current) {
+        case 'top': visualOffsetY = -(visualHalfH + PADDING); break;
+        case 'bottom': visualOffsetY = (visualHalfH + PADDING); break;
+        case 'left': visualOffsetX = -(visualHalfW + PADDING); break;
+        case 'right': visualOffsetX = (visualHalfW + PADDING); break;
+        case 'center': visualOffsetX = 0; visualOffsetY = 0; break;
+      }
+      return { x: visualOffsetX, y: visualOffsetY };
+    };
+
+    const ccw = (ax: number, ay: number, bx: number, by: number, cx: number, cy: number) =>
+      (cy - ay) * (bx - ax) > (by - ay) * (cx - ax);
+    const segmentIntersect = (
+      p1: { x: number; y: number },
+      p2: { x: number; y: number },
+      p3: { x: number; y: number },
+      p4: { x: number; y: number },
+    ) => ccw(p1.x, p1.y, p3.x, p3.y, p4.x, p4.y) !== ccw(p2.x, p2.y, p3.x, p3.y, p4.x, p4.y)
+      && ccw(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y) !== ccw(p1.x, p1.y, p2.x, p2.y, p4.x, p4.y);
+
+    const countPipeCrossings = (offset: { x: number; y: number }) => {
+      if (!graph) return 0;
+      const rect = {
+        x: center.x + offset.x - labelWidth / 2,
+        y: center.y + offset.y - labelHeight / 2,
+        width: labelWidth,
+        height: labelHeight,
+      };
+      const rectEdges = [
+        [{ x: rect.x, y: rect.y }, { x: rect.x + rect.width, y: rect.y }],
+        [{ x: rect.x + rect.width, y: rect.y }, { x: rect.x + rect.width, y: rect.y + rect.height }],
+        [{ x: rect.x + rect.width, y: rect.y + rect.height }, { x: rect.x, y: rect.y + rect.height }],
+        [{ x: rect.x, y: rect.y + rect.height }, { x: rect.x, y: rect.y }],
+      ] as const;
+      let crossings = 0;
+      graph.getEdges().forEach((edge) => {
+        if (edge.getData()?.type === 'Signal') return;
+        const points = [edge.getSourcePoint(), ...(edge.getVertices() || []), edge.getTargetPoint()];
+        for (let i = 0; i < points.length - 1; i++) {
+          const p1 = points[i];
+          const p2 = points[i + 1];
+          for (const [r1, r2] of rectEdges) {
+            if (segmentIntersect(p1, p2, r1, r2)) {
+              crossings += 1;
+              return;
+            }
+          }
+          const p1Inside = p1.x >= rect.x && p1.x <= rect.x + rect.width && p1.y >= rect.y && p1.y <= rect.y + rect.height;
+          const p2Inside = p2.x >= rect.x && p2.x <= rect.x + rect.width && p2.y >= rect.y && p2.y <= rect.y + rect.height;
+          if (p1Inside || p2Inside) {
+            crossings += 1;
+            return;
+          }
+        }
+      });
+      return crossings;
+    };
+
+    let finalPosition: LabelPosition = 'bottom';
+    if (isManual && ['top', 'bottom', 'left', 'right', 'center'].includes(position)) {
+      finalPosition = position as LabelPosition;
+    } else {
+      let bestScore = Number.POSITIVE_INFINITY;
+      preferredOrder.forEach((candidate, index) => {
+        const offset = getOffsetByPosition(candidate);
+        const crossings = countPipeCrossings(offset);
+        const score = crossings * 100 + index;
+        if (score < bestScore) {
+          bestScore = score;
+          finalPosition = candidate;
+        }
+      });
     }
+
+    const { x: visualOffsetX, y: visualOffsetY } = getOffsetByPosition(finalPosition);
 
     const localRad = (-angle * Math.PI) / 180;
     const localX = visualOffsetX * Math.cos(localRad) - visualOffsetY * Math.sin(localRad);
@@ -278,7 +455,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
             };
           }
           return null;
-        } catch (err) { return null; }
+        } catch { return null; }
       }).filter(item => item !== null);
 
       if (jsonList.length > 0) {
@@ -302,10 +479,13 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
       let dx = 20;
       let dy = 20;
       if (offsetPoint) {
-        const nodesOnly = cellsJSON.filter((c: any) => c.position && typeof c.position.x === 'number');
+        const nodesOnly = cellsJSON.filter((c) => {
+          const position = c.position as { x?: unknown } | undefined;
+          return position && typeof position.x === 'number';
+        });
         if (nodesOnly.length > 0) {
-          const minX = Math.min(...nodesOnly.map((c: any) => c.position.x));
-          const minY = Math.min(...nodesOnly.map((c: any) => c.position.y));
+          const minX = Math.min(...nodesOnly.map((c) => (c.position as { x: number }).x));
+          const minY = Math.min(...nodesOnly.map((c) => (c.position as { y: number }).y));
           dx = offsetPoint.x - minX;
           dy = offsetPoint.y - minY;
         }
@@ -313,28 +493,30 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
       graph.cleanSelection();
       const newCells: Cell[] = [];
       const idMap: Record<string, string> = {};
-      const cleanData = (obj: any): any => {
+      const cleanData = (obj: unknown): unknown => {
         if (obj === null || obj === undefined) return {};
         if (typeof obj !== 'object') return obj;
         if (Array.isArray(obj)) return obj.map(cleanData);
-        const res: any = {};
-        for (const key in obj) {
-          if (obj[key] !== undefined && obj[key] !== null) {
-            res[key] = cleanData(obj[key]);
+        const res: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(obj)) {
+          if (value !== undefined && value !== null) {
+            res[key] = cleanData(value);
           }
         }
         return res;
       };
-      cellsJSON.forEach((cellData: any) => {
+      cellsJSON.forEach((cellData) => {
         if (!cellData.position) return;
         try {
           const oldId = cellData.id;
           const { id, zIndex, ...otherData } = cellData;
-          const safeData = cleanData(otherData.data || {});
-          const safeAttrs = cleanData(otherData.attrs || {});
+          void id;
+          const safeData = cleanData(otherData.data || {}) as Record<string, unknown>;
+          const safeAttrs = cleanData(otherData.attrs || {}) as Cell.Metadata['attrs'];
           const newNode = graph.createNode({
             ...otherData, data: safeData, attrs: safeAttrs,
-            x: (otherData.position.x) + dx, y: (otherData.position.y) + dy,
+            x: otherData.position.x + dx,
+            y: otherData.position.y + dy,
             zIndex: (zIndex || 2) + 1
           });
           idMap[oldId] = newNode.id;
@@ -347,7 +529,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
         message.success(`已粘贴 ${newCells.length} 个设备`);
       }
       if (!offsetPoint) {
-         clipboardRef.current = cellsJSON.map((c: any) => {
+         clipboardRef.current = cellsJSON.map((c) => {
            if (c.position) {
              return { ...c, position: { x: c.position.x + 20, y: c.position.y + 20 } };
            }
@@ -385,7 +567,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
     if (action.startsWith('label:')) {
       if (cell && cell.isNode()) {
         const position = action.split(':')[1];
-        cell.setData({ labelPosition: position });
+        cell.setData({ ...(cell.getData() || {}), labelPosition: position, labelPinned: true });
         message.success(`位号位置已更新`);
       }
       return;
@@ -395,17 +577,19 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
         if (cell && !graph.isSelected(cell)) { graph.resetSelection(cell); }
         performCopy(cell || undefined); 
         break;
-      case 'paste': 
+      case 'paste': {
         const point = graph.clientToLocal({ x: menu.x, y: menu.y }); 
         performPaste(point); 
         break;
+      }
       case 'property': message.success('已定位到属性面板'); break;
       case 'clear': onClear(); break;
       case 'fit': onZoomToFit(); break;
-      case 'delete': 
+      case 'delete': {
         const selected = graph.getSelectedCells();
         if (selected.length > 0) { graph.removeCells(selected); } else if (cell) { graph.removeCell(cell); }
         break;
+      }
       case 'rotate': 
         if (cell && cell.isNode() && !cell.getData()?.isBackground) { cell.rotate(90); } break;
     }
@@ -444,14 +628,25 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
           if (!sourcePortId || !targetPortId) return false;
           const sourceNode = sourceView.cell as Node;
           const targetNode = targetView.cell as Node;
-          const sourcePort = sourceNode.getPort(sourcePortId);
-          const targetPort = targetNode.getPort(targetPortId);
-          const sDir = sourcePort?.data?.dir || 'bi';
-          const tDir = targetPort?.data?.dir || 'bi';
-          return sDir !== 'in' && tDir !== 'out';
+          const sDir = getPortDirection(sourceNode, sourcePortId);
+          const tDir = getPortDirection(targetNode, targetPortId);
+          if (sDir === 'in' || tDir === 'out') return false;
+          const sourceFace = getPortFace(sourceNode, sourcePortId);
+          const targetFace = getPortFace(targetNode, targetPortId);
+          if (isFaceOpposite(sourceFace, targetFace)) return true;
+          return sDir === 'bi' || tDir === 'bi';
         },
         createEdge(args) {
-          let data = { type: 'Pipe', material: 'CS', fluid: 'Water', dn: 'DN50', pn: 'PN16', insulation: 'None' };
+          let data = {
+            type: 'Pipe',
+            material: 'CS',
+            fluid: 'Water',
+            dn: 'DN50',
+            pn: 'PN16',
+            dnSpec: { series: 'DN', value: '50', unit: 'mm' },
+            pnSpec: { series: 'PN', value: '16', unit: 'bar' },
+            insulation: 'None'
+          };
           if (args.sourceCell) {
             const cell = args.sourceCell;
             const connectedEdges = this.getConnectedEdges(cell);
@@ -459,7 +654,20 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
             if (pipes.length > 0) {
               const lastPipe = pipes[pipes.length - 1];
               const lastData = lastPipe.getData() || {};
-              data = { ...data, material: lastData.material || data.material, fluid: lastData.fluid || data.fluid, dn: lastData.dn || data.dn, pn: lastData.pn || data.pn, insulation: lastData.insulation || data.insulation };
+              data = {
+                ...data,
+                material: lastData.material || data.material,
+                fluid: lastData.fluid || data.fluid,
+                dn: lastData.dn || data.dn,
+                pn: lastData.pn || data.pn,
+                dnSpec: ((lastData as Record<string, unknown>).dnSpec && typeof (lastData as Record<string, unknown>).dnSpec === 'object'
+                  ? (lastData as Record<string, unknown>).dnSpec
+                  : data.dnSpec) as { series: string; value: string; unit: string },
+                pnSpec: ((lastData as Record<string, unknown>).pnSpec && typeof (lastData as Record<string, unknown>).pnSpec === 'object'
+                  ? (lastData as Record<string, unknown>).pnSpec
+                  : data.pnSpec) as { series: string; value: string; unit: string },
+                insulation: lastData.insulation || data.insulation
+              };
             }
           }
           const color = FLUID_COLORS[data.fluid] || '#5F95FF';
@@ -474,44 +682,167 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
     graphRef.current = graph;
 
     graph.on('node:change:angle', ({ node }) => updateNodeLabel(node as Node));
+    graph.on('node:change:position', ({ node }) => updateNodeLabel(node as Node));
     graph.on('node:change:data', ({ node }) => updateNodeLabel(node as Node));
+    const refreshAllNodeLabels = () => {
+      graph.getNodes().forEach((n) => {
+        if (!n.getData()?.isBackground) {
+          updateNodeLabel(n as Node);
+        }
+      });
+    };
+    graph.on('edge:change:vertices', refreshAllNodeLabels);
+    graph.on('edge:change:source', refreshAllNodeLabels);
+    graph.on('edge:change:target', refreshAllNodeLabels);
 
-    const getClosestPortId = (node: Node, point: { x: number; y: number }) => {
-      const ports = node.getPorts();
-      if (!ports.length) return undefined;
-      const pos = node.getPosition(); 
+    const parsePortCoord = (
+      value: unknown,
+      total: number,
+    ) => {
+      if (typeof value === 'string' && value.endsWith('%')) {
+        const parsed = parseFloat(value);
+        return Number.isFinite(parsed) ? (parsed / 100) * total : 0;
+      }
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        return value;
+      }
+      return 0;
+    };
+
+    type PortFace = 'top' | 'right' | 'bottom' | 'left';
+
+    const movePointByFace = (point: { x: number; y: number }, face: PortFace, distance: number) => {
+      if (face === 'top') return { x: point.x, y: point.y - distance };
+      if (face === 'right') return { x: point.x + distance, y: point.y };
+      if (face === 'bottom') return { x: point.x, y: point.y + distance };
+      return { x: point.x - distance, y: point.y };
+    };
+
+    const getPortAbsolutePosition = (node: Node, portId: string) => {
+      const port = node.getPort(portId);
+      if (!port) return null;
+      const pos = node.getPosition();
       const size = node.getSize();
       const angle = node.getAngle();
       const cx = pos.x + size.width / 2;
       const cy = pos.y + size.height / 2;
       const rad = (angle * Math.PI) / 180;
-      let minDistance = Infinity;
-      let closestPortId = ports[0].id;
-      ports.forEach((port) => {
-        const args = port.args || {};
-        let relX = 0;
-        let relY = 0;
-        if (typeof args.x === 'string' && args.x.endsWith('%')) {
-          relX = (parseFloat(args.x) / 100) * size.width;
-        } else {
-          relX = (args.x as number) || 0;
-        }
-        if (typeof args.y === 'string' && args.y.endsWith('%')) {
-          relY = (parseFloat(args.y) / 100) * size.height;
-        } else {
-          relY = (args.y as number) || 0;
-        }
-        const absoluteX = pos.x + relX;
-        const absoluteY = pos.y + relY;
-        const rotatedX = (absoluteX - cx) * Math.cos(rad) - (absoluteY - cy) * Math.sin(rad) + cx;
-        const rotatedY = (absoluteX - cx) * Math.sin(rad) + (absoluteY - cy) * Math.cos(rad) + cy;
-        const dist = Math.sqrt(Math.pow(rotatedX - point.x, 2) + Math.pow(rotatedY - point.y, 2));
-        if (dist < minDistance) {
-          minDistance = dist;
-          closestPortId = port.id;
+      const args = node.getPortProp(portId, 'args') as { x?: unknown; y?: unknown } | undefined;
+      const relX = parsePortCoord(args?.x, size.width);
+      const relY = parsePortCoord(args?.y, size.height);
+      const absoluteX = pos.x + relX;
+      const absoluteY = pos.y + relY;
+      return {
+        x: (absoluteX - cx) * Math.cos(rad) - (absoluteY - cy) * Math.sin(rad) + cx,
+        y: (absoluteX - cx) * Math.sin(rad) + (absoluteY - cy) * Math.cos(rad) + cy,
+      };
+    };
+
+    const getExpectedPortFace = (node: Node, point: { x: number; y: number }): PortFace => {
+      const bbox = node.getBBox();
+      const cx = bbox.x + bbox.width / 2;
+      const cy = bbox.y + bbox.height / 2;
+      const dx = point.x - cx;
+      const dy = point.y - cy;
+      if (Math.abs(dx) >= Math.abs(dy)) {
+        return dx >= 0 ? 'right' : 'left';
+      }
+      return dy >= 0 ? 'bottom' : 'top';
+    };
+
+    const getPortFace = (node: Node, portId: string): PortFace => {
+      const portPos = getPortAbsolutePosition(node, portId);
+      const bbox = node.getBBox();
+      if (!portPos) return 'right';
+      const distances: Record<PortFace, number> = {
+        top: Math.abs(portPos.y - bbox.y),
+        right: Math.abs(portPos.x - (bbox.x + bbox.width)),
+        bottom: Math.abs(portPos.y - (bbox.y + bbox.height)),
+        left: Math.abs(portPos.x - bbox.x),
+      };
+      let bestFace: PortFace = 'right';
+      let minDist = distances.right;
+      (['top', 'bottom', 'left'] as PortFace[]).forEach((face) => {
+        if (distances[face] < minDist) {
+          minDist = distances[face];
+          bestFace = face;
         }
       });
-      return closestPortId;
+      return bestFace;
+    };
+
+    const getPortDirection = (node: Node, portId: string) => {
+      const port = node.getPort(portId);
+      return port?.data?.dir || 'bi';
+    };
+
+    const isFaceOpposite = (sourceFace: PortFace, targetFace: PortFace) => {
+      const opposite: Record<PortFace, PortFace> = {
+        top: 'bottom',
+        right: 'left',
+        bottom: 'top',
+        left: 'right',
+      };
+      return opposite[sourceFace] === targetFace;
+    };
+
+    const getBestPortId = (
+      node: Node,
+      point: { x: number; y: number },
+      peerPoint: { x: number; y: number } | null,
+      role: 'source' | 'target',
+    ) => {
+      const ports = node.getPorts();
+      if (!ports.length) return undefined;
+      const firstPortId = ports.find((port) => typeof port.id === 'string')?.id;
+      if (!firstPortId) return undefined;
+      const connectedEdges = graph.getConnectedEdges(node);
+      const expectedFace = getExpectedPortFace(node, peerPoint || point);
+      let bestScore = Infinity;
+      let bestPortId = firstPortId;
+      ports.forEach((port) => {
+        const portId = port.id;
+        if (!portId) return;
+        const portPos = getPortAbsolutePosition(node, portId);
+        if (!portPos) return;
+        const dist = Math.hypot(portPos.x - point.x, portPos.y - point.y);
+        const direction = getPortDirection(node, portId);
+        const directionPenalty = role === 'source'
+          ? (direction === 'in' ? 10000 : 0)
+          : (direction === 'out' ? 10000 : 0);
+        const face = getPortFace(node, portId);
+        const facePenalty = face === expectedFace ? 0 : (isFaceOpposite(face, expectedFace) ? 25 : 70);
+        const occupancy = connectedEdges.filter((edge) => {
+          const sourcePortId = edge.getSourcePortId();
+          const targetPortId = edge.getTargetPortId();
+          return sourcePortId === portId || targetPortId === portId;
+        }).length;
+        const occupancyPenalty = occupancy * 20;
+        const score = dist + directionPenalty + facePenalty + occupancyPenalty;
+        if (score < bestScore) {
+          bestScore = score;
+          bestPortId = portId;
+        }
+      });
+      return bestPortId;
+    };
+
+    const applyPortStubVertices = (edge: Edge) => {
+      const sourceNode = edge.getSourceNode();
+      const targetNode = edge.getTargetNode();
+      const sourcePortId = edge.getSourcePortId();
+      const targetPortId = edge.getTargetPortId();
+      if (!sourceNode || !targetNode || !sourcePortId || !targetPortId) return;
+      const sourcePoint = getPortAbsolutePosition(sourceNode, sourcePortId);
+      const targetPoint = getPortAbsolutePosition(targetNode, targetPortId);
+      if (!sourcePoint || !targetPoint) return;
+      const sourceFace = getPortFace(sourceNode, sourcePortId);
+      const targetFace = getPortFace(targetNode, targetPortId);
+      const STUB_LENGTH = 14;
+      const sourceStub = movePointByFace(sourcePoint, sourceFace, STUB_LENGTH);
+      const targetStub = movePointByFace(targetPoint, targetFace, STUB_LENGTH);
+      if (Math.hypot(sourceStub.x - targetStub.x, sourceStub.y - targetStub.y) < 12) return;
+      edge.setVertices([sourceStub, targetStub]);
     };
 
     const handlePipeSplit = (node: Node) => {
@@ -529,77 +860,70 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
       const SNAP_THRESHOLD = 25; 
 
       // 1. 找出最佳匹配的管线
-      const candidates = allEdges
-        .filter(edge => {
-          if (edge.getData()?.type === 'Signal') return false;
-          // 粗筛：包围盒相交
-          return edge.getBBox().intersectsWithRect(nodeBBox);
-        })
-        .map(edge => {
-          const view = graph.findViewByCell(edge);
-          if (!view) return null;
-          
-          // 计算节点上所有端口到该管线的最小距离
-          let minPortDist = Infinity;
-          let bestPortId = null;
-          let bestClosestPoint = null; // 管线上的最近点
+      type GraphPoint = ReturnType<Edge['getSourcePoint']>;
+      type Candidate = {
+        edge: Edge;
+        distance: number;
+        closestPoint: GraphPoint;
+        refPortId: string;
+      };
+      const candidates: Candidate[] = [];
+      allEdges.forEach((edge) => {
+        if (edge.getData()?.type === 'Signal') return;
+        if (!edge.getBBox().intersectsWithRect(nodeBBox)) return;
 
-          ports.forEach(port => {
-            // 计算端口的绝对坐标
-            const portPos = node.getPortProp(port.id, 'args');
-            // 注意：这里需要将相对坐标转换为画布绝对坐标
-            // 简单起见，假设 args.x/y 是百分比或像素，结合 nodeBBox 计算
-            // 更稳妥的方式是使用 graph.clientToLocal 或 node.getPortsPosition() 如果有的话
-            // 这里手动计算一下绝对坐标：
-            let px = nodeBBox.x;
-            let py = nodeBBox.y;
-            
-            if (typeof portPos.x === 'string' && portPos.x.endsWith('%')) {
-               px += (parseFloat(portPos.x) / 100) * nodeBBox.width;
-            } else {
-               px += (portPos.x as number) || 0;
-            }
-            
-            if (typeof portPos.y === 'string' && portPos.y.endsWith('%')) {
-               py += (parseFloat(portPos.y) / 100) * nodeBBox.height;
-            } else {
-               py += (portPos.y as number) || 0;
-            }
+        const view = graph.findViewByCell(edge);
+        if (!view) return;
 
-            // @ts-ignore
-            const closest = view.getClosestPoint({ x: px, y: py });
-            const dist = Math.sqrt(Math.pow(closest.x - px, 2) + Math.pow(closest.y - py, 2));
+        let minPortDist = Infinity;
+        let minPortScore = Infinity;
+        let bestPortId: string | null = null;
+        let bestClosestPoint: GraphPoint | null = null;
 
-            if (dist < minPortDist) {
-              minPortDist = dist;
-              bestPortId = port.id;
-              bestClosestPoint = closest;
-            }
-          });
+        ports.forEach((port) => {
+          if (!port.id) return;
+          const portPos = node.getPortProp(port.id, 'args') as { x?: unknown; y?: unknown } | undefined;
+          const px = nodeBBox.x + parsePortCoord(portPos?.x, nodeBBox.width);
+          const py = nodeBBox.y + parsePortCoord(portPos?.y, nodeBBox.height);
 
-          return { 
-            edge, 
-            distance: minPortDist, 
-            closestPoint: bestClosestPoint,
-            refPortId: bestPortId // 记录是哪个端口“吸”住了管线
-          };
-        })
-        .filter(item => item !== null && item.distance <= SNAP_THRESHOLD)
-        .sort((a, b) => a!.distance - b!.distance);
+          const closestGetter = view as { getClosestPoint?: (point: { x: number; y: number }) => GraphPoint };
+          if (!closestGetter.getClosestPoint) return;
+          const closest = closestGetter.getClosestPoint({ x: px, y: py });
+          const dist = Math.hypot(closest.x - px, closest.y - py);
+          const facePenalty = getPortFace(node, port.id) === getExpectedPortFace(node, closest) ? 0 : 50;
+          const score = dist + facePenalty;
+          if (score < minPortScore) {
+            minPortScore = score;
+            minPortDist = dist;
+            bestPortId = port.id;
+            bestClosestPoint = closest;
+          }
+        });
+
+        if (!bestClosestPoint || !bestPortId || minPortDist > SNAP_THRESHOLD) return;
+        candidates.push({
+          edge,
+          distance: minPortDist,
+          closestPoint: bestClosestPoint,
+          refPortId: bestPortId,
+        });
+      });
+      candidates.sort((a, b) => a.distance - b.distance);
 
       if (candidates.length === 0) return;
 
-      const bestMatch = candidates[0]!;
+      const bestMatch = candidates[0];
       const targetEdge = bestMatch.edge;
-      const closestPoint = bestMatch.closestPoint!;
+      const closestPoint = bestMatch.closestPoint;
       const refPortId = bestMatch.refPortId;
 
       if (targetEdge) {
         const targetView = graph.findViewByCell(targetEdge);
         if (!targetView) return;
         
-        // @ts-ignore
-        const routePoints = targetView.routePoints || [];
+        const routePoints = Array.isArray((targetView as { routePoints?: unknown }).routePoints)
+          ? ((targetView as unknown as { routePoints: GraphPoint[] }).routePoints)
+          : [];
         const points = [targetEdge.getSourcePoint(), ...routePoints, targetEdge.getTargetPoint()];
         
         let isPipeHorizontal = true; 
@@ -645,21 +969,9 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
         // ============================================================
         
         // 获取参考端口相对于节点左上角的偏移量
-        const portArgs = node.getPortProp(refPortId!, 'args');
-        let portOffsetX = 0;
-        let portOffsetY = 0;
-        
-        if (typeof portArgs.x === 'string' && portArgs.x.endsWith('%')) {
-           portOffsetX = (parseFloat(portArgs.x) / 100) * nodeBBox.width;
-        } else {
-           portOffsetX = (portArgs.x as number) || 0;
-        }
-        
-        if (typeof portArgs.y === 'string' && portArgs.y.endsWith('%')) {
-           portOffsetY = (parseFloat(portArgs.y) / 100) * nodeBBox.height;
-        } else {
-           portOffsetY = (portArgs.y as number) || 0;
-        }
+        const portArgs = node.getPortProp(refPortId, 'args') as { x?: unknown; y?: unknown } | undefined;
+        const portOffsetX = parsePortCoord(portArgs?.x, nodeBBox.width);
+        const portOffsetY = parsePortCoord(portArgs?.y, nodeBBox.height);
 
         let newX = nodeBBox.x;
         let newY = nodeBBox.y;
@@ -683,8 +995,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
         node.setPosition(newX, newY);
 
         // ... (后续打断连线逻辑保持不变)
-        const portForSource = getClosestPortId(node, segmentStart);
-        const portForTarget = getClosestPortId(node, segmentEnd);
+        const portForSource = getBestPortId(node, segmentStart, segmentEnd, 'source');
+        const portForTarget = getBestPortId(node, segmentEnd, segmentStart, 'target');
         
         if (!portForSource || !portForTarget) {
           console.warn('无法找到合适的连接端口');
@@ -695,8 +1007,12 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
         const target = targetEdge.getTarget();
         const edgeData = targetEdge.getData();
         const edgeAttrs = targetEdge.getAttrs(); 
-        const sourceCellId = (source as any).cell;
-        const targetCellId = (target as any).cell;
+        const sourceCellId = typeof source === 'object' && source !== null && 'cell' in source
+          ? (source as { cell?: string }).cell ?? ''
+          : '';
+        const targetCellId = typeof target === 'object' && target !== null && 'cell' in target
+          ? (target as { cell?: string }).cell ?? ''
+          : '';
 
         graph.removeCell(targetEdge);
 
@@ -719,12 +1035,14 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
           data: { ...edgeData }, attrs: edgeAttrs, labels: [], router: router2 
         });
 
+        applyPortStubVertices(edge1);
+        applyPortStubVertices(edge2);
         graph.addCell([edge1, edge2]);
         message.success('元件已接入管线');
       }
     };
 
-    const handleSignalDrop = (args: any) => {
+    const handleSignalDrop = (args: { e: MouseEvent; edge: Edge }) => {
       const { e, edge } = args;
       const sourceNode = edge.getSourceNode();
       if (sourceNode?.getData()?.type !== 'Instrument') return;
@@ -783,7 +1101,12 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
       }
     };
 
-    graph.on('node:added', ({ node }) => setTimeout(() => handlePipeSplit(node as Node), 50));
+    graph.on('node:added', ({ node }) => {
+      if (!isLoadingRef.current) {
+        ensureNodeTypeTag(node as Node);
+      }
+      setTimeout(() => handlePipeSplit(node as Node), 50);
+    });
     graph.on('node:mouseup', ({ node }) => handlePipeSplit(node as Node));
     graph.on('edge:mouseup', handleSignalDrop); 
 
@@ -799,8 +1122,10 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
         edge.setData({ type: 'Signal', fluid: 'Signal', relationType: isTargetActuator ? 'CONTROLS' : 'MEASURES' });
         if (isTargetActuator) edge.setRouter('manhattan', { padding: 10 });
       } else {
+        applyPortStubVertices(edge);
         refreshRouting();
       }
+      refreshAllNodeLabels();
     });
 
     graph.use(new Selection({ enabled: true, multiple: true, rubberband: true, movable: true, showNodeSelectionBox: true, filter: (cell) => !cell.getData()?.isBackground }));
@@ -843,7 +1168,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
         const data = clone.getData();
         if (data?.originalSize) {
           clone.setSize(data.originalSize.width, data.originalSize.height);
-          const { originalSize, ...rest } = data;
+          const { originalSize: _originalSize, ...rest } = data;
+          void _originalSize;
           clone.setData(rest);
         }
         return clone;
@@ -863,15 +1189,15 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
 
     const stencilNodes: Record<string, Node[]> = { main_equip: [], pumps: [], instruments: [], parts: [] };
     const typeCounts: Record<string, number> = {};
-    Object.values(SHAPE_LIBRARY).forEach((config: any) => {
-      const t = config.data?.type || 'Unknown';
+    Object.values(SHAPE_LIBRARY).forEach((config) => {
+      const t = typeof config.data?.type === 'string' ? config.data.type : 'Unknown';
       typeCounts[t] = (typeCounts[t] || 0) + 1;
     });
     const typeIterators: Record<string, number> = {};
 
     Object.keys(SHAPE_LIBRARY).forEach(shapeId => {
       const config = SHAPE_LIBRARY[shapeId];
-      const type = config.data?.type || 'Unknown';
+      const type = typeof config.data?.type === 'string' ? config.data.type : 'Unknown';
       let groupName = TYPE_TO_GROUP[type];
       if (!groupName) {
         if (type.includes('Pump')) groupName = 'pumps';
@@ -889,7 +1215,9 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
       }
 
       let displayLabel = type;
-      if (type === 'Instrument') { displayLabel = config.data?.tagId || 'Inst'; }
+      if (type === 'Instrument') {
+        displayLabel = typeof config.data?.tagId === 'string' ? config.data.tagId : 'Inst';
+      }
       else if (typeCounts[type] > 1) {
          const parts = shapeId.split('-');
          let suffix = parts[parts.length - 1]; 
@@ -923,6 +1251,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
     // [修改] 监听 drawingId 变化加载数据
     const initCanvasData = async () => {
       if (!drawingId) return;
+      isLoadingRef.current = true;
       
       // 清空画布 (保留背景框)
       const cellsToRemove = graph.getCells().filter(cell => !cell.getData()?.isBackground);
@@ -932,7 +1261,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
       try {
         const data = await loadGraphData(drawingId);
         if (data && data.nodes.length > 0) {
-          graph.fromJSON(data as any);
+          graph.fromJSON(data as Record<string, unknown>);
           graph.batchUpdate(() => {
             const nodes = graph.getNodes();
             const edges = graph.getEdges();
@@ -955,13 +1284,19 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
       } catch (error) {
         console.error('Data Load Error:', error);
         message.error('数据加载失败');
+      } finally {
+        isLoadingRef.current = false;
       }
     };
     
     initCanvasData();
 
-    return () => { graph.dispose(); if (stencilRef.current) stencilRef.current.innerHTML = ''; };
-  }, [drawingId]);
+    const stencilEl = stencilRef.current;
+    return () => {
+      graph.dispose();
+      if (stencilEl) stencilEl.innerHTML = '';
+    };
+  }, [drawingId, ensureNodeTypeTag, isInlineComponent, refreshRouting, setDirty]);
 
   // [新增] 监听脏状态 (History & Data Change)
   useEffect(() => {
@@ -979,7 +1314,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
       graph.off('history:change', handleHistoryChange);
       graph.off('node:change:data', handleHistoryChange);
     };
-  }, []);
+  }, [setDirty]);
 
   // [新增] 双击跳转逻辑 (增加脏检查)
   useEffect(() => {
@@ -1002,7 +1337,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
               try {
                 if (drawingId) await executeSave(drawingId);
                 doSwitch();
-              } catch (e) { /* save failed */ }
+              } catch { /* save failed */ }
             },
             onCancel: () => {
               // 点击 Cancel 按钮视为“不保存直接跳转”
@@ -1026,7 +1361,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
     };
     graphRef.current.on('node:dblclick', handleNodeDblClick);
     return () => { graphRef.current?.off('node:dblclick', handleNodeDblClick); };
-  }, [drawingId, isDirty, drawings]); // 依赖 drawingId, isDirty, drawings
+  }, [drawingId, isDirty, drawings, executeSave, setCurrentDrawing]); // 依赖 drawingId, isDirty, drawings
 
   return (
     <div className="editor-container">

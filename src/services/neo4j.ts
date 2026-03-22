@@ -10,6 +10,10 @@ const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
 
 export default driver;
 
+type JsonObject = Record<string, unknown>;
+type GraphNodePayload = JsonObject & { x6Id?: string; type?: string };
+type GraphEdgePayload = JsonObject & { type?: string; targetPort?: string; relationType?: string };
+
 // 类型映射表 (保持不变)
 const TYPE_MAPPING: Record<string, string[]> = {
   'Reactor':           ['Equipment', 'Reactor'],
@@ -98,18 +102,7 @@ export const renameDrawing = async (id: string, newName: string) => {
 // 图谱保存与加载 (重构)
 // ============================================================
 
-// 辅助函数：提取对象中的指定属性
-const pick = (obj: any, keys: string[]) => {
-  const ret: any = {};
-  keys.forEach(key => {
-    if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
-      ret[key] = obj[key];
-    }
-  });
-  return ret;
-};
-
-export const saveGraphData = async (drawingId: string, nodes: any[], edges: any[]) => {
+export const saveGraphData = async (drawingId: string, nodes: GraphNodePayload[], edges: GraphEdgePayload[]) => {
   const session = driver.session();
   const tx = session.beginTransaction();
   try {
@@ -128,7 +121,7 @@ export const saveGraphData = async (drawingId: string, nodes: any[], edges: any[
 
     // 3. 保存节点
     if (nodes.length) {
-      const groups: Record<string, any[]> = {};
+      const groups: Record<string, GraphNodePayload[]> = {};
       
       nodes.forEach(node => {
         const type = node.type || 'Unknown';
@@ -162,16 +155,22 @@ export const saveGraphData = async (drawingId: string, nodes: any[], edges: any[
              fromPort:    r.sourcePort, 
              toPort:      r.targetPort,
              // [核心修改] 新增语义属性
-             fromChamber: r.fromChamber,
-             fromPhase:   r.fromPhase,
-             toChamber:   r.toChamber,
-             toPhase:     r.toPhase,
+             fromChamber: coalesce(r.fromChamber, split(coalesce(r.sourceRegion, ''), ':')[0], ''),
+             fromPhase:   coalesce(r.fromPhase, split(coalesce(r.sourceRegion, ''), ':')[1], ''),
+             toChamber:   coalesce(r.toChamber, split(coalesce(r.targetRegion, ''), ':')[0], ''),
+             toPhase:     coalesce(r.toPhase, split(coalesce(r.targetRegion, ''), ':')[1], ''),
+             sourceRegion: r.sourceRegion,
+             sourceDesc:   r.sourceDesc,
+             targetRegion: r.targetRegion,
+             targetDesc:   r.targetDesc,
              // ... 其他属性
              tag:        r.label,
              material:   r.material,
              fluid:      r.fluid,
              dn:         r.dn,
              pn:         r.pn,
+             dnSpecJson: r.dnSpecJson,
+             pnSpecJson: r.pnSpecJson,
              insulation: r.insulation,
              desc:       r.desc,
              vertices:   r.vertices
@@ -181,8 +180,8 @@ export const saveGraphData = async (drawingId: string, nodes: any[], edges: any[
       }
 
       if (signals.length) {
-        const controlSignals = signals.filter((s: any) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
-        const measureSignals = signals.filter((s: any) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
+        const controlSignals = signals.filter((s) => s.targetPort === 'actuator' || s.relationType === 'CONTROLS');
+        const measureSignals = signals.filter((s) => s.targetPort !== 'actuator' && s.relationType !== 'CONTROLS');
 
         if (controlSignals.length) {
           await tx.run(
@@ -252,9 +251,9 @@ export const loadGraphData = async (drawingId: string) => {
     
     const nodes = nodesResult.records.map(record => {
       const props = record.get('n').properties;
-      let layout: any = { x: 0, y: 0, w: 40, h: 40, a: 0, s: ''  };
+      let layout: JsonObject = { x: 0, y: 0, w: 40, h: 40, a: 0, s: ''  };
       if (props.layout) {
-        try { layout = JSON.parse(props.layout); } catch (e) { console.warn('Layout parse failed', props.x6Id); }
+        try { layout = JSON.parse(props.layout); } catch { console.warn('Layout parse failed', props.x6Id); }
       } else {
         layout = { x: props.x || 0, y: props.y || 0, w: props.width || 40, h: props.height || 40, a: props.angle || 0, s: props.shape || '' };
       }
@@ -270,6 +269,12 @@ export const loadGraphData = async (drawingId: string) => {
       }
 
       const { layout: _layoutStr, x, y, width, height, angle, ...businessData } = props;
+      void _layoutStr;
+      void x;
+      void y;
+      void width;
+      void height;
+      void angle;
 
       return {
         id: props.x6Id,
@@ -298,12 +303,12 @@ export const loadGraphData = async (drawingId: string) => {
         let strokeWidth = 2;
         let strokeColor = FLUID_COLORS[rel.fluid] || '#5F95FF';
         let dashArray = null;
-        let targetMarker: any = null; 
+        let targetMarker: JsonObject | null = null; 
         let edgeType = 'Pipe'; 
-        let labels: any[] = [];
-        let vertices = [];
+        const labels: JsonObject[] = [];
+        let vertices: JsonObject[] = [];
         
-        if (rel.vertices) { try { vertices = JSON.parse(rel.vertices); } catch (e) { /* ignore */ } }
+        if (rel.vertices) { try { vertices = JSON.parse(rel.vertices) as JsonObject[]; } catch { /* ignore */ } }
 
         if (relType === 'MEASURES' || relType === 'CONTROLS') {
             strokeWidth = 1; strokeColor = FLUID_COLORS.Signal; dashArray = '4 4'; targetMarker = { name: 'classic', width: 10, height: 6 }; edgeType = 'Signal';
@@ -329,6 +334,11 @@ export const loadGraphData = async (drawingId: string) => {
             finalSourceId = targetId; finalTargetId = sourceId; finalSourcePort = rel.toPort; finalTargetPort = rel.fromPort; 
         }
 
+        let dnSpec: JsonObject | undefined;
+        let pnSpec: JsonObject | undefined;
+        if (rel.dnSpecJson) { try { dnSpec = JSON.parse(rel.dnSpecJson); } catch { /* ignore */ } }
+        if (rel.pnSpecJson) { try { pnSpec = JSON.parse(rel.pnSpecJson); } catch { /* ignore */ } }
+
         return {
             shape: edgeType === 'Signal' ? 'signal-edge' : 'edge',
             source: { cell: finalSourceId, port: finalSourcePort || undefined },
@@ -337,7 +347,16 @@ export const loadGraphData = async (drawingId: string) => {
             attrs: { line: { stroke: strokeColor, strokeWidth: strokeWidth, strokeDasharray: dashArray, targetMarker: targetMarker } },
             labels: labels,
             data: { 
-              type: edgeType, relationType: relType, material: rel.material, fluid: rel.fluid, dn: rel.dn, pn: rel.pn, insulation: rel.insulation, desc: rel.desc
+              type: edgeType,
+              relationType: relType,
+              material: rel.material,
+              fluid: rel.fluid,
+              dn: rel.dn,
+              pn: rel.pn,
+              dnSpec: dnSpec,
+              pnSpec: pnSpec,
+              insulation: rel.insulation,
+              desc: rel.desc
             }
         };
     });
