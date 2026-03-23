@@ -8,6 +8,9 @@ import { Keyboard } from '@antv/x6-plugin-keyboard';
 import { SaveOutlined, DeploymentUnitOutlined, PlusOutlined, SwapOutlined, ReloadOutlined } from '@ant-design/icons';
 import driver from '../../services/neo4j';
 import ContextMenu, { type MenuState } from '../Editor/ContextMenu';
+import { RELATION_TYPES, type RelationType as DomainRelationType } from '../../domain/relations';
+import { validateDomainModel } from '../../domain/validators';
+import type { DomainModel } from '../../domain/model';
 
 const { Content, Sider } = Layout;
 const { Title } = Typography;
@@ -26,10 +29,10 @@ interface OntologyAnalysis {
 const RELATION_OPTIONS = [
   { value: 'HEAT_EXCHANGE', label: '🔥 热交换 (Heat Exchange)' },
   { value: 'FLUID_CONNECT', label: '💧 流体连通 (Fluid Connect)' },
-  { value: 'FEEDS', label: '➡️ 进料/进入腔室 (Feeds)' },
-  { value: 'DRAINS', label: '⬅️ 出料/离开腔室 (Drains)' },
-  { value: 'MEASURES', label: '📏 测量 (Measures)' },
-  { value: 'CONTROLS', label: '🎛️ 控制 (Controls)' },
+  { value: RELATION_TYPES.FEEDS, label: '➡️ 进料/进入腔室 (Feeds)' },
+  { value: RELATION_TYPES.DRAINS, label: '⬅️ 出料/离开腔室 (Drains)' },
+  { value: RELATION_TYPES.MEASURES, label: '📏 测量 (Measures)' },
+  { value: RELATION_TYPES.CONTROLS, label: '🎛️ 控制 (Controls)' },
   { value: 'DRIVES', label: '⚙️ 驱动/执行 (Drives)' },
   { value: 'TRANSDUCES_TO', label: '⚡ 传感转换 (Transduces)' },
   { value: 'PHYSICAL_LINK', label: '🔗 物理连接 (Physical Link)' },
@@ -167,6 +170,127 @@ const OntologyDesigner: React.FC = () => {
       await session.close();
     }
   }, []);
+
+  const mapLegacyRelationToDomain = (raw: string, sourceKind: 'equipment' | 'zone' | 'port' | 'pipe' | 'instrument', targetKind: 'equipment' | 'zone' | 'port' | 'pipe' | 'instrument'): DomainRelationType => {
+    if (raw === RELATION_TYPES.FEEDS) return RELATION_TYPES.FEEDS;
+    if (raw === RELATION_TYPES.DRAINS) return RELATION_TYPES.DRAINS;
+    if (raw === RELATION_TYPES.MEASURES) {
+      return sourceKind === 'instrument' ? RELATION_TYPES.MEASURES : RELATION_TYPES.CONNECTS_TO;
+    }
+    if (raw === RELATION_TYPES.CONTROLS) {
+      return sourceKind === 'instrument' ? RELATION_TYPES.CONTROLS : RELATION_TYPES.CONNECTS_TO;
+    }
+    if (sourceKind === 'zone' && targetKind === 'zone') return RELATION_TYPES.CONNECTS_TO;
+    return RELATION_TYPES.CONNECTS_TO;
+  };
+
+  const buildDomainModelFromGraph = useCallback((graph: Graph): DomainModel => {
+    const nodes = graph.getNodes();
+    const edges = graph.getEdges();
+    const typeNodes = nodes.filter((node) => node.getData()?.type === 'MetaType');
+    const chamberNodes = nodes.filter((node) => node.getData()?.type === 'MetaChamber');
+    const portNodes = nodes.filter((node) => node.getData()?.type === 'MetaPort');
+
+    const equipments = typeNodes.map((node) => ({
+      id: String(node.getData()?.name || node.id),
+      type: String(node.getData()?.name || 'UnknownType'),
+      tag: String(node.attr('label/text') || ''),
+      name: String(node.attr('label/text') || ''),
+      zoneIds: [] as string[],
+      portIds: [] as string[],
+    }));
+
+    const firstEquipmentId = equipments[0]?.id || 'UnknownType';
+    const zones = chamberNodes.map((node) => {
+      const parent = node.getParent();
+      const equipmentId = parent && parent.getData()?.type === 'MetaType'
+        ? String(parent.getData()?.name || parent.id)
+        : firstEquipmentId;
+      return {
+        id: String(node.getData()?.name || node.id),
+        equipmentId,
+        role: String(node.getData()?.name || 'zone'),
+        label: String(node.attr('label/text') || ''),
+        phase: 'Any' as const,
+        portIds: [] as string[],
+      };
+    });
+
+    const ports = portNodes.map((node) => {
+      const parent = node.getParent();
+      const ownerId = parent && parent.getData()?.type === 'MetaChamber'
+        ? String(parent.getData()?.name || parent.id)
+        : firstEquipmentId;
+      const dir = String(node.getData()?.dir || 'bi');
+      return {
+        id: String(node.getData()?.name || node.id),
+        ownerKind: (parent && parent.getData()?.type === 'MetaChamber' ? 'zone' : 'equipment') as 'zone' | 'equipment' | 'instrument',
+        ownerId,
+        direction: (dir === 'in' || dir === 'out' || dir === 'bi' ? dir : 'bi') as 'in' | 'out' | 'bi',
+        role: String(node.getData()?.role || 'process'),
+        label: String(node.attr('label/text') || ''),
+      };
+    });
+
+    zones.forEach((zone) => {
+      const equipment = equipments.find((e) => e.id === zone.equipmentId);
+      if (equipment) equipment.zoneIds.push(zone.id);
+    });
+    ports.forEach((port) => {
+      if (port.ownerKind === 'zone') {
+        const zone = zones.find((z) => z.id === port.ownerId);
+        if (zone) zone.portIds.push(port.id);
+      }
+    });
+
+    const relations = [
+      ...zones.map((zone) => ({
+        id: `rel-has-zone-${zone.equipmentId}-${zone.id}`,
+        type: RELATION_TYPES.HAS_ZONE,
+        source: { kind: 'equipment' as const, id: zone.equipmentId },
+        target: { kind: 'zone' as const, id: zone.id },
+      })),
+      ...ports.map((port) => ({
+        id: `rel-has-port-${port.ownerId}-${port.id}`,
+        type: RELATION_TYPES.HAS_PORT,
+        source: { kind: (port.ownerKind === 'zone' ? 'zone' : port.ownerKind) as 'zone' | 'equipment' | 'instrument', id: port.ownerId },
+        target: { kind: 'port' as const, id: port.id },
+      })),
+      ...edges.map((edge) => {
+        const sourceNode = edge.getSourceNode();
+        const targetNode = edge.getTargetNode();
+        const sourceType = sourceNode?.getData()?.type;
+        const targetType = targetNode?.getData()?.type;
+        const sourceKind = sourceType === 'MetaPort' ? 'port' : sourceType === 'MetaChamber' ? 'zone' : 'equipment';
+        const targetKind = targetType === 'MetaPort' ? 'port' : targetType === 'MetaChamber' ? 'zone' : 'equipment';
+        const rawType = String(edge.getData()?.relType || 'CONNECTS_TO');
+        return {
+          id: `rel-edge-${edge.id}`,
+          type: mapLegacyRelationToDomain(rawType, sourceKind, targetKind),
+          source: { kind: sourceKind as 'equipment' | 'zone' | 'port' | 'pipe' | 'instrument', id: String(sourceNode?.getData()?.name || sourceNode?.id || '') },
+          target: { kind: targetKind as 'equipment' | 'zone' | 'port' | 'pipe' | 'instrument', id: String(targetNode?.getData()?.name || targetNode?.id || '') },
+        };
+      }),
+    ];
+
+    return {
+      drawing: {
+        id: currentType || 'ontology-draft',
+        name: currentType || 'ontology-draft',
+        revision: 'v1',
+        equipmentIds: equipments.map((e) => e.id),
+        instrumentIds: [],
+        pipeIds: [],
+        relationIds: relations.map((r) => r.id),
+      },
+      equipments,
+      zones,
+      ports,
+      pipes: [],
+      instruments: [],
+      relations,
+    };
+  }, [currentType]);
 
   const analyzeOntologyGraph = useCallback((graph: Graph): OntologyAnalysis => {
     const allowedRelations = new Set(RELATION_OPTIONS.map((item) => item.value));
@@ -312,8 +436,19 @@ const OntologyDesigner: React.FC = () => {
       if (outPorts.size === 0) errors.push('至少需要一个出口端口（dir=out 或 bi）。');
     }
 
+    const domainModel = buildDomainModelFromGraph(graph);
+    const domainResult = validateDomainModel(domainModel);
+    domainResult.issues.forEach((issue) => {
+      const fullMessage = `[Domain] ${issue.message}`;
+      if (issue.level === 'error') {
+        errors.push(fullMessage);
+      } else {
+        warnings.push(fullMessage);
+      }
+    });
+
     return { typeIds, chamberIds, portIds, relations, errors, warnings };
-  }, []);
+  }, [buildDomainModelFromGraph]);
 
   const summarizeDiff = (prev: OntologyAnalysis | null, next: OntologyAnalysis) => {
     if (!prev) {
