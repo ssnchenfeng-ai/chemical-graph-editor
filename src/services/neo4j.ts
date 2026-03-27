@@ -1,6 +1,10 @@
 // src/services/neo4j.ts
 import neo4j from 'neo4j-driver';
 import { FLUID_COLORS } from '../config/rules';
+import type { SemanticIR } from '../domain/ir';
+import { fromNeo4jDomainSnapshot, toNeo4jWritePlans, type Neo4jWriteOptions } from '../domain/adapters/neo4j';
+import { compareSemanticIRRoundTrip, type RoundTripReport } from '../domain/roundTrip';
+import { CURRENT_IR_VERSION, CURRENT_SCHEMA_VERSION, migrateSemanticIR } from '../domain/migrations';
 
 const uri = import.meta.env.VITE_NEO4J_URI || 'bolt://localhost:7687';
 const user = import.meta.env.VITE_NEO4J_USER || 'neo4j';
@@ -9,6 +13,37 @@ const password = import.meta.env.VITE_NEO4J_PASSWORD || '';
 const driver = neo4j.driver(uri, neo4j.auth.basic(user, password));
 
 export default driver;
+
+let ensureDomainSchemaPromise: Promise<void> | null = null;
+
+const ensureDomainSchema = async () => {
+  if (ensureDomainSchemaPromise) {
+    await ensureDomainSchemaPromise;
+    return;
+  }
+
+  ensureDomainSchemaPromise = (async () => {
+    const session = driver.session();
+    try {
+      const statements = [
+        'CREATE INDEX domain_drawing_by_id IF NOT EXISTS FOR (d:DomainDrawing) ON (d.id)',
+        'CREATE INDEX domain_entity_by_drawing IF NOT EXISTS FOR (e:DomainEntity) ON (e.drawingId)',
+        'CREATE INDEX domain_entity_lookup IF NOT EXISTS FOR (e:DomainEntity) ON (e.drawingId, e.kind, e.entityId)',
+      ];
+      for (const cypher of statements) {
+        try {
+          await session.run(cypher);
+        } catch (error) {
+          console.warn('[DomainIR] create index skipped:', cypher, error);
+        }
+      }
+    } finally {
+      await session.close();
+    }
+  })();
+
+  await ensureDomainSchemaPromise;
+};
 
 type JsonObject = Record<string, unknown>;
 type GraphNodePayload = JsonObject & { x6Id?: string; type?: string };
@@ -363,4 +398,137 @@ export const loadGraphData = async (drawingId: string) => {
 
     return { nodes, edges };
   } finally { await session.close(); }
+};
+
+// ============================================================
+// Domain IR 并行持久化入口 (不替换现有 saveGraphData/loadGraphData)
+// ============================================================
+
+export interface SaveDomainIROptions {
+  mode?: 'replace' | 'merge';
+  expectedUpdatedAt?: string;
+  irVersion?: string;
+  schemaVersion?: string;
+}
+
+export interface SaveDomainIRResult {
+  updatedAt?: string;
+}
+
+export const saveDomainIR = async (ir: SemanticIR, options?: SaveDomainIROptions): Promise<SaveDomainIRResult> => {
+  const normalized = migrateSemanticIR(ir);
+  await ensureDomainSchema();
+  const session = driver.session();
+  const tx = session.beginTransaction();
+  try {
+    if (options?.expectedUpdatedAt) {
+      const lockRes = await tx.run(
+        `MATCH (d:DomainDrawing {id: $drawingId}) RETURN toString(d.updatedAt) as updatedAt LIMIT 1`,
+        { drawingId: normalized.model.drawing.id },
+      );
+      const currentUpdatedAt = lockRes.records[0]?.get('updatedAt');
+      const current = typeof currentUpdatedAt === 'string' ? currentUpdatedAt : '';
+      if (current !== options.expectedUpdatedAt) {
+        throw new Error(`DOMAIN_IR_WRITE_CONFLICT: expected ${options.expectedUpdatedAt}, got ${current || '<empty>'}`);
+      }
+    }
+
+    const writeOptions: Neo4jWriteOptions = {
+      mode: options?.mode || 'replace',
+      irVersion: options?.irVersion || normalized.meta.version || CURRENT_IR_VERSION,
+      schemaVersion: options?.schemaVersion || String(normalized.model.drawing.metadata?.schemaVersion || CURRENT_SCHEMA_VERSION),
+    };
+    const plans = toNeo4jWritePlans(normalized, writeOptions);
+    for (const plan of plans) {
+      await tx.run(plan.cypher, plan.params);
+    }
+    const updatedRes = await tx.run(
+      `MATCH (d:DomainDrawing {id: $drawingId}) RETURN toString(d.updatedAt) as updatedAt LIMIT 1`,
+      { drawingId: normalized.model.drawing.id },
+    );
+    await tx.commit();
+    return {
+      updatedAt: typeof updatedRes.records[0]?.get('updatedAt') === 'string'
+        ? String(updatedRes.records[0]?.get('updatedAt'))
+        : undefined,
+    };
+  } catch (error) {
+    await tx.rollback();
+    throw error;
+  } finally {
+    await session.close();
+  }
+};
+
+export const saveDomainIRWithRoundTripCheck = async (ir: SemanticIR, options?: SaveDomainIROptions): Promise<RoundTripReport> => {
+  await saveDomainIR(ir, options);
+  const loaded = await loadDomainIR(ir.model.drawing.id);
+  if (!loaded) {
+    return {
+      ok: false,
+      issues: [
+        {
+          level: 'error',
+          code: 'ROUNDTRIP_LOAD_EMPTY',
+          message: `Round-trip load returned empty for drawing ${ir.model.drawing.id}`,
+          entityId: ir.model.drawing.id,
+        },
+      ],
+    };
+  }
+  return compareSemanticIRRoundTrip(ir, loaded);
+};
+
+export const loadDomainIR = async (drawingId: string): Promise<SemanticIR | null> => {
+  await ensureDomainSchema();
+  const session = driver.session();
+  try {
+    const drawingRes = await session.run(
+      `MATCH (d:DomainDrawing {id: $drawingId}) RETURN d LIMIT 1`,
+      { drawingId }
+    );
+    if (drawingRes.records.length === 0) return null;
+
+    const drawingNode = drawingRes.records[0].get('d').properties as Record<string, unknown>;
+
+    const entityRes = await session.run(
+      `MATCH (d:DomainDrawing {id: $drawingId})-[:HAS_DOMAIN_ENTITY]->(e:DomainEntity)
+       WHERE NOT e:DomainRelation
+       RETURN e.kind as kind, e.entityId as entityId, e.payloadJson as payloadJson`,
+      { drawingId }
+    );
+
+    const relationRes = await session.run(
+      `MATCH (d:DomainDrawing {id: $drawingId})-[:HAS_DOMAIN_ENTITY]->(r:DomainEntity:DomainRelation)-[:REL_SOURCE]->(s:DomainEntity)
+       MATCH (r)-[:REL_TARGET]->(t:DomainEntity)
+       RETURN r.entityId as id, r.relType as relType, r.payloadJson as payloadJson,
+              s.kind as sourceKind, s.entityId as sourceId,
+              t.kind as targetKind, t.entityId as targetId`,
+      { drawingId }
+    );
+
+    const ir = fromNeo4jDomainSnapshot({
+      drawingId,
+      drawingName: typeof drawingNode.name === 'string' ? drawingNode.name : drawingId,
+      drawingPayloadJson: typeof drawingNode.payloadJson === 'string' ? drawingNode.payloadJson : undefined,
+      entities: entityRes.records.map((r) => ({
+        kind: String(r.get('kind')) as 'equipment' | 'zone' | 'port' | 'pipe' | 'instrument',
+        entityId: String(r.get('entityId')),
+        payloadJson: typeof r.get('payloadJson') === 'string' ? r.get('payloadJson') : undefined,
+      })),
+      relations: relationRes.records.map((r) => ({
+        id: String(r.get('id')),
+        relType: String(r.get('relType')),
+        sourceKind: String(r.get('sourceKind')) as 'equipment' | 'zone' | 'port' | 'pipe' | 'instrument',
+        sourceId: String(r.get('sourceId')),
+        targetKind: String(r.get('targetKind')) as 'equipment' | 'zone' | 'port' | 'pipe' | 'instrument',
+        targetId: String(r.get('targetId')),
+        payloadJson: typeof r.get('payloadJson') === 'string' ? r.get('payloadJson') : undefined,
+      })),
+    });
+    ir.meta.version = CURRENT_IR_VERSION;
+    return migrateSemanticIR(ir);
+  } finally {
+    await session.close();
+  }
 };

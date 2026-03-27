@@ -3,3 +3,8 @@ export * from './relations';
 export * from './schema';
 export * from './validators';
 export * from './ir';
+export * from './publishGate';
+export * from './validation';
+export * from './roundTrip';
+export * from './contracts';
+export * from './migrations';

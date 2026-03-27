@@ -1,16 +1,19 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Layout, Button, message, Input, Form, Select, Divider, Typography, Spin, Modal } from 'antd';
+import { Layout, Button, message, Input, Form, Select, Divider, Typography, Spin, Modal, Tree, Tabs, Tag } from 'antd';
 import { Graph, Cell } from '@antv/x6';
 import { Stencil } from '@antv/x6-plugin-stencil';
 import { Transform } from '@antv/x6-plugin-transform';
 import { Selection } from '@antv/x6-plugin-selection';
 import { Keyboard } from '@antv/x6-plugin-keyboard';
 import { SaveOutlined, DeploymentUnitOutlined, PlusOutlined, SwapOutlined, ReloadOutlined } from '@ant-design/icons';
-import driver from '../../services/neo4j';
+import driver, { saveDomainIR } from '../../services/neo4j';
 import ContextMenu, { type MenuState } from '../Editor/ContextMenu';
 import { RELATION_TYPES, type RelationType as DomainRelationType } from '../../domain/relations';
 import { validateDomainModel } from '../../domain/validators';
+import { decidePublishFromIssues } from '../../domain/publishGate';
+import { bucketsFromIssues, type UnifiedIssue } from '../../domain/validation';
 import type { DomainModel } from '../../domain/model';
+import type { SemanticIR } from '../../domain/ir';
 
 const { Content, Sider } = Layout;
 const { Title } = Typography;
@@ -22,11 +25,50 @@ interface OntologyAnalysis {
   chamberIds: string[];
   portIds: string[];
   relations: string[];
-  errors: string[];
-  warnings: string[];
+  issues: UnifiedIssue[];
+}
+
+interface RelationPickerState {
+  visible: boolean;
+  edgeId: string;
+  sourceType: string;
+  targetType: string;
+  candidates: RelationType[];
+  selected: RelationType;
+}
+
+interface OntologyTemplateZone {
+  id: string;
+  label: string;
+  x: number;
+  y: number;
+}
+
+interface OntologyTemplatePort {
+  id: string;
+  label: string;
+  zoneId: string;
+  dir: 'in' | 'out' | 'bi';
+  role: 'process' | 'signal' | 'utility' | 'relief';
+  side: 'top' | 'right' | 'bottom' | 'left';
+}
+
+interface OntologyTemplateRelation {
+  sourceId: string;
+  targetId: string;
+  relType: RelationType;
+}
+
+interface OntologyTemplateDef {
+  typeId: string;
+  label: string;
+  zones: OntologyTemplateZone[];
+  ports: OntologyTemplatePort[];
+  relations: OntologyTemplateRelation[];
 }
 
 const RELATION_OPTIONS = [
+  { value: RELATION_TYPES.HAS_PORT, label: '🧩 归属端口 (Has Port)' },
   { value: 'HEAT_EXCHANGE', label: '🔥 热交换 (Heat Exchange)' },
   { value: 'FLUID_CONNECT', label: '💧 流体连通 (Fluid Connect)' },
   { value: RELATION_TYPES.FEEDS, label: '➡️ 进料/进入腔室 (Feeds)' },
@@ -85,6 +127,153 @@ const PORT_ID_OPTIONS = [
   { value: 'signal', label: '信号 (signal)' },
 ];
 
+const ONTOLOGY_TEMPLATE_OPTIONS = [
+  { value: 'Reactor', label: '反应器模板 (Reactor)' },
+  { value: 'FixedBedReactor', label: '固定床反应器模板 (FixedBedReactor)' },
+  { value: 'Exchanger', label: '换热器模板 (Exchanger)' },
+  { value: 'Tank', label: '储罐模板 (Tank)' },
+  { value: 'Separator', label: '分离器模板 (Separator)' },
+];
+
+const ONTOLOGY_TEMPLATES: Record<string, OntologyTemplateDef> = {
+  Reactor: {
+    typeId: 'Reactor',
+    label: '反应器本体',
+    zones: [
+      { id: 'ReactionZone', label: 'Reaction Zone', x: 360, y: 210 },
+      { id: 'Jacket', label: 'Jacket', x: 230, y: 210 },
+      { id: 'VaporSpace', label: 'Vapor Space', x: 360, y: 95 },
+    ],
+    ports: [
+      { id: 'feed_in', label: 'Feed In', zoneId: 'ReactionZone', dir: 'in', role: 'process', side: 'left' },
+      { id: 'product_out', label: 'Product Out', zoneId: 'ReactionZone', dir: 'out', role: 'process', side: 'right' },
+      { id: 'utility_in', label: 'Utility In', zoneId: 'Jacket', dir: 'in', role: 'utility', side: 'left' },
+      { id: 'utility_out', label: 'Utility Out', zoneId: 'Jacket', dir: 'out', role: 'utility', side: 'bottom' },
+      { id: 'vent', label: 'Vent', zoneId: 'VaporSpace', dir: 'out', role: 'relief', side: 'top' },
+    ],
+    relations: [
+      { sourceId: 'ReactionZone', targetId: 'Jacket', relType: 'HEAT_EXCHANGE' },
+      { sourceId: 'feed_in', targetId: 'ReactionZone', relType: RELATION_TYPES.FEEDS },
+      { sourceId: 'ReactionZone', targetId: 'product_out', relType: RELATION_TYPES.DRAINS },
+      { sourceId: 'utility_in', targetId: 'Jacket', relType: RELATION_TYPES.FEEDS },
+      { sourceId: 'Jacket', targetId: 'utility_out', relType: RELATION_TYPES.DRAINS },
+      { sourceId: 'VaporSpace', targetId: 'vent', relType: RELATION_TYPES.DRAINS },
+    ],
+  },
+  FixedBedReactor: {
+    typeId: 'FixedBedReactor',
+    label: '固定床反应器本体',
+    zones: [
+      { id: 'ReactionZone', label: 'Reaction Zone', x: 360, y: 205 },
+      { id: 'SaltBathZone', label: 'Salt Bath Zone', x: 210, y: 205 },
+      { id: 'UpperSaltRing', label: 'Upper Salt Ring', x: 210, y: 95 },
+      { id: 'LowerSaltRing', label: 'Lower Salt Ring', x: 210, y: 315 },
+    ],
+    ports: [
+      { id: 'gas_in', label: 'Gas In', zoneId: 'ReactionZone', dir: 'in', role: 'process', side: 'left' },
+      { id: 'gas_out', label: 'Gas Out', zoneId: 'ReactionZone', dir: 'out', role: 'process', side: 'right' },
+      { id: 'salt_in', label: 'Salt In', zoneId: 'UpperSaltRing', dir: 'in', role: 'utility', side: 'top' },
+      { id: 'salt_out', label: 'Salt Out', zoneId: 'LowerSaltRing', dir: 'out', role: 'utility', side: 'bottom' },
+    ],
+    relations: [
+      { sourceId: 'UpperSaltRing', targetId: 'SaltBathZone', relType: RELATION_TYPES.FEEDS },
+      { sourceId: 'SaltBathZone', targetId: 'LowerSaltRing', relType: RELATION_TYPES.DRAINS },
+      { sourceId: 'ReactionZone', targetId: 'SaltBathZone', relType: 'HEAT_EXCHANGE' },
+      { sourceId: 'gas_in', targetId: 'ReactionZone', relType: RELATION_TYPES.FEEDS },
+      { sourceId: 'ReactionZone', targetId: 'gas_out', relType: RELATION_TYPES.DRAINS },
+      { sourceId: 'salt_in', targetId: 'UpperSaltRing', relType: RELATION_TYPES.FEEDS },
+      { sourceId: 'LowerSaltRing', targetId: 'salt_out', relType: RELATION_TYPES.DRAINS },
+    ],
+  },
+  Exchanger: {
+    typeId: 'Exchanger',
+    label: '换热器本体',
+    zones: [
+      { id: 'ShellSide', label: 'Shell Side', x: 240, y: 210 },
+      { id: 'TubeSide', label: 'Tube Side', x: 390, y: 210 },
+    ],
+    ports: [
+      { id: 'shell_in', label: 'Shell In', zoneId: 'ShellSide', dir: 'in', role: 'process', side: 'left' },
+      { id: 'shell_out', label: 'Shell Out', zoneId: 'ShellSide', dir: 'out', role: 'process', side: 'bottom' },
+      { id: 'tube_in', label: 'Tube In', zoneId: 'TubeSide', dir: 'in', role: 'process', side: 'top' },
+      { id: 'tube_out', label: 'Tube Out', zoneId: 'TubeSide', dir: 'out', role: 'process', side: 'right' },
+    ],
+    relations: [
+      { sourceId: 'ShellSide', targetId: 'TubeSide', relType: 'HEAT_EXCHANGE' },
+      { sourceId: 'shell_in', targetId: 'ShellSide', relType: RELATION_TYPES.FEEDS },
+      { sourceId: 'ShellSide', targetId: 'shell_out', relType: RELATION_TYPES.DRAINS },
+      { sourceId: 'tube_in', targetId: 'TubeSide', relType: RELATION_TYPES.FEEDS },
+      { sourceId: 'TubeSide', targetId: 'tube_out', relType: RELATION_TYPES.DRAINS },
+    ],
+  },
+  Tank: {
+    typeId: 'Tank',
+    label: '储罐本体',
+    zones: [
+      { id: 'LiquidSpace', label: 'Liquid Space', x: 320, y: 240 },
+      { id: 'VaporSpace', label: 'Vapor Space', x: 320, y: 110 },
+    ],
+    ports: [
+      { id: 'inlet', label: 'Inlet', zoneId: 'LiquidSpace', dir: 'in', role: 'process', side: 'left' },
+      { id: 'outlet', label: 'Outlet', zoneId: 'LiquidSpace', dir: 'out', role: 'process', side: 'bottom' },
+      { id: 'vent', label: 'Vent', zoneId: 'VaporSpace', dir: 'out', role: 'relief', side: 'top' },
+      { id: 'drain', label: 'Drain', zoneId: 'LiquidSpace', dir: 'out', role: 'process', side: 'right' },
+    ],
+    relations: [
+      { sourceId: 'inlet', targetId: 'LiquidSpace', relType: RELATION_TYPES.FEEDS },
+      { sourceId: 'LiquidSpace', targetId: 'outlet', relType: RELATION_TYPES.DRAINS },
+      { sourceId: 'LiquidSpace', targetId: 'drain', relType: RELATION_TYPES.DRAINS },
+      { sourceId: 'VaporSpace', targetId: 'vent', relType: RELATION_TYPES.DRAINS },
+      { sourceId: 'LiquidSpace', targetId: 'VaporSpace', relType: 'FLUID_CONNECT' },
+    ],
+  },
+  Separator: {
+    typeId: 'Separator',
+    label: '分离器本体',
+    zones: [
+      { id: 'FeedZone', label: 'Feed Zone', x: 240, y: 205 },
+      { id: 'VaporZone', label: 'Vapor Zone', x: 380, y: 120 },
+      { id: 'LiquidZone', label: 'Liquid Zone', x: 380, y: 290 },
+    ],
+    ports: [
+      { id: 'feed_in', label: 'Feed In', zoneId: 'FeedZone', dir: 'in', role: 'process', side: 'left' },
+      { id: 'gas_out', label: 'Gas Out', zoneId: 'VaporZone', dir: 'out', role: 'process', side: 'top' },
+      { id: 'liquid_out', label: 'Liquid Out', zoneId: 'LiquidZone', dir: 'out', role: 'process', side: 'bottom' },
+    ],
+    relations: [
+      { sourceId: 'feed_in', targetId: 'FeedZone', relType: RELATION_TYPES.FEEDS },
+      { sourceId: 'FeedZone', targetId: 'VaporZone', relType: RELATION_TYPES.FEEDS },
+      { sourceId: 'FeedZone', targetId: 'LiquidZone', relType: RELATION_TYPES.DRAINS },
+      { sourceId: 'VaporZone', targetId: 'gas_out', relType: RELATION_TYPES.DRAINS },
+      { sourceId: 'LiquidZone', targetId: 'liquid_out', relType: RELATION_TYPES.DRAINS },
+    ],
+  },
+};
+
+const CHAMBER_TO_CHAMBER_RELATIONS: RelationType[] = ['HEAT_EXCHANGE', 'FLUID_CONNECT', 'DRIVES', 'TRANSDUCES_TO', 'PHYSICAL_LINK'];
+const PORT_TO_CHAMBER_RELATIONS: RelationType[] = [RELATION_TYPES.FEEDS, RELATION_TYPES.MEASURES, RELATION_TYPES.CONTROLS];
+const CHAMBER_TO_PORT_RELATIONS: RelationType[] = [RELATION_TYPES.DRAINS, RELATION_TYPES.HAS_PORT];
+
+const getRelationCandidates = (sourceType?: string, targetType?: string): RelationType[] => {
+  if (sourceType === 'MetaChamber' && targetType === 'MetaChamber') return CHAMBER_TO_CHAMBER_RELATIONS;
+  if (sourceType === 'MetaPort' && targetType === 'MetaChamber') return PORT_TO_CHAMBER_RELATIONS;
+  if (sourceType === 'MetaChamber' && targetType === 'MetaPort') return CHAMBER_TO_PORT_RELATIONS;
+  return [];
+};
+
+const getRelationLineAttrs = (relType: RelationType) => {
+  if (relType === RELATION_TYPES.HAS_PORT) {
+    return { stroke: '#94a3b8', strokeWidth: 1.5, strokeDasharray: '5 4', targetMarker: 'classic' };
+  }
+  if (relType === RELATION_TYPES.FEEDS || relType === RELATION_TYPES.DRAINS || relType === 'FLUID_CONNECT') {
+    return { stroke: '#2563eb', strokeWidth: 2.2, targetMarker: 'classic' };
+  }
+  if (relType === RELATION_TYPES.MEASURES || relType === RELATION_TYPES.CONTROLS) {
+    return { stroke: '#7c3aed', strokeWidth: 2, strokeDasharray: '6 4', targetMarker: 'classic' };
+  }
+  return { stroke: '#595959', strokeWidth: 2, targetMarker: 'classic' };
+};
+
 // 1. 注册图形：设备类型容器
 Graph.registerNode('meta-type', {
   inherit: 'rect',
@@ -138,8 +327,21 @@ Graph.registerNode('meta-port', {
     label: { text: 'Port', fill: '#389e0d', fontSize: 11, fontWeight: 'bold' }
   },
   zIndex: 20,
-  ports: { items: [] },
-  data: { type: 'MetaPort', name: 'inlet', dir: 'in', role: 'process' }
+  ports: {
+    groups: {
+      common: {
+        position: 'absolute',
+        attrs: { circle: { r: 3.5, magnet: true, stroke: '#52c41a', strokeWidth: 1, fill: '#fff' } },
+      },
+    },
+    items: [
+      { id: 'top', group: 'common', args: { x: '50%', y: 0 } },
+      { id: 'right', group: 'common', args: { x: '100%', y: '50%' } },
+      { id: 'bottom', group: 'common', args: { x: '50%', y: '100%' } },
+      { id: 'left', group: 'common', args: { x: 0, y: '50%' } },
+    ],
+  },
+  data: { type: 'MetaPort', name: 'inlet', dir: 'in', role: 'process', positionMode: 'anchored' }
 });
 
 const OntologyDesigner: React.FC = () => {
@@ -155,8 +357,97 @@ const OntologyDesigner: React.FC = () => {
   const [publishing, setPublishing] = useState(false);
   const [existingTypes, setExistingTypes] = useState<string[]>([]);
   const [currentType, setCurrentType] = useState<string | null>(null);
+  const [structureTreeData, setStructureTreeData] = useState<Array<{ key: string; title: React.ReactNode; children?: Array<{ key: string; title: React.ReactNode; children?: Array<{ key: string; title: React.ReactNode }> }> }>>([]);
+  const [leftTab, setLeftTab] = useState<'structure' | 'stencil'>('structure');
+  const [relationPicker, setRelationPicker] = useState<RelationPickerState | null>(null);
+  const [selectedTemplateType, setSelectedTemplateType] = useState<string>('Reactor');
   const lastPublishedSnapshotRef = useRef<Record<string, unknown> | null>(null);
   const lastPublishedAnalysisRef = useRef<OntologyAnalysis | null>(null);
+
+  const refreshStructureTree = useCallback((graph: Graph) => {
+    const typeNodes = graph.getNodes().filter((n) => n.getData()?.type === 'MetaType');
+    const tree = typeNodes.map((typeNode) => {
+      const typeName = String(typeNode.getData()?.name || typeNode.id);
+      const chamberChildren = (typeNode.getChildren() || [])
+        .filter((child) => child.isNode() && child.getData()?.type === 'MetaChamber')
+        .map((chamberNode) => {
+          const chamberName = String(chamberNode.getData()?.name || chamberNode.id);
+          const portChildren = (chamberNode.getChildren() || [])
+            .filter((child) => child.isNode() && child.getData()?.type === 'MetaPort')
+            .map((portNode) => ({
+              key: String(portNode.id),
+              title: `Port · ${String(portNode.getData()?.name || portNode.id)}`,
+            }));
+          return {
+            key: String(chamberNode.id),
+            title: `Zone · ${chamberName}`,
+            children: portChildren,
+          };
+        });
+      return {
+        key: String(typeNode.id),
+        title: (
+          <span>
+            <Tag color="blue" style={{ marginRight: 8 }}>Type</Tag>
+            {typeName}
+          </span>
+        ),
+        children: chamberChildren,
+      };
+    });
+    setStructureTreeData(tree);
+  }, []);
+
+  const snapPortToChamberBoundary = useCallback((portNode: Cell) => {
+    if (!portNode.isNode()) return;
+    const parent = portNode.getParent();
+    if (!parent || !parent.isNode() || parent.getData()?.type !== 'MetaChamber') return;
+    const mode = String(portNode.getData()?.positionMode || 'anchored');
+    if (mode !== 'anchored') return;
+
+    const chamberBBox = parent.getBBox();
+    const portSize = portNode.getSize();
+    const center = portNode.getBBox().getCenter();
+    const leftDist = Math.abs(center.x - chamberBBox.x);
+    const rightDist = Math.abs(center.x - (chamberBBox.x + chamberBBox.width));
+    const topDist = Math.abs(center.y - chamberBBox.y);
+    const bottomDist = Math.abs(center.y - (chamberBBox.y + chamberBBox.height));
+    const min = Math.min(leftDist, rightDist, topDist, bottomDist);
+
+    const clamp = (v: number, minV: number, maxV: number) => Math.max(minV, Math.min(maxV, v));
+    let x = center.x - portSize.width / 2;
+    let y = center.y - portSize.height / 2;
+
+    if (min === leftDist) {
+      x = chamberBBox.x - portSize.width / 2;
+      y = clamp(y, chamberBBox.y - portSize.height / 2, chamberBBox.y + chamberBBox.height - portSize.height / 2);
+    } else if (min === rightDist) {
+      x = chamberBBox.x + chamberBBox.width - portSize.width / 2;
+      y = clamp(y, chamberBBox.y - portSize.height / 2, chamberBBox.y + chamberBBox.height - portSize.height / 2);
+    } else if (min === topDist) {
+      y = chamberBBox.y - portSize.height / 2;
+      x = clamp(x, chamberBBox.x - portSize.width / 2, chamberBBox.x + chamberBBox.width - portSize.width / 2);
+    } else {
+      y = chamberBBox.y + chamberBBox.height - portSize.height / 2;
+      x = clamp(x, chamberBBox.x - portSize.width / 2, chamberBBox.x + chamberBBox.width - portSize.width / 2);
+    }
+    portNode.position(x, y, { deep: false });
+  }, []);
+
+  const positionPortBySide = useCallback((portNode: Cell, side: OntologyTemplatePort['side']) => {
+    if (!portNode.isNode()) return;
+    const parent = portNode.getParent();
+    if (!parent || !parent.isNode()) return;
+    const chamberBBox = parent.getBBox();
+    const portSize = portNode.getSize();
+    let x = chamberBBox.x + chamberBBox.width / 2 - portSize.width / 2;
+    let y = chamberBBox.y + chamberBBox.height / 2 - portSize.height / 2;
+    if (side === 'top') y = chamberBBox.y - portSize.height / 2;
+    if (side === 'bottom') y = chamberBBox.y + chamberBBox.height - portSize.height / 2;
+    if (side === 'left') x = chamberBBox.x - portSize.width / 2;
+    if (side === 'right') x = chamberBBox.x + chamberBBox.width - portSize.width / 2;
+    portNode.position(x, y, { deep: false });
+  }, []);
 
   const fetchExistingTypes = useCallback(async () => {
     const session = driver.session();
@@ -172,6 +463,7 @@ const OntologyDesigner: React.FC = () => {
   }, []);
 
   const mapLegacyRelationToDomain = (raw: string, sourceKind: 'equipment' | 'zone' | 'port' | 'pipe' | 'instrument', targetKind: 'equipment' | 'zone' | 'port' | 'pipe' | 'instrument'): DomainRelationType => {
+    if (raw === RELATION_TYPES.HAS_PORT) return RELATION_TYPES.HAS_PORT;
     if (raw === RELATION_TYPES.FEEDS) return RELATION_TYPES.FEEDS;
     if (raw === RELATION_TYPES.DRAINS) return RELATION_TYPES.DRAINS;
     if (raw === RELATION_TYPES.MEASURES) {
@@ -183,6 +475,16 @@ const OntologyDesigner: React.FC = () => {
     if (sourceKind === 'zone' && targetKind === 'zone') return RELATION_TYPES.CONNECTS_TO;
     return RELATION_TYPES.CONNECTS_TO;
   };
+
+  const applyEdgeStyle = useCallback((edge: Cell, relType: RelationType) => {
+    if (!edge.isEdge()) return;
+    const lineAttrs = getRelationLineAttrs(relType);
+    edge.attr('line/stroke', lineAttrs.stroke);
+    edge.attr('line/strokeWidth', lineAttrs.strokeWidth);
+    edge.attr('line/strokeDasharray', lineAttrs.strokeDasharray || null);
+    edge.attr('line/targetMarker', lineAttrs.targetMarker);
+    edge.setLabels([{ attrs: { label: { text: relType, fontSize: 10, fill: lineAttrs.stroke }, body: { fill: '#fff', stroke: '#eee', rx: 4, ry: 4 } } }]);
+  }, []);
 
   const buildDomainModelFromGraph = useCallback((graph: Graph): DomainModel => {
     const nodes = graph.getNodes();
@@ -243,6 +545,17 @@ const OntologyDesigner: React.FC = () => {
       }
     });
 
+    const explicitHasPortTargets = new Set(
+      edges
+        .filter((edge) => {
+          const sourceType = edge.getSourceNode()?.getData()?.type;
+          const targetType = edge.getTargetNode()?.getData()?.type;
+          const relType = String(edge.getData()?.relType || '').trim();
+          return sourceType === 'MetaChamber' && targetType === 'MetaPort' && relType === RELATION_TYPES.HAS_PORT;
+        })
+        .map((edge) => String(edge.getTargetNode()?.getData()?.name || edge.getTargetNode()?.id || '')),
+    );
+
     const relations = [
       ...zones.map((zone) => ({
         id: `rel-has-zone-${zone.equipmentId}-${zone.id}`,
@@ -250,7 +563,9 @@ const OntologyDesigner: React.FC = () => {
         source: { kind: 'equipment' as const, id: zone.equipmentId },
         target: { kind: 'zone' as const, id: zone.id },
       })),
-      ...ports.map((port) => ({
+      ...ports
+        .filter((port) => !explicitHasPortTargets.has(port.id))
+        .map((port) => ({
         id: `rel-has-port-${port.ownerId}-${port.id}`,
         type: RELATION_TYPES.HAS_PORT,
         source: { kind: (port.ownerKind === 'zone' ? 'zone' : port.ownerKind) as 'zone' | 'equipment' | 'instrument', id: port.ownerId },
@@ -298,8 +613,9 @@ const OntologyDesigner: React.FC = () => {
     const chamberIds: string[] = [];
     const portIds: string[] = [];
     const relations: string[] = [];
-    const errors: string[] = [];
-    const warnings: string[] = [];
+    const issues: UnifiedIssue[] = [];
+    const pushError = (message: string, entityId?: string) => issues.push({ level: 'error', code: 'ONTOLOGY_VALIDATE', message, entityId, source: 'ontology' });
+    const pushWarning = (message: string, entityId?: string) => issues.push({ level: 'warning', code: 'ONTOLOGY_VALIDATE', message, entityId, source: 'ontology' });
 
     const typeIdSet = new Set<string>();
     const chamberIdSet = new Set<string>();
@@ -315,20 +631,20 @@ const OntologyDesigner: React.FC = () => {
     const outPorts = new Set<string>();
 
     if (typeNodes.length === 0) {
-      errors.push('至少需要一个设备类型节点 (MetaType)。');
+      pushError('至少需要一个设备类型节点 (MetaType)。');
     }
     if (chamberNodes.length === 0) {
-      warnings.push('当前没有腔室节点，建议补充后再发布。');
+      pushWarning('当前没有腔室节点，建议补充后再发布。');
     }
 
     typeNodes.forEach((typeNode) => {
       const typeId = String(typeNode.getData()?.name || '').trim();
       if (!typeId) {
-        errors.push('存在未填写 name 的设备类型节点。');
+        pushError('存在未填写 name 的设备类型节点。');
         return;
       }
       if (typeIdSet.has(typeId)) {
-        errors.push(`设备类型 ID 重复: ${typeId}`);
+        pushError(`设备类型 ID 重复: ${typeId}`, typeId);
       } else {
         typeIdSet.add(typeId);
         typeIds.push(typeId);
@@ -338,17 +654,17 @@ const OntologyDesigner: React.FC = () => {
     chamberNodes.forEach((chamberNode) => {
       const chamberId = String(chamberNode.getData()?.name || '').trim();
       if (!chamberId) {
-        errors.push('存在未填写 name 的腔室节点。');
+        pushError('存在未填写 name 的腔室节点。');
         return;
       }
       if (chamberIdSet.has(chamberId)) {
-        errors.push(`腔室 ID 重复: ${chamberId}`);
+        pushError(`腔室 ID 重复: ${chamberId}`, chamberId);
       } else {
         chamberIdSet.add(chamberId);
         chamberIds.push(chamberId);
       }
       if (!chamberNode.getParent()) {
-        warnings.push(`腔室 ${chamberId} 未归属任何设备类型容器。`);
+        pushWarning(`腔室 ${chamberId} 未归属任何设备类型容器。`, chamberId);
       }
     });
 
@@ -356,31 +672,31 @@ const OntologyDesigner: React.FC = () => {
       const chamberId = String(chamberNode.getData()?.name || '').trim() || chamberNode.id;
       const chamberPorts = (chamberNode.getChildren() || []).filter((child) => child.isNode() && child.getData()?.type === 'MetaPort');
       if (chamberPorts.length === 0) {
-        warnings.push(`腔室 ${chamberId} 没有关联端口。`);
+        pushWarning(`腔室 ${chamberId} 没有关联端口。`, chamberId);
       }
     });
 
     portNodes.forEach((portNode) => {
       const portId = String(portNode.getData()?.name || '').trim();
       if (!portId) {
-        errors.push('存在未填写 name 的端口节点。');
+        pushError('存在未填写 name 的端口节点。');
         return;
       }
       if (portIdSet.has(portId)) {
-        errors.push(`端口 ID 重复: ${portId}`);
+        pushError(`端口 ID 重复: ${portId}`, portId);
       } else {
         portIdSet.add(portId);
         portIds.push(portId);
       }
       const dir = String(portNode.getData()?.dir || '').trim();
       if (!legalPortDir.has(dir)) {
-        errors.push(`端口 ${portId} 的方向非法: ${dir || '空'}，仅允许 in/out/bi。`);
+        pushError(`端口 ${portId} 的方向非法: ${dir || '空'}，仅允许 in/out/bi。`, portId);
       }
       if (dir === 'in' || dir === 'bi') inPorts.add(portId);
       if (dir === 'out' || dir === 'bi') outPorts.add(portId);
       const parent = portNode.getParent();
       if (!parent || parent.getData()?.type !== 'MetaChamber') {
-        errors.push(`端口 ${portId} 必须归属一个腔室节点。`);
+        pushError(`端口 ${portId} 必须归属一个腔室节点。`, portId);
       }
     });
 
@@ -392,15 +708,15 @@ const OntologyDesigner: React.FC = () => {
       const relType = String(edge.getData()?.relType || '').trim();
 
       if (!source || !target) {
-        errors.push('存在关系边未连接完整的起点/终点。');
+        pushError('存在关系边未连接完整的起点/终点。');
         return;
       }
       if (!relType) {
-        errors.push('存在关系边未设置关系类型 (relType)。');
+        pushError('存在关系边未设置关系类型 (relType)。');
         return;
       }
       if (!allowedRelations.has(relType as RelationType)) {
-        errors.push(`存在不支持的关系类型: ${relType}`);
+        pushError(`存在不支持的关系类型: ${relType}`);
         return;
       }
 
@@ -411,29 +727,33 @@ const OntologyDesigner: React.FC = () => {
       const portInRelation = new Set(['FEEDS', 'MEASURES', 'CONTROLS']);
 
       if (chamberRelation.has(relType) && !isChamberToChamber) {
-        errors.push(`${relType} 只能连接腔室 -> 腔室。`);
+        pushError(`${relType} 只能连接腔室 -> 腔室。`);
         return;
       }
       if (portInRelation.has(relType) && !isPortToChamber) {
-        errors.push(`${relType} 只能连接端口 -> 腔室。`);
+        pushError(`${relType} 只能连接端口 -> 腔室。`);
+        return;
+      }
+      if (relType === RELATION_TYPES.HAS_PORT && !isChamberToPort) {
+        pushError(`${relType} 只能连接腔室 -> 端口。`);
         return;
       }
       if (relType === 'DRAINS' && !isChamberToPort) {
-        errors.push('DRAINS 只能连接腔室 -> 端口。');
+        pushError('DRAINS 只能连接腔室 -> 端口。');
         return;
       }
 
       const srcId = String(source.getData()?.name || source.id);
       const tgtId = String(target.getData()?.name || target.id);
       if (srcId === tgtId) {
-        warnings.push(`关系 ${relType} 存在自环: ${srcId} -> ${tgtId}`);
+        pushWarning(`关系 ${relType} 存在自环: ${srcId} -> ${tgtId}`);
       }
       relations.push(`${srcId}->${tgtId}:${relType}`);
     });
 
     if (portNodes.length > 0) {
-      if (inPorts.size === 0) errors.push('至少需要一个入口端口（dir=in 或 bi）。');
-      if (outPorts.size === 0) errors.push('至少需要一个出口端口（dir=out 或 bi）。');
+      if (inPorts.size === 0) pushError('至少需要一个入口端口（dir=in 或 bi）。');
+      if (outPorts.size === 0) pushError('至少需要一个出口端口（dir=out 或 bi）。');
     }
 
     const domainModel = buildDomainModelFromGraph(graph);
@@ -441,13 +761,13 @@ const OntologyDesigner: React.FC = () => {
     domainResult.issues.forEach((issue) => {
       const fullMessage = `[Domain] ${issue.message}`;
       if (issue.level === 'error') {
-        errors.push(fullMessage);
+        pushError(fullMessage, issue.entityId);
       } else {
-        warnings.push(fullMessage);
+        pushWarning(fullMessage, issue.entityId);
       }
     });
 
-    return { typeIds, chamberIds, portIds, relations, errors, warnings };
+    return { typeIds, chamberIds, portIds, relations, issues };
   }, [buildDomainModelFromGraph]);
 
   const summarizeDiff = (prev: OntologyAnalysis | null, next: OntologyAnalysis) => {
@@ -506,11 +826,12 @@ const OntologyDesigner: React.FC = () => {
           return supported.has(`${sourceType}->${targetType}`);
         },
         createEdge() {
-          const relType = 'HEAT_EXCHANGE';
+          const relType: RelationType = 'HEAT_EXCHANGE';
+          const lineAttrs = getRelationLineAttrs(relType);
           return this.createEdge({
             shape: 'edge',
-            attrs: { line: { stroke: '#595959', strokeWidth: 2, targetMarker: 'classic' } },
-            labels: [{ attrs: { label: { text: relType, fontSize: 10, fill: '#595959' }, body: { fill: '#fff', stroke: '#eee', rx: 4, ry: 4 } } }],
+            attrs: { line: lineAttrs },
+            labels: [{ attrs: { label: { text: relType, fontSize: 10, fill: lineAttrs.stroke }, body: { fill: '#fff', stroke: '#eee', rx: 4, ry: 4 } } }],
             data: { type: 'MetaRelation', relType }
           });
         }
@@ -545,12 +866,32 @@ const OntologyDesigner: React.FC = () => {
     graph.on('edge:connected', ({ edge }) => {
       const sourceType = edge.getSourceNode()?.getData()?.type;
       const targetType = edge.getTargetNode()?.getData()?.type;
-      let relType = 'HEAT_EXCHANGE';
-      if (sourceType === 'MetaPort' && targetType === 'MetaChamber') relType = 'FEEDS';
-      if (sourceType === 'MetaChamber' && targetType === 'MetaPort') relType = 'DRAINS';
+      const candidates = getRelationCandidates(sourceType, targetType);
+      const relType = (candidates[0] || 'HEAT_EXCHANGE') as RelationType;
       edge.setData({ ...(edge.getData() || {}), type: 'MetaRelation', relType });
-      edge.setLabels([{ attrs: { label: { text: relType } } }]);
+      applyEdgeStyle(edge, relType);
+      if (candidates.length > 1) {
+        setRelationPicker({
+          visible: true,
+          edgeId: edge.id,
+          sourceType: String(sourceType || ''),
+          targetType: String(targetType || ''),
+          candidates,
+          selected: relType,
+        });
+      }
     });
+    graph.on('node:change:position', ({ node }) => {
+      if (node.getData()?.type === 'MetaPort') {
+        snapPortToChamberBoundary(node);
+      }
+    });
+    graph.on('node:added', () => refreshStructureTree(graph));
+    graph.on('node:removed', () => refreshStructureTree(graph));
+    graph.on('node:change:data', () => refreshStructureTree(graph));
+    graph.on('cell:change:children', () => refreshStructureTree(graph));
+    graph.on('edge:added', () => refreshStructureTree(graph));
+    graph.on('edge:removed', () => refreshStructureTree(graph));
     graph.on('cell:contextmenu', ({ e, cell }) => { setMenu({ visible: true, x: e.clientX, y: e.clientY, type: cell.isNode() ? 'node' : 'edge', cellId: cell.id }); });
     graph.on('blank:contextmenu', ({ e }) => { setMenu({ visible: true, x: e.clientX, y: e.clientY, type: 'blank' }); });
 
@@ -568,7 +909,7 @@ const OntologyDesigner: React.FC = () => {
         } else if (shape === 'meta-port') {
           clone.setSize(72, 28);
           clone.attr('label/fontSize', 10);
-          clone.setData({ type: 'MetaPort', name: `port_${Date.now()}`, dir: 'in', role: 'process' });
+          clone.setData({ type: 'MetaPort', name: `port_${Date.now()}`, dir: 'in', role: 'process', positionMode: 'anchored' });
         } else if (shape === 'meta-type') {
           // [新增] 恢复容器尺寸
           clone.setSize(300, 200);
@@ -595,13 +936,14 @@ const OntologyDesigner: React.FC = () => {
     stencil.load([typeNode, chamberNode, portNode], 'basic');
 
     fetchExistingTypes();
+    refreshStructureTree(graph);
 
     const stencilEl = stencilRef.current;
     return () => {
       graph.dispose();
       if (stencilEl) stencilEl.innerHTML = '';
     };
-  }, [fetchExistingTypes, form]);
+  }, [applyEdgeStyle, fetchExistingTypes, form, refreshStructureTree, snapPortToChamberBoundary]);
 
   const loadOntologyData = useCallback(async (typeId: string) => {
     if (!graphRef.current) return;
@@ -684,7 +1026,7 @@ const OntologyDesigner: React.FC = () => {
             width: props.w || 72,
             height: props.h || 28,
             attrs: { label: { text: props.label || props.id || 'Port' } },
-            data: { type: 'MetaPort', name: props.id, dir: props.dir || 'bi', role: props.role || 'process' }
+            data: { type: 'MetaPort', name: props.id, dir: props.dir || 'bi', role: props.role || 'process', positionMode: props.positionMode || 'anchored' }
           });
           const parentChamber = chamberById.get(chamberId);
           if (parentChamber && parentChamber.isNode()) {
@@ -708,6 +1050,10 @@ const OntologyDesigner: React.FC = () => {
           MATCH (t:Meta:Type {id: $typeId})-[:HAS_CHAMBER]->(s:Meta:Chamber)-[r]->(e:Meta:Port)<-[:HAS_PORT]-(:Meta:Chamber)<-[:HAS_CHAMBER]-(t)
           WHERE type(r) IN ['DRAINS']
           RETURN s.id as source, e.id as target, type(r) as relType, '' as sourcePort, '' as targetPort
+          UNION
+          MATCH (t:Meta:Type {id: $typeId})-[:HAS_CHAMBER]->(s:Meta:Chamber)-[r:HAS_PORT]->(e:Meta:Port)<-[:HAS_PORT]-(:Meta:Chamber)<-[:HAS_CHAMBER]-(t)
+          WHERE coalesce(r.explicit, false) = true
+          RETURN s.id as source, e.id as target, type(r) as relType, '' as sourcePort, '' as targetPort
         `, { typeId });
 
         const nodeByName = new Map<string, Cell>();
@@ -726,14 +1072,16 @@ const OntologyDesigner: React.FC = () => {
           const targetNode = nodeByName.get(targetId);
 
           if (sourceNode && targetNode) {
-            graph.addEdge({
+            const lineAttrs = getRelationLineAttrs(relType as RelationType);
+            const edge = graph.addEdge({
               shape: 'edge',
               source: { cell: sourceNode, port: sourcePort || undefined },
               target: { cell: targetNode, port: targetPort || undefined },
-              attrs: { line: { stroke: '#595959', strokeWidth: 2, targetMarker: 'classic' } },
-              labels: [{ attrs: { label: { text: relType }, body: { fill: '#fff', stroke: '#eee', rx: 4, ry: 4 } } }],
+              attrs: { line: lineAttrs },
+              labels: [{ attrs: { label: { text: relType, fill: lineAttrs.stroke }, body: { fill: '#fff', stroke: '#eee', rx: 4, ry: 4 } } }],
               data: { type: 'MetaRelation', relType: relType }
             });
+            applyEdgeStyle(edge, relType as RelationType);
           }
         });
       }
@@ -743,6 +1091,10 @@ const OntologyDesigner: React.FC = () => {
       lastPublishedSnapshotRef.current = snapshot;
       lastPublishedAnalysisRef.current = analysis;
       setCurrentType(typeId);
+      if (ONTOLOGY_TEMPLATES[typeId]) {
+        setSelectedTemplateType(typeId);
+      }
+      refreshStructureTree(graph);
     } catch (e) {
       console.error(e);
       message.error('加载失败');
@@ -750,7 +1102,7 @@ const OntologyDesigner: React.FC = () => {
       setLoading(false);
       await session.close();
     }
-  }, [analyzeOntologyGraph]);
+  }, [analyzeOntologyGraph, applyEdgeStyle, refreshStructureTree]);
 
   const handleFormChange = (_changedValues: Record<string, unknown>, allValues: Record<string, unknown>) => {
     if (!selectedCell) return;
@@ -759,9 +1111,13 @@ const OntologyDesigner: React.FC = () => {
       if (typeof allValues.label === 'string') {
         selectedCell.attr('label/text', allValues.label);
       }
+      if (selectedCell.getData()?.type === 'MetaPort') {
+        snapPortToChamberBoundary(selectedCell);
+      }
+      if (graphRef.current) refreshStructureTree(graphRef.current);
     } else if (selectedCell.isEdge()) {
       if (typeof allValues.relType === 'string') {
-        selectedCell.setLabels([{ attrs: { label: { text: allValues.relType } } }]);
+        applyEdgeStyle(selectedCell, allValues.relType as RelationType);
       }
     }
   };
@@ -783,6 +1139,34 @@ const OntologyDesigner: React.FC = () => {
     setMenu({ ...menu, visible: false });
   };
 
+  const handleApplyRelationPicker = () => {
+    if (!relationPicker || !graphRef.current) return;
+    const edge = graphRef.current.getCellById(relationPicker.edgeId);
+    if (!edge || !edge.isEdge()) {
+      setRelationPicker(null);
+      return;
+    }
+    edge.setData({ ...(edge.getData() || {}), type: 'MetaRelation', relType: relationPicker.selected });
+    applyEdgeStyle(edge, relationPicker.selected);
+    setRelationPicker(null);
+  };
+
+  const handleStructureSelect = (keys: React.Key[]) => {
+    if (!graphRef.current || keys.length === 0) return;
+    const id = String(keys[0]);
+    const cell = graphRef.current.getCellById(id);
+    if (!cell) return;
+    graphRef.current.cleanSelection();
+    graphRef.current.select(cell);
+    if (cell.isNode()) {
+      graphRef.current.centerCell(cell);
+    }
+    setSelectedCell(cell);
+    const data = cell.getData() || {};
+    const label = cell.isNode() ? cell.attr('label/text') : data.relType;
+    form.setFieldsValue({ ...data, label });
+  };
+
   const addChamberToCanvas = () => {
     if (!graphRef.current) return;
     const graph = graphRef.current;
@@ -796,6 +1180,8 @@ const OntologyDesigner: React.FC = () => {
     });
     container.addChild(node);
     if (!graph.hasCell(node)) { graph.addNode(node); }
+    refreshStructureTree(graph);
+    message.info('已添加 Zone。下一步建议为该 Zone 添加 Port。');
   };
 
   const addPortToCanvas = () => {
@@ -810,19 +1196,132 @@ const OntologyDesigner: React.FC = () => {
       return;
     }
     const chamberPos = chamber.getPosition();
-    const offset = (chamber.getChildren()?.filter((child) => child.isNode() && child.getData()?.type === 'MetaPort').length || 0) * 12;
+    const chamberSize = chamber.getSize();
+    const count = chamber.getChildren()?.filter((child) => child.isNode() && child.getData()?.type === 'MetaPort').length || 0;
+    const side = count % 4;
+    const pad = 14 + Math.floor(count / 4) * 8;
+    let x = chamberPos.x + chamberSize.width / 2 - 36;
+    let y = chamberPos.y + chamberSize.height / 2 - 14;
+    if (side === 0) {
+      x = chamberPos.x + chamberSize.width / 2 - 36;
+      y = chamberPos.y - 14;
+    } else if (side === 1) {
+      x = chamberPos.x + chamberSize.width - 36;
+      y = chamberPos.y + chamberSize.height / 2 - 14;
+    } else if (side === 2) {
+      x = chamberPos.x + chamberSize.width / 2 - 36;
+      y = chamberPos.y + chamberSize.height - 14;
+    } else {
+      x = chamberPos.x - 36;
+      y = chamberPos.y + chamberSize.height / 2 - 14;
+    }
+    if (side === 0 || side === 2) x += pad;
+    if (side === 1 || side === 3) y += pad;
     const node = graph.createNode({
       shape: 'meta-port',
-      x: chamberPos.x + 16 + offset,
-      y: chamberPos.y + 16 + offset,
+      x,
+      y,
       label: '入口',
-      data: { type: 'MetaPort', name: `inlet_${Date.now()}`, dir: 'in', role: 'process' }
+      data: { type: 'MetaPort', name: `inlet_${Date.now()}`, dir: 'in', role: 'process', positionMode: 'anchored' }
     });
     chamber.addChild(node);
     if (!graph.hasCell(node)) {
       graph.addNode(node);
     }
+    snapPortToChamberBoundary(node);
+    refreshStructureTree(graph);
+    message.info('已添加 Port。可在右侧设置方向 in/out/bi。');
   };
+
+  const applyOntologyTemplate = useCallback((templateType: string) => {
+    if (!graphRef.current) return;
+    const graph = graphRef.current;
+    const template = ONTOLOGY_TEMPLATES[templateType];
+    if (!template) {
+      message.error(`未找到模板: ${templateType}`);
+      return;
+    }
+
+    const doApply = () => {
+      graph.clearCells();
+      const typeNode = graph.createNode({
+        shape: 'meta-type',
+        x: 120,
+        y: 40,
+        width: 540,
+        height: 420,
+        attrs: { label: { text: template.typeId } },
+        data: { type: 'MetaType', name: template.typeId },
+      });
+      graph.addNode(typeNode);
+
+      const zoneById = new Map<string, Cell>();
+      template.zones.forEach((zone) => {
+        const zoneNode = graph.createNode({
+          shape: 'meta-chamber',
+          x: zone.x,
+          y: zone.y,
+          width: 88,
+          height: 88,
+          attrs: { label: { text: zone.label } },
+          data: { type: 'MetaChamber', name: zone.id },
+        });
+        typeNode.addChild(zoneNode);
+        graph.addNode(zoneNode);
+        zoneById.set(zone.id, zoneNode);
+      });
+
+      const portById = new Map<string, Cell>();
+      template.ports.forEach((port) => {
+        const zoneNode = zoneById.get(port.zoneId);
+        if (!zoneNode || !zoneNode.isNode()) return;
+        const portNode = graph.createNode({
+          shape: 'meta-port',
+          width: 72,
+          height: 28,
+          attrs: { label: { text: port.label } },
+          data: { type: 'MetaPort', name: port.id, dir: port.dir, role: port.role, positionMode: 'anchored' },
+        });
+        zoneNode.addChild(portNode);
+        graph.addNode(portNode);
+        positionPortBySide(portNode, port.side);
+        portById.set(port.id, portNode);
+      });
+
+      template.relations.forEach((rel) => {
+        const source = zoneById.get(rel.sourceId) || portById.get(rel.sourceId);
+        const target = zoneById.get(rel.targetId) || portById.get(rel.targetId);
+        if (!source || !target) return;
+        const edge = graph.addEdge({
+          shape: 'edge',
+          source: { cell: source.id },
+          target: { cell: target.id },
+          data: { type: 'MetaRelation', relType: rel.relType },
+        });
+        applyEdgeStyle(edge, rel.relType);
+      });
+
+      graph.centerContent();
+      refreshStructureTree(graph);
+      setCurrentType(template.typeId);
+      setSelectedCell(null);
+      lastPublishedSnapshotRef.current = null;
+      lastPublishedAnalysisRef.current = null;
+      message.success(`已应用模板：${template.label}`);
+    };
+
+    if (graph.getCells().length > 0) {
+      Modal.confirm({
+        title: '应用模板',
+        content: `应用 ${template.label} 会覆盖当前画布内容，是否继续？`,
+        okText: '应用',
+        cancelText: '取消',
+        onOk: doApply,
+      });
+      return;
+    }
+    doApply();
+  }, [applyEdgeStyle, positionPortBySide, refreshStructureTree]);
 
   const persistOntology = async (graph: Graph) => {
     const nodes = graph.getNodes();
@@ -834,6 +1333,26 @@ const OntologyDesigner: React.FC = () => {
     const session = driver.session();
     const tx = session.beginTransaction();
     try {
+      const explicitHasPortPairs: Array<{ chamberId: string; portId: string }> = [];
+      const explicitHasPortTargetIds = new Set<string>();
+      const fallbackHasPortByPort = new Map<string, string>();
+
+      for (const edge of edges) {
+        const source = edge.getSourceNode();
+        const target = edge.getTargetNode();
+        const sourceType = source?.getData()?.type;
+        const targetType = target?.getData()?.type;
+        const relType = String(edge.getData()?.relType || '').trim();
+        if (sourceType === 'MetaChamber' && targetType === 'MetaPort' && relType === RELATION_TYPES.HAS_PORT) {
+          const chamberId = String(source?.getData()?.name || '');
+          const portId = String(target?.getData()?.name || '');
+          if (chamberId && portId) {
+            explicitHasPortPairs.push({ chamberId, portId });
+            explicitHasPortTargetIds.add(portId);
+          }
+        }
+      }
+
       for (const typeNode of typeNodes) {
         const typeData = typeNode.getData();
         const typeId = typeData.name || 'UnknownType';
@@ -878,22 +1397,20 @@ const OntologyDesigner: React.FC = () => {
                     const pSize = portChild.getSize();
                     await tx.run(`
                       MERGE (p:Meta:Port {id: $id})
-                      SET p.name = $name, p.label = $label, p.dir = $dir, p.role = $role, p.x = $x, p.y = $y, p.w = $w, p.h = $h
+                      SET p.name = $name, p.label = $label, p.dir = $dir, p.role = $role, p.positionMode = $positionMode, p.x = $x, p.y = $y, p.w = $w, p.h = $h
                     `, {
                       id: portId,
                       name: portId,
                       label: portLabel,
                       dir: String(portData.dir || 'bi'),
                       role: String(portData.role || 'process'),
+                      positionMode: String(portData.positionMode || 'anchored'),
                       x: pPos.x,
                       y: pPos.y,
                       w: pSize.width,
                       h: pSize.height
                     });
-                    await tx.run(`
-                      MATCH (c:Meta:Chamber {id: $chamberId}), (p:Meta:Port {id: $portId})
-                      MERGE (c)-[:HAS_PORT]->(p)
-                    `, { chamberId, portId });
+                    fallbackHasPortByPort.set(String(portId), String(chamberId));
                   }
                 }
               }
@@ -930,11 +1447,36 @@ const OntologyDesigner: React.FC = () => {
         } else if (sourceType === 'MetaChamber' && targetType === 'MetaPort') {
           const srcId = source.getData().name;
           const tgtId = target.getData().name;
-          await tx.run(`
-            MATCH (s:Meta:Chamber {id: $srcId}), (t:Meta:Port {id: $tgtId})
-            MERGE (s)-[r:${relType}]->(t)
-          `, { srcId, tgtId });
+          if (String(relType) === RELATION_TYPES.HAS_PORT) {
+            await tx.run(`
+              MATCH (s:Meta:Chamber {id: $srcId}), (t:Meta:Port {id: $tgtId})
+              MERGE (s)-[r:HAS_PORT]->(t)
+              SET r.explicit = true
+            `, { srcId, tgtId });
+          } else {
+            await tx.run(`
+              MATCH (s:Meta:Chamber {id: $srcId}), (t:Meta:Port {id: $tgtId})
+              MERGE (s)-[r:${relType}]->(t)
+            `, { srcId, tgtId });
+          }
         }
+      }
+
+      for (const { chamberId, portId } of explicitHasPortPairs) {
+        await tx.run(`
+          MATCH (s:Meta:Chamber {id: $chamberId}), (t:Meta:Port {id: $portId})
+          MERGE (s)-[r:HAS_PORT]->(t)
+          SET r.explicit = true
+        `, { chamberId, portId });
+      }
+
+      for (const [portId, chamberId] of fallbackHasPortByPort.entries()) {
+        if (explicitHasPortTargetIds.has(portId)) continue;
+        await tx.run(`
+          MATCH (s:Meta:Chamber {id: $chamberId}), (t:Meta:Port {id: $portId})
+          MERGE (s)-[r:HAS_PORT]->(t)
+          SET r.explicit = coalesce(r.explicit, false)
+        `, { chamberId, portId });
       }
       await tx.commit();
       await fetchExistingTypes();
@@ -950,13 +1492,15 @@ const OntologyDesigner: React.FC = () => {
     if (!graphRef.current) return;
     const graph = graphRef.current;
     const analysis = analyzeOntologyGraph(graph);
+    const decision = decidePublishFromIssues(analysis.issues);
+    const issueBuckets = bucketsFromIssues(analysis.issues);
 
-    if (analysis.errors.length > 0) {
+    if (decision.blocked) {
       Modal.error({
         title: '发布校验未通过',
         content: (
           <ul style={{ paddingLeft: 18, margin: 0 }}>
-            {analysis.errors.map((error) => <li key={error}>{error}</li>)}
+            {issueBuckets.errors.map((error) => <li key={error}>{error}</li>)}
           </ul>
         ),
       });
@@ -964,7 +1508,7 @@ const OntologyDesigner: React.FC = () => {
     }
 
     const diffSummary = summarizeDiff(lastPublishedAnalysisRef.current, analysis);
-    const warningList = analysis.warnings;
+    const warningList = issueBuckets.warnings;
 
     Modal.confirm({
       title: '变更预览',
@@ -987,6 +1531,16 @@ const OntologyDesigner: React.FC = () => {
         setPublishing(true);
         try {
           await persistOntology(graph);
+          const domainIr: SemanticIR = {
+            meta: { version: 'ir/0.1', source: 'canvas', generatedAt: new Date().toISOString() },
+            model: buildDomainModelFromGraph(graph),
+          };
+          try {
+            await saveDomainIR(domainIr);
+          } catch (domainError) {
+            console.error(domainError);
+            message.warning('本体已发布，但 Domain IR 保存失败');
+          }
           lastPublishedSnapshotRef.current = graph.toJSON() as unknown as Record<string, unknown>;
           lastPublishedAnalysisRef.current = analysis;
           message.success('本体发布成功');
@@ -1030,6 +1584,7 @@ const OntologyDesigner: React.FC = () => {
     });
     graphRef.current.addNode(defaultNode);
     graphRef.current.centerContent();
+    refreshStructureTree(graphRef.current);
     setCurrentType(null);
     lastPublishedSnapshotRef.current = null;
     lastPublishedAnalysisRef.current = null;
@@ -1037,12 +1592,42 @@ const OntologyDesigner: React.FC = () => {
 
   return (
     <Layout style={{ height: '100%' }}>
-      <Sider width={200} style={{ background: '#fff', borderRight: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
+      <Sider width={280} style={{ background: '#fff', borderRight: '1px solid #eee', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '12px', borderBottom: '1px solid #eee' }}>
-           <Button type="dashed" block icon={<PlusOutlined />} onClick={addChamberToCanvas}>添加腔室</Button>
-           <Button style={{ marginTop: 8 }} type="dashed" block icon={<PlusOutlined />} onClick={addPortToCanvas}>添加端口</Button>
+          <Button type="dashed" block icon={<PlusOutlined />} onClick={addChamberToCanvas}>添加腔室</Button>
+          <Button style={{ marginTop: 8 }} type="dashed" block icon={<PlusOutlined />} onClick={addPortToCanvas}>添加端口</Button>
         </div>
-        <div ref={stencilRef} style={{ flex: 1, position: 'relative' }} />
+        <Tabs
+          size="small"
+          activeKey={leftTab}
+          onChange={(key) => setLeftTab(key as 'structure' | 'stencil')}
+          items={[
+            {
+              key: 'structure',
+              label: '结构树',
+              children: (
+                <div style={{ padding: '8px 10px' }}>
+                  <div style={{ fontSize: 12, color: '#666', marginBottom: 6 }}>
+                    归属关系默认由结构定义（Type &gt; Zone &gt; Port）
+                  </div>
+                  <Tree
+                    treeData={structureTreeData}
+                    onSelect={handleStructureSelect}
+                    defaultExpandAll
+                    showLine
+                  />
+                </div>
+              ),
+            },
+            {
+              key: 'stencil',
+              label: '组件库',
+              forceRender: true,
+              children: <div ref={stencilRef} style={{ height: '100%', position: 'relative' }} />,
+            },
+          ]}
+          style={{ flex: 1, overflow: 'auto' }}
+        />
       </Sider>
       
       <Content style={{ background: '#f0f2f5', position: 'relative', display: 'flex', flexDirection: 'column' }}>
@@ -1065,6 +1650,13 @@ const OntologyDesigner: React.FC = () => {
             options={existingTypes.map(t => ({ label: t, value: t }))}
           />
           <Button icon={<ReloadOutlined />} onClick={fetchExistingTypes} />
+          <Select
+            style={{ width: 250 }}
+            value={selectedTemplateType}
+            onChange={setSelectedTemplateType}
+            options={ONTOLOGY_TEMPLATE_OPTIONS}
+          />
+          <Button onClick={() => applyOntologyTemplate(selectedTemplateType)}>应用工艺本体模板</Button>
           <div style={{ flex: 1 }} />
           <Button onClick={handleRollbackToLastPublish}>回滚上次发布</Button>
           <Button type="primary" icon={<SaveOutlined />} onClick={handlePublishWithValidation} loading={publishing || loading}>发布与校验</Button>
@@ -1100,6 +1692,14 @@ const OntologyDesigner: React.FC = () => {
                     <Form.Item label="角色 (role)" name="role">
                       <Select options={PORT_ROLE_OPTIONS} />
                     </Form.Item>
+                    <Form.Item label="定位模式" name="positionMode" help="挂点模式会自动吸附在腔室边界">
+                      <Select
+                        options={[
+                          { value: 'anchored', label: '挂点模式（推荐）' },
+                          { value: 'free', label: '自由模式' },
+                        ]}
+                      />
+                    </Form.Item>
                   </>
                 )}
               </>
@@ -1123,6 +1723,28 @@ const OntologyDesigner: React.FC = () => {
           </div>
         )}
       </Sider>
+      <Modal
+        title="选择关系语义"
+        open={Boolean(relationPicker?.visible)}
+        onOk={handleApplyRelationPicker}
+        onCancel={() => setRelationPicker(null)}
+        okText="应用"
+        cancelText="取消"
+      >
+        {relationPicker && (
+          <div>
+            <div style={{ marginBottom: 8, color: '#666' }}>
+              端点类型: {relationPicker.sourceType} -&gt; {relationPicker.targetType}
+            </div>
+            <Select
+              style={{ width: '100%' }}
+              value={relationPicker.selected}
+              onChange={(value) => setRelationPicker((prev) => prev ? { ...prev, selected: value as RelationType } : prev)}
+              options={RELATION_OPTIONS.filter((item) => relationPicker.candidates.includes(item.value))}
+            />
+          </div>
+        )}
+      </Modal>
     </Layout>
   );
 };

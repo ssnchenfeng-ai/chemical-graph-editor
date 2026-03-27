@@ -6,6 +6,8 @@ import {
   ColumnHeightOutlined, AimOutlined,
   ImportOutlined, CloudUploadOutlined 
 } from '@ant-design/icons';
+import { decidePublishFromIssues } from '../../domain/publishGate';
+import { bucketsFromIssues, type UnifiedIssue } from '../../domain/validation';
 
 // 1. 导入注册表和缓存
 import { registerCustomCells, SHAPE_LIBRARY } from '../../graph/cells/registry';
@@ -315,42 +317,43 @@ const ShapeDesigner: React.FC = () => {
     }
   });
 
-  const validatePublishPayload = (fileName: string, jsonContent: ShapeJsonContent) => {
-    const errors: string[] = [];
-    const warnings: string[] = [];
+  const validatePublishPayload = (fileName: string, jsonContent: ShapeJsonContent): UnifiedIssue[] => {
+    const issues: UnifiedIssue[] = [];
+    const pushError = (message: string) => issues.push({ level: 'error', code: 'SHAPE_VALIDATE', message, source: 'shape' });
+    const pushWarning = (message: string) => issues.push({ level: 'warning', code: 'SHAPE_VALIDATE', message, source: 'shape' });
 
     if (!/^p-[a-z0-9][a-z0-9-]*$/.test(fileName)) {
-      errors.push('文件名不合法，仅允许小写字母/数字/短横线，且必须以 p- 开头。');
+      pushError('文件名不合法，仅允许小写字母/数字/短横线，且必须以 p- 开头。');
     }
     if (!svgInput.includes('<svg')) {
-      errors.push('SVG 源码不完整，未检测到 <svg> 根节点。');
+      pushError('SVG 源码不完整，未检测到 <svg> 根节点。');
     }
     if (!jsonContent.data.type) {
-      errors.push('设备类型不能为空。');
+      pushError('设备类型不能为空。');
     }
     if (!jsonContent.data.tag) {
-      warnings.push('Tag 为空，建议填写位号后再发布。');
+      pushWarning('Tag 为空，建议填写位号后再发布。');
     }
 
     const seenPortIds = new Set<string>();
     jsonContent.ports.items.forEach((port, index) => {
-      if (!port.id.trim()) errors.push(`端口 #${index + 1} 的 ID 为空。`);
-      if (!port.group.trim()) errors.push(`端口 ${port.id || `#${index + 1}`} 的 Group 为空。`);
-      if (seenPortIds.has(port.id)) errors.push(`端口 ID 重复：${port.id}`);
+      if (!port.id.trim()) pushError(`端口 #${index + 1} 的 ID 为空。`);
+      if (!port.group.trim()) pushError(`端口 ${port.id || `#${index + 1}`} 的 Group 为空。`);
+      if (seenPortIds.has(port.id)) pushError(`端口 ID 重复：${port.id}`);
       seenPortIds.add(port.id);
 
       const x = Number(port.args.x.replace('%', ''));
       const y = Number(port.args.y.replace('%', ''));
       if (Number.isNaN(x) || x < 0 || x > 100 || Number.isNaN(y) || y < 0 || y > 100) {
-        errors.push(`端口 ${port.id} 坐标超出范围（应为 0%~100%）。`);
+        pushError(`端口 ${port.id} 坐标超出范围（应为 0%~100%）。`);
       }
     });
 
     if (jsonContent.ports.items.length === 0) {
-      warnings.push('当前图元没有端口，发布后可能无法连线。');
+      pushWarning('当前图元没有端口，发布后可能无法连线。');
     }
 
-    return { errors, warnings };
+    return issues;
   };
 
   const persistShapeToProject = async (fileName: string, jsonContent: ShapeJsonContent) => {
@@ -387,30 +390,32 @@ const ShapeDesigner: React.FC = () => {
     const baseName = getFileBaseName();
     const fileName = `p-${baseName}`;
     const jsonContent = buildJsonContent();
-    const { errors, warnings } = validatePublishPayload(fileName, jsonContent);
-    const finalWarnings = [...warnings];
+    const baseIssues = validatePublishPayload(fileName, jsonContent);
+    const issues = [...baseIssues];
     if (SHAPE_LIBRARY[fileName] && fileName !== selectedLibraryShape) {
-      finalWarnings.push(`图元 ${fileName} 已存在，本次发布会覆盖原有配置。`);
+      issues.push({ level: 'warning', code: 'SHAPE_VALIDATE', message: `图元 ${fileName} 已存在，本次发布会覆盖原有配置。`, source: 'shape' });
     }
+    const decision = decidePublishFromIssues(issues);
+    const issueBuckets = bucketsFromIssues(issues);
 
-    if (errors.length > 0) {
+    if (decision.blocked) {
       Modal.error({
         title: '发布校验未通过',
         content: (
           <ul style={{ paddingLeft: 18, margin: 0 }}>
-            {errors.map((error) => <li key={error}>{error}</li>)}
+            {issueBuckets.errors.map((error) => <li key={error}>{error}</li>)}
           </ul>
         )
       });
       return;
     }
 
-    if (finalWarnings.length > 0) {
+    if (decision.needsConfirm) {
       Modal.confirm({
         title: '发布校验通过（有警告）',
         content: (
           <ul style={{ paddingLeft: 18, margin: 0 }}>
-            {finalWarnings.map((warning) => <li key={warning}>{warning}</li>)}
+            {issueBuckets.warnings.map((warning) => <li key={warning}>{warning}</li>)}
           </ul>
         ),
         okText: '继续发布',

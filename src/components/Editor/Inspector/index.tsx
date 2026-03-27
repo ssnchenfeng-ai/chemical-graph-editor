@@ -9,7 +9,10 @@ import { FLUID_COLORS } from '../../../config/rules';
 import { BASE_ATTRIBUTE_FIELDS } from '../../../config/attributeSchema';
 import { useDrawingStore } from '../../../store/drawingStore';
 
-interface InspectorProps { cell: Cell | null; }
+interface InspectorProps {
+  cell: Cell | null;
+  focusHint?: { entityId: string; portId?: string } | null;
+}
 
 const { Option } = Select;
 const { Panel } = Collapse;
@@ -48,9 +51,10 @@ const parsePnSpec = (raw: unknown) => {
   return { series: 'PN', value: '16' };
 };
 
-const Inspector: React.FC<InspectorProps> = ({ cell }) => {
+const Inspector: React.FC<InspectorProps> = ({ cell, focusHint }) => {
   const [form] = Form.useForm();
   const [, setTick] = useState(0);
+  const [activePanels, setActivePanels] = useState<string[]>(['1']);
   // [新增] 获取图纸列表和当前图纸ID
   const { drawings, currentDrawingId } = useDrawingStore();
 
@@ -61,6 +65,7 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
   // 1. 监听选中 cell 变化及数据变更
   useEffect(() => {
     if (!cell) return;
+    setActivePanels(['1']);
 
     const updateForm = () => {
       if (isUpdatingFromForm.current) return;
@@ -470,8 +475,38 @@ const Inspector: React.FC<InspectorProps> = ({ cell }) => {
       style={{ height: '100%', overflowY: 'auto' }}
       bodyStyle={{ padding: '12px 16px' }}
     >
+      <div style={{ marginBottom: 10, padding: 10, background: '#fafafa', border: '1px solid #f0f0f0', borderRadius: 6, fontSize: 12 }}>
+        <div><strong>Type:</strong> {String(data.type || 'Unknown')}</div>
+        <div><strong>Owner:</strong> {isNode ? `Node ${cell.id}` : `Drawing ${currentDrawingId || '-'}`}</div>
+        {isNode ? (
+          <div>
+            <strong>Ports:</strong>{' '}
+            {(cell as Cell & { getPorts?: () => Array<{ id?: string; data?: Record<string, unknown> }> }).getPorts?.().length || 0}
+            <div style={{ marginTop: 4 }}>
+              {((cell as Cell & { getPorts?: () => Array<{ id?: string; data?: Record<string, unknown> }> }).getPorts?.() || []).slice(0, 8).map((p) => {
+                const pid = String(p.id || '');
+                const matched = focusHint?.portId && focusHint.portId === pid;
+                const dir = typeof p.data?.dir === 'string' ? p.data.dir : '-';
+                const role = typeof p.data?.role === 'string' ? p.data.role : '-';
+                return (
+                  <div key={pid} style={{ color: matched ? '#cf1322' : undefined, fontWeight: matched ? 600 : 400 }}>
+                    {pid || '(unnamed)'} [{dir}/{role}] {matched ? '<- 当前定位端口' : ''}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <div>
+            <strong>Ports:</strong>{' '}
+            {String((cell as Cell & { getSourcePortId?: () => string }).getSourcePortId?.() || '-')}
+            {' -> '}
+            {String((cell as Cell & { getTargetPortId?: () => string }).getTargetPortId?.() || '-')}
+          </div>
+        )}
+      </div>
       <Form form={form} layout="vertical" onValuesChange={handleValuesChange} size="small">
-        <Collapse defaultActiveKey={['1']} ghost>
+        <Collapse activeKey={activePanels} onChange={(keys) => setActivePanels(Array.isArray(keys) ? keys.map(String) : [String(keys)])} ghost>
           <Panel header="基础信息" key="1">
             {baseFields.map((field) => {
               if (field.name === 'desc') {

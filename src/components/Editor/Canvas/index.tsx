@@ -16,13 +16,20 @@ import {
 import Inspector from '../Inspector';
 import ContextMenu, { type MenuState } from '../ContextMenu';
 import './index.css';
-import { saveGraphData, loadGraphData } from '../../../services/neo4j';
+import { saveGraphData, loadGraphData, saveDomainIR, saveDomainIRWithRoundTripCheck, loadDomainIR, type SaveDomainIROptions } from '../../../services/neo4j';
 import { FLUID_COLORS, INLINE_TYPES } from '../../../config/rules';
 import { SHAPE_LIBRARY } from '../../../graph/cells/registry';
+import { createEmptyIR, type SemanticIR } from '../../../domain/ir';
+import { RELATION_TYPES } from '../../../domain/relations';
+import type { RoundTripReport } from '../../../domain/roundTrip';
 import { useDrawingStore } from '../../../store/drawingStore'; // [新增] 引入 Store
 
 export interface GraphCanvasRef {
   handleSave: (drawingId: string) => Promise<void>;
+  handleSaveDomainIR: (drawingId: string, options?: { silent?: boolean; verifyRoundTrip?: boolean; saveOptions?: SaveDomainIROptions }) => Promise<RoundTripReport | null>;
+  handleExportDomainIR: (drawingId: string) => SemanticIR | null;
+  handleReplayDomainIR: (drawingId: string) => Promise<boolean>;
+  handleFocusDomainEntity: (entityId: string) => boolean;
 }
 
 interface GraphCanvasProps {
@@ -90,6 +97,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
   const [canRedo, setCanRedo] = useState(false);
   
   const [menu, setMenu] = useState<MenuState>({ visible: false, x: 0, y: 0, type: null });
+  const [inspectorFocusHint, setInspectorFocusHint] = useState<{ entityId: string; portId?: string } | null>(null);
 
   // [新增] 获取 Store 方法
   const { setDirty, isDirty, setCurrentDrawing, drawings } = useDrawingStore();
@@ -174,6 +182,373 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
     node.setData({ ...data, tag: nextTag, autoTag: true });
     node.setAttrs({ label: { text: nextTag } });
   }, []);
+
+  const buildDomainIR = useCallback((targetDrawingId: string): SemanticIR | null => {
+    const graph = graphRef.current;
+    if (!graph) return null;
+
+    const drawingName = drawings.find((d) => d.id === targetDrawingId)?.name || targetDrawingId;
+    const ir = createEmptyIR(targetDrawingId, drawingName);
+    const { model } = ir;
+    const nodes = graph.getNodes().filter((node) => !node.getData()?.isBackground);
+    const edges = graph.getEdges();
+    const equipmentNodeIds = new Set<string>();
+    const instrumentNodeIds = new Set<string>();
+
+    const toDomainPortId = (nodeId: string, portId: string) => `${nodeId}::${portId}`;
+
+    nodes.forEach((node) => {
+      const data = node.getData() || {};
+      const type = String(data.type || 'Unknown');
+      const tag = String(data.tag || node.attr('label/text') || '');
+      const nodePorts = node.getPorts();
+
+      if (type === 'Instrument') {
+        instrumentNodeIds.add(node.id);
+        model.instruments.push({
+          id: node.id,
+          type,
+          tag,
+          loop: typeof data.loopNum === 'string' ? data.loopNum : undefined,
+          attributes: { ...data },
+        });
+        nodePorts.forEach((port) => {
+          if (!port.id) return;
+          model.ports.push({
+            id: toDomainPortId(node.id, port.id),
+            ownerKind: 'instrument',
+            ownerId: node.id,
+            direction: (port.data?.dir === 'in' || port.data?.dir === 'out' || port.data?.dir === 'bi') ? port.data.dir : 'bi',
+            role: typeof port.data?.role === 'string' ? port.data.role : 'signal',
+            mediumClass: typeof port.data?.phase === 'string' ? port.data.phase : 'signal',
+            label: typeof port.data?.desc === 'string' ? port.data.desc : port.id,
+            attributes: { ...port.data },
+          });
+          model.relations.push({
+            id: `rel-has-port-${node.id}-${port.id}`,
+            type: RELATION_TYPES.HAS_PORT,
+            source: { kind: 'instrument', id: node.id },
+            target: { kind: 'port', id: toDomainPortId(node.id, port.id) },
+          });
+        });
+        return;
+      }
+
+      if (type === 'TappingPoint' || type === 'Frame') return;
+
+      equipmentNodeIds.add(node.id);
+      model.equipments.push({
+        id: node.id,
+        type,
+        tag,
+        name: tag || type,
+        description: typeof data.desc === 'string' ? data.desc : undefined,
+        zoneIds: [],
+        portIds: [],
+        attributes: { ...data },
+      });
+      nodePorts.forEach((port) => {
+        if (!port.id) return;
+        model.ports.push({
+          id: toDomainPortId(node.id, port.id),
+          ownerKind: 'equipment',
+          ownerId: node.id,
+          direction: (port.data?.dir === 'in' || port.data?.dir === 'out' || port.data?.dir === 'bi') ? port.data.dir : 'bi',
+          role: typeof port.data?.role === 'string' ? port.data.role : 'process',
+          mediumClass: typeof port.data?.phase === 'string' ? port.data.phase : 'process',
+          label: typeof port.data?.desc === 'string' ? port.data.desc : port.id,
+          attributes: { ...port.data },
+        });
+        model.relations.push({
+          id: `rel-has-port-${node.id}-${port.id}`,
+          type: RELATION_TYPES.HAS_PORT,
+          source: { kind: 'equipment', id: node.id },
+          target: { kind: 'port', id: toDomainPortId(node.id, port.id) },
+        });
+      });
+    });
+
+    edges.forEach((edge) => {
+      const data = edge.getData() || {};
+      const sourceNode = edge.getSourceNode();
+      const targetNode = edge.getTargetNode();
+      const sourcePortId = edge.getSourcePortId();
+      const targetPortId = edge.getTargetPortId();
+      if (!sourceNode || !targetNode) return;
+
+      if (data.type === 'Pipe') {
+        if (!sourcePortId || !targetPortId) return;
+        const fromPortId = toDomainPortId(sourceNode.id, sourcePortId);
+        const toPortId = toDomainPortId(targetNode.id, targetPortId);
+        model.pipes.push({
+          id: edge.id,
+          fromPortId,
+          toPortId,
+          fluid: typeof data.fluid === 'string' ? data.fluid : 'Water',
+          material: typeof data.material === 'string' ? data.material : 'CS',
+          dnSpec: (data.dnSpec && typeof data.dnSpec === 'object') ? data.dnSpec as { series: string; value: string; unit?: string } : undefined,
+          pnSpec: (data.pnSpec && typeof data.pnSpec === 'object') ? data.pnSpec as { series: string; value: string; unit?: string; standard?: string } : undefined,
+          insulation: typeof data.insulation === 'string' ? data.insulation : 'None',
+          tag: typeof data.tag === 'string' ? data.tag : undefined,
+          attributes: { ...data },
+        });
+        model.relations.push({
+          id: `rel-connects-${edge.id}`,
+          type: RELATION_TYPES.CONNECTS_TO,
+          source: { kind: 'port', id: fromPortId },
+          target: { kind: 'port', id: toPortId },
+        });
+        return;
+      }
+
+      const sourceIsInstrument = instrumentNodeIds.has(sourceNode.id);
+      const targetIsInstrument = instrumentNodeIds.has(targetNode.id);
+      if (!sourceIsInstrument && !targetIsInstrument) return;
+
+      const relType = data.relationType === 'CONTROLS' ? RELATION_TYPES.CONTROLS : RELATION_TYPES.MEASURES;
+      if (sourceIsInstrument && equipmentNodeIds.has(targetNode.id)) {
+        model.relations.push({
+          id: `rel-signal-${edge.id}`,
+          type: relType,
+          source: { kind: 'instrument', id: sourceNode.id },
+          target: { kind: 'equipment', id: targetNode.id },
+          attributes: { ...data },
+        });
+      } else if (targetIsInstrument && equipmentNodeIds.has(sourceNode.id)) {
+        model.relations.push({
+          id: `rel-signal-${edge.id}`,
+          type: relType,
+          source: { kind: 'instrument', id: targetNode.id },
+          target: { kind: 'equipment', id: sourceNode.id },
+          attributes: { ...data },
+        });
+      }
+    });
+
+    model.drawing.equipmentIds = model.equipments.map((e) => e.id);
+    model.drawing.instrumentIds = model.instruments.map((i) => i.id);
+    model.drawing.pipeIds = model.pipes.map((p) => p.id);
+    model.drawing.relationIds = model.relations.map((r) => r.id);
+
+    return ir;
+  }, [drawings]);
+
+  const getShapeIdByType = useCallback((type: string) => {
+    const exact = Object.keys(SHAPE_LIBRARY).find((id) => SHAPE_LIBRARY[id]?.data?.type === type);
+    if (exact) return exact;
+    const fuzzy = Object.keys(SHAPE_LIBRARY).find((id) => String(SHAPE_LIBRARY[id]?.data?.type || '').includes(type));
+    if (fuzzy) return fuzzy;
+    if (type === 'Instrument') {
+      return Object.keys(SHAPE_LIBRARY).find((id) => SHAPE_LIBRARY[id]?.data?.type === 'Instrument') || 'p-inst-local';
+    }
+    return Object.keys(SHAPE_LIBRARY).find((id) => SHAPE_LIBRARY[id]?.data?.type === 'Valve') || 'p-valve';
+  }, []);
+
+  const applyDomainIRToCanvas = useCallback((graph: Graph, ir: SemanticIR) => {
+    isLoadingRef.current = true;
+    try {
+      graph.batchUpdate(() => {
+      // Hard reset all cells to eliminate any residual duplicated edges.
+      graph.clearCells({ silent: true });
+      graph.addNode({
+        shape: 'drawing-frame-a2',
+        id: 'SHEET_FRAME_A2',
+        x: 0,
+        y: 0,
+        zIndex: -1,
+        movable: false,
+        selectable: false,
+        data: { type: 'Frame', isBackground: true },
+      });
+
+    const equipmentAndInst = [
+      ...ir.model.equipments.map((e) => ({ id: e.id, type: e.type, tag: e.tag || e.name || e.id, data: e.attributes || {} })),
+      ...ir.model.instruments.map((i) => ({ id: i.id, type: i.type || 'Instrument', tag: i.tag || i.id, data: i.attributes || {} })),
+    ];
+    const nodeById = new Map<string, Node>();
+
+    const cols = 4;
+    const baseX = 120;
+    const baseY = 120;
+    const gapX = 220;
+    const gapY = 180;
+
+      equipmentAndInst.forEach((item, index) => {
+      const shapeId = getShapeIdByType(item.type);
+      const shapeMeta = SHAPE_LIBRARY[shapeId];
+      const x = baseX + (index % cols) * gapX;
+      const y = baseY + Math.floor(index / cols) * gapY;
+      const width = shapeMeta?.width || 90;
+      const height = shapeMeta?.height || 70;
+
+      const existing = graph.getCellById(item.id);
+      if (existing) graph.removeCell(existing, { silent: true });
+
+      const node = graph.addNode({
+        id: item.id,
+        shape: shapeId,
+        x,
+        y,
+        width,
+        height,
+        data: { ...(shapeMeta?.data || {}), ...item.data, type: item.type, tag: item.tag, autoTag: false },
+        attrs: {
+          label: { text: item.tag },
+        },
+      }) as Node;
+      nodeById.set(item.id, node);
+      });
+
+    const portRefById = new Map<string, { nodeId: string; portId?: string }>();
+    const tryResolvePort = (nodeId: string, candidatePortId?: string) => {
+      const node = nodeById.get(nodeId);
+      if (!node || !candidatePortId) return undefined;
+      return node.hasPort(candidatePortId) ? candidatePortId : undefined;
+    };
+
+    ir.model.ports.forEach((port) => {
+      if (port.id.includes('::')) {
+        const [nodeId, candidatePortId] = port.id.split('::');
+        portRefById.set(port.id, { nodeId, portId: candidatePortId });
+        return;
+      }
+      if (port.ownerKind === 'equipment' || port.ownerKind === 'instrument') {
+        portRefById.set(port.id, { nodeId: port.ownerId, portId: port.id });
+        return;
+      }
+      const zone = ir.model.zones.find((z) => z.id === port.ownerId);
+      if (zone) portRefById.set(port.id, { nodeId: zone.equipmentId, portId: port.id });
+    });
+
+    const seenPipeKeys = new Set<string>();
+      ir.model.pipes.forEach((pipe) => {
+      const sourceRef = portRefById.get(pipe.fromPortId);
+      const targetRef = portRefById.get(pipe.toPortId);
+      if (!sourceRef || !targetRef) return;
+      if (!nodeById.has(sourceRef.nodeId) || !nodeById.has(targetRef.nodeId)) return;
+
+      const sourcePort = tryResolvePort(sourceRef.nodeId, sourceRef.portId);
+      const targetPort = tryResolvePort(targetRef.nodeId, targetRef.portId);
+      const forwardKey = `${sourceRef.nodeId}|${sourcePort || ''}|${targetRef.nodeId}|${targetPort || ''}`;
+      const reverseKey = `${targetRef.nodeId}|${targetPort || ''}|${sourceRef.nodeId}|${sourcePort || ''}`;
+      if (seenPipeKeys.has(forwardKey) || seenPipeKeys.has(reverseKey)) return;
+      seenPipeKeys.add(forwardKey);
+
+      const pipeData = {
+        ...(pipe.attributes || {}),
+        type: 'Pipe',
+        fluid: pipe.fluid || (pipe.attributes?.fluid as string) || 'Water',
+        material: pipe.material || (pipe.attributes?.material as string) || 'CS',
+        dn: pipe.dnSpec ? `${pipe.dnSpec.series}${pipe.dnSpec.value}` : (pipe.attributes?.dn as string),
+        pn: pipe.pnSpec ? `${pipe.pnSpec.series}${pipe.pnSpec.value}` : (pipe.attributes?.pn as string),
+        dnSpec: pipe.dnSpec || (pipe.attributes?.dnSpec as Record<string, unknown> | undefined),
+        pnSpec: pipe.pnSpec || (pipe.attributes?.pnSpec as Record<string, unknown> | undefined),
+        insulation: pipe.insulation || (pipe.attributes?.insulation as string) || 'None',
+        desc: pipe.attributes?.desc,
+        tag: pipe.tag || (pipe.attributes?.tag as string) || '',
+      };
+
+      const color = FLUID_COLORS[pipeData.fluid as keyof typeof FLUID_COLORS] || '#5F95FF';
+      const isJacket = typeof pipeData.insulation === 'string' && pipeData.insulation.startsWith('Jacket');
+      const isTracing = typeof pipeData.insulation === 'string' && ['ST', 'ET', 'OT'].includes(pipeData.insulation);
+
+      const existing = graph.getCellById(pipe.id);
+      if (existing) graph.removeCell(existing, { silent: true });
+      graph.addEdge({
+        id: pipe.id,
+        shape: 'edge',
+        source: { cell: sourceRef.nodeId, port: sourcePort },
+        target: { cell: targetRef.nodeId, port: targetPort },
+        labels: pipeData.tag ? [{ attrs: { label: { text: String(pipeData.tag) } } }] : [],
+        attrs: {
+          line: {
+            stroke: isJacket ? '#fa8c16' : color,
+            strokeWidth: isJacket ? 4 : 2,
+            strokeDasharray: isTracing ? '5 5' : null,
+            targetMarker: { name: 'classic', width: 8, height: 6 },
+          },
+        },
+        data: pipeData,
+      });
+      });
+
+      ir.model.relations.forEach((relation) => {
+      if (!(relation.type === RELATION_TYPES.MEASURES || relation.type === RELATION_TYPES.CONTROLS)) return;
+      const srcRef = relation.source.kind === 'port'
+        ? portRefById.get(relation.source.id)
+        : { nodeId: relation.source.id, portId: undefined };
+      const tgtRef = relation.target.kind === 'port'
+        ? portRefById.get(relation.target.id)
+        : { nodeId: relation.target.id, portId: undefined };
+      if (!srcRef || !tgtRef) return;
+      if (!nodeById.has(srcRef.nodeId) || !nodeById.has(tgtRef.nodeId)) return;
+      const existing = graph.getCellById(relation.id);
+      if (existing) graph.removeCell(existing, { silent: true });
+      graph.addEdge({
+        id: relation.id,
+        shape: 'signal-edge',
+        source: { cell: srcRef.nodeId, port: tryResolvePort(srcRef.nodeId, srcRef.portId) },
+        target: { cell: tgtRef.nodeId, port: tryResolvePort(tgtRef.nodeId, tgtRef.portId) },
+        data: { ...(relation.attributes || {}), type: 'Signal', relationType: relation.type, fluid: 'Signal' },
+      });
+      });
+
+      // Final safety dedupe: keep only one edge per semantic endpoint key.
+      const seenEdgeKeys = new Set<string>();
+      graph.getEdges().forEach((edge) => {
+        const srcId = edge.getSourceCellId() || '';
+        const srcPort = edge.getSourcePortId() || '';
+        const tgtId = edge.getTargetCellId() || '';
+        const tgtPort = edge.getTargetPortId() || '';
+        const data = edge.getData() || {};
+        const kind = String(data.type || 'Pipe');
+        const rel = String(data.relationType || '');
+        const keyA = `${kind}|${rel}|${srcId}|${srcPort}|${tgtId}|${tgtPort}`;
+        const keyB = `${kind}|${rel}|${tgtId}|${tgtPort}|${srcId}|${srcPort}`;
+        if (seenEdgeKeys.has(keyA) || seenEdgeKeys.has(keyB)) {
+          graph.removeCell(edge, { silent: true });
+          return;
+        }
+        seenEdgeKeys.add(keyA);
+      });
+
+      // Secondary dedupe: for the same pipe node-pair, drop weaker no-port edges
+      // when a port-bound edge exists. This prevents center-to-center ghost duplicates.
+      const pipePairMap = new Map<string, Edge[]>();
+      graph.getEdges().forEach((edge) => {
+        const data = edge.getData() || {};
+        if (String(data.type || 'Pipe') !== 'Pipe') return;
+        const srcId = edge.getSourceCellId() || '';
+        const tgtId = edge.getTargetCellId() || '';
+        if (!srcId || !tgtId) return;
+        const pairKey = srcId < tgtId ? `${srcId}|${tgtId}` : `${tgtId}|${srcId}`;
+        const list = pipePairMap.get(pairKey) || [];
+        list.push(edge);
+        pipePairMap.set(pairKey, list);
+      });
+      pipePairMap.forEach((edges) => {
+        if (edges.length <= 1) return;
+        const withPort = edges.filter((edge) => Boolean(edge.getSourcePortId() || edge.getTargetPortId()));
+        if (withPort.length === 0) return;
+        edges.forEach((edge) => {
+          const hasPort = Boolean(edge.getSourcePortId() || edge.getTargetPortId());
+          if (!hasPort) graph.removeCell(edge, { silent: true });
+        });
+      });
+
+      graph.getNodes().forEach((node) => {
+        if (!node.getData()?.isBackground) {
+          node.setZIndex(node.getData()?.type === 'TappingPoint' ? 10 : 2);
+        }
+      });
+      graph.getEdges().forEach((edge) => edge.setZIndex(1));
+      refreshRouting();
+      graph.centerContent();
+      });
+    } finally {
+      isLoadingRef.current = false;
+    }
+  }, [getShapeIdByType, refreshRouting]);
 
   // --- [重构] 核心保存逻辑 ---
   const executeSave = useCallback(async (saveId: string) => {
@@ -308,10 +683,80 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
     }
   }, [setDirty]);
 
+  const executeSaveDomain = useCallback(async (saveId: string, options?: { silent?: boolean; verifyRoundTrip?: boolean; saveOptions?: SaveDomainIROptions }) => {
+    const ir = buildDomainIR(saveId);
+    if (!ir) {
+      if (!options?.silent) message.error('语义IR生成失败');
+      return null;
+    }
+    let roundTripReport: RoundTripReport | null = null;
+    if (options?.verifyRoundTrip === false) {
+      await saveDomainIR(ir, options?.saveOptions);
+    } else {
+      roundTripReport = await saveDomainIRWithRoundTripCheck(ir, options?.saveOptions);
+      if (!roundTripReport.ok) {
+        const errorCount = roundTripReport.issues.filter((i) => i.level === 'error').length;
+        const warningCount = roundTripReport.issues.filter((i) => i.level === 'warning').length;
+        message.warning(`语义IR已保存，但回读校验存在问题：错误 ${errorCount}，警告 ${warningCount}`);
+      }
+    }
+    if (!options?.silent) {
+      message.success(`语义IR已保存: 设备 ${ir.model.equipments.length} / 端口 ${ir.model.ports.length} / 关系 ${ir.model.relations.length}`);
+    }
+    return roundTripReport;
+  }, [buildDomainIR]);
+
+  const focusDomainEntity = useCallback((entityId: string): boolean => {
+    const graph = graphRef.current;
+    if (!graph || !entityId) return false;
+
+    const tryIds = [entityId];
+    let focusPortId: string | undefined;
+    if (entityId.includes('::')) {
+      const [ownerId, portId] = entityId.split('::');
+      tryIds.push(ownerId);
+      focusPortId = portId;
+    }
+
+    const targetCell = tryIds
+      .map((id) => graph.getCellById(id))
+      .find((cell): cell is Cell => Boolean(cell));
+
+    if (!targetCell) return false;
+
+    setSelectedCell(targetCell);
+    setInspectorFocusHint({ entityId, portId: focusPortId });
+    graph.resetSelection(targetCell);
+    graph.getEdges().forEach((edge) => {
+      edge.attr('line/strokeWidth', edge.id === targetCell.id ? 3 : 2);
+      if (edge.id !== targetCell.id) edge.removeTools();
+    });
+    if (targetCell.isEdge() && targetCell.getData()?.type === 'Pipe') {
+      targetCell.addTools([
+        { name: 'vertices', args: { attrs: { fill: '#666' } } },
+        { name: 'segments', args: { snapRadius: 20, attrs: { fill: '#444' } } },
+      ]);
+    }
+
+    graph.centerCell(targetCell);
+    return true;
+  }, []);
+
   // --- 暴露给父组件的方法 ---
   useImperativeHandle(ref, () => ({
-    handleSave: executeSave
-  }));
+    handleSave: executeSave,
+    handleSaveDomainIR: (targetDrawingId: string, options?: { silent?: boolean; verifyRoundTrip?: boolean; saveOptions?: SaveDomainIROptions }) => executeSaveDomain(targetDrawingId, options),
+    handleExportDomainIR: (targetDrawingId: string) => buildDomainIR(targetDrawingId),
+    handleReplayDomainIR: async (targetDrawingId: string) => {
+      const graph = graphRef.current;
+      if (!graph) return false;
+      const ir = await loadDomainIR(targetDrawingId);
+      if (!ir) return false;
+      applyDomainIRToCanvas(graph, ir);
+      return true;
+    },
+    handleFocusDomainEntity: (entityId: string) => focusDomainEntity(entityId),
+  }), [applyDomainIRToCanvas, buildDomainIR, executeSave, executeSaveDomain, focusDomainEntity]);
 
    const updateNodeLabel = (node: Node) => {
     const data = node.getData() || {};
@@ -846,6 +1291,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
     };
 
     const handlePipeSplit = (node: Node) => {
+      if (isLoadingRef.current) return;
       const nodeType = node.getData()?.type;
       if (!INLINE_TYPES.includes(nodeType)) return; 
       
@@ -1043,6 +1489,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
     };
 
     const handleSignalDrop = (args: { e: MouseEvent; edge: Edge }) => {
+      if (isLoadingRef.current) return;
       const { e, edge } = args;
       const sourceNode = edge.getSourceNode();
       if (sourceNode?.getData()?.type !== 'Instrument') return;
@@ -1102,10 +1549,12 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
     };
 
     graph.on('node:added', ({ node }) => {
-      if (!isLoadingRef.current) {
-        ensureNodeTypeTag(node as Node);
-      }
-      setTimeout(() => handlePipeSplit(node as Node), 50);
+      if (isLoadingRef.current) return;
+      ensureNodeTypeTag(node as Node);
+      setTimeout(() => {
+        if (isLoadingRef.current) return;
+        handlePipeSplit(node as Node);
+      }, 50);
     });
     graph.on('node:mouseup', ({ node }) => handlePipeSplit(node as Node));
     graph.on('edge:mouseup', handleSignalDrop); 
@@ -1143,6 +1592,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
     graph.on('cell:click', ({ cell }) => {
       if (cell.getData()?.isBackground) { setSelectedCell(null); graph.getEdges().forEach(edge => edge.removeTools()); return; }
       setSelectedCell(cell);
+      setInspectorFocusHint(null);
       if (cell.isEdge()) { cell.attr('line/strokeWidth', 3); }
       graph.getEdges().forEach(edge => { if (edge.id !== cell.id) { edge.attr('line/strokeWidth', 2); edge.removeTools(); } });
       if (cell.isEdge() && cell.getData()?.type === 'Pipe') {
@@ -1150,98 +1600,183 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
       }
     });
     
-    graph.on('blank:click', () => { setSelectedCell(null); graph.getEdges().forEach(edge => { edge.attr('line/strokeWidth', 2); edge.removeTools(); }); });
+    graph.on('blank:click', () => { setSelectedCell(null); setInspectorFocusHint(null); graph.getEdges().forEach(edge => { edge.attr('line/strokeWidth', 2); edge.removeTools(); }); });
     graph.on('cell:contextmenu', ({ e, cell }) => { if (cell.getData()?.isBackground) return; setMenu({ visible: true, x: e.clientX, y: e.clientY, type: cell.isNode() ? 'node' : 'edge', cellId: cell.id }); });
     graph.on('blank:contextmenu', ({ e }) => { setMenu({ visible: true, x: e.clientX, y: e.clientY, type: 'blank' }); });
 
+    const RECENT_STENCIL_KEY = 'editor.stencil.recent.v1';
+    const RECENT_LIMIT = 10;
+    const STENCIL_GROUPS = [
+      { title: '最近使用', name: 'recent', layoutOptions: { columns: 2, columnWidth: 105, rowHeight: 100 } },
+      { title: '反应设备', name: 'reaction', layoutOptions: { columns: 2, columnWidth: 105, rowHeight: 100 } },
+      { title: '换热设备', name: 'heat_transfer', layoutOptions: { columns: 2, columnWidth: 105, rowHeight: 100 } },
+      { title: '分离与储存', name: 'separation_storage', layoutOptions: { columns: 2, columnWidth: 105, rowHeight: 100 } },
+      { title: '输送设备', name: 'transfer', layoutOptions: { columns: 2, columnWidth: 105, rowHeight: 100 } },
+      { title: '仪表控制', name: 'instrumentation', layoutOptions: { columns: 3, columnWidth: 60, rowHeight: 70 } },
+      { title: '管道附件', name: 'piping_parts', layoutOptions: { columns: 2, columnWidth: 105, rowHeight: 88 } },
+    ] as const;
+    type StencilGroupName = typeof STENCIL_GROUPS[number]['name'];
+
+    const TYPE_TO_GROUP: Record<string, StencilGroupName | 'ignore'> = {
+      Reactor: 'reaction',
+      FixedBedReactor: 'reaction',
+      Exchanger: 'heat_transfer',
+      VerticalExchanger: 'heat_transfer',
+      Evaporator: 'heat_transfer',
+      GasCooler: 'heat_transfer',
+      Trap: 'heat_transfer',
+      Tank: 'separation_storage',
+      Separator: 'separation_storage',
+      Pump: 'transfer',
+      LiquidPump: 'transfer',
+      CentrifugalPump: 'transfer',
+      DiaphragmPump: 'transfer',
+      PistonPump: 'transfer',
+      GearPump: 'transfer',
+      Compressor: 'transfer',
+      Fan: 'transfer',
+      JetPump: 'transfer',
+      Instrument: 'instrumentation',
+      Valve: 'piping_parts',
+      ControlValve: 'piping_parts',
+      ManualValve: 'piping_parts',
+      Fitting: 'piping_parts',
+      OffPageConnector: 'piping_parts',
+      TappingPoint: 'ignore',
+      Frame: 'ignore',
+    };
+
+    const getRecentShapeIds = (): string[] => {
+      try {
+        const raw = localStorage.getItem(RECENT_STENCIL_KEY);
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        if (!Array.isArray(arr)) return [];
+        return arr.filter((id): id is string => typeof id === 'string' && id in SHAPE_LIBRARY).slice(0, RECENT_LIMIT);
+      } catch {
+        return [];
+      }
+    };
+
+    const saveRecentShapeIds = (ids: string[]) => {
+      try {
+        localStorage.setItem(RECENT_STENCIL_KEY, JSON.stringify(ids.slice(0, RECENT_LIMIT)));
+      } catch {
+        // ignore localStorage write failure
+      }
+    };
+
+    const resolveGroupByType = (type: string): StencilGroupName | 'ignore' => {
+      const mapped = TYPE_TO_GROUP[type];
+      if (mapped) return mapped;
+      if (/reactor/i.test(type)) return 'reaction';
+      if (/exchanger|evaporator|cooler|heater/i.test(type)) return 'heat_transfer';
+      if (/tank|separator|vessel|drum/i.test(type)) return 'separation_storage';
+      if (/pump|compressor|fan|blower/i.test(type)) return 'transfer';
+      if (/instrument|transmitter|controller/i.test(type)) return 'instrumentation';
+      if (/valve|fitting|connector|pipe/i.test(type)) return 'piping_parts';
+      return 'piping_parts';
+    };
+
+    const buildStencilNodesByGroup = (recentShapeIds: string[]): Record<StencilGroupName, Node[]> => {
+      const nodesByGroup = STENCIL_GROUPS.reduce<Record<StencilGroupName, Node[]>>((acc, group) => {
+        acc[group.name] = [];
+        return acc;
+      }, {} as Record<StencilGroupName, Node[]>);
+
+      const typeCounts: Record<string, number> = {};
+      Object.values(SHAPE_LIBRARY).forEach((config) => {
+        const t = typeof config.data?.type === 'string' ? config.data.type : 'Unknown';
+        typeCounts[t] = (typeCounts[t] || 0) + 1;
+      });
+      const typeIterators: Record<string, number> = {};
+
+      Object.keys(SHAPE_LIBRARY).forEach((shapeId) => {
+        const config = SHAPE_LIBRARY[shapeId];
+        const type = typeof config.data?.type === 'string' ? config.data.type : 'Unknown';
+        const groupName = resolveGroupByType(type);
+        if (groupName === 'ignore') return;
+
+        const MAX_W = 70;
+        const MAX_H = 70;
+        const originalW = config.width || 80;
+        const originalH = config.height || 80;
+        let displayW = originalW;
+        let displayH = originalH;
+        if (originalW > MAX_W || originalH > MAX_H) {
+          const ratio = originalW / originalH;
+          if (ratio > 1) { displayW = MAX_W; displayH = displayW / ratio; } else { displayH = MAX_H; displayW = displayH * ratio; }
+        }
+
+        let displayLabel = type;
+        if (type === 'Instrument') {
+          displayLabel = typeof config.data?.tagId === 'string' ? config.data.tagId : 'Inst';
+        } else if (typeCounts[type] > 1) {
+          const parts = shapeId.split('-');
+          let suffix = parts[parts.length - 1];
+          if (type.toLowerCase().includes(suffix.toLowerCase())) {
+            typeIterators[type] = (typeIterators[type] || 0) + 1;
+            suffix = `${typeIterators[type]}`;
+          } else {
+            suffix = suffix.charAt(0).toUpperCase() + suffix.slice(1);
+          }
+          displayLabel = `${type} ${suffix}`;
+        }
+
+        const node = graph.createNode({
+          shape: shapeId,
+          width: displayW,
+          height: displayH,
+          label: displayLabel,
+          attrs: { label: { fontSize: 10, refY: '100%', refY2: 4, textWrap: { width: 90, ellipsis: true } } },
+          data: { ...config.data, originalSize: { width: originalW, height: originalH }, _paletteShapeId: shapeId },
+        });
+        nodesByGroup[groupName].push(node);
+      });
+
+      recentShapeIds.forEach((shapeId) => {
+        const sourceNode = Object.values(nodesByGroup).flat().find((n) => n.shape === shapeId);
+        if (sourceNode) nodesByGroup.recent.push(sourceNode.clone());
+      });
+      return nodesByGroup;
+    };
+
     const stencil = new Stencil({
-      title: '组件库', target: graph, stencilGraphWidth: 240, stencilGraphHeight: 0, collapsable: true,
-      search: { visible: true, placeholder: '搜索设备...' },
-      groups: [
-        { title: '主工艺设备', name: 'main_equip', layoutOptions: { columns: 2, columnWidth: 105, rowHeight: 100 } }, 
-        { title: '泵类设备', name: 'pumps', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 100 } },
-        { title: '仪表控制', name: 'instruments', layoutOptions: { columns: 3, columnWidth: 60, rowHeight: 70 } },
-        { title: '管路附件', name: 'parts', layoutOptions: { columns: 2, columnWidth: 100, rowHeight: 80 } }
-      ],
+      title: '组件库',
+      target: graph,
+      stencilGraphWidth: 240,
+      stencilGraphHeight: 0,
+      collapsable: true,
+      search: { visible: true, placeholder: '搜索图元 / 类型...' },
+      groups: STENCIL_GROUPS as unknown as Array<{ title: string; name: string; layoutOptions: Record<string, unknown> }>,
       getDropNode(node) {
         const clone = node.clone();
         const data = clone.getData();
+        const shapeId = typeof data?._paletteShapeId === 'string' ? data._paletteShapeId : '';
+        if (shapeId) {
+          const nextRecent = [shapeId, ...getRecentShapeIds().filter((id) => id !== shapeId)].slice(0, RECENT_LIMIT);
+          saveRecentShapeIds(nextRecent);
+          const nextNodes = buildStencilNodesByGroup(nextRecent);
+          STENCIL_GROUPS.forEach((group) => {
+            stencil.load(nextNodes[group.name], group.name);
+          });
+        }
         if (data?.originalSize) {
           clone.setSize(data.originalSize.width, data.originalSize.height);
-          const { originalSize: _originalSize, ...rest } = data;
+          const { originalSize: _originalSize, _paletteShapeId: _paletteShapeId, ...rest } = data;
           void _originalSize;
+          void _paletteShapeId;
           clone.setData(rest);
         }
         return clone;
-      }
+      },
     });
     stencilRef.current.appendChild(stencil.container);
 
-    const TYPE_TO_GROUP: Record<string, string> = {
-      'Reactor': 'main_equip', 'FixedBedReactor': 'main_equip', 'Exchanger': 'main_equip', 'VerticalExchanger': 'main_equip',
-      'Evaporator': 'main_equip', 'Tank': 'main_equip', 'GasCooler': 'main_equip', 'Trap': 'main_equip', 
-      'Pump': 'pumps', 'LiquidPump': 'pumps', 'CentrifugalPump': 'pumps', 'DiaphragmPump': 'pumps', 'PistonPump': 'pumps',
-      'GearPump': 'pumps', 'Compressor': 'pumps', 'Fan': 'pumps', 'JetPump': 'pumps',
-      'Instrument': 'instruments',
-      'Valve': 'parts', 'ControlValve': 'parts', 'ManualValve': 'parts', 'Fitting': 'parts', 'OffPageConnector': 'parts',
-      'TappingPoint': 'ignore', 'Frame': 'ignore'         
-    };
-
-    const stencilNodes: Record<string, Node[]> = { main_equip: [], pumps: [], instruments: [], parts: [] };
-    const typeCounts: Record<string, number> = {};
-    Object.values(SHAPE_LIBRARY).forEach((config) => {
-      const t = typeof config.data?.type === 'string' ? config.data.type : 'Unknown';
-      typeCounts[t] = (typeCounts[t] || 0) + 1;
+    const initialStencilNodes = buildStencilNodesByGroup(getRecentShapeIds());
+    STENCIL_GROUPS.forEach((group) => {
+      stencil.load(initialStencilNodes[group.name], group.name);
     });
-    const typeIterators: Record<string, number> = {};
-
-    Object.keys(SHAPE_LIBRARY).forEach(shapeId => {
-      const config = SHAPE_LIBRARY[shapeId];
-      const type = typeof config.data?.type === 'string' ? config.data.type : 'Unknown';
-      let groupName = TYPE_TO_GROUP[type];
-      if (!groupName) {
-        if (type.includes('Pump')) groupName = 'pumps';
-        else if (type.includes('Valve')) groupName = 'parts';
-        else groupName = 'parts'; 
-      }
-      if (groupName === 'ignore') return;
-
-      const MAX_W = 70; const MAX_H = 70; 
-      const originalW = config.width || 80; const originalH = config.height || 80;
-      let displayW = originalW; let displayH = originalH;
-      if (originalW > MAX_W || originalH > MAX_H) {
-        const ratio = originalW / originalH;
-        if (ratio > 1) { displayW = MAX_W; displayH = displayW / ratio; } else { displayH = MAX_H; displayW = displayH * ratio; }
-      }
-
-      let displayLabel = type;
-      if (type === 'Instrument') {
-        displayLabel = typeof config.data?.tagId === 'string' ? config.data.tagId : 'Inst';
-      }
-      else if (typeCounts[type] > 1) {
-         const parts = shapeId.split('-');
-         let suffix = parts[parts.length - 1]; 
-         if (type.toLowerCase().includes(suffix.toLowerCase())) {
-            typeIterators[type] = (typeIterators[type] || 0) + 1;
-            suffix = `${typeIterators[type]}`;
-         } else {
-            suffix = suffix.charAt(0).toUpperCase() + suffix.slice(1);
-         }
-         displayLabel = `${type} ${suffix}`;
-      }
-
-      const node = graph.createNode({
-        shape: shapeId, width: displayW, height: displayH, label: displayLabel, 
-        attrs: { label: { fontSize: 10, refY: '100%', refY2: 4, textWrap: { width: 90, ellipsis: true } } },
-        data: { ...config.data, originalSize: { width: originalW, height: originalH } } 
-      });
-      if (stencilNodes[groupName]) { stencilNodes[groupName].push(node); }
-    });
-
-    stencil.load(stencilNodes.main_equip, 'main_equip');
-    stencil.load(stencilNodes.pumps, 'pumps');
-    stencil.load(stencilNodes.instruments, 'instruments');
-    stencil.load(stencilNodes.parts, 'parts');
 
     const setupBackgroundFrame = () => {
       if (graph.getNodes().some(n => n.getData()?.isBackground)) return;
@@ -1277,6 +1812,13 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
           setupBackgroundFrame();
           graph.centerContent();
           message.success('数据已恢复');
+        } else {
+          const ir = await loadDomainIR(drawingId);
+          if (ir) {
+            applyDomainIRToCanvas(graph, ir);
+            setupBackgroundFrame();
+            message.success('已从语义IR回放到画布');
+          }
         }
         // 重置历史记录和脏状态
         if (historyRef.current) historyRef.current.clean();
@@ -1296,7 +1838,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
       graph.dispose();
       if (stencilEl) stencilEl.innerHTML = '';
     };
-  }, [drawingId, ensureNodeTypeTag, isInlineComponent, refreshRouting, setDirty]);
+  }, [applyDomainIRToCanvas, drawingId, ensureNodeTypeTag, isInlineComponent, refreshRouting, setDirty]);
 
   // [新增] 监听脏状态 (History & Data Change)
   useEffect(() => {
@@ -1378,7 +1920,7 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
          <Tooltip title="清空"><Button type="text" danger icon={<ClearOutlined />} onClick={onClear} /></Tooltip>
       </div>
       <div ref={containerRef} className="canvas-container" />
-      <div className="inspector-container"><Inspector cell={selectedCell} /></div>
+      <div className="inspector-container"><Inspector cell={selectedCell} focusHint={inspectorFocusHint} /></div>
       <ContextMenu visible={menu.visible} x={menu.x} y={menu.y} type={menu.type} onClose={() => setMenu({ ...menu, visible: false })} onAction={handleMenuAction} />
     </div>
   );

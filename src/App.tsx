@@ -1,20 +1,20 @@
 // src/App.tsx
 import { useRef, useState } from 'react';
-import { Button, Layout, message, Radio, Modal } from 'antd'; 
-import { 
-  SaveOutlined, 
-  DatabaseOutlined, 
-  ToolOutlined, 
+import { Button, Layout, message, Radio, Modal } from 'antd';
+import {
+  SaveOutlined,
+  DatabaseOutlined,
+  ToolOutlined,
   ArrowLeftOutlined,
   FormOutlined,
-  DeploymentUnitOutlined // [新增]
+  DeploymentUnitOutlined,
 } from '@ant-design/icons';
 
 import GraphCanvas from './components/Editor/Canvas';
 import type { GraphCanvasRef } from './components/Editor/Canvas';
 import ShapeDesigner from './components/DevTools/ShapeDesigner';
 import AttributeDesigner from './components/DevTools/AttributeDesigner';
-import OntologyDesigner from './components/DevTools/OntologyDesigner'; // [新增]
+import OntologyDesigner from './components/DevTools/OntologyDesigner';
 import DrawingManager from './components/Editor/DrawingManager';
 import { useDrawingStore } from './store/drawingStore';
 
@@ -22,10 +22,9 @@ const { Header, Content } = Layout;
 
 function App() {
   const [saving, setSaving] = useState(false);
-  // [修改] 增加 'ontology' 模式
   const [mode, setMode] = useState<'editor' | 'designer' | 'attributes' | 'ontology'>('editor');
   const graphRef = useRef<GraphCanvasRef>(null);
-  
+
   const { currentDrawingId, currentDrawingName, isDirty, setCurrentDrawing } = useDrawingStore();
 
   const handleSaveClick = async () => {
@@ -40,7 +39,7 @@ function App() {
         setSaving(false);
       }
     } else {
-        if(!currentDrawingId) message.warning("未选择图纸");
+      if (!currentDrawingId) message.warning('未选择图纸');
     }
   };
 
@@ -54,10 +53,13 @@ function App() {
         footer: (_, { OkBtn }) => (
           <>
             <Button onClick={() => Modal.destroyAll()}>取消</Button>
-            <Button danger onClick={() => {
-              Modal.destroyAll();
-              setCurrentDrawing(targetId); 
-            }}>
+            <Button
+              danger
+              onClick={() => {
+                Modal.destroyAll();
+                setCurrentDrawing(targetId);
+              }}
+            >
               不保存
             </Button>
             <OkBtn />
@@ -70,51 +72,52 @@ function App() {
               await graphRef.current.handleSave(currentDrawingId);
               setCurrentDrawing(targetId);
             } catch (e) {
-              console.error("Save failed during switch", e);
+              console.error('Save failed during switch', e);
             } finally {
               setSaving(false);
             }
           }
-        }
+        },
       });
     } else {
       setCurrentDrawing(targetId);
     }
   };
 
-  // --- 渲染开发者模式 ---
   if (mode === 'designer' || mode === 'attributes' || mode === 'ontology') {
     return (
       <Layout style={{ height: '100vh' }}>
-        <Header style={{ 
-          display: 'flex', alignItems: 'center', color: 'white', 
-          height: '50px', padding: '0 20px', flexShrink: 0,
-          justifyContent: 'space-between', background: '#001529'
-        }}>
+        <Header
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            color: 'white',
+            height: '50px',
+            padding: '0 20px',
+            flexShrink: 0,
+            justifyContent: 'space-between',
+            background: '#001529',
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             <div style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 10 }}>
               <ToolOutlined /> 开发者工具箱
             </div>
-            
-            <Radio.Group 
-              value={mode} 
-              onChange={e => setMode(e.target.value)} 
-              buttonStyle="solid"
-              size="small"
-            >
-              <Radio.Button value="designer"><ToolOutlined /> 图形 (Shape)</Radio.Button>
-              <Radio.Button value="attributes"><FormOutlined /> 属性 (Attr)</Radio.Button>
-              {/* [新增] 本体编辑器按钮 */}
-              <Radio.Button value="ontology"><DeploymentUnitOutlined /> 本体 (Ontology)</Radio.Button>
+
+            <Radio.Group value={mode} onChange={(e) => setMode(e.target.value)} buttonStyle="solid" size="small">
+              <Radio.Button value="designer">
+                <ToolOutlined /> 图形 (Shape)
+              </Radio.Button>
+              <Radio.Button value="attributes">
+                <FormOutlined /> 属性 (Attr)
+              </Radio.Button>
+              <Radio.Button value="ontology">
+                <DeploymentUnitOutlined /> 本体 (Ontology)
+              </Radio.Button>
             </Radio.Group>
           </div>
 
-          <Button 
-            type="primary" 
-            ghost 
-            icon={<ArrowLeftOutlined />} 
-            onClick={() => setMode('editor')}
-          >
+          <Button type="primary" ghost icon={<ArrowLeftOutlined />} onClick={() => setMode('editor')}>
             返回编辑器
           </Button>
         </Header>
@@ -127,47 +130,43 @@ function App() {
     );
   }
 
-  // --- 渲染主编辑器 ---
   return (
     <Layout style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Header style={{ 
-        display: 'flex', alignItems: 'center', color: 'white', 
-        height: '50px', padding: '0 20px', flexShrink: 0,
-        justifyContent: 'space-between' 
-      }}>
+      <Header
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          color: 'white',
+          height: '50px',
+          padding: '0 20px',
+          flexShrink: 0,
+          justifyContent: 'space-between',
+        }}
+      >
         <div style={{ fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: 10 }}>
           <DatabaseOutlined />
           <span>
-            🧪 化工 P&ID 编辑器 
+            🧪 化工 P&ID 编辑器
             <span style={{ fontSize: '0.8em', fontWeight: 'normal', marginLeft: 10, opacity: 0.8 }}>
-               - {currentDrawingName || 'Loading...'}
-               {isDirty && <span style={{ color: '#ffec3d', marginLeft: 5 }}>*</span>} 
+              {' '}
+              - {currentDrawingName || 'Loading...'}
+              {isDirty && <span style={{ color: '#ffec3d', marginLeft: 5 }}>*</span>}
             </span>
           </span>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
-          <Button 
-              type="dashed" 
-              ghost 
-              icon={<ToolOutlined />} 
-              onClick={() => setMode('designer')} 
-            >
-              DevTools
-            </Button>
-          <Button 
-            type="primary" 
-            icon={<SaveOutlined />} 
-            loading={saving}
-            onClick={handleSaveClick}
-          >
+          <Button type="dashed" ghost icon={<ToolOutlined />} onClick={() => setMode('designer')}>
+            DevTools
+          </Button>
+          <Button type="primary" icon={<SaveOutlined />} loading={saving} onClick={handleSaveClick}>
             保存图纸到 Neo4j
           </Button>
         </div>
       </Header>
-      
+
       <Content style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
         <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
-           <GraphCanvas ref={graphRef} drawingId={currentDrawingId} />
+          <GraphCanvas ref={graphRef} drawingId={currentDrawingId} />
         </div>
         <div style={{ flexShrink: 0, zIndex: 100 }}>
           <DrawingManager onSwitch={handleSwitchDrawing} />
