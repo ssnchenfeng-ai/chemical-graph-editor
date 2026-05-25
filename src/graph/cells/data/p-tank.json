@@ -1,6 +1,6 @@
 {
-  "width": 200,
-  "height": 100,
+  "width": 100,
+  "height": 200,
   "ports": {
     "groups": {
       "top": {
@@ -27,7 +27,7 @@
           }
         }
       },
-      "left": {
+      "left_upper": {
         "position": "absolute",
         "attrs": {
           "circle": {
@@ -39,7 +39,31 @@
           }
         }
       },
-      "right": {
+      "right_upper": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "left_lower": {
+        "position": "absolute",
+        "attrs": {
+          "circle": {
+            "r": 3,
+            "magnet": true,
+            "stroke": "#FFFFFF",
+            "strokeWidth": 1,
+            "fill": "#e3dedeff"
+          }
+        }
+      },
+      "right_lower": {
         "position": "absolute",
         "attrs": {
           "circle": {
@@ -54,190 +78,94 @@
     },
     "items": [
       {
-        "id": "n1",
-        "group": "top",
-        "args": {
-          "x": "20%",
-          "y": "0%"
-        },
-        "data": {
-          "desc": "顶部口N1",
-          "region": "InnerVessel",
-          "dir": "bi",
-          "chamber": "InnerVessel",
-          "phase": "Liquid"
-        }
-      },
-      {
-        "id": "n2",
-        "group": "top",
-        "args": {
-          "x": "35%",
-          "y": "0%"
-        },
-        "data": {
-          "desc": "顶部口N2",
-          "region": "InnerVessel",
-          "dir": "bi",
-          "chamber": "InnerVessel",
-          "phase": "Liquid"
-        }
-      },
-      {
-        "id": "n3",
+        "id": "t1",
         "group": "top",
         "args": {
           "x": "50%",
-          "y": "0%"
+          "y": "10%"
         },
         "data": {
-          "desc": "顶部口N3",
-          "region": "InnerVessel",
-          "dir": "bi",
+          "desc": "顶部放空",
           "chamber": "InnerVessel",
-          "phase": "Liquid"
+          "phase": "Liquid",
+          "dir": "bi"
         }
       },
       {
-        "id": "n4",
-        "group": "top",
-        "args": {
-          "x": "65%",
-          "y": "0%"
-        },
-        "data": {
-          "desc": "顶部口N4",
-          "region": "InnerVessel",
-          "dir": "bi",
-          "chamber": "InnerVessel",
-          "phase": "Liquid"
-        }
-      },
-      {
-        "id": "n5",
-        "group": "top",
-        "args": {
-          "x": "80%",
-          "y": "0%"
-        },
-        "data": {
-          "desc": "顶部口N5",
-          "region": "InnerVessel",
-          "dir": "bi",
-          "chamber": "InnerVessel",
-          "phase": "Liquid"
-        }
-      },
-      {
-        "id": "n6",
-        "group": "bottom",
-        "args": {
-          "x": "20%",
-          "y": "100%"
-        },
-        "data": {
-          "desc": "底部口N6",
-          "region": "InnerVessel",
-          "dir": "out",
-          "chamber": "InnerVessel",
-          "phase": "Liquid"
-        }
-      },
-      {
-        "id": "n7",
-        "group": "bottom",
-        "args": {
-          "x": "35%",
-          "y": "100%"
-        },
-        "data": {
-          "desc": "底部口N7",
-          "region": "InnerVessel",
-          "dir": "out",
-          "chamber": "InnerVessel",
-          "phase": "Liquid"
-        }
-      },
-      {
-        "id": "n8",
+        "id": "b1",
         "group": "bottom",
         "args": {
           "x": "50%",
-          "y": "100%"
+          "y": "90%"
         },
         "data": {
-          "desc": "底部口N8",
-          "region": "InnerVessel",
-          "dir": "in",
+          "desc": "底部出料",
           "chamber": "InnerVessel",
-          "phase": "Liquid"
+          "phase": "Liquid",
+          "dir": "bi"
         }
       },
       {
-        "id": "n9",
-        "group": "bottom",
+        "id": "l_up",
+        "group": "left_upper",
         "args": {
-          "x": "65%",
-          "y": "100%"
+          "x": "10%",
+          "y": "30%"
         },
         "data": {
-          "desc": "底部口N9",
-          "region": "InnerVessel",
-          "dir": "in",
+          "desc": "上部侧口(左)",
           "chamber": "InnerVessel",
-          "phase": "Liquid"
+          "phase": "Liquid",
+          "dir": "bi"
         }
       },
       {
-        "id": "n10",
-        "group": "bottom",
+        "id": "r_up",
+        "group": "right_upper",
         "args": {
-          "x": "80%",
-          "y": "100%"
+          "x": "90%",
+          "y": "30%"
         },
         "data": {
-          "desc": "底部口N10",
-          "region": "InnerVessel",
-          "dir": "in",
+          "desc": "上部侧口(右)",
           "chamber": "InnerVessel",
-          "phase": "Liquid"
+          "phase": "Liquid",
+          "dir": "bi"
         }
       },
       {
-        "id": "n11",
-        "group": "left",
+        "id": "l_low",
+        "group": "left_lower",
         "args": {
-          "x": "0%",
-          "y": "50%"
+          "x": "10%",
+          "y": "70%"
         },
         "data": {
-          "desc": "左侧口N11",
-          "region": "InnerVessel",
-          "dir": "bi",
+          "desc": "下部侧口(左)",
           "chamber": "InnerVessel",
-          "phase": "Liquid"
+          "phase": "Liquid",
+          "dir": "bi"
         }
       },
       {
-        "id": "n14",
-        "group": "right",
+        "id": "r_low",
+        "group": "right_lower",
         "args": {
-          "x": "100%",
-          "y": "50%"
+          "x": "90%",
+          "y": "70%"
         },
         "data": {
-          "desc": "右侧口N14",
-          "region": "InnerVessel",
-          "dir": "bi",
+          "desc": "下部侧口(右)",
           "chamber": "InnerVessel",
-          "phase": "Liquid"
+          "phase": "Liquid",
+          "dir": "bi"
         }
       }
     ]
   },
   "data": {
     "type": "Tank",
-    "tag": "TANK-HORIZ",
+    "tag": "TANK-VERTICAL",
     "spec": "Spec..."
   }
 }

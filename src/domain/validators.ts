@@ -17,9 +17,82 @@ export const validateDomainModel = (model: DomainModel): ValidationResult => {
   const issues: ValidationIssue[] = [];
 
   const equipmentIds = new Set(model.equipments.map((e) => e.id));
+  const internalParts = model.internalParts || [];
+  const internalConnections = model.internalConnections || [];
+  const internalPartIds = new Set(internalParts.map((p) => p.id));
   const zoneIds = new Set(model.zones.map((z) => z.id));
   const portIds = new Set(model.ports.map((p) => p.id));
   const instrumentIds = new Set(model.instruments.map((i) => i.id));
+  const tags = new Map<string, string>();
+
+  const rememberTag = (kind: string, id: string, tag?: string) => {
+    if (!tag) {
+      issues.push({
+        level: 'warning',
+        code: 'TAG_MISSING',
+        message: `${kind} ${id} 缺少位号。`,
+        entityId: id,
+      });
+      return;
+    }
+
+    const previous = tags.get(tag);
+    if (previous) {
+      issues.push({
+        level: 'error',
+        code: 'TAG_DUPLICATED',
+        message: `位号 ${tag} 同时用于 ${previous} 和 ${id}。`,
+        entityId: id,
+      });
+      return;
+    }
+
+    tags.set(tag, id);
+  };
+
+  if (model.equipments.length === 0) {
+    issues.push({
+      level: 'warning',
+      code: 'DRAWING_EQUIPMENT_EMPTY',
+      message: '图纸还没有设备。',
+      entityId: model.drawing.id,
+    });
+  }
+
+  model.equipments.forEach((equipment) => {
+    rememberTag('Equipment', equipment.id, equipment.tag);
+
+    const type = String(equipment.type || '');
+    if (['Valve', 'ManualValve', 'ControlValve'].includes(type)) {
+      if (!equipment.attributes?.dn) {
+        issues.push({ level: 'warning', code: 'VALVE_DN_MISSING', message: `${equipment.tag || equipment.id} 缺少 DN。`, entityId: equipment.id });
+      }
+      if (!equipment.attributes?.pn) {
+        issues.push({ level: 'warning', code: 'VALVE_PN_MISSING', message: `${equipment.tag || equipment.id} 缺少 PN。`, entityId: equipment.id });
+      }
+    }
+
+    if (type === 'FixedBedReactor' && equipment.zoneIds.length === 0) {
+      issues.push({
+        level: 'warning',
+        code: 'REACTOR_ZONE_MISSING',
+        message: `${equipment.tag || equipment.id} 建议定义床层/腔室。`,
+        entityId: equipment.id,
+      });
+    }
+  });
+
+  model.instruments.forEach((instrument) => {
+    rememberTag('Instrument', instrument.id, instrument.tag);
+    if (!instrument.loop) {
+      issues.push({
+        level: 'warning',
+        code: 'INSTRUMENT_LOOP_MISSING',
+        message: `${instrument.tag || instrument.id} 缺少回路号。`,
+        entityId: instrument.id,
+      });
+    }
+  });
 
   model.zones.forEach((zone) => {
     if (!equipmentIds.has(zone.equipmentId)) {
@@ -57,12 +130,49 @@ export const validateDomainModel = (model: DomainModel): ValidationResult => {
         entityId: pipe.id,
       });
     }
+
+    if (!pipe.tag) {
+      issues.push({
+        level: 'warning',
+        code: 'PIPE_TAG_MISSING',
+        message: `Pipe ${pipe.id} 缺少管线号。`,
+        entityId: pipe.id,
+      });
+    }
+
+    if (!pipe.fluid) {
+      issues.push({
+        level: 'warning',
+        code: 'PIPE_FLUID_MISSING',
+        message: `${pipe.tag || pipe.id} 缺少介质。`,
+        entityId: pipe.id,
+      });
+    }
+
+    if (!pipe.dnSpec?.value) {
+      issues.push({
+        level: 'warning',
+        code: 'PIPE_DN_MISSING',
+        message: `${pipe.tag || pipe.id} 缺少 DN。`,
+        entityId: pipe.id,
+      });
+    }
+
+    if (!pipe.pnSpec?.value) {
+      issues.push({
+        level: 'warning',
+        code: 'PIPE_PN_MISSING',
+        message: `${pipe.tag || pipe.id} 缺少 PN。`,
+        entityId: pipe.id,
+      });
+    }
   });
 
   model.relations.forEach((rel) => {
     const { source, target } = rel;
     const endpointExists = (kind: string, id: string) => {
       if (kind === 'equipment') return equipmentIds.has(id);
+      if (kind === 'internalPart') return internalPartIds.has(id);
       if (kind === 'zone') return zoneIds.has(id);
       if (kind === 'port') return portIds.has(id);
       if (kind === 'instrument') return instrumentIds.has(id);
@@ -99,6 +209,7 @@ export const validateDomainModel = (model: DomainModel): ValidationResult => {
     }
 
     if (rel.type === RELATION_TYPES.FEEDS && !((source.kind === 'port' && target.kind === 'zone') || (source.kind === 'zone' && target.kind === 'zone'))) {
+      if (source.kind === 'internalPart' && target.kind === 'internalPart') return;
       issues.push({
         level: 'error',
         code: 'REL_FEEDS_INVALID_ENDPOINT',
@@ -131,6 +242,17 @@ export const validateDomainModel = (model: DomainModel): ValidationResult => {
         code: 'REL_CONTROLS_RECOMMENDED_ENDPOINT',
         message: `CONTROLS is recommended as instrument -> zone/equipment (${rel.id}).`,
         entityId: rel.id,
+      });
+    }
+  });
+
+  internalConnections.forEach((connection) => {
+    if (!internalPartIds.has(connection.sourceId) || !internalPartIds.has(connection.targetId)) {
+      issues.push({
+        level: 'error',
+        code: 'INTERNAL_CONNECTION_ENDPOINT_MISSING',
+        message: `内部关系 ${connection.id} 引用了不存在的内部部件。`,
+        entityId: connection.id,
       });
     }
   });

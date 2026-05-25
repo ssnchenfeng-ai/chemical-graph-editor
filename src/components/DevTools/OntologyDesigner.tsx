@@ -127,6 +127,18 @@ const PORT_ID_OPTIONS = [
   { value: 'signal', label: '信号 (signal)' },
 ];
 
+const TYPE_NAME_ZH: Record<string, string> = TYPE_ID_OPTIONS.reduce<Record<string, string>>((acc, item) => {
+  const m = item.label.match(/^(.+)\s+\(/);
+  acc[item.value] = m ? m[1] : item.value;
+  return acc;
+}, {});
+
+const CHAMBER_NAME_ZH: Record<string, string> = CHAMBER_ID_OPTIONS.reduce<Record<string, string>>((acc, item) => {
+  const m = item.label.match(/^(.+)\s+\(/);
+  acc[item.value] = m ? m[1] : item.value;
+  return acc;
+}, {});
+
 const ONTOLOGY_TEMPLATE_OPTIONS = [
   { value: 'Reactor', label: '反应器模板 (Reactor)' },
   { value: 'FixedBedReactor', label: '固定床反应器模板 (FixedBedReactor)' },
@@ -294,10 +306,10 @@ Graph.registerNode('meta-type', {
 
 // 2. 注册图形：腔室
 Graph.registerNode('meta-chamber', {
-  inherit: 'circle',
-  width: 80, height: 80,
+  inherit: 'rect',
+  width: 110, height: 70,
   attrs: {
-    body: { fill: '#fff7e6', stroke: '#fa8c16', strokeWidth: 2, cursor: 'move' },
+    body: { fill: '#fff7e6', stroke: '#fa8c16', strokeWidth: 2, rx: 10, ry: 10, cursor: 'move' },
     label: { text: '腔室', fill: '#fa8c16', fontSize: 12 }
   },
   ports: {
@@ -361,8 +373,21 @@ const OntologyDesigner: React.FC = () => {
   const [leftTab, setLeftTab] = useState<'structure' | 'stencil'>('structure');
   const [relationPicker, setRelationPicker] = useState<RelationPickerState | null>(null);
   const [selectedTemplateType, setSelectedTemplateType] = useState<string>('Reactor');
+  const [expandedTreeKeys, setExpandedTreeKeys] = useState<React.Key[]>([]);
   const lastPublishedSnapshotRef = useRef<Record<string, unknown> | null>(null);
   const lastPublishedAnalysisRef = useRef<OntologyAnalysis | null>(null);
+
+  const collectTreeKeys = (nodes: Array<{ key: string; children?: Array<{ key: string; children?: Array<{ key: string }> }> }>): React.Key[] => {
+    const keys: React.Key[] = [];
+    nodes.forEach((node) => {
+      keys.push(node.key);
+      node.children?.forEach((child) => {
+        keys.push(child.key);
+        child.children?.forEach((leaf) => keys.push(leaf.key));
+      });
+    });
+    return keys;
+  };
 
   const refreshStructureTree = useCallback((graph: Graph) => {
     const typeNodes = graph.getNodes().filter((n) => n.getData()?.type === 'MetaType');
@@ -376,26 +401,29 @@ const OntologyDesigner: React.FC = () => {
             .filter((child) => child.isNode() && child.getData()?.type === 'MetaPort')
             .map((portNode) => ({
               key: String(portNode.id),
-              title: `Port · ${String(portNode.getData()?.name || portNode.id)}`,
+              title: `端口 · ${String(portNode.getData()?.name || portNode.id)}`,
             }));
+          const chamberZh = CHAMBER_NAME_ZH[chamberName] || chamberName;
           return {
             key: String(chamberNode.id),
-            title: `Zone · ${chamberName}`,
+            title: `腔室 · ${chamberZh}`,
             children: portChildren,
           };
         });
+      const typeZh = TYPE_NAME_ZH[typeName] || typeName;
       return {
         key: String(typeNode.id),
         title: (
           <span>
-            <Tag color="blue" style={{ marginRight: 8 }}>Type</Tag>
-            {typeName}
+            <Tag color="blue" style={{ marginRight: 8 }}>类型</Tag>
+            {typeZh}
           </span>
         ),
         children: chamberChildren,
       };
     });
     setStructureTreeData(tree);
+    setExpandedTreeKeys(collectTreeKeys(tree));
   }, []);
 
   const snapPortToChamberBoundary = useCallback((portNode: Cell) => {
@@ -904,7 +932,7 @@ const OntologyDesigner: React.FC = () => {
         const clone = node.clone();
         const shape = clone.shape;
         if (shape === 'meta-chamber') {
-          clone.setSize(80, 80);
+          clone.setSize(110, 70);
           clone.attr('label/fontSize', 12);
         } else if (shape === 'meta-port') {
           clone.setSize(72, 28);
@@ -931,7 +959,7 @@ const OntologyDesigner: React.FC = () => {
       height: 60,
       attrs: { label: { fontSize: 10 } }
     });
-    const chamberNode = graph.createNode({ shape: 'meta-chamber', label: '腔室 (Chamber)', width: 50, height: 50, attrs: { label: { fontSize: 10 } } });
+    const chamberNode = graph.createNode({ shape: 'meta-chamber', label: '腔室 (Chamber)', width: 75, height: 45, attrs: { label: { fontSize: 10 } } });
     const portNode = graph.createNode({ shape: 'meta-port', label: '端口 (Port)', width: 72, height: 28, attrs: { label: { fontSize: 10 } } });
     stencil.load([typeNode, chamberNode, portNode], 'basic');
 
@@ -966,6 +994,9 @@ const OntologyDesigner: React.FC = () => {
           data: { type: 'MetaType', name: typeId }
         });
         graph.addNode(defaultNode);
+        graph.cleanSelection();
+        graph.select(defaultNode);
+        setSelectedCell(defaultNode);
       } else {
         const tProps = typeRes.records[0].get('t').properties;
         const typeLabel = tProps.label || tProps.name || typeId;
@@ -980,6 +1011,9 @@ const OntologyDesigner: React.FC = () => {
           data: { type: 'MetaType', name: typeId }
         });
         graph.addNode(typeNode);
+        graph.cleanSelection();
+        graph.select(typeNode);
+        setSelectedCell(typeNode);
 
         // 2. 加载 Chamber 节点
         const chamberRes = await session.run(`
@@ -996,8 +1030,8 @@ const OntologyDesigner: React.FC = () => {
           const node = graph.createNode({
             shape: 'meta-chamber',
             x, y,
-            width: props.w || 80,
-            height: props.h || 80,
+            width: props.w || 110,
+            height: props.h || 70,
             attrs: { label: { text: chamberLabel } },
             data: { type: 'MetaChamber', name: props.id }
           });
@@ -1167,6 +1201,11 @@ const OntologyDesigner: React.FC = () => {
     form.setFieldsValue({ ...data, label });
   };
 
+  const toTypeDisplayLabel = (typeId: string) => {
+    const zh = TYPE_NAME_ZH[typeId];
+    return zh ? `${zh} (${typeId})` : typeId;
+  };
+
   const addChamberToCanvas = () => {
     if (!graphRef.current) return;
     const graph = graphRef.current;
@@ -1302,6 +1341,9 @@ const OntologyDesigner: React.FC = () => {
       });
 
       graph.centerContent();
+      graph.cleanSelection();
+      graph.select(typeNode);
+      setSelectedCell(typeNode);
       refreshStructureTree(graph);
       setCurrentType(template.typeId);
       setSelectedCell(null);
@@ -1600,7 +1642,12 @@ const OntologyDesigner: React.FC = () => {
         <Tabs
           size="small"
           activeKey={leftTab}
-          onChange={(key) => setLeftTab(key as 'structure' | 'stencil')}
+          onChange={(key) => {
+            setLeftTab(key as 'structure' | 'stencil');
+            if (key === 'stencil') {
+              window.setTimeout(() => window.dispatchEvent(new Event('resize')), 30);
+            }
+          }}
           items={[
             {
               key: 'structure',
@@ -1608,12 +1655,24 @@ const OntologyDesigner: React.FC = () => {
               children: (
                 <div style={{ padding: '8px 10px' }}>
                   <div style={{ fontSize: 12, color: '#666', marginBottom: 6 }}>
-                    归属关系默认由结构定义（Type &gt; Zone &gt; Port）
+                    归属关系默认由结构定义（类型 &gt; 腔室 &gt; 端口）
+                  </div>
+                  <div style={{ fontSize: 12, color: '#8c8c8c', marginBottom: 8, lineHeight: 1.6, background: '#fafafa', border: '1px dashed #d9d9d9', borderRadius: 6, padding: '6px 8px' }}>
+                    使用说明：
+                    <br />
+                    1. 先选设备类型或应用工艺模板，再新增腔室和端口。
+                    <br />
+                    2. 端口建议挂在腔室边界，连线后选择语义关系。
+                    <br />
+                    3. 发布前检查右侧属性与关系类型是否完整。
+                    <br />
+                    4. 选中外框（类型节点）可拖拽 8 个控制点调整本体范围。
                   </div>
                   <Tree
                     treeData={structureTreeData}
                     onSelect={handleStructureSelect}
-                    defaultExpandAll
+                    expandedKeys={expandedTreeKeys}
+                    onExpand={(keys) => setExpandedTreeKeys(keys)}
                     showLine
                   />
                 </div>
@@ -1623,10 +1682,10 @@ const OntologyDesigner: React.FC = () => {
               key: 'stencil',
               label: '组件库',
               forceRender: true,
-              children: <div ref={stencilRef} style={{ height: '100%', position: 'relative' }} />,
+              children: <div ref={stencilRef} style={{ width: '100%', height: 'calc(100vh - 250px)', minHeight: 360, position: 'relative', overflow: 'auto' }} />,
             },
           ]}
-          style={{ flex: 1, overflow: 'auto' }}
+          style={{ flex: 1, overflow: 'hidden' }}
         />
       </Sider>
       
@@ -1647,7 +1706,7 @@ const OntologyDesigner: React.FC = () => {
                 </Button>
               </>
             )}
-            options={existingTypes.map(t => ({ label: t, value: t }))}
+            options={existingTypes.map((t) => ({ label: toTypeDisplayLabel(t), value: t }))}
           />
           <Button icon={<ReloadOutlined />} onClick={fetchExistingTypes} />
           <Select

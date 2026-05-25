@@ -57,6 +57,8 @@ export interface Equipment {
   description?: string;
   zoneIds: EntityId[];
   portIds: EntityId[];
+  internalPartIds?: EntityId[];
+  internalConnectionIds?: EntityId[];
   attributes?: Record<string, unknown>;
 }
 
@@ -119,9 +121,30 @@ export interface Instrument {
   attributes?: Record<string, unknown>;
 }
 
+export interface InternalPart {
+  id: EntityId;
+  equipmentId: EntityId;
+  type: string;
+  label?: string;
+  phase?: string;
+  attributes?: Record<string, unknown>;
+}
+
+export interface InternalConnection {
+  id: EntityId;
+  equipmentId: EntityId;
+  type: string;
+  sourceId: EntityId;
+  targetId: EntityId;
+  label?: string;
+  attributes?: Record<string, unknown>;
+}
+
 export interface DomainModel {
   drawing: Drawing;
   equipments: Equipment[];
+  internalParts?: InternalPart[];
+  internalConnections?: InternalConnection[];
   zones: Zone[];
   ports: Port[];
   pipes: Pipe[];

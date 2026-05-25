@@ -150,6 +150,62 @@ const EQUIPMENT_TYPES = [
   { value: 'Other', label: '其他 (Other)', prefix: 'M' },
 ];
 
+const TYPE_LABEL_ZH: Record<string, string> = {
+  Reactor: '反应器',
+  FixedBedReactor: '固定床反应器',
+  Exchanger: '换热器',
+  VerticalExchanger: '立式换热器',
+  Evaporator: '蒸发器',
+  GasCooler: '气冷器',
+  Trap: '疏水器',
+  Tank: '储罐',
+  Separator: '分离器',
+  Pump: '泵',
+  LiquidPump: '液体泵',
+  CentrifugalPump: '离心泵',
+  DiaphragmPump: '隔膜泵',
+  PistonPump: '活塞泵',
+  GearPump: '齿轮泵',
+  Compressor: '压缩机',
+  Fan: '风机',
+  JetPump: '喷射泵',
+  Instrument: '仪表',
+  Valve: '阀门',
+  ControlValve: '调节阀',
+  ManualValve: '手动阀',
+  Fitting: '管件',
+  OffPageConnector: '跨页连接',
+  SafetyValve: '安全阀',
+  RuptureDisc: '爆破片',
+  BreatherValve: '呼吸阀',
+  Filter: '过滤器',
+  FlameArrester: '阻火器',
+  SightGlass: '视镜',
+  Silencer: '消音器',
+  Other: '其他',
+};
+
+const SHAPE_LABEL_ZH: Record<string, string> = {
+  'p-airtrap': '气液分离罐',
+  'p-reactor': '反应器',
+  'p-fixedbedreactor': '固定床反应器',
+  'p-r101': '反应器 R101',
+  'p-exchanger': '换热器',
+  'p-exchangervertical': '立式换热器',
+  'p-e101': '换热器 E101',
+  'p-eair': '空气冷却器',
+  'p-separator': '分离器',
+  'p-tank': '储罐',
+  'p-tankvertical': '立式储罐',
+};
+
+const getLibraryShapeLabel = (shapeId: string, type: string) => {
+  const shapeZh = SHAPE_LABEL_ZH[shapeId];
+  const typeZh = TYPE_LABEL_ZH[type] || type;
+  if (shapeZh) return `${shapeZh} (${shapeId} / ${typeZh})`;
+  return `${typeZh} (${shapeId})`;
+};
+
 const slugifyName = (value: string) => value
   .trim()
   .toLowerCase()
@@ -706,10 +762,13 @@ ${itemsStr}
             showSearch
             style={{ width: '100%' }}
             placeholder="选择已注册的图元..."
-            optionFilterProp="children"
+            optionFilterProp="label"
             onChange={handleLoadFromLibrary}
             value={selectedLibraryShape}
-            options={Object.keys(SHAPE_LIBRARY).map(key => ({ value: key, label: `${key} (${SHAPE_LIBRARY[key].data?.type || 'Unknown'})` }))}
+            options={Object.keys(SHAPE_LIBRARY).map((key) => {
+              const type = String(SHAPE_LIBRARY[key].data?.type || 'Unknown');
+              return { value: key, label: getLibraryShapeLabel(key, type) };
+            })}
             filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
           />
         </div>

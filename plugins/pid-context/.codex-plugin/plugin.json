@@ -1,0 +1,41 @@
+{
+  "name": "pid-context",
+  "version": "0.1.0",
+  "description": "Read P&ID drawing documents and expose industrial semantic context to Codex-compatible agents.",
+  "author": {
+    "name": "Chemical Graph Editor",
+    "email": "",
+    "url": "https://github.com/ssnchenfeng-ai/chemical-graph-editor"
+  },
+  "homepage": "https://github.com/ssnchenfeng-ai/chemical-graph-editor",
+  "repository": "https://github.com/ssnchenfeng-ai/chemical-graph-editor",
+  "license": "MIT",
+  "keywords": [
+    "pid",
+    "p&id",
+    "process-engineering",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "P&ID Context",
+    "shortDescription": "Let agents inspect P&ID drawings as structured engineering context.",
+    "longDescription": "Reads .pid.json or SemanticIR drawing documents and provides equipment, flow, control-loop, and LLM context tools through MCP.",
+    "developerName": "Chemical Graph Editor",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "MCP"
+    ],
+    "websiteURL": "https://github.com/ssnchenfeng-ai/chemical-graph-editor",
+    "privacyPolicyURL": "https://github.com/ssnchenfeng-ai/chemical-graph-editor",
+    "termsOfServiceURL": "https://github.com/ssnchenfeng-ai/chemical-graph-editor",
+    "defaultPrompt": [
+      "Summarize the active P&ID drawing.",
+      "Find the equipment connected downstream of R-101.",
+      "Export a compact LLM context pack for this P&ID."
+    ],
+    "brandColor": "#256D5A"
+  }
+}

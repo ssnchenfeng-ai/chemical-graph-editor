@@ -73,6 +73,45 @@ const TYPE_TAG_PREFIX: Record<string, string> = {
   OffPageConnector: 'OPC',
 };
 
+const TYPE_LABEL_ZH: Record<string, string> = {
+  Reactor: '反应器',
+  FixedBedReactor: '固定床反应器',
+  Exchanger: '换热器',
+  VerticalExchanger: '立式换热器',
+  Evaporator: '蒸发器',
+  GasCooler: '气体冷却器',
+  Trap: '疏水器',
+  Tank: '储罐',
+  Separator: '分离器',
+  Pump: '泵',
+  LiquidPump: '液体泵',
+  CentrifugalPump: '离心泵',
+  DiaphragmPump: '隔膜泵',
+  PistonPump: '活塞泵',
+  GearPump: '齿轮泵',
+  Compressor: '压缩机',
+  Fan: '风机',
+  JetPump: '喷射泵',
+  Instrument: '仪表',
+  Valve: '阀门',
+  ControlValve: '调节阀',
+  ManualValve: '手动阀',
+  Fitting: '管件',
+  OffPageConnector: '跨页连接',
+};
+
+const SHAPE_LABEL_ZH: Record<string, string> = {
+  'p-fixedbedreactor': '固定床反应器',
+  'p-r101': '反应器 R101',
+  'p-reactor': '反应器',
+  'p-e101': '换热器 E101',
+  'p-exchanger': '换热器',
+  'p-exchangervertical': '立式换热器',
+  'p-separator': '分离器',
+  'p-tank': '储罐',
+  'p-tankvertical': '立式储罐',
+};
+
 // 辅助函数：提取对象中的指定属性
 const pick = (obj: Record<string, unknown>, keys: string[]) => {
   const ret: Record<string, unknown> = {};
@@ -1048,7 +1087,8 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
     const graph = new Graph({
       container: containerRef.current,
       autoResize: true,
-      grid: { size: 10, visible: true, type: 'doubleMesh', args: [{ color: '#eee' }, { color: '#ddd', factor: 4 }] },
+      background: { color: '#f5f6f7' },
+      grid: { size: 10, visible: true, type: 'doubleMesh', args: [{ color: '#e7eaee' }, { color: '#d7dce3', factor: 4 }] },
       panning: { enabled: true, eventTypes: ['rightMouseDown'] },
       mousewheel: { enabled: true, zoomAtMousePosition: true, modifiers: null, factor: 1.1, maxScale: 3, minScale: 0.1 },
       interacting: {
@@ -1708,9 +1748,9 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
           if (ratio > 1) { displayW = MAX_W; displayH = displayW / ratio; } else { displayH = MAX_H; displayW = displayH * ratio; }
         }
 
-        let displayLabel = type;
+        let displayLabel = SHAPE_LABEL_ZH[shapeId] || TYPE_LABEL_ZH[type] || type;
         if (type === 'Instrument') {
-          displayLabel = typeof config.data?.tagId === 'string' ? config.data.tagId : 'Inst';
+          displayLabel = typeof config.data?.tagId === 'string' ? config.data.tagId : (TYPE_LABEL_ZH[type] || '仪表');
         } else if (typeCounts[type] > 1) {
           const parts = shapeId.split('-');
           let suffix = parts[parts.length - 1];
@@ -1720,7 +1760,10 @@ const GraphCanvas = forwardRef<GraphCanvasRef, GraphCanvasProps>(({ drawingId },
           } else {
             suffix = suffix.charAt(0).toUpperCase() + suffix.slice(1);
           }
-          displayLabel = `${type} ${suffix}`;
+          if (!SHAPE_LABEL_ZH[shapeId]) {
+            const base = TYPE_LABEL_ZH[type] || type;
+            displayLabel = `${base} ${suffix}`;
+          }
         }
 
         const node = graph.createNode({

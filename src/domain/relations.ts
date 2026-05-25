@@ -12,6 +12,7 @@ export type RelationType = (typeof RELATION_TYPES)[keyof typeof RELATION_TYPES];
 
 export type RelationEndpointKind =
   | 'equipment'
+  | 'internalPart'
   | 'zone'
   | 'port'
   | 'pipe'

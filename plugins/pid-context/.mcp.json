@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "pid-context": {
+      "command": "node",
+      "args": [
+        "./mcp/pid-context-server/src/index.js"
+      ],
+      "env": {
+        "PID_CONTEXT_ROOT": "../..",
+        "PID_DRAWINGS_DIR": "../../drawings"
+      }
+    }
+  }
+}
