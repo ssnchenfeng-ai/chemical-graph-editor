@@ -5,6 +5,40 @@ import path from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import type { ViteDevServer } from 'vite'
 
+const readJsonBody = (req: IncomingMessage) => new Promise<unknown>((resolve, reject) => {
+  const chunks: Buffer[] = []
+  req.on('data', (chunk: Buffer) => chunks.push(chunk))
+  req.on('end', () => {
+    try {
+      resolve(JSON.parse(Buffer.concat(chunks).toString()))
+    } catch (error) {
+      reject(error)
+    }
+  })
+  req.on('error', reject)
+})
+
+const jsonResponse = (res: ServerResponse, statusCode: number, body: Record<string, unknown>) => {
+  res.statusCode = statusCode
+  res.setHeader('Content-Type', 'application/json')
+  res.end(JSON.stringify(body))
+}
+
+const safePackageName = (input: string) => {
+  const normalized = input.trim().replace(/[\\/:*?"<>|\s]+/g, '_')
+  if (!/^[a-zA-Z0-9._-]+$/.test(normalized)) throw new Error('Invalid package directory')
+  return normalized || 'pid-agent-package'
+}
+
+const resolvePackageFilePath = (packageRoot: string, filePath: string) => {
+  if (path.isAbsolute(filePath) || filePath.includes('\\')) throw new Error(`Invalid file path: ${filePath}`)
+  const parts = filePath.split('/').filter(Boolean)
+  if (parts.length === 0 || parts.some((part) => part === '.' || part === '..')) throw new Error(`Invalid file path: ${filePath}`)
+  const resolved = path.resolve(packageRoot, ...parts)
+  if (!resolved.startsWith(`${packageRoot}${path.sep}`) && resolved !== packageRoot) throw new Error(`Invalid file path: ${filePath}`)
+  return resolved
+}
+
 // 自定义中间件：处理文件保存请求
 const saveFilePlugin = () => ({
   name: 'vite-plugin-save-shape',
@@ -51,6 +85,51 @@ const saveFilePlugin = () => ({
         })
       } else {
         next()
+      }
+    })
+    server.middlewares.use('/_api/publish-agent-package', async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
+      if (req.method !== 'POST') {
+        next()
+        return
+      }
+
+      try {
+        const body = await readJsonBody(req) as {
+          directoryName?: string
+          files?: Record<string, string>
+          agentPackage?: unknown
+        }
+        const directoryName = safePackageName(body.directoryName || 'pid-agent-package')
+        const files = body.files || {}
+        if (typeof files !== 'object' || Array.isArray(files)) throw new Error('Invalid files payload')
+
+        const packageRoot = path.resolve(__dirname, 'agent-packages', directoryName)
+        fs.mkdirSync(packageRoot, { recursive: true })
+
+        for (const [filePath, content] of Object.entries(files)) {
+          if (typeof content !== 'string') throw new Error(`Invalid file content: ${filePath}`)
+          const targetPath = resolvePackageFilePath(packageRoot, filePath)
+          fs.mkdirSync(path.dirname(targetPath), { recursive: true })
+          fs.writeFileSync(targetPath, content, 'utf-8')
+        }
+
+        if (body.agentPackage) {
+          fs.writeFileSync(
+            path.join(packageRoot, 'agent-package.json'),
+            JSON.stringify(body.agentPackage, null, 2),
+            'utf-8',
+          )
+        }
+
+        console.log(`[Vite] Published agent package: agent-packages/${directoryName}`)
+        jsonResponse(res, 200, {
+          success: true,
+          directory: `agent-packages/${directoryName}`,
+          files: Object.keys(files).length + (body.agentPackage ? 1 : 0),
+        })
+      } catch (error) {
+        console.error('[Vite] Publish agent package error:', error)
+        jsonResponse(res, 500, { success: false, message: (error as Error).message })
       }
     })
   }

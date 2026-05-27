@@ -11,9 +11,34 @@ import {
   PlusOutlined,
   SaveOutlined,
 } from '@ant-design/icons';
+import {
+  buildAgentPublishPackage,
+  buildEquipmentAgentContext,
+  buildStreamAgentContext,
+  renderAgentPackageSummaryMarkdown,
+  renderCompletenessMarkdown,
+  renderEquipmentAgentContextMarkdown,
+  renderFlowPathsMarkdown,
+  renderStreamAgentContextMarkdown,
+} from './agentExports';
 import './index.css';
 
-type WorkspaceTab = 'canvas' | 'project' | 'systems' | 'equipment' | 'streams' | 'controls' | 'narrative' | 'llm' | 'json';
+type WorkspaceTab =
+  | 'canvas'
+  | 'project'
+  | 'systems'
+  | 'equipment'
+  | 'streams'
+  | 'controls'
+  | 'narrative'
+  | 'llm'
+  | 'projectJson'
+  | 'semanticIr'
+  | 'agentPackage'
+  | 'equipmentContext'
+  | 'streamContext'
+  | 'completeness'
+  | 'flowPaths';
 type EquipmentType =
   | 'reactor'
   | 'exchanger'
@@ -38,7 +63,25 @@ type StreamRole = '主物流' | '循环' | '旁路' | '公用工程' | '泄放' 
 type FlowDirectionMode = '单向' | '双向' | '正常单向可反向';
 type PipeBranchType = '主管段' | '支管' | '汇入' | '分出' | '旁路' | '排净' | '放空';
 type PipeEndpointKind = '设备端口' | '管段接点' | '跨图引用' | '界外来源' | '界外去向';
-type InlinePipeComponentType = '手动阀' | '控制阀' | '切断阀' | '止回阀' | '安全阀' | '调节阀' | '流量计' | '过滤器' | '盲板' | '疏水阀';
+type InlinePipeComponentType =
+  | '手动阀'
+  | '控制阀'
+  | '切断阀'
+  | '止回阀'
+  | '安全阀'
+  | '调节阀'
+  | '流量计'
+  | '压力测点'
+  | '温度测点'
+  | '就地压力测点'
+  | '远传压力测点'
+  | '就地温度测点'
+  | '远传温度测点'
+  | '分析测点'
+  | '过滤器'
+  | '爆破片'
+  | '盲板'
+  | '疏水阀';
 type PipeNodeKind = '支管点' | '汇入点' | '分出点' | '变径点' | '取样点' | '排净点' | '在线元件';
 type ControlKind = '控制回路' | '联锁保护' | '启停顺序' | '跨设备动作';
 type EquipmentGuideStep = 'identity' | 'profile' | 'parts' | 'ports' | 'relations';
@@ -128,6 +171,7 @@ interface Stream {
   groupId: string;
   sheetId: string;
   tag: string;
+  name: string;
   role: StreamRole;
   branchType: PipeBranchType;
   directionMode: FlowDirectionMode;
@@ -327,6 +371,11 @@ const EQUIPMENT_OPTIONS: Array<{ value: EquipmentType; label: string; prefix: st
 
 const EQUIPMENT_LABELS = Object.fromEntries(EQUIPMENT_OPTIONS.map((item) => [item.value, item.label])) as Record<EquipmentType, string>;
 const EQUIPMENT_PREFIXES = Object.fromEntries(EQUIPMENT_OPTIONS.map((item) => [item.value, item.prefix])) as Record<EquipmentType, string>;
+const EQUIPMENT_MIN_WIDTH = 70;
+const EQUIPMENT_MIN_HEIGHT = 32;
+const EQUIPMENT_MAX_WIDTH = 420;
+const EQUIPMENT_MAX_HEIGHT = 220;
+const HEADER_MAX_WIDTH = EQUIPMENT_MAX_WIDTH * 2;
 const PHASES: Phase[] = ['任意', '混合相', '液相', '气相', '固相', '信号'];
 const STREAM_ROLES: StreamRole[] = ['主物流', '循环', '旁路', '公用工程', '泄放', '取样', '信号'];
 const FLOW_DIRECTION_MODES: FlowDirectionMode[] = ['单向', '双向', '正常单向可反向'];
@@ -334,7 +383,7 @@ const PIPE_BRANCH_TYPES: PipeBranchType[] = ['主管段', '支管', '汇入', '�
 const PIPE_ENDPOINT_KINDS: PipeEndpointKind[] = ['设备端口', '管段接点', '跨图引用', '界外来源', '界外去向'];
 const PIPE_FROM_ENDPOINT_KINDS: PipeEndpointKind[] = PIPE_ENDPOINT_KINDS.filter((kind) => kind !== '界外去向');
 const PIPE_TO_ENDPOINT_KINDS: PipeEndpointKind[] = PIPE_ENDPOINT_KINDS.filter((kind) => kind !== '界外来源');
-const INLINE_COMPONENT_TYPES: InlinePipeComponentType[] = ['手动阀', '控制阀', '切断阀', '止回阀', '安全阀', '调节阀', '流量计', '过滤器', '盲板', '疏水阀'];
+const INLINE_COMPONENT_TYPES: InlinePipeComponentType[] = ['手动阀', '控制阀', '切断阀', '止回阀', '安全阀', '调节阀', '流量计', '就地压力测点', '远传压力测点', '就地温度测点', '远传温度测点', '分析测点', '过滤器', '爆破片', '盲板', '疏水阀'];
 const INLINE_COMPONENT_STATES = ['常开', '常闭', '调节', '止回', '备用', '旁路', '锁开', '锁关'];
 const PIPE_NODE_KINDS: PipeNodeKind[] = ['支管点', '汇入点', '分出点', '变径点', '取样点', '排净点'];
 const CONTROL_KINDS: ControlKind[] = ['控制回路', '联锁保护', '启停顺序', '跨设备动作'];
@@ -353,20 +402,67 @@ const PART_CATEGORIES: Array<{ value: PartCategory; label: string }> = [
 const PART_TYPES: Record<PartCategory, string[]> = {
   fluid_space: ['封头', '壳程', '管程', '管箱', '气相空间', '液相空间', '泵腔', '混合腔', '塔顶空间', '塔釜空间', '输送腔'],
   functional_element: ['催化剂床层', '分布器', '收集器', '换热壁面', '过滤元件', '填料', '搅拌器', '加热元件', '冷却元件', '驱动单元', '塔板', '破碎元件', '输送元件', '截流装置'],
-  measurement_control: ['温度测点', '压力测点', '液位测点', '流量测点', '分析测点', '执行机构'],
+  measurement_control: ['就地温度测点', '远传温度测点', '就地压力测点', '远传压力测点', '液位测点', '流量测点', '分析测点', '执行机构'],
 };
 const RELATIONS = ['供给/流入', '排出', '连通', '热接触', '相接触', '测量', '控制', '驱动'];
 const MATERIALS = ['CS', 'SS304', 'SS316', 'FRP', 'PTFE', 'PVC'];
+const PORT_DIRECTION_LABELS: Record<ExternalPort['direction'], string> = {
+  in: '入口',
+  out: '出口',
+  bi: '双向',
+};
 
 const option = (value: string, label = value) => ({ value, label });
+const streamDisplayLabel = (stream: Pick<Stream, 'tag' | 'name' | 'branchType'>) => (
+  [stream.tag, stream.name || stream.branchType].filter(Boolean).join(' ')
+);
+const equipmentWidthLimit = (type: EquipmentType) => (type === 'header' ? HEADER_MAX_WIDTH : EQUIPMENT_MAX_WIDTH);
+const normalizeInlineComponentType = (type: string): InlinePipeComponentType => {
+  if (type === '压力测点') return '远传压力测点';
+  if (type === '温度测点') return '远传温度测点';
+  return INLINE_COMPONENT_TYPES.includes(type as InlinePipeComponentType) ? type as InlinePipeComponentType : '手动阀';
+};
+const isMeasurementInlineType = (type: InlinePipeComponentType) => (
+  type === '流量计'
+  || type === '压力测点'
+  || type === '温度测点'
+  || type === '就地压力测点'
+  || type === '远传压力测点'
+  || type === '就地温度测点'
+  || type === '远传温度测点'
+  || type === '分析测点'
+);
+const inlineNormalState = (component: InlinePipeComponent) => (
+  isMeasurementInlineType(component.type) ? '' : component.normalState
+);
+const inlineActuator = (component: InlinePipeComponent) => (
+  isMeasurementInlineType(component.type) ? '' : component.actuator
+);
+const defaultInlineActuator = (type: InlinePipeComponentType) => {
+  if (type === '控制阀' || type === '调节阀') return '执行机构';
+  if (type === '手动阀') return '手轮';
+  return '';
+};
+const inlineComponentTypePatch = (component: InlinePipeComponent, type: InlinePipeComponentType): Partial<InlinePipeComponent> => {
+  const measurement = isMeasurementInlineType(type);
+  const useTypeName = !component.name || component.name === component.type || component.name === '压力测点' || component.name === '温度测点';
+  return {
+    type,
+    name: useTypeName ? type : component.name,
+    normalState: measurement ? '' : component.normalState || '常开',
+    actuator: measurement ? '' : component.actuator || defaultInlineActuator(type),
+  };
+};
 const partLabel = (equipment: Equipment | undefined, partId: string) => equipment?.parts.find((part) => part.id === partId)?.name || partId || '-';
 const portLabel = (equipment: Equipment | undefined, portId: string) => equipment?.ports.find((port) => port.id === portId)?.name || portId || '-';
 
 const isReferenceEndpoint = (kind: PipeEndpointKind) => kind === '跨图引用' || kind === '界外来源' || kind === '界外去向';
+const referenceTypeLabels = new Set(['界外来源', '界外去向', '跨图引用', '来自界外', '去往界外']);
+const referenceDisplayName = (label: string) => (referenceTypeLabels.has(label.trim()) ? '' : label);
 const referencePlaceholder = (kind: PipeEndpointKind, side: 'from' | 'to') => {
-  if (kind === '界外来源') return '来自界外：原料总管 / 蒸汽总管 / 上游装置';
-  if (kind === '界外去向') return '去往界外：下游装置 / 外排系统 / 公用工程总管';
-  return side === 'from' ? '来自其他分段：设备.连接桩' : '去其他分段：设备.连接桩';
+  if (kind === '界外来源') return '原料总管 / 蒸汽总管 / 上游装置';
+  if (kind === '界外去向') return '下游装置 / 外排系统 / 公用工程总管';
+  return side === 'from' ? '其他分段设备或连接桩' : '其他分段设备或连接桩';
 };
 
 type Point = { x: number; y: number };
@@ -398,6 +494,30 @@ type PortContextMenuState = {
   portId: string;
   point: Point;
 };
+type PortTooltipState = {
+  x: number;
+  y: number;
+  equipmentTag: string;
+  portId: string;
+  portName: string;
+  direction: ExternalPort['direction'];
+  role: StreamRole;
+  medium: string;
+};
+type StreamTooltipState = {
+  x: number;
+  y: number;
+  tag: string;
+  name: string;
+  branchType: PipeBranchType;
+  role: StreamRole;
+  medium: string;
+  directionMode: FlowDirectionMode;
+  dn: string;
+  pn: string;
+  material: string;
+  intent: string;
+};
 type DeviceContextMenuState = {
   x: number;
   y: number;
@@ -414,6 +534,14 @@ type PipeEditPanelState = {
   x: number;
   y: number;
   streamId: string;
+};
+type ReferenceEndpointEditPanelState = {
+  x: number;
+  y: number;
+  streamId: string;
+  renderedStreamId: string;
+  side: 'from' | 'to';
+  renderedSide: 'from' | 'to';
 };
 type InlineComponentEditPanelState = {
   x: number;
@@ -462,7 +590,15 @@ const INLINE_COMPONENT_TYPE_CODE: Record<InlinePipeComponentType, string> = {
   安全阀: 'PSV',
   调节阀: 'CV',
   流量计: 'FI',
+  压力测点: 'PI',
+  温度测点: 'TI',
+  就地压力测点: 'PG',
+  远传压力测点: 'PI',
+  就地温度测点: 'TG',
+  远传温度测点: 'TI',
+  分析测点: 'AI',
   过滤器: 'FLT',
+  爆破片: 'BD',
   盲板: 'BL',
   疏水阀: 'ST',
 };
@@ -472,6 +608,54 @@ type InlineComponentVisual = {
   routeAnchor: Point;
   markup?: Array<{ tagName: string; selector: string }>;
   attrs: Record<string, unknown>;
+};
+const inlineSymbolRotatesWithPipe = (type: InlinePipeComponentType) => (
+  Boolean(type)
+);
+const rotateQuarterTurn = (point: Point, center: Point): Point => ({
+  x: center.x - (point.y - center.y),
+  y: center.y + (point.x - center.x),
+});
+const inlineTextAttrsAtPoint = (value: unknown, point: Point, size: { width: number; height: number }) => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+  const attrs = Object.fromEntries(Object.entries(value as Record<string, unknown>).filter(([key]) => (
+    key !== 'refX' && key !== 'refY' && key !== 'x' && key !== 'y' && key !== 'transform'
+  )));
+  return {
+    ...attrs,
+    refX: `${point.x / size.width * 100}%`,
+    refY: `${point.y / size.height * 100}%`,
+  };
+};
+const orientInlineComponentVisual = (
+  visual: InlineComponentVisual,
+  type: InlinePipeComponentType,
+  axis?: 'horizontal' | 'vertical',
+): InlineComponentVisual => {
+  if (axis !== 'vertical' || !inlineSymbolRotatesWithPipe(type)) return visual;
+  const rotate = `rotate(90 ${visual.routeAnchor.x} ${visual.routeAnchor.y})`;
+  if (isMeasurementInlineType(type)) {
+    const meter = visual.attrs.meter as Record<string, unknown> | undefined;
+    const meterCenter = rotateQuarterTurn({
+      x: Number(meter?.cx ?? visual.routeAnchor.x),
+      y: Number(meter?.cy ?? visual.routeAnchor.y),
+    }, visual.routeAnchor);
+    const labelPoint = { x: meterCenter.x, y: meterCenter.y + (type === '流量计' ? 18 : 17) };
+    const attrs = Object.fromEntries(Object.entries(visual.attrs).map(([selector, value]) => {
+      if (selector === 'body') return [selector, value];
+      if (selector === 'code') return [selector, inlineTextAttrsAtPoint(value, meterCenter, visual.size)];
+      if (selector === 'label') return [selector, inlineTextAttrsAtPoint(value, labelPoint, visual.size)];
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return [selector, value];
+      return [selector, { ...value, transform: rotate }];
+    }));
+    return { ...visual, attrs };
+  }
+  const fixedSelectors = new Set(['body', 'label', 'code', 'meter']);
+  const attrs = Object.fromEntries(Object.entries(visual.attrs).map(([selector, value]) => {
+    if (fixedSelectors.has(selector) || !value || typeof value !== 'object' || Array.isArray(value)) return [selector, value];
+    return [selector, { ...value, transform: rotate }];
+  }));
+  return { ...visual, attrs };
 };
 const inlineComponentVisual = (type: InlinePipeComponentType, tag: string) => {
   const code = INLINE_COMPONENT_TYPE_CODE[type] || 'IN';
@@ -549,6 +733,62 @@ const inlineComponentVisual = (type: InlinePipeComponentType, tag: string) => {
         meter: { cx: 22, cy: 18, r: 12, fill: '#ffffff', stroke: '#0891b2', strokeWidth: 1.7 },
         code: codeLabel('#155e75', '43%'),
         label: tagLabel('#155e75', '86%'),
+      },
+    } satisfies InlineComponentVisual;
+  }
+  if (
+    type === '压力测点'
+    || type === '温度测点'
+    || type === '就地压力测点'
+    || type === '远传压力测点'
+    || type === '就地温度测点'
+    || type === '远传温度测点'
+    || type === '分析测点'
+  ) {
+    return {
+      shape: 'rect',
+      size: { width: 46, height: 48 },
+      routeAnchor: { x: 23, y: 26 },
+      markup: [
+        { tagName: 'rect', selector: 'body' },
+        { tagName: 'line', selector: 'tap' },
+        { tagName: 'circle', selector: 'meter' },
+        { tagName: 'text', selector: 'code' },
+        { tagName: 'text', selector: 'label' },
+      ],
+      attrs: {
+        body: commonBody,
+        tap: { x1: 23, y1: 26, x2: 23, y2: 16, stroke: '#7c3aed', strokeWidth: 1.6 },
+        meter: { cx: 23, cy: 12, r: 10, fill: '#ffffff', stroke: '#7c3aed', strokeWidth: 1.7 },
+        code: codeLabel('#5b21b6', '25%'),
+        label: tagLabel('#5b21b6', '88%'),
+      },
+    } satisfies InlineComponentVisual;
+  }
+  if (type === '爆破片') {
+    return {
+      shape: 'rect',
+      size: { width: 54, height: 40 },
+      routeAnchor: { x: 27, y: 18 },
+      markup: [
+        { tagName: 'rect', selector: 'body' },
+        { tagName: 'line', selector: 'pipeBreakMask' },
+        { tagName: 'line', selector: 'pipeLeft' },
+        { tagName: 'line', selector: 'pipeRight' },
+        { tagName: 'path', selector: 'diskLeft' },
+        { tagName: 'path', selector: 'diskRight' },
+        { tagName: 'line', selector: 'slash' },
+        { tagName: 'text', selector: 'label' },
+      ],
+      attrs: {
+        body: commonBody,
+        pipeBreakMask: { x1: 16, y1: 18, x2: 38, y2: 18, stroke: '#ffffff', strokeWidth: 7, strokeLinecap: 'round' },
+        pipeLeft: { x1: 5, y1: 18, x2: 18, y2: 18, stroke: '#be123c', strokeWidth: 1.8, strokeLinecap: 'round' },
+        pipeRight: { x1: 36, y1: 18, x2: 49, y2: 18, stroke: '#be123c', strokeWidth: 1.8, strokeLinecap: 'round' },
+        diskLeft: { d: 'M 22 8 C 17 13 17 23 22 28', fill: 'none', stroke: '#be123c', strokeWidth: 1.8, strokeLinecap: 'round' },
+        diskRight: { d: 'M 32 8 C 37 13 37 23 32 28', fill: 'none', stroke: '#be123c', strokeWidth: 1.8, strokeLinecap: 'round' },
+        slash: { x1: 20, y1: 27, x2: 34, y2: 9, stroke: '#be123c', strokeWidth: 1.4, strokeLinecap: 'round' },
+        label: tagLabel('#9f1239', '88%'),
       },
     } satisfies InlineComponentVisual;
   }
@@ -933,6 +1173,69 @@ const segmentHitsEquipmentCore = (a: Point, b: Point, equipments: Equipment[]) =
   equipments.some((equipment) => segmentHitsRect(a, b, equipmentCoreRect(equipment)))
 );
 
+const STREAM_MEDIUM_COLORS = ['#0f766e', '#b45309', '#7c3aed', '#0891b2', '#be123c', '#1d4ed8', '#ca8a04', '#15803d'];
+const stringHash = (input: string) => Array.from(input).reduce((hash, char) => ((hash * 31) + char.charCodeAt(0)) >>> 0, 7);
+const streamLineColor = (stream: Pick<Stream, 'medium' | 'role' | 'branchType'>) => {
+  const medium = (stream.medium || '').trim();
+  const key = medium || stream.role || stream.branchType || '管线';
+  if (stream.role === '信号') return '#64748b';
+  if (stream.branchType === '放空' || medium.includes('放空')) return '#dc2626';
+  if (medium.includes('导热油') || medium.includes('热油')) return '#b45309';
+  if (medium.includes('蒸汽')) return '#7c3aed';
+  if (medium.includes('水')) return '#0891b2';
+  if (medium.includes('空气') || medium.includes('氮') || medium.includes('气')) return '#64748b';
+  if (medium.includes('萘')) return '#0f766e';
+  return STREAM_MEDIUM_COLORS[stringHash(key) % STREAM_MEDIUM_COLORS.length];
+};
+
+const routeLength = (points: Point[]) => points.slice(1).reduce((sum, point, index) => (
+  sum + Math.abs(point.x - points[index].x) + Math.abs(point.y - points[index].y)
+), 0);
+
+const routeIsClearOfEquipment = (points: Point[], equipments: Equipment[]) => (
+  points.slice(1).every((point, index) => !segmentHitsEquipmentCore(points[index], point, equipments))
+);
+
+const candidateRouteReplacements = (start: Point, end: Point) => {
+  const midX = Math.round((start.x + end.x) / 20) * 10;
+  const midY = Math.round((start.y + end.y) / 20) * 10;
+  const candidates: Point[][] = [];
+  if (start.x === end.x || start.y === end.y) candidates.push([start, end]);
+  candidates.push([start, { x: end.x, y: start.y }, end]);
+  candidates.push([start, { x: start.x, y: end.y }, end]);
+  candidates.push([start, { x: midX, y: start.y }, { x: midX, y: end.y }, end]);
+  candidates.push([start, { x: start.x, y: midY }, { x: end.x, y: midY }, end]);
+  return candidates.map((points) => compactRoutePoints(points));
+};
+
+const simplifyOrthogonalRoute = (points: Point[], equipments: Equipment[] = []) => {
+  let route = compactRoutePoints(orthogonalizePoints(points));
+  for (let pass = 0; pass < 18; pass += 1) {
+    let best: { startIndex: number; endIndex: number; replacement: Point[]; saving: number } | null = null;
+    for (let startIndex = 0; startIndex < route.length - 3; startIndex += 1) {
+      for (let endIndex = route.length - 1; endIndex >= startIndex + 3; endIndex -= 1) {
+        const current = route.slice(startIndex, endIndex + 1);
+        const currentLength = routeLength(current);
+        const replacement = candidateRouteReplacements(current[0], current[current.length - 1])
+          .filter((candidate) => routeIsClearOfEquipment(candidate, equipments))
+          .sort((left, right) => (routeLength(left) + left.length * 4) - (routeLength(right) + right.length * 4))[0];
+        if (!replacement || replacement.length > current.length) continue;
+        const replacementLength = routeLength(replacement);
+        const saving = currentLength - replacementLength;
+        if (saving < 30 || replacementLength > currentLength * 0.82) continue;
+        if (!best || saving > best.saving) best = { startIndex, endIndex, replacement, saving };
+      }
+    }
+    if (!best) break;
+    route = compactRoutePoints([
+      ...route.slice(0, best.startIndex),
+      ...best.replacement,
+      ...route.slice(best.endIndex + 1),
+    ]);
+  }
+  return route;
+};
+
 const cleanSmallRouteDetours = (points: Point[], equipments: Equipment[] = [], maxDetour = 36) => {
   let route = compactRoutePoints(points);
   for (let pass = 0; pass < 12; pass += 1) {
@@ -970,6 +1273,268 @@ const cleanSmallRouteDetours = (points: Point[], equipments: Equipment[] = [], m
     if (!changed) break;
   }
   return route;
+};
+
+type RouteSegmentOrientation = 'horizontal' | 'vertical';
+type RouteSegmentOffsetCommand = {
+  segmentIndex: number;
+  orientation: RouteSegmentOrientation;
+  offset: number;
+};
+type RouteOverlapSegment = {
+  routeIndex: number;
+  streamKey: string;
+  segmentIndex: number;
+  orientation: RouteSegmentOrientation;
+  fixed: number;
+  min: number;
+  max: number;
+};
+
+const EQUIPMENT_BOUNDARY_NUDGE = 10;
+const PIPE_PARALLEL_NUDGE = 8;
+const PIPE_OVERLAP_TOLERANCE = 2;
+const PIPE_MIN_OVERLAP = 18;
+
+const intervalOverlapLength = (leftMin: number, leftMax: number, rightMin: number, rightMax: number) => (
+  Math.max(0, Math.min(leftMax, rightMax) - Math.max(leftMin, rightMin))
+);
+
+const mergeRouteOffsetCommand = (
+  commands: Map<number, RouteSegmentOffsetCommand>,
+  command: RouteSegmentOffsetCommand,
+) => {
+  if (!command.offset) return;
+  const current = commands.get(command.segmentIndex);
+  if (!current || Math.abs(command.offset) > Math.abs(current.offset)) {
+    commands.set(command.segmentIndex, command);
+  }
+};
+
+const offsetRouteSegment = (
+  route: Point[],
+  segmentIndex: number,
+  orientation: RouteSegmentOrientation,
+  offset: number,
+) => {
+  if (!offset || segmentIndex < 0 || segmentIndex >= route.length - 1) return route;
+  const offsetPoint = (point: Point) => (
+    orientation === 'horizontal'
+      ? { x: point.x, y: point.y + offset }
+      : { x: point.x + offset, y: point.y }
+  );
+  const a = route[segmentIndex];
+  const b = route[segmentIndex + 1];
+  const replacement: Point[] = [];
+  const offsetA = offsetPoint(a);
+  const offsetB = offsetPoint(b);
+  if (segmentIndex === 0) replacement.push(a, offsetA);
+  else replacement.push(offsetA);
+  if (segmentIndex + 1 === route.length - 1) replacement.push(offsetB, b);
+  else replacement.push(offsetB);
+  return compactRoutePoints([
+    ...route.slice(0, segmentIndex),
+    ...replacement,
+    ...route.slice(segmentIndex + 2),
+  ]);
+};
+
+const applyRouteSegmentOffsets = (route: Point[], commands: Map<number, RouteSegmentOffsetCommand>) => (
+  Array.from(commands.values())
+    .sort((left, right) => right.segmentIndex - left.segmentIndex)
+    .reduce((currentRoute, command) => (
+      offsetRouteSegment(currentRoute, command.segmentIndex, command.orientation, command.offset)
+    ), route)
+);
+
+const avoidEquipmentBoundaryOverlaps = (route: Point[], equipments: Equipment[]) => {
+  const commands = new Map<number, RouteSegmentOffsetCommand>();
+  route.slice(1).forEach((point, index) => {
+    const previous = route[index];
+    if (previous.x === point.x && previous.y !== point.y) {
+      const minY = Math.min(previous.y, point.y);
+      const maxY = Math.max(previous.y, point.y);
+      equipments.forEach((equipment) => {
+        const rect = expandedRect(equipment, 0);
+        const overlap = intervalOverlapLength(minY, maxY, rect.y, rect.y + rect.height);
+        if (overlap < PIPE_MIN_OVERLAP) return;
+        if (Math.abs(previous.x - rect.x) <= PIPE_OVERLAP_TOLERANCE) {
+          mergeRouteOffsetCommand(commands, { segmentIndex: index, orientation: 'vertical', offset: -EQUIPMENT_BOUNDARY_NUDGE });
+        }
+        if (Math.abs(previous.x - (rect.x + rect.width)) <= PIPE_OVERLAP_TOLERANCE) {
+          mergeRouteOffsetCommand(commands, { segmentIndex: index, orientation: 'vertical', offset: EQUIPMENT_BOUNDARY_NUDGE });
+        }
+      });
+    }
+    if (previous.y === point.y && previous.x !== point.x) {
+      const minX = Math.min(previous.x, point.x);
+      const maxX = Math.max(previous.x, point.x);
+      equipments.forEach((equipment) => {
+        const rect = expandedRect(equipment, 0);
+        const overlap = intervalOverlapLength(minX, maxX, rect.x, rect.x + rect.width);
+        if (overlap < PIPE_MIN_OVERLAP) return;
+        if (Math.abs(previous.y - rect.y) <= PIPE_OVERLAP_TOLERANCE) {
+          mergeRouteOffsetCommand(commands, { segmentIndex: index, orientation: 'horizontal', offset: -EQUIPMENT_BOUNDARY_NUDGE });
+        }
+        if (Math.abs(previous.y - (rect.y + rect.height)) <= PIPE_OVERLAP_TOLERANCE) {
+          mergeRouteOffsetCommand(commands, { segmentIndex: index, orientation: 'horizontal', offset: EQUIPMENT_BOUNDARY_NUDGE });
+        }
+      });
+    }
+  });
+  return applyRouteSegmentOffsets(route, commands);
+};
+
+const routeOverlapSegments = (routes: CanvasPipeRoute[]): RouteOverlapSegment[] => (
+  routes.flatMap((canvasRoute, routeIndex) => (
+    canvasRoute.route.slice(1).flatMap<RouteOverlapSegment>((point, index) => {
+      const previous = canvasRoute.route[index];
+      const streamKey = canvasRoute.stream.sourceStreamId || canvasRoute.stream.id;
+      if (previous.x === point.x && previous.y !== point.y) {
+        return [{
+          routeIndex,
+          streamKey,
+          segmentIndex: index,
+          orientation: 'vertical',
+          fixed: previous.x,
+          min: Math.min(previous.y, point.y),
+          max: Math.max(previous.y, point.y),
+        }];
+      }
+      if (previous.y === point.y && previous.x !== point.x) {
+        return [{
+          routeIndex,
+          streamKey,
+          segmentIndex: index,
+          orientation: 'horizontal',
+          fixed: previous.y,
+          min: Math.min(previous.x, point.x),
+          max: Math.max(previous.x, point.x),
+        }];
+      }
+      return [];
+    })
+  ))
+);
+
+const parallelDisplayOffset = (index: number) => {
+  if (index === 0) return 0;
+  const multiplier = Math.ceil(index / 2);
+  return (index % 2 === 1 ? 1 : -1) * multiplier * PIPE_PARALLEL_NUDGE;
+};
+
+const avoidParallelPipeOverlaps = (routes: CanvasPipeRoute[]) => {
+  const commandsByRoute = new Map<number, Map<number, RouteSegmentOffsetCommand>>();
+  const segmentsByTrack = new Map<string, RouteOverlapSegment[]>();
+  routeOverlapSegments(routes).forEach((segment) => {
+    const fixedKey = Math.round(segment.fixed / PIPE_OVERLAP_TOLERANCE);
+    const key = `${segment.orientation}:${fixedKey}`;
+    segmentsByTrack.set(key, [...(segmentsByTrack.get(key) || []), segment]);
+  });
+
+  const registerCluster = (cluster: RouteOverlapSegment[]) => {
+    const streamKeys = new Set(cluster.map((segment) => segment.streamKey));
+    if (cluster.length < 2 || streamKeys.size < 2) return;
+    cluster
+      .slice()
+      .sort((left, right) => left.routeIndex - right.routeIndex || left.segmentIndex - right.segmentIndex)
+      .forEach((segment, index) => {
+        const offset = parallelDisplayOffset(index);
+        if (!offset) return;
+        const routeCommands = commandsByRoute.get(segment.routeIndex) || new Map<number, RouteSegmentOffsetCommand>();
+        mergeRouteOffsetCommand(routeCommands, {
+          segmentIndex: segment.segmentIndex,
+          orientation: segment.orientation,
+          offset,
+        });
+        commandsByRoute.set(segment.routeIndex, routeCommands);
+      });
+  };
+
+  segmentsByTrack.forEach((trackSegments) => {
+    const sorted = trackSegments.slice().sort((left, right) => left.min - right.min || left.max - right.max);
+    let cluster: RouteOverlapSegment[] = [];
+    let clusterMax = Number.NEGATIVE_INFINITY;
+    sorted.forEach((segment) => {
+      if (cluster.length && segment.min > clusterMax - PIPE_MIN_OVERLAP) {
+        registerCluster(cluster);
+        cluster = [];
+      }
+      cluster.push(segment);
+      clusterMax = Math.max(clusterMax, segment.max);
+    });
+    registerCluster(cluster);
+  });
+
+  return routes.map((canvasRoute, routeIndex) => ({
+    ...canvasRoute,
+    route: applyRouteSegmentOffsets(canvasRoute.route, commandsByRoute.get(routeIndex) || new Map()),
+  }));
+};
+
+const avoidDisplayRouteOverlaps = (routes: CanvasPipeRoute[], equipments: Equipment[]) => (
+  avoidParallelPipeOverlaps(routes.map((canvasRoute) => ({
+    ...canvasRoute,
+    route: avoidEquipmentBoundaryOverlaps(canvasRoute.route, equipments),
+  })))
+);
+
+type RouteCrossing = {
+  point: Point;
+  horizontalStream: CanvasStream;
+  verticalStream: CanvasStream;
+};
+type OrthogonalRouteSegment = {
+  stream: CanvasStream;
+  route: Point[];
+  a: Point;
+  b: Point;
+  orientation: RouteSegmentOrientation;
+};
+const samePoint = (left: Point, right: Point, tolerance = 0.5) => (
+  Math.abs(left.x - right.x) <= tolerance && Math.abs(left.y - right.y) <= tolerance
+);
+const betweenInclusive = (value: number, left: number, right: number, tolerance = 0.5) => (
+  value >= Math.min(left, right) - tolerance && value <= Math.max(left, right) + tolerance
+);
+const segmentInteriorContains = (segment: OrthogonalRouteSegment, point: Point) => {
+  if (samePoint(point, segment.a) || samePoint(point, segment.b)) return false;
+  if (segment.orientation === 'horizontal') {
+    return Math.abs(point.y - segment.a.y) <= 0.5 && betweenInclusive(point.x, segment.a.x, segment.b.x);
+  }
+  return Math.abs(point.x - segment.a.x) <= 0.5 && betweenInclusive(point.y, segment.a.y, segment.b.y);
+};
+const routeSegmentsForCrossing = ({ stream, route }: CanvasPipeRoute): OrthogonalRouteSegment[] => (
+  route.slice(1).flatMap<OrthogonalRouteSegment>((point, index) => {
+    const previous = route[index];
+    if (previous.x === point.x && previous.y !== point.y) return [{ stream, route, a: previous, b: point, orientation: 'vertical' as const }];
+    if (previous.y === point.y && previous.x !== point.x) return [{ stream, route, a: previous, b: point, orientation: 'horizontal' as const }];
+    return [];
+  })
+);
+const computeRouteCrossings = (routes: CanvasPipeRoute[]) => {
+  const segments = routes.flatMap(routeSegmentsForCrossing);
+  const crossings: RouteCrossing[] = [];
+  const seen = new Set<string>();
+  for (let leftIndex = 0; leftIndex < segments.length; leftIndex += 1) {
+    for (let rightIndex = leftIndex + 1; rightIndex < segments.length; rightIndex += 1) {
+      const left = segments[leftIndex];
+      const right = segments[rightIndex];
+      const leftStreamId = left.stream.sourceStreamId || left.stream.id;
+      const rightStreamId = right.stream.sourceStreamId || right.stream.id;
+      if (leftStreamId === rightStreamId || left.orientation === right.orientation) continue;
+      const horizontal = left.orientation === 'horizontal' ? left : right;
+      const vertical = left.orientation === 'vertical' ? left : right;
+      const point = { x: vertical.a.x, y: horizontal.a.y };
+      if (!segmentInteriorContains(horizontal, point) || !segmentInteriorContains(vertical, point)) continue;
+      const keyPoint = { x: Math.round(point.x * 10) / 10, y: Math.round(point.y * 10) / 10 };
+      const key = `${keyPoint.x}:${keyPoint.y}:${[leftStreamId, rightStreamId].sort().join(':')}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      crossings.push({ point, horizontalStream: horizontal.stream, verticalStream: vertical.stream });
+    }
+  }
+  return crossings;
 };
 
 const routeManhattan = (from: Equipment, fromPort: ExternalPort, to: Equipment, toPort: ExternalPort, equipments: Equipment[]) => {
@@ -1385,6 +1950,7 @@ const createSeedProject = () => {
       groupId: moltenSaltGroup.id,
       sheetId,
       tag: 'L-001',
+      name: '反应器至熔盐冷却器管段',
       role: '循环',
       branchType: '主管段',
       directionMode: '单向',
@@ -1428,6 +1994,7 @@ const createSeedProject = () => {
       groupId: moltenSaltGroup.id,
       sheetId,
       tag: 'L-002',
+      name: '熔盐循环泵回反应器管段',
       role: '循环',
       branchType: '主管段',
       directionMode: '单向',
@@ -1549,19 +2116,20 @@ const normalizeProject = (project: PidSemanticProject) => {
   next.lineGroups = Array.isArray(next.lineGroups) && next.lineGroups.length ? next.lineGroups : [fallbackGroup];
   next.equipments = Array.isArray(next.equipments) ? next.equipments.map((equipment) => ({
     ...equipment,
-    width: Math.min(typeof equipment.width === 'number' ? equipment.width : 140, 150),
-    height: Math.min(typeof equipment.height === 'number' ? equipment.height : 70, 76),
+    width: Math.min(Math.max(typeof equipment.width === 'number' ? equipment.width : 140, EQUIPMENT_MIN_WIDTH), equipmentWidthLimit(equipment.type)),
+    height: Math.min(Math.max(typeof equipment.height === 'number' ? equipment.height : 70, EQUIPMENT_MIN_HEIGHT), EQUIPMENT_MAX_HEIGHT),
   })) : [];
   next.streams = next.streams.map((stream) => ({
     ...stream,
     groupId: stream.groupId || next.lineGroups.find((group) => group.sheetId === stream.sheetId)?.id || next.lineGroups[0].id,
+    name: stream.name || '',
     branchType: stream.branchType || '主管段',
     directionMode: stream.directionMode || '单向',
     fromKind: stream.fromKind || '设备端口',
     fromSegmentId: stream.fromSegmentId || '',
     fromSegmentRatio: typeof stream.fromSegmentRatio === 'number' ? stream.fromSegmentRatio : 50,
     fromPipeNodeId: stream.fromPipeNodeId || '',
-    fromReferenceLabel: stream.fromReferenceLabel || '',
+    fromReferenceLabel: referenceDisplayName(stream.fromReferenceLabel || ''),
     fromReferenceArea: stream.fromReferenceArea || '',
     fromReferenceSheet: stream.fromReferenceSheet || '',
     fromReferenceEquipment: stream.fromReferenceEquipment || '',
@@ -1574,7 +2142,7 @@ const normalizeProject = (project: PidSemanticProject) => {
     toSegmentId: stream.toSegmentId || '',
     toSegmentRatio: typeof stream.toSegmentRatio === 'number' ? stream.toSegmentRatio : 50,
     toPipeNodeId: stream.toPipeNodeId || '',
-    toReferenceLabel: stream.toReferenceLabel || '',
+    toReferenceLabel: referenceDisplayName(stream.toReferenceLabel || ''),
     toReferenceArea: stream.toReferenceArea || '',
     toReferenceSheet: stream.toReferenceSheet || '',
     toReferenceEquipment: stream.toReferenceEquipment || '',
@@ -1641,17 +2209,22 @@ const normalizeProject = (project: PidSemanticProject) => {
     });
     return Object.keys(patch).length ? { ...stream, ...patch } : stream;
   });
-  next.inlineComponents = Array.isArray(next.inlineComponents) ? next.inlineComponents.map((component) => ({
-    ...component,
-    positionRatio: typeof component.positionRatio === 'number' ? component.positionRatio : 50,
-    order: typeof component.order === 'number' ? component.order : typeof component.positionRatio === 'number' ? component.positionRatio : 50,
-    x: resetLegacyPipeLayout ? undefined : typeof component.x === 'number' ? component.x : undefined,
-    y: resetLegacyPipeLayout ? undefined : typeof component.y === 'number' ? component.y : undefined,
-    normalState: component.normalState || '常开',
-    actuator: component.actuator || '',
-    controlSignal: component.controlSignal || '',
-    description: component.description || '',
-  })) : [];
+  next.inlineComponents = Array.isArray(next.inlineComponents) ? next.inlineComponents.map((component) => {
+    const type = normalizeInlineComponentType(component.type);
+    const measurement = isMeasurementInlineType(type);
+    return {
+      ...component,
+      type,
+      positionRatio: typeof component.positionRatio === 'number' ? component.positionRatio : 50,
+      order: typeof component.order === 'number' ? component.order : typeof component.positionRatio === 'number' ? component.positionRatio : 50,
+      x: resetLegacyPipeLayout ? undefined : typeof component.x === 'number' ? component.x : undefined,
+      y: resetLegacyPipeLayout ? undefined : typeof component.y === 'number' ? component.y : undefined,
+      normalState: measurement ? '' : component.normalState || '常开',
+      actuator: measurement ? '' : component.actuator || '',
+      controlSignal: component.controlSignal || '',
+      description: component.description || '',
+    };
+  }) : [];
   return next;
 };
 
@@ -1794,10 +2367,10 @@ const buildMarkdown = (project: PidSemanticProject) => {
     lines.push(`- 边界出口：${group.boundaryOut || '-'}`);
     if (group.directionMode !== '单向') lines.push(`- 反向条件：${group.reverseCondition || '-'}`);
     lines.push('');
-    lines.push('| 管段 | 分支类型 | 流向 | 起点 | 终点 | 介质 | DN | PN | 材质 | 工艺意图 |');
-    lines.push('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |');
+    lines.push('| 管段 | 名称 | 分支类型 | 流向 | 起点 | 终点 | 介质 | DN | PN | 材质 | 工艺意图 |');
+    lines.push('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |');
     groupStreams.forEach((stream) => {
-      lines.push(`| ${stream.tag} | ${stream.branchType} | ${stream.directionMode} | ${endpointLabel(stream, 'from')} | ${endpointLabel(stream, 'to')} | ${stream.medium || group.medium || '-'} | ${stream.dn || '-'} | ${stream.pn || '-'} | ${stream.material || '-'} | ${stream.intent || '-'} |`);
+      lines.push(`| ${stream.tag} | ${stream.name || '-'} | ${stream.branchType} | ${stream.directionMode} | ${endpointLabel(stream, 'from')} | ${endpointLabel(stream, 'to')} | ${stream.medium || group.medium || '-'} | ${stream.dn || '-'} | ${stream.pn || '-'} | ${stream.material || '-'} | ${stream.intent || '-'} |`);
     });
     lines.push('');
     const components = project.inlineComponents.filter((component) => groupStreams.some((stream) => stream.id === component.segmentId));
@@ -1806,7 +2379,7 @@ const buildMarkdown = (project: PidSemanticProject) => {
       lines.push('| --- | --- | --- | --- | --- | --- | --- | --- | --- |');
       components.forEach((component) => {
         const segment = streamById[component.segmentId];
-        lines.push(`| ${component.tag} | ${component.type} | ${component.name || '-'} | ${segment?.tag || '-'} | ${topologyPositionLabel(`inline:${component.id}`, component.segmentId)} | ${component.normalState || '-'} | ${component.actuator || '-'} | ${component.controlSignal || '-'} | ${component.description || '-'} |`);
+        lines.push(`| ${component.tag} | ${component.type} | ${component.name || '-'} | ${segment?.tag || '-'} | ${topologyPositionLabel(`inline:${component.id}`, component.segmentId)} | ${inlineNormalState(component) || '-'} | ${inlineActuator(component) || '-'} | ${component.controlSignal || '-'} | ${component.description || '-'} |`);
       });
       lines.push('');
     }
@@ -1893,9 +2466,12 @@ function PidSemanticX6Canvas({
   const graphRef = useRef<Graph | null>(null);
   const [pipeContextMenu, setPipeContextMenu] = useState<PipeContextMenuState | null>(null);
   const [portContextMenu, setPortContextMenu] = useState<PortContextMenuState | null>(null);
+  const [portTooltip, setPortTooltip] = useState<PortTooltipState | null>(null);
+  const [streamTooltip, setStreamTooltip] = useState<StreamTooltipState | null>(null);
   const [deviceContextMenu, setDeviceContextMenu] = useState<DeviceContextMenuState | null>(null);
   const [inlineComponentContextMenu, setInlineComponentContextMenu] = useState<InlineComponentContextMenuState | null>(null);
   const [pipeEditPanel, setPipeEditPanel] = useState<PipeEditPanelState | null>(null);
+  const [referenceEndpointEditPanel, setReferenceEndpointEditPanel] = useState<ReferenceEndpointEditPanelState | null>(null);
   const [inlineComponentEditPanel, setInlineComponentEditPanel] = useState<InlineComponentEditPanelState | null>(null);
   const [pendingPipeEndpoint, setPendingPipeEndpoint] = useState<PendingPipeEndpointState | null>(null);
   const syncingRef = useRef(false);
@@ -2035,6 +2611,7 @@ function PidSemanticX6Canvas({
     setPendingPipeEndpoint(null);
     setPipeContextMenu(null);
     setDeviceContextMenu(null);
+    setReferenceEndpointEditPanel(null);
     setInlineComponentContextMenu(null);
     setInlineComponentEditPanel(null);
     return true;
@@ -2109,7 +2686,10 @@ function PidSemanticX6Canvas({
         },
       },
       interacting: {
-        nodeMovable: () => draggingPortRef.current == null,
+        nodeMovable: ({ cell }) => {
+          const data = cell?.getData?.() as { kind?: string } | undefined;
+          return draggingPortRef.current == null && data?.kind !== 'crossing';
+        },
         magnetConnectable: true,
         edgeMovable: false,
       },
@@ -2128,10 +2708,10 @@ function PidSemanticX6Canvas({
           const data = node.getData() as { kind?: string };
           return data.kind === 'equipment';
         },
-        minWidth: 70,
-        minHeight: 32,
-        maxWidth: 420,
-        maxHeight: 220,
+        minWidth: EQUIPMENT_MIN_WIDTH,
+        minHeight: EQUIPMENT_MIN_HEIGHT,
+        maxWidth: HEADER_MAX_WIDTH,
+        maxHeight: EQUIPMENT_MAX_HEIGHT,
         orthogonal: true,
         preserveAspectRatio: false,
         allowReverse: false,
@@ -2170,8 +2750,17 @@ function PidSemanticX6Canvas({
     const canvasRoutes = new Map<string, CanvasPipeRoute>();
     sheetStreams.forEach((stream) => {
       const route = getStreamRoute(stream);
-      if (route?.length) canvasRoutes.set(stream.id, { stream, route: cleanSmallRouteDetours(route, sheetEquipments) });
+      if (route?.length) {
+        const simplifiedRoute = simplifyOrthogonalRoute(route, sheetEquipments);
+        canvasRoutes.set(stream.id, {
+          stream,
+          route: stream.manualWaypoints?.length ? simplifiedRoute : cleanSmallRouteDetours(simplifiedRoute, sheetEquipments),
+        });
+      }
     });
+    const adjustedRoutes = avoidDisplayRouteOverlaps(Array.from(canvasRoutes.values()), sheetEquipments);
+    canvasRoutes.clear();
+    adjustedRoutes.forEach((route) => canvasRoutes.set(route.stream.id, route));
     canvasRoutesRef.current = canvasRoutes;
     const referenceStreams = sheetStreams.flatMap((stream) => ([
       { stream, side: 'from' as const, kind: stream.fromKind, x: stream.fromReferenceX, y: stream.fromReferenceY },
@@ -2230,7 +2819,14 @@ function PidSemanticX6Canvas({
         height: REFERENCE_NODE_HEIGHT,
         shape: 'rect',
         zIndex: 12,
-        data: { kind: 'reference', streamId: stream.sourceStreamId || stream.id, renderedStreamId: stream.id, side, endpointKind: kind },
+        data: {
+          kind: 'reference',
+          streamId: stream.sourceStreamId || stream.id,
+          renderedStreamId: stream.id,
+          side,
+          sourceSide: stream.virtual && stream.continuationSide ? stream.continuationSide : side,
+          endpointKind: kind,
+        },
         attrs: {
           body: {
             fill: kind === '界外来源' ? '#f0fdf4' : kind === '界外去向' ? '#fff7ed' : '#eff6ff',
@@ -2282,9 +2878,12 @@ function PidSemanticX6Canvas({
       const orderedNodes = sortTopologyItems(nodes);
       orderedNodes
         .forEach((node) => {
-          const point = pointAtRatio(route, topologyAutoRatio(node, orderedNodes));
+          const ratio = topologyAutoRatio(node, orderedNodes);
+          const point = pointAtRatio(route, ratio);
           const isInline = node.kind === '在线元件';
-	          const inlineVisual = isInline ? inlineComponentVisual(node.inlineType || '手动阀', node.tag) : null;
+	          const inlineType = node.inlineType || '手动阀';
+	          const routeAxis = routeAxisAtRatio(route, ratio);
+	          const inlineVisual = isInline ? orientInlineComponentVisual(inlineComponentVisual(inlineType, node.tag), inlineType, routeAxis) : null;
 	          const size = inlineVisual?.size || { width: 5, height: 5 };
 	          const routeAnchor = inlineVisual?.routeAnchor || { x: size.width / 2, y: size.height / 2 };
 	          graph.addNode({
@@ -2339,6 +2938,7 @@ function PidSemanticX6Canvas({
       if (!source || !target) return;
       const active = selectedStreamId === (stream.sourceStreamId || stream.id);
       const displayRoute = canvasRoutes.get(stream.id)?.route;
+      const lineColor = streamLineColor(stream);
 
       const edge = graph.addEdge({
         id: stream.id,
@@ -2358,11 +2958,11 @@ function PidSemanticX6Canvas({
         },
         attrs: {
           line: {
-            stroke: active ? '#1677ff' : stream.role === '信号' ? '#64748b' : '#334155',
-            strokeWidth: active ? 2.6 : 2,
+            stroke: lineColor,
+            strokeWidth: active ? 3 : 2,
             targetMarker: { name: 'block', width: 8, height: 6 },
             sourceMarker: stream.directionMode === '双向' ? { name: 'block', width: 8, height: 6 } : undefined,
-            title: `${stream.tag} ${stream.branchType}`,
+            title: `${streamDisplayLabel(stream)} ${stream.branchType}${stream.medium ? ` / ${stream.medium}` : ''}`,
           },
         },
         labels: [],
@@ -2370,6 +2970,33 @@ function PidSemanticX6Canvas({
       if (active) {
         graph.select(edge);
       }
+    });
+
+    computeRouteCrossings(Array.from(canvasRoutes.values())).forEach((crossing, index) => {
+      const color = streamLineColor(crossing.horizontalStream);
+      const verticalColor = streamLineColor(crossing.verticalStream);
+      graph.addNode({
+        id: `crossing:${index}:${crossing.point.x}:${crossing.point.y}`,
+        x: crossing.point.x - 8,
+        y: crossing.point.y - 8,
+        width: 16,
+        height: 16,
+        shape: 'rect',
+        zIndex: 5,
+        markup: [
+          { tagName: 'rect', selector: 'body' },
+          { tagName: 'path', selector: 'break' },
+          { tagName: 'path', selector: 'underpass' },
+          { tagName: 'path', selector: 'bridge' },
+        ],
+        data: { kind: 'crossing' },
+        attrs: {
+          body: { fill: 'transparent', stroke: 'transparent', refWidth: '100%', refHeight: '100%', pointerEvents: 'none' },
+          break: { d: 'M 2 8 L 14 8', fill: 'none', stroke: '#ffffff', strokeWidth: 5, strokeLinecap: 'round', pointerEvents: 'none' },
+          underpass: { d: 'M 8 0 L 8 16', fill: 'none', stroke: verticalColor, strokeWidth: 2, strokeLinecap: 'round', pointerEvents: 'none' },
+          bridge: { d: 'M 2 8 C 5 2 11 2 14 8', fill: 'none', stroke: color, strokeWidth: 2.1, strokeLinecap: 'round', pointerEvents: 'none' },
+        },
+      });
     });
 
     } finally {
@@ -2386,6 +3013,11 @@ function PidSemanticX6Canvas({
     const addEdgeTools = (edge: Edge) => {
       clearEdgeTools();
       addPipeEdgeTools(edge);
+    };
+    const streamForEdge = (edge: Edge) => {
+      const data = edge.getData() as { streamId?: string; renderedStreamId?: string };
+      const streamId = data.renderedStreamId || data.streamId;
+      return streamId ? sheetStreams.find((stream) => stream.id === streamId || stream.sourceStreamId === streamId) : undefined;
     };
     type PipeNodeCellData = {
       kind?: string;
@@ -2466,8 +3098,9 @@ function PidSemanticX6Canvas({
 	      if (data.kind !== 'equipment' || !data.equipmentId) return;
 	      const position = node.position();
 	      const size = node.size();
-	      const width = Math.max(70, snapToGrid(size.width));
-	      const height = Math.max(32, snapToGrid(size.height));
+	      const equipment = project.equipments.find((item) => item.id === data.equipmentId);
+	      const width = Math.min(equipmentWidthLimit(equipment?.type || 'reactor'), Math.max(EQUIPMENT_MIN_WIDTH, snapToGrid(size.width)));
+	      const height = Math.min(EQUIPMENT_MAX_HEIGHT, Math.max(EQUIPMENT_MIN_HEIGHT, snapToGrid(size.height)));
 	      const x = snapToGrid(position.x);
 	      const y = snapToGrid(position.y);
 	      onEquipmentResize(data.equipmentId, x, y, width, height);
@@ -2525,16 +3158,46 @@ function PidSemanticX6Canvas({
       );
       return true;
     };
+    const edgeMouseMoveHandler = ({ e, edge }: { e: MouseEvent; edge: Edge }) => {
+      if (pendingPipeEndpoint || draggingPortRef.current) {
+        setStreamTooltip(null);
+        return;
+      }
+      const rect = containerRef.current?.getBoundingClientRect();
+      const stream = streamForEdge(edge);
+      if (!rect || !stream) {
+        setStreamTooltip(null);
+        return;
+      }
+      setPortTooltip(null);
+      setStreamTooltip({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+        tag: stream.tag,
+        name: stream.name,
+        branchType: stream.branchType,
+        role: stream.role,
+        medium: stream.medium,
+        directionMode: stream.directionMode,
+        dn: stream.dn,
+        pn: stream.pn,
+        material: stream.material,
+        intent: stream.intent,
+      });
+    };
+    const edgeMouseLeaveHandler = () => setStreamTooltip(null);
     const edgeClickHandler = ({ e, edge }: { e: MouseEvent; edge: Edge }) => {
       if (pendingPipeEndpoint) {
         const target = endpointSelectionFromEdge(edge, e);
         if (target) completePendingPipeEndpoint(target);
         return;
       }
+      setStreamTooltip(null);
 	      setPipeContextMenu(null);
 	      setPortContextMenu(null);
 	      setDeviceContextMenu(null);
 	      setPipeEditPanel(null);
+	      setReferenceEndpointEditPanel(null);
 	      setInlineComponentContextMenu(null);
 	      setInlineComponentEditPanel(null);
       const data = edge.getData() as { streamId?: string; splitByInline?: boolean };
@@ -2544,7 +3207,9 @@ function PidSemanticX6Canvas({
 	    const edgeDblClickHandler = ({ edge }: { edge: Edge }) => {
 	      const data = edge.getData() as { streamId?: string; splitByInline?: boolean };
 	      if (data.streamId) onSelectStream(data.streamId);
+	      setStreamTooltip(null);
 	      setPipeContextMenu(null);
+	      setReferenceEndpointEditPanel(null);
 	      addEdgeTools(edge);
 	    };
 	    const openPipeContextMenuForEdge = (edge: Edge, event: MouseEvent) => {
@@ -2558,9 +3223,11 @@ function PidSemanticX6Canvas({
 	      const rect = containerRef.current?.getBoundingClientRect();
 	      if (!rect) return false;
 	      const sourceStreamId = canvasRoute.stream.sourceStreamId || canvasRoute.stream.id;
+	      setStreamTooltip(null);
 	      setPortContextMenu(null);
 	      setDeviceContextMenu(null);
 	      setPipeEditPanel(null);
+	      setReferenceEndpointEditPanel(null);
 	      setInlineComponentContextMenu(null);
 	      setInlineComponentEditPanel(null);
 	      setPipeContextMenu({
@@ -2584,6 +3251,7 @@ function PidSemanticX6Canvas({
 	      setPipeContextMenu(null);
 	      setPortContextMenu(null);
 	      setPipeEditPanel(null);
+	      setReferenceEndpointEditPanel(null);
 	      setInlineComponentContextMenu(null);
 	      setInlineComponentEditPanel(null);
 	      setDeviceContextMenu({
@@ -2612,6 +3280,7 @@ function PidSemanticX6Canvas({
 	      setPortContextMenu(null);
 	      setDeviceContextMenu(null);
 	      setPipeEditPanel(null);
+	      setReferenceEndpointEditPanel(null);
 	      setInlineComponentEditPanel(null);
 	      setInlineComponentContextMenu({
 	        x: event.clientX - rect.left,
@@ -2623,9 +3292,40 @@ function PidSemanticX6Canvas({
 	      clearEdgeTools();
 	      return true;
 	    };
+	    const openReferenceEndpointEditPanelForNode = (node: Node, event: MouseEvent) => {
+	      const data = node.getData() as {
+	        kind?: string;
+	        streamId?: string;
+	        renderedStreamId?: string;
+	        side?: 'from' | 'to';
+	        sourceSide?: 'from' | 'to';
+	      };
+	      if (data.kind !== 'reference' || !data.streamId || !data.side) return false;
+	      const rect = containerRef.current?.getBoundingClientRect();
+	      if (!rect) return false;
+	      setPipeContextMenu(null);
+	      setPortContextMenu(null);
+	      setDeviceContextMenu(null);
+	      setPipeEditPanel(null);
+	      setReferenceEndpointEditPanel(null);
+	      setInlineComponentContextMenu(null);
+	      setInlineComponentEditPanel(null);
+	      setReferenceEndpointEditPanel({
+	        x: event.clientX - rect.left,
+	        y: event.clientY - rect.top,
+	        streamId: data.streamId,
+	        renderedStreamId: data.renderedStreamId || data.streamId,
+	        side: data.sourceSide || data.side,
+	        renderedSide: data.side,
+	      });
+	      onSelectStream(data.streamId);
+	      clearEdgeTools();
+	      return true;
+	    };
 	    const edgeContextMenuHandler = ({ e, edge }: { e: MouseEvent; edge: Edge }) => {
 	      e.preventDefault();
 	      e.stopPropagation();
+	      setStreamTooltip(null);
       if (pendingPipeEndpoint) {
         const target = endpointSelectionFromEdge(edge, e);
 	        if (target) completePendingPipeEndpoint(target);
@@ -2655,10 +3355,12 @@ function PidSemanticX6Canvas({
     };
 	    const nodeClickHandler = ({ node }: { node: Node }) => {
 	      if (pendingPipeEndpoint) return;
+	      setStreamTooltip(null);
 	      setPipeContextMenu(null);
 	      setPortContextMenu(null);
 	      setDeviceContextMenu(null);
 	      setPipeEditPanel(null);
+	      setReferenceEndpointEditPanel(null);
 	      setInlineComponentContextMenu(null);
 	      setInlineComponentEditPanel(null);
 	      const data = node.getData() as { kind?: string; equipmentId?: string; streamId?: string; renderedStreamId?: string };
@@ -2676,6 +3378,7 @@ function PidSemanticX6Canvas({
 	    };
     const selectionChangedHandler = ({ selected }: { selected: Cell[] }) => {
       if (syncingRef.current) return;
+      setStreamTooltip(null);
       const primary = selected[selected.length - 1];
       if (!primary) return;
       if (primary.isNode()) {
@@ -2692,6 +3395,7 @@ function PidSemanticX6Canvas({
       }
     };
     const nodeDblClickHandler = ({ node }: { node: Node }) => {
+	      setStreamTooltip(null);
 	      const data = node.getData() as { kind?: string; equipmentId?: string; streamId?: string; renderedStreamId?: string };
 	      if (data.kind === 'equipment' && data.equipmentId) onOpenEquipment(data.equipmentId);
 	      if (data.kind === 'reference' && data.streamId) onOpenStreams(data.streamId);
@@ -2707,20 +3411,24 @@ function PidSemanticX6Canvas({
         });
         return;
       }
+	      setStreamTooltip(null);
 	      setPipeContextMenu(null);
 	      setPortContextMenu(null);
 	      setDeviceContextMenu(null);
 	      setPipeEditPanel(null);
+	      setReferenceEndpointEditPanel(null);
 	      setInlineComponentContextMenu(null);
 	      setInlineComponentEditPanel(null);
 	      clearEdgeTools();
 	    };
 	    const blankContextMenuHandler = ({ e }: { e: MouseEvent }) => {
 	      e.preventDefault();
+	      setStreamTooltip(null);
 	      setPipeContextMenu(null);
 	      setPortContextMenu(null);
 	      setDeviceContextMenu(null);
 	      setPipeEditPanel(null);
+	      setReferenceEndpointEditPanel(null);
 	      setInlineComponentContextMenu(null);
 	      setInlineComponentEditPanel(null);
 	    };
@@ -2729,15 +3437,98 @@ function PidSemanticX6Canvas({
       if (!(target instanceof Element)) return '';
       return target.closest('[port]')?.getAttribute('port') || '';
     };
-	    const findCellIdFromEvent = (event: MouseEvent) => {
-	      const target = event.target;
-	      if (!(target instanceof Element)) return '';
-	      return target.closest('[data-cell-id]')?.getAttribute('data-cell-id') || '';
-	    };
+    const findCellIdFromEvent = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return '';
+      return target.closest('[data-cell-id]')?.getAttribute('data-cell-id') || '';
+    };
+    const updatePortTooltipFromEvent = (event: MouseEvent) => {
+      if (draggingPortRef.current) {
+        setPortTooltip(null);
+        setStreamTooltip(null);
+        return;
+      }
+      const portId = findPortIdFromEvent(event);
+      const graph = graphRef.current;
+      const cellId = findCellIdFromEvent(event);
+      const cell = cellId ? graph?.getCellById(cellId) : null;
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!portId || !cell?.isNode() || !rect) {
+        setPortTooltip(null);
+        return;
+      }
+      const data = cell.getData() as { kind?: string; equipmentId?: string };
+      if (data.kind !== 'equipment' || !data.equipmentId) {
+        setPortTooltip(null);
+        return;
+      }
+      const equipment = sheetEquipments.find((item) => item.id === data.equipmentId);
+      const port = equipment?.ports.find((item) => item.id === portId);
+      if (!equipment || !port) {
+        setPortTooltip(null);
+        return;
+      }
+      setPortTooltip({
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+        equipmentTag: equipment.tag,
+        portId,
+        portName: port.name || port.id,
+        direction: port.direction,
+        role: port.role,
+        medium: port.medium,
+      });
+      setStreamTooltip(null);
+    };
+    const updateStreamTooltipFromEvent = (event: MouseEvent) => {
+      if (draggingPortRef.current || pendingPipeEndpoint || pipeContextMenu) {
+        setStreamTooltip(null);
+        return;
+      }
+      if (findPortIdFromEvent(event)) {
+        setStreamTooltip(null);
+        return;
+      }
+      const graph = graphRef.current;
+      const cellId = findCellIdFromEvent(event);
+      const cell = cellId ? graph?.getCellById(cellId) : null;
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (!cell?.isEdge() || !rect) {
+        setStreamTooltip(null);
+        return;
+      }
+      const stream = streamForEdge(cell);
+      if (!stream) {
+        setStreamTooltip(null);
+        return;
+      }
+      setPortTooltip(null);
+      setStreamTooltip({
+        x: event.clientX - rect.left,
+        y: event.clientY - rect.top,
+        tag: stream.tag,
+        name: stream.name,
+        branchType: stream.branchType,
+        role: stream.role,
+        medium: stream.medium,
+        directionMode: stream.directionMode,
+        dn: stream.dn,
+        pn: stream.pn,
+        material: stream.material,
+        intent: stream.intent,
+      });
+    };
+    const clearPortTooltipHandler = () => {
+      setPortTooltip(null);
+      setStreamTooltip(null);
+    };
 	    const nodeContextMenuHandler = ({ e, node }: { e: MouseEvent; node: Node }) => {
-	      if (findPortIdFromEvent(e) || pendingPipeEndpoint) return;
+	      if (pendingPipeEndpoint) return;
+	      const data = node.getData() as { kind?: string };
+	      if (findPortIdFromEvent(e) && data.kind !== 'reference') return;
 	      e.preventDefault();
 	      e.stopPropagation();
+	      if (openReferenceEndpointEditPanelForNode(node, e)) return;
 	      if (openInlineComponentContextMenuForNode(node, e)) return;
 	      openDeviceContextMenuForNode(node, e);
 	    };
@@ -2747,6 +3538,15 @@ function PidSemanticX6Canvas({
 	      const cellId = findCellIdFromEvent(event);
 	      const cell = cellId ? graph?.getCellById(cellId) : null;
 	      if (!graph || !cell) return;
+	      if (cell.isNode()) {
+	        const data = cell.getData() as { kind?: string };
+	        if (data.kind === 'reference') {
+	          event.preventDefault();
+	          event.stopPropagation();
+	          openReferenceEndpointEditPanelForNode(cell, event);
+	          return;
+	        }
+	      }
 	      if (!portId && cell.isEdge()) {
 	        event.preventDefault();
 	        event.stopPropagation();
@@ -2759,7 +3559,7 @@ function PidSemanticX6Canvas({
 	        return;
 	      }
 	      if (!portId && cell.isNode()) {
-	        if (openInlineComponentContextMenuForNode(cell, event) || openDeviceContextMenuForNode(cell, event)) {
+	        if (openReferenceEndpointEditPanelForNode(cell, event) || openInlineComponentContextMenuForNode(cell, event) || openDeviceContextMenuForNode(cell, event)) {
 	          event.preventDefault();
 	          event.stopPropagation();
 	        }
@@ -2774,6 +3574,7 @@ function PidSemanticX6Canvas({
       if (!equipment || !port || !rect) return;
       event.preventDefault();
       event.stopPropagation();
+      setPortTooltip(null);
       if (pendingPipeEndpoint) {
         completePendingPipeEndpoint({ kind: '设备端口', equipmentId: equipment.id, portId });
         return;
@@ -2781,6 +3582,7 @@ function PidSemanticX6Canvas({
 	      setPipeContextMenu(null);
 	      setDeviceContextMenu(null);
 	      setPipeEditPanel(null);
+	      setReferenceEndpointEditPanel(null);
 	      setInlineComponentContextMenu(null);
 	      setInlineComponentEditPanel(null);
       setPortContextMenu({
@@ -2796,6 +3598,7 @@ function PidSemanticX6Canvas({
       const data = node.getData() as { kind?: string; equipmentId?: string };
       if (data.kind !== 'equipment' || !data.equipmentId || !portId) return;
       if (e.shiftKey || e.altKey) return;
+      setPortTooltip(null);
       e.preventDefault();
       e.stopPropagation();
       e.stopImmediatePropagation();
@@ -2931,14 +3734,19 @@ function PidSemanticX6Canvas({
     };
     const cancelPortDraggingHandler = () => {
       draggingPortRef.current = null;
+      setPortTooltip(null);
+      setStreamTooltip(null);
     };
     const keyDownHandler = (event: KeyboardEvent) => {
 	      if (event.key === 'Escape') {
 	        setPendingPipeEndpoint(null);
 	        setPipeContextMenu(null);
 	        setPortContextMenu(null);
+	        setPortTooltip(null);
+	        setStreamTooltip(null);
 	        setDeviceContextMenu(null);
 	        setPipeEditPanel(null);
+	        setReferenceEndpointEditPanel(null);
 	        setInlineComponentContextMenu(null);
 	        setInlineComponentEditPanel(null);
 	      }
@@ -2950,6 +3758,8 @@ function PidSemanticX6Canvas({
 	    graph.on('node:resizing', equipmentResizingHandler);
 	    graph.on('node:resized', equipmentResizedHandler);
 	    graph.on('edge:change:vertices', edgeVertexHandler);
+    graph.on('edge:mousemove', edgeMouseMoveHandler);
+    graph.on('edge:mouseleave', edgeMouseLeaveHandler);
     graph.on('edge:click', edgeClickHandler);
     graph.on('edge:dblclick', edgeDblClickHandler);
     graph.on('edge:contextmenu', edgeContextMenuHandler);
@@ -2962,6 +3772,9 @@ function PidSemanticX6Canvas({
     graph.on('blank:contextmenu', blankContextMenuHandler);
     graph.on('node:mousedown', nodeMouseDownHandler);
     graph.on('node:port:mousedown', portMouseDownHandler);
+    containerRef.current?.addEventListener('mousemove', updatePortTooltipFromEvent, true);
+    containerRef.current?.addEventListener('mousemove', updateStreamTooltipFromEvent, true);
+    containerRef.current?.addEventListener('mouseleave', clearPortTooltipHandler, true);
     containerRef.current?.addEventListener('mousedown', containerMouseDownHandler, true);
     containerRef.current?.addEventListener('contextmenu', containerContextMenuHandler, true);
     document.addEventListener('mousemove', documentMouseMoveHandler);
@@ -2977,6 +3790,8 @@ function PidSemanticX6Canvas({
 	      graph.off('node:resizing', equipmentResizingHandler);
 	      graph.off('node:resized', equipmentResizedHandler);
 	      graph.off('edge:change:vertices', edgeVertexHandler);
+      graph.off('edge:mousemove', edgeMouseMoveHandler);
+      graph.off('edge:mouseleave', edgeMouseLeaveHandler);
       graph.off('edge:click', edgeClickHandler);
       graph.off('edge:dblclick', edgeDblClickHandler);
       graph.off('edge:contextmenu', edgeContextMenuHandler);
@@ -2989,6 +3804,9 @@ function PidSemanticX6Canvas({
       graph.off('blank:contextmenu', blankContextMenuHandler);
       graph.off('node:mousedown', nodeMouseDownHandler);
       graph.off('node:port:mousedown', portMouseDownHandler);
+      containerRef.current?.removeEventListener('mousemove', updatePortTooltipFromEvent, true);
+      containerRef.current?.removeEventListener('mousemove', updateStreamTooltipFromEvent, true);
+      containerRef.current?.removeEventListener('mouseleave', clearPortTooltipHandler, true);
       containerRef.current?.removeEventListener('mousedown', containerMouseDownHandler, true);
       containerRef.current?.removeEventListener('contextmenu', containerContextMenuHandler, true);
       document.removeEventListener('mousemove', documentMouseMoveHandler);
@@ -3035,6 +3853,40 @@ function PidSemanticX6Canvas({
   const editingInlineComponent = inlineComponentEditPanel
     ? project.inlineComponents.find((component) => component.id === inlineComponentEditPanel.componentId)
     : undefined;
+  const editingInlineComponentIsMeasurement = editingInlineComponent ? isMeasurementInlineType(editingInlineComponent.type) : false;
+  const editingReferenceStream = referenceEndpointEditPanel
+    ? project.streams.find((stream) => stream.id === referenceEndpointEditPanel.streamId)
+    : undefined;
+  const editingReferenceRenderedStream = referenceEndpointEditPanel
+    ? sheetStreams.find((stream) => stream.id === referenceEndpointEditPanel.renderedStreamId)
+    : undefined;
+  const editingReferenceSide = referenceEndpointEditPanel?.side || 'from';
+  const editingReferenceFallbackKind: PipeEndpointKind = editingReferenceSide === 'from' ? '界外来源' : '界外去向';
+  const editingReferenceKind = editingReferenceSide === 'from' ? editingReferenceStream?.fromKind : editingReferenceStream?.toKind;
+  const editingReferenceLabel = referenceDisplayName(editingReferenceSide === 'from' ? editingReferenceStream?.fromReferenceLabel || '' : editingReferenceStream?.toReferenceLabel || '');
+  const editingReferenceSheet = editingReferenceSide === 'from' ? editingReferenceStream?.fromReferenceSheet : editingReferenceStream?.toReferenceSheet;
+  const editingReferenceEquipment = editingReferenceSide === 'from' ? editingReferenceStream?.fromReferenceEquipment : editingReferenceStream?.toReferenceEquipment;
+  const editingReferencePort = editingReferenceSide === 'from' ? editingReferenceStream?.fromReferencePort : editingReferenceStream?.toReferencePort;
+  const editingReferenceIsContinuation = Boolean(
+    editingReferenceRenderedStream?.virtual
+      && editingReferenceRenderedStream.sourceStreamId === editingReferenceStream?.id
+      && editingReferenceRenderedStream.continuationSide,
+  );
+  const editingReferenceContinuationSide = editingReferenceRenderedStream?.continuationSide || editingReferenceSide;
+  const editingReferenceX = editingReferenceIsContinuation
+    ? editingReferenceContinuationSide === 'from' ? editingReferenceStream?.fromContinuationX : editingReferenceStream?.toContinuationX
+    : editingReferenceSide === 'from' ? editingReferenceStream?.fromReferenceX : editingReferenceStream?.toReferenceX;
+  const editingReferenceY = editingReferenceIsContinuation
+    ? editingReferenceContinuationSide === 'from' ? editingReferenceStream?.fromContinuationY : editingReferenceStream?.toContinuationY
+    : editingReferenceSide === 'from' ? editingReferenceStream?.fromReferenceY : editingReferenceStream?.toReferenceY;
+  const referenceSheetOptions = project.areas.flatMap((area) => area.sheets.map((sheet) => option(sheet.id, `${area.name} / ${sheet.name}`)));
+  const referenceSheetAreaId = (sheetId: string) => project.areas.find((area) => area.sheets.some((sheet) => sheet.id === sheetId))?.id || '';
+  const referenceSheetEquipmentOptions = (sheetId: string) => project.equipments
+    .filter((equipment) => !sheetId || equipment.sheetId === sheetId)
+    .map((equipment) => option(equipment.id, `${equipment.tag} ${equipment.name}`));
+  const editingReferenceEquipmentObject = project.equipments.find((equipment) => (
+    equipment.id === editingReferenceEquipment || equipment.tag === editingReferenceEquipment || equipment.name === editingReferenceEquipment
+  ));
   const inlineEditableStreams = project.streams.filter((stream) => (
     sheetStreams.some((item) => item.id === stream.id || item.sourceStreamId === stream.id)
   ));
@@ -3045,6 +3897,7 @@ function PidSemanticX6Canvas({
 	    onDeleteStream(pipeContextMenu.streamId);
 	    setPendingPipeEndpoint(null);
 	    setPipeEditPanel(null);
+	    setReferenceEndpointEditPanel(null);
 	    closePipeContextMenu();
 	  };
 	  const deleteEquipmentFromContextMenu = () => {
@@ -3052,6 +3905,7 @@ function PidSemanticX6Canvas({
 	    onDeleteEquipment(deviceContextMenu.equipmentId);
 	    setPendingPipeEndpoint(null);
 	    setPipeEditPanel(null);
+	    setReferenceEndpointEditPanel(null);
 	    setInlineComponentEditPanel(null);
 	    setInlineComponentContextMenu(null);
 	    setDeviceContextMenu(null);
@@ -3060,6 +3914,7 @@ function PidSemanticX6Canvas({
     if (!inlineComponentContextMenu) return;
     onDeleteInlineComponent(inlineComponentContextMenu.componentId);
     setPendingPipeEndpoint(null);
+    setReferenceEndpointEditPanel(null);
     setInlineComponentEditPanel(null);
     closeInlineComponentContextMenu();
   };
@@ -3129,6 +3984,27 @@ function PidSemanticX6Canvas({
     if (!editingStreamId) return;
     onPatchStream(editingStreamId, patch);
   };
+  const patchEditingReferenceEndpoint = (patch: Partial<Stream>) => {
+    if (!editingReferenceStream) return;
+    onPatchStream(editingReferenceStream.id, patch);
+  };
+  const patchEditingReferencePosition = (axis: 'x' | 'y', value: string) => {
+    if (!editingReferenceStream) return;
+    const nextValue = snapToGrid(Number(value));
+    if (editingReferenceIsContinuation) {
+      if (editingReferenceContinuationSide === 'from') {
+        patchEditingReferenceEndpoint(axis === 'x' ? { fromContinuationX: nextValue } : { fromContinuationY: nextValue });
+      } else {
+        patchEditingReferenceEndpoint(axis === 'x' ? { toContinuationX: nextValue } : { toContinuationY: nextValue });
+      }
+      return;
+    }
+    if (editingReferenceSide === 'from') {
+      patchEditingReferenceEndpoint(axis === 'x' ? { fromReferenceX: nextValue } : { fromReferenceY: nextValue });
+    } else {
+      patchEditingReferenceEndpoint(axis === 'x' ? { toReferenceX: nextValue } : { toReferenceY: nextValue });
+    }
+  };
   const patchEditingInlineComponent = (patch: Partial<InlinePipeComponent>) => {
     if (!editingInlineComponent) return;
     onPatchInlineComponent(editingInlineComponent.id, patch);
@@ -3137,6 +4013,26 @@ function PidSemanticX6Canvas({
   return (
     <div className="pid-x6-canvas-shell" onContextMenu={(event) => event.preventDefault()}>
       <div ref={containerRef} className="pid-x6-canvas-host" />
+      {portTooltip && !portContextMenu && (
+        <div
+          className="pid-port-tooltip"
+          style={{ left: portTooltip.x, top: portTooltip.y }}
+        >
+          <strong>{portTooltip.equipmentTag}.{portTooltip.portId} {portTooltip.portName}</strong>
+          <span>{PORT_DIRECTION_LABELS[portTooltip.direction]} / {portTooltip.role}{portTooltip.medium ? ` / ${portTooltip.medium}` : ''}</span>
+        </div>
+      )}
+      {streamTooltip && !pipeContextMenu && !portTooltip && (
+        <div
+          className="pid-stream-tooltip"
+          style={{ left: streamTooltip.x, top: streamTooltip.y }}
+        >
+          <strong>{streamTooltip.tag} {streamTooltip.name || streamTooltip.branchType}</strong>
+          <span>{streamTooltip.branchType} / {streamTooltip.role}{streamTooltip.medium ? ` / ${streamTooltip.medium}` : ''}</span>
+          <span>{[streamTooltip.dn, streamTooltip.pn, streamTooltip.material].filter(Boolean).join(' / ') || '未填写管径、压力等级、材质'}</span>
+          {streamTooltip.intent && <span>意图：{streamTooltip.intent}</span>}
+        </div>
+      )}
       {pipeContextMenu && (
         <div
           className="pid-pipe-context-menu"
@@ -3148,6 +4044,11 @@ function PidSemanticX6Canvas({
           <button type="button" onClick={() => createInlineFromContextMenu('手动阀')}>插入手阀</button>
           <button type="button" onClick={() => createInlineFromContextMenu('控制阀')}>插入控制阀</button>
           <button type="button" onClick={() => createInlineFromContextMenu('流量计')}>插入流量计</button>
+          <button type="button" onClick={() => createInlineFromContextMenu('爆破片')}>插入爆破片</button>
+          <button type="button" onClick={() => createInlineFromContextMenu('就地压力测点')}>插入就地压力测点</button>
+          <button type="button" onClick={() => createInlineFromContextMenu('远传压力测点')}>插入远传压力测点</button>
+          <button type="button" onClick={() => createInlineFromContextMenu('就地温度测点')}>插入就地温度测点</button>
+          <button type="button" onClick={() => createInlineFromContextMenu('远传温度测点')}>插入远传温度测点</button>
           <button type="button" onClick={() => createPipeStreamFromContextMenu('支管', 'from')}>以此点为起点新建支管</button>
           <button type="button" onClick={() => createPipeStreamFromContextMenu('旁路', 'from')}>以此点为起点新建旁路</button>
 	          <button type="button" onClick={() => createPipeStreamFromContextMenu('汇入', 'to')}>以此点为终点新建汇入管</button>
@@ -3208,6 +4109,10 @@ function PidSemanticX6Canvas({
             <Input size="small" value={editingStream.tag} onChange={(event) => patchEditingStream({ tag: event.target.value })} />
           </label>
           <label>
+            <span>管段名称</span>
+            <Input size="small" value={editingStream.name} onChange={(event) => patchEditingStream({ name: event.target.value })} />
+          </label>
+          <label>
             <span>所在管组</span>
             <Select
               size="small"
@@ -3244,6 +4149,146 @@ function PidSemanticX6Canvas({
           </label>
         </div>
       )}
+      {referenceEndpointEditPanel && editingReferenceStream && (
+        <div
+          className="pid-pipe-edit-panel pid-reference-edit-panel"
+          style={{ left: referenceEndpointEditPanel.x, top: referenceEndpointEditPanel.y }}
+          onMouseDown={(event) => event.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="pid-pipe-edit-panel-title">
+            <strong>界外/跨图端点</strong>
+            <button type="button" onClick={() => setReferenceEndpointEditPanel(null)}>×</button>
+          </div>
+          <label>
+            <span>所属管段</span>
+            <Input size="small" disabled value={`${editingReferenceStream.tag}${editingReferenceStream.name ? ` ${editingReferenceStream.name}` : ''}`} />
+          </label>
+          <div className="pid-pipe-edit-grid">
+            <label>
+              <span>端点位置</span>
+              <Input size="small" disabled value={editingReferenceSide === 'from' ? '起点' : '终点'} />
+            </label>
+            <label>
+              <span>端点类型</span>
+              <Select
+                size="small"
+                value={editingReferenceKind || editingReferenceFallbackKind}
+                options={(editingReferenceSide === 'from' ? PIPE_FROM_ENDPOINT_KINDS : PIPE_TO_ENDPOINT_KINDS)
+                  .filter(isReferenceEndpoint)
+                  .map((item) => option(item))}
+                onChange={(kind: PipeEndpointKind) => patchEditingReferenceEndpoint(editingReferenceSide === 'from' ? { fromKind: kind } : { toKind: kind })}
+              />
+            </label>
+          </div>
+          <label>
+            <span>显示名称</span>
+            <Input
+              size="small"
+              placeholder={referencePlaceholder(editingReferenceKind || editingReferenceFallbackKind, editingReferenceSide)}
+              value={editingReferenceLabel || ''}
+              onChange={(event) => patchEditingReferenceEndpoint(editingReferenceSide === 'from'
+                ? { fromReferenceLabel: event.target.value }
+                : { toReferenceLabel: event.target.value })}
+            />
+          </label>
+          {(editingReferenceKind || editingReferenceFallbackKind) === '跨图引用' ? (
+            <>
+              <label>
+                <span>目标分段</span>
+                <Select
+                  size="small"
+                  placeholder="选择分段画布"
+                  value={editingReferenceSheet || undefined}
+                  options={referenceSheetOptions.filter((item) => item.value !== editingReferenceStream.sheetId)}
+                  onChange={(sheetId: string) => patchEditingReferenceEndpoint(editingReferenceSide === 'from'
+                    ? { fromReferenceSheet: sheetId, fromReferenceArea: referenceSheetAreaId(sheetId), fromReferenceEquipment: '', fromReferencePort: '' }
+                    : { toReferenceSheet: sheetId, toReferenceArea: referenceSheetAreaId(sheetId), toReferenceEquipment: '', toReferencePort: '' })}
+                />
+              </label>
+              <label>
+                <span>目标设备</span>
+                <Select
+                  size="small"
+                  placeholder="选择目标设备"
+                  value={editingReferenceEquipment || undefined}
+                  options={referenceSheetEquipmentOptions(editingReferenceSheet || '')}
+                  onChange={(equipmentId: string) => {
+                    const equipment = project.equipments.find((item) => item.id === equipmentId);
+                    patchEditingReferenceEndpoint(editingReferenceSide === 'from'
+                      ? {
+                        fromReferenceSheet: equipment?.sheetId || editingReferenceSheet || '',
+                        fromReferenceArea: equipment ? referenceSheetAreaId(equipment.sheetId) : referenceSheetAreaId(editingReferenceSheet || ''),
+                        fromReferenceEquipment: equipmentId,
+                        fromReferencePort: equipment?.ports[0]?.id || '',
+                      }
+                      : {
+                        toReferenceSheet: equipment?.sheetId || editingReferenceSheet || '',
+                        toReferenceArea: equipment ? referenceSheetAreaId(equipment.sheetId) : referenceSheetAreaId(editingReferenceSheet || ''),
+                        toReferenceEquipment: equipmentId,
+                        toReferencePort: equipment?.ports[0]?.id || '',
+                      });
+                  }}
+                />
+              </label>
+              <label>
+                <span>目标端口/连接点</span>
+                <Select
+                  size="small"
+                  placeholder="选择目标连接桩"
+                  value={editingReferencePort || undefined}
+                  options={(editingReferenceEquipmentObject?.ports || []).map((port) => option(port.id, `${port.id} ${port.name}`))}
+                  onChange={(portId: string) => patchEditingReferenceEndpoint(editingReferenceSide === 'from'
+                    ? { fromReferencePort: portId }
+                    : { toReferencePort: portId })}
+                />
+              </label>
+            </>
+          ) : (
+            <>
+              <label>
+                <span>目标设备/系统</span>
+                <Input
+                  size="small"
+                  value={editingReferenceEquipment || ''}
+                  onChange={(event) => patchEditingReferenceEndpoint(editingReferenceSide === 'from'
+                    ? { fromReferenceEquipment: event.target.value }
+                    : { toReferenceEquipment: event.target.value })}
+                />
+              </label>
+              <label>
+                <span>目标端口/连接点</span>
+                <Input
+                  size="small"
+                  value={editingReferencePort || ''}
+                  onChange={(event) => patchEditingReferenceEndpoint(editingReferenceSide === 'from'
+                    ? { fromReferencePort: event.target.value }
+                    : { toReferencePort: event.target.value })}
+                />
+              </label>
+            </>
+          )}
+          <label>
+            <span>画布位置</span>
+            <Space.Compact>
+              <Input
+                size="small"
+                type="number"
+                addonBefore="X"
+                value={String(editingReferenceX ?? 0)}
+                onChange={(event) => patchEditingReferencePosition('x', event.target.value)}
+              />
+              <Input
+                size="small"
+                type="number"
+                addonBefore="Y"
+                value={String(editingReferenceY ?? 0)}
+                onChange={(event) => patchEditingReferencePosition('y', event.target.value)}
+              />
+            </Space.Compact>
+          </label>
+        </div>
+      )}
       {inlineComponentEditPanel && editingInlineComponent && (
         <div
           className="pid-pipe-edit-panel pid-inline-edit-panel"
@@ -3262,7 +4307,12 @@ function PidSemanticX6Canvas({
             </label>
             <label>
               <span>类型</span>
-              <Select size="small" value={editingInlineComponent.type} options={INLINE_COMPONENT_TYPES.map((item) => option(item))} onChange={(type) => patchEditingInlineComponent({ type, name: editingInlineComponent.name || type })} />
+              <Select
+                size="small"
+                value={normalizeInlineComponentType(editingInlineComponent.type)}
+                options={INLINE_COMPONENT_TYPES.map((item) => option(item))}
+                onChange={(type) => patchEditingInlineComponent(inlineComponentTypePatch(editingInlineComponent, type))}
+              />
             </label>
           </div>
           <label>
@@ -3275,7 +4325,7 @@ function PidSemanticX6Canvas({
               <Select
                 size="small"
                 value={editingInlineComponent.segmentId}
-                options={inlineEditableStreams.map((stream) => option(stream.id, `${stream.tag} ${stream.branchType}`))}
+                options={inlineEditableStreams.map((stream) => option(stream.id, streamDisplayLabel(stream)))}
                 onChange={(segmentId) => patchEditingInlineComponent({
                   segmentId,
                   positionRatio: 50,
@@ -3301,16 +4351,18 @@ function PidSemanticX6Canvas({
               />
             </label>
           </div>
-          <div className="pid-pipe-edit-grid">
-            <label>
-              <span>常态</span>
-              <Select size="small" value={editingInlineComponent.normalState} options={INLINE_COMPONENT_STATES.map((item) => option(item))} onChange={(normalState) => patchEditingInlineComponent({ normalState })} />
-            </label>
-            <label>
-              <span>执行机构/驱动</span>
-              <Input size="small" value={editingInlineComponent.actuator} onChange={(event) => patchEditingInlineComponent({ actuator: event.target.value })} />
-            </label>
-          </div>
+          {!editingInlineComponentIsMeasurement && (
+            <div className="pid-pipe-edit-grid">
+              <label>
+                <span>常态</span>
+                <Select size="small" value={editingInlineComponent.normalState} options={INLINE_COMPONENT_STATES.map((item) => option(item))} onChange={(normalState) => patchEditingInlineComponent({ normalState })} />
+              </label>
+              <label>
+                <span>执行机构/驱动</span>
+                <Input size="small" value={editingInlineComponent.actuator} onChange={(event) => patchEditingInlineComponent({ actuator: event.target.value })} />
+              </label>
+            </div>
+          )}
           <label>
             <span>控制信号</span>
             <Input size="small" value={editingInlineComponent.controlSignal} onChange={(event) => patchEditingInlineComponent({ controlSignal: event.target.value })} />
@@ -3341,6 +4393,27 @@ function PidX6Workspace() {
   const [selectedControlId, setSelectedControlId] = useState(project.controls[0]?.id || '');
   const [newEquipmentType, setNewEquipmentType] = useState<EquipmentType>('reactor');
   const [equipmentGuideStep, setEquipmentGuideStep] = useState<EquipmentGuideStep>('identity');
+
+  useEffect(() => {
+    setProject((prev) => {
+      let changed = false;
+      const inlineComponents = prev.inlineComponents.map((component) => {
+        const type = normalizeInlineComponentType(component.type);
+        const measurement = isMeasurementInlineType(type);
+        const nextNormalState = measurement ? '' : component.normalState;
+        const nextActuator = measurement ? '' : component.actuator;
+        if (type !== component.type || nextNormalState !== component.normalState || nextActuator !== component.actuator) changed = true;
+        return { ...component, type, normalState: nextNormalState, actuator: nextActuator };
+      });
+      const streams = prev.streams.map((stream) => {
+        const fromReferenceLabel = referenceDisplayName(stream.fromReferenceLabel || '');
+        const toReferenceLabel = referenceDisplayName(stream.toReferenceLabel || '');
+        if (fromReferenceLabel !== stream.fromReferenceLabel || toReferenceLabel !== stream.toReferenceLabel) changed = true;
+        return { ...stream, fromReferenceLabel, toReferenceLabel };
+      });
+      return changed ? { ...prev, streams, inlineComponents } : prev;
+    });
+  }, []);
 
   const currentArea = project.areas.find((area) => area.id === project.currentAreaId) || project.areas[0];
   const currentSheet = currentArea?.sheets.find((sheet) => sheet.id === project.currentSheetId) || currentArea?.sheets[0];
@@ -3464,8 +4537,29 @@ function PidX6Workspace() {
     .map((equipment) => option(equipment.id, `${equipment.tag} ${equipment.name}`));
   const selectedEquipment = project.equipments.find((equipment) => equipment.id === selectedEquipmentId);
   const selectedLineGroup = project.lineGroups.find((group) => group.id === selectedLineGroupId) || sheetLineGroups[0] || project.lineGroups[0];
+  const selectedStream = project.streams.find((stream) => stream.id === selectedStreamId);
   const selectedControl = project.controls.find((control) => control.id === selectedControlId);
   const markdown = useMemo(() => buildMarkdown(project), [project]);
+  const agentPackage = useMemo(() => buildAgentPublishPackage(project), [project]);
+  const agentPackageSummary = useMemo(() => renderAgentPackageSummaryMarkdown(agentPackage), [agentPackage]);
+  const completenessMarkdown = useMemo(() => renderCompletenessMarkdown(agentPackage.completeness), [agentPackage]);
+  const flowPathsMarkdown = useMemo(() => renderFlowPathsMarkdown(agentPackage.flowPaths), [agentPackage]);
+  const equipmentAgentContext = useMemo(
+    () => (selectedEquipment ? buildEquipmentAgentContext(project, selectedEquipment.id) : undefined),
+    [project, selectedEquipment],
+  );
+  const streamAgentContext = useMemo(
+    () => (selectedStream ? buildStreamAgentContext(project, selectedStream.id) : undefined),
+    [project, selectedStream],
+  );
+  const equipmentAgentMarkdown = useMemo(
+    () => (equipmentAgentContext ? renderEquipmentAgentContextMarkdown(equipmentAgentContext) : ''),
+    [equipmentAgentContext],
+  );
+  const streamAgentMarkdown = useMemo(
+    () => (streamAgentContext ? renderStreamAgentContextMarkdown(streamAgentContext) : ''),
+    [streamAgentContext],
+  );
 
   const patchProject = (patch: Partial<PidSemanticProject['project']>) => {
     setProject((prev) => ({ ...prev, project: { ...prev.project, ...patch } }));
@@ -3646,11 +4740,6 @@ function PidX6Workspace() {
     setProject((prev) => ({
       ...prev,
       equipments: prev.equipments.map((equipment) => (equipment.id === id ? { ...equipment, x, y } : equipment)),
-      streams: prev.streams.map((stream) => (
-        streamTouchesEquipment(stream, id) && stream.manualWaypoints.length
-          ? { ...stream, manualWaypoints: [] }
-          : stream
-      )),
     }));
   };
 
@@ -3659,11 +4748,6 @@ function PidX6Workspace() {
       ...prev,
       equipments: prev.equipments.map((equipment) => (
         equipment.id === id ? { ...equipment, x, y, width, height } : equipment
-      )),
-      streams: prev.streams.map((stream) => (
-        streamTouchesEquipment(stream, id) && stream.manualWaypoints.length
-          ? { ...stream, manualWaypoints: [] }
-          : stream
       )),
     }));
   };
@@ -3675,14 +4759,6 @@ function PidX6Workspace() {
         equipment.id === equipmentId
           ? { ...equipment, ports: equipment.ports.map((port) => (port.id === portId ? { ...port, x, y } : port)) }
           : equipment
-      )),
-      streams: prev.streams.map((stream) => (
-        streamTouchesEquipment(stream, equipmentId) && (
-          (stream.fromEquipmentId === equipmentId && stream.fromPortId === portId)
-          || (stream.toEquipmentId === equipmentId && stream.toPortId === portId)
-        ) && stream.manualWaypoints.length
-          ? { ...stream, manualWaypoints: [] }
-          : stream
       )),
     }));
   };
@@ -3994,6 +5070,7 @@ function PidX6Workspace() {
       groupId: group?.id || '',
       sheetId: project.currentSheetId,
       tag: `L-${String(project.streams.length + 1).padStart(3, '0')}`,
+      name: '',
       role: group?.role || '主物流',
       branchType: '主管段',
       directionMode: group?.directionMode || '单向',
@@ -4037,6 +5114,8 @@ function PidX6Workspace() {
     setActiveTab('streams');
   };
 
+  const streamOptionLabel = (stream: Pick<Stream, 'tag' | 'name' | 'branchType'>) => streamDisplayLabel(stream);
+
   const createStreamFromPorts = (fromEquipmentId: string, fromPortId: string, toEquipmentId: string, toPortId: string) => {
     const from = project.equipments.find((equipment) => equipment.id === fromEquipmentId);
     const to = project.equipments.find((equipment) => equipment.id === toEquipmentId);
@@ -4049,6 +5128,7 @@ function PidX6Workspace() {
       groupId: group?.id || '',
       sheetId: project.currentSheetId,
       tag: `L-${String(project.streams.length + 1).padStart(3, '0')}`,
+      name: `${from.name || from.tag} 至 ${to.name || to.tag}`,
       role: group?.role || fromPort.role || '主物流',
       branchType: '主管段',
       directionMode: group?.directionMode || '单向',
@@ -4131,7 +5211,15 @@ function PidX6Workspace() {
       安全阀: 'PSV',
       调节阀: 'LV',
       流量计: 'FI',
+      压力测点: 'PI',
+      温度测点: 'TI',
+      就地压力测点: 'PG',
+      远传压力测点: 'PI',
+      就地温度测点: 'TG',
+      远传温度测点: 'TI',
+      分析测点: 'AI',
       过滤器: 'F',
+      爆破片: 'BD',
       盲板: 'BL',
       疏水阀: 'ST',
     };
@@ -4143,8 +5231,8 @@ function PidX6Workspace() {
       name: type,
       positionRatio,
       order: positionRatio,
-      normalState: type === '流量计' || type === '过滤器' || type === '盲板' ? '' : '常开',
-      actuator: type === '控制阀' || type === '调节阀' ? '执行机构' : type === '手动阀' ? '手轮' : '',
+      normalState: isMeasurementInlineType(type) || type === '过滤器' || type === '爆破片' || type === '盲板' ? '' : '常开',
+      actuator: isMeasurementInlineType(type) ? '' : defaultInlineActuator(type),
       controlSignal: type === '控制阀' || type === '调节阀' ? '控制信号' : '',
       description: '',
     };
@@ -4220,6 +5308,7 @@ function PidX6Workspace() {
       groupId: group.id,
       sheetId: project.currentSheetId,
       tag: `L-${String(project.streams.length + 1).padStart(3, '0')}`,
+      name: `${equipment.name || equipment.tag}${branchType}`,
       role: group.role || port.role || '主物流',
       branchType,
       directionMode: group.directionMode || '单向',
@@ -4296,6 +5385,7 @@ function PidX6Workspace() {
       groupId: segment.groupId,
       sheetId: project.currentSheetId,
       tag: `L-${String(project.streams.length + 1).padStart(3, '0')}`,
+      name: `${segment.name || segment.tag}派生${branchType}`,
       role: inheritedRole,
       branchType,
       directionMode: inheritedDirectionMode,
@@ -4422,7 +5512,7 @@ function PidX6Workspace() {
             fromPortId: '',
             fromSegmentId: '',
             fromPipeNodeId: '',
-            fromReferenceLabel: '界外来源',
+            fromReferenceLabel: '',
             fromReferenceX: target.x,
             fromReferenceY: target.y,
           }
@@ -4432,7 +5522,7 @@ function PidX6Workspace() {
             toPortId: '',
             toSegmentId: '',
             toPipeNodeId: '',
-            toReferenceLabel: '界外去向',
+            toReferenceLabel: '',
             toReferenceX: target.x,
             toReferenceY: target.y,
           });
@@ -4498,9 +5588,15 @@ function PidX6Workspace() {
     message.success('已保存到浏览器本地。');
   };
 
-  const exportProject = async () => {
-    const fileName = `${project.project.drawingNo || 'pid-semantic-project'}.json`;
-    const blob = new Blob([JSON.stringify(project, null, 2)], { type: 'application/json' });
+  const exportDataFile = async (options: {
+    fileName: string;
+    content: string;
+    mimeType: string;
+    description: string;
+    extensions: string[];
+    successText: string;
+  }) => {
+    const blob = new Blob([options.content], { type: options.mimeType });
     const filePicker = (window as Window & {
       showSaveFilePicker?: (options: {
         suggestedName: string;
@@ -4511,13 +5607,13 @@ function PidX6Workspace() {
     if (filePicker) {
       try {
         const handle = await filePicker({
-          suggestedName: fileName,
-          types: [{ description: 'P&ID 语义项目 JSON', accept: { 'application/json': ['.json'] } }],
+          suggestedName: options.fileName,
+          types: [{ description: options.description, accept: { [options.mimeType]: options.extensions } }],
         });
         const writable = await handle.createWritable();
         await writable.write(blob);
         await writable.close();
-        message.success('项目已导出。');
+        message.success(options.successText);
         return;
       } catch (error) {
         if ((error as Error).name === 'AbortError') return;
@@ -4528,7 +5624,7 @@ function PidX6Workspace() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = fileName;
+      link.download = options.fileName;
       link.rel = 'noopener';
       link.style.display = 'none';
       document.body.appendChild(link);
@@ -4537,10 +5633,140 @@ function PidX6Workspace() {
         URL.revokeObjectURL(url);
         link.remove();
       }, 1000);
-      message.success('项目已导出。');
+      message.success(options.successText);
     } catch {
       message.error('导出失败，请检查浏览器下载权限。');
     }
+  };
+
+  type DirectoryPickerFileHandle = {
+    createWritable: () => Promise<{ write: (data: Blob) => Promise<void>; close: () => Promise<void> }>;
+  };
+  type DirectoryPickerHandle = {
+    getDirectoryHandle: (name: string, options?: { create?: boolean }) => Promise<DirectoryPickerHandle>;
+    getFileHandle: (name: string, options?: { create?: boolean }) => Promise<DirectoryPickerFileHandle>;
+  };
+  const publishDirectoryName = (project.project.drawingNo || 'pid-semantic-project').replace(/[\\/:*?"<>|\s]+/g, '_');
+  const writeFileToDirectory = async (root: DirectoryPickerHandle, filePath: string, content: string) => {
+    const parts = filePath.split('/').filter(Boolean);
+    const fileName = parts.pop();
+    if (!fileName) return;
+    let directory = root;
+    for (const part of parts) {
+      directory = await directory.getDirectoryHandle(part, { create: true });
+    }
+    const handle = await directory.getFileHandle(fileName, { create: true });
+    const writable = await handle.createWritable();
+    await writable.write(new Blob([content], { type: fileName.endsWith('.md') ? 'text/markdown' : 'application/json' }));
+    await writable.close();
+  };
+  const publishAgentPackageWithDevServer = async () => {
+    const response = await fetch('/_api/publish-agent-package', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        directoryName: publishDirectoryName,
+        files: agentPackage.files,
+      }),
+    });
+    const text = await response.text();
+    let body: { success?: boolean; directory?: string; message?: string; files?: number } = {};
+    try {
+      body = JSON.parse(text) as typeof body;
+    } catch {
+      body = { success: false, message: text };
+    }
+    if (!response.ok || !body.success) throw new Error(body.message || `HTTP ${response.status}`);
+    return body;
+  };
+  const publishAgentPackageToDirectory = async () => {
+    try {
+      const result = await publishAgentPackageWithDevServer();
+      message.success(`已发布到 ${result.directory || `agent-packages/${publishDirectoryName}`}`);
+      return;
+    } catch {
+      // Dev server API is only available in local development; browser directory access is the fallback.
+    }
+
+    const directoryPicker = (window as Window & {
+      showDirectoryPicker?: (options?: { id?: string; mode?: 'read' | 'readwrite' }) => Promise<DirectoryPickerHandle>;
+    }).showDirectoryPicker;
+    if (!directoryPicker) {
+      message.error('当前运行环境不支持直接目录发布。请重启本地 dev server 后重试，或使用“下载发布包”。');
+      return;
+    }
+    try {
+      const root = await directoryPicker({ id: 'pid-agent-packages', mode: 'readwrite' });
+      const packageDirectory = await root.getDirectoryHandle(publishDirectoryName, { create: true });
+      await Promise.all(Object.entries(agentPackage.files).map(([filePath, content]) => writeFileToDirectory(packageDirectory, filePath, content)));
+      message.success(`已发布到目录：${publishDirectoryName}`);
+    } catch (error) {
+      if ((error as Error).name === 'AbortError') return;
+      message.error('发布到目录失败，请确认浏览器目录写入权限。');
+    }
+  };
+
+  const exportProject = async () => {
+    await exportDataFile({
+      fileName: `${project.project.drawingNo || 'pid-semantic-project'}.pid-project.json`,
+      content: JSON.stringify(project, null, 2),
+      mimeType: 'application/json',
+      description: 'P&ID 工程编辑项目 JSON',
+      extensions: ['.json'],
+      successText: '工程项目已导出。',
+    });
+  };
+
+  const exportAgentSemanticIR = async () => {
+    await exportDataFile({
+      fileName: `${project.project.drawingNo || 'pid-semantic-project'}.semantic-ir.json`,
+      content: agentPackage.files['semantic-ir.json'],
+      mimeType: 'application/json',
+      description: '智能体语义 IR JSON',
+      extensions: ['.json'],
+      successText: '智能体语义 IR 已导出。',
+    });
+  };
+
+  const exportAgentPackage = async () => {
+    await exportDataFile({
+      fileName: `${project.project.drawingNo || 'pid-semantic-project'}.agent-package.json`,
+      content: agentPackage.files['agent-package.json'],
+      mimeType: 'application/json',
+      description: '智能体发布资料包 JSON',
+      extensions: ['.json'],
+      successText: '智能体发布包已导出。',
+    });
+  };
+
+  const exportEquipmentAgentContext = async () => {
+    if (!equipmentAgentContext) {
+      message.warning('请先选择一个设备。');
+      return;
+    }
+    await exportDataFile({
+      fileName: `${equipmentAgentContext.focus.tag || equipmentAgentContext.focus.equipmentId}.equipment-context.md`,
+      content: equipmentAgentMarkdown,
+      mimeType: 'text/markdown',
+      description: '设备智能体上下文 Markdown',
+      extensions: ['.md'],
+      successText: '设备上下文已导出。',
+    });
+  };
+
+  const exportStreamAgentContext = async () => {
+    if (!streamAgentContext) {
+      message.warning('请先选择一条管线。');
+      return;
+    }
+    await exportDataFile({
+      fileName: `${streamAgentContext.focus.tag || streamAgentContext.focus.streamId}.stream-context.md`,
+      content: streamAgentMarkdown,
+      mimeType: 'text/markdown',
+      description: '管线智能体上下文 Markdown',
+      extensions: ['.md'],
+      successText: '管线上下文已导出。',
+    });
   };
 
   const importProject = async () => {
@@ -4633,11 +5859,11 @@ function PidX6Workspace() {
     const to = endpoint('to');
     if (!from || !to) return null;
     if (stream.manualWaypoints?.length) {
-      return compactRoutePoints(orthogonalizePoints([
+      return simplifyOrthogonalRoute([
         from.point,
         ...stream.manualWaypoints,
         to.point,
-      ]));
+      ], sheetEquipments);
     }
     const startExit = from.equipment && from.port
       ? portExitPoint(from.equipment, from.port)
@@ -4650,25 +5876,25 @@ function PidX6Workspace() {
         ? perpendicularExitPoint(to.point, to.attachedAxis, from.point)
         : undefined;
     if (from.equipment && from.port && to.equipment && to.port) {
-      return cleanSmallRouteDetours(routeManhattan(from.equipment, from.port, to.equipment, to.port, sheetEquipments), sheetEquipments);
+      return cleanSmallRouteDetours(simplifyOrthogonalRoute(routeManhattan(from.equipment, from.port, to.equipment, to.port, sheetEquipments), sheetEquipments), sheetEquipments);
     }
-    return cleanSmallRouteDetours(routeBetweenPoints(
+    return cleanSmallRouteDetours(simplifyOrthogonalRoute(routeBetweenPoints(
       from.point,
       to.point,
       sheetEquipments,
       startExit,
       endExit,
-    ), sheetEquipments);
+    ), sheetEquipments), sheetEquipments);
   };
 
   const referenceEndpointText = (stream: Stream, side: 'from' | 'to') => {
     const kind = side === 'from' ? stream.fromKind : stream.toKind;
-    const label = side === 'from' ? stream.fromReferenceLabel : stream.toReferenceLabel;
+    const label = referenceDisplayName(side === 'from' ? stream.fromReferenceLabel : stream.toReferenceLabel);
     const equipment = side === 'from' ? stream.fromReferenceEquipment : stream.toReferenceEquipment;
     const port = side === 'from' ? stream.fromReferencePort : stream.toReferencePort;
     const target = [equipment, port].filter(Boolean).join('.');
-    if (kind === '界外来源') return `来自界外${target ? `：${target}` : ''}`;
-    if (kind === '界外去向') return `去往界外${target ? `：${target}` : ''}`;
+    if (kind === '界外来源') return label || target || '来自界外';
+    if (kind === '界外去向') return label || target || '去往界外';
     if (kind === '跨图引用') {
       const resolved = referenceEquipmentLabel(equipment, port);
       const text = resolved || label || target || '其他分段';
@@ -5046,13 +6272,13 @@ function PidX6Workspace() {
             </div>
             <LabeledText label="管线组目的" value={selectedLineGroup.purpose} onChange={(purpose) => patchLineGroup(selectedLineGroup.id, { purpose })} />
             <div className="pid-section-heading">管段 / 分支 / 变径段</div>
-            <TableShell columns={['管段号', '分支类型', '流向', '起点类型', '起点对象', '起点端口/位置', '终点类型', '终点对象', '终点端口/位置', '介质', 'DN', 'PN', '材质', '工艺意图', '']}>
+            <TableShell columns={['管段号', '管段名称', '分支类型', '流向', '起点类型', '起点对象', '起点端口/位置', '终点类型', '终点对象', '终点端口/位置', '介质', 'DN', 'PN', '材质', '工艺意图', '']}>
               {project.streams.filter((stream) => stream.groupId === selectedLineGroup.id).map((stream) => {
                 const fromEquipment = project.equipments.find((equipment) => equipment.id === stream.fromEquipmentId);
                 const toEquipment = project.equipments.find((equipment) => equipment.id === stream.toEquipmentId);
                 const segmentOptions = project.streams
                   .filter((item) => item.groupId === selectedLineGroup.id && item.id !== stream.id)
-                  .map((item) => option(item.id, `${item.tag} ${item.branchType}`));
+                  .map((item) => option(item.id, streamOptionLabel(item)));
                 const renderEndpointObject = (side: 'from' | 'to') => {
                   const kind = side === 'from' ? stream.fromKind : stream.toKind;
                   if (kind === '跨图引用') {
@@ -5205,6 +6431,7 @@ function PidX6Workspace() {
                 return (
                   <tr key={stream.id}>
                     <td><Input value={stream.tag} onChange={(event) => patchStream(stream.id, { tag: event.target.value })} /></td>
+                    <td><Input value={stream.name} onChange={(event) => patchStream(stream.id, { name: event.target.value })} /></td>
                     <td><Select value={stream.branchType} options={PIPE_BRANCH_TYPES.map((item) => option(item))} onChange={(branchType) => patchStream(stream.id, { branchType })} /></td>
                     <td><Select value={stream.directionMode} options={FLOW_DIRECTION_MODES.map((item) => option(item))} onChange={(directionMode) => patchStream(stream.id, { directionMode })} /></td>
                     <td><Select value={stream.fromKind} options={PIPE_FROM_ENDPOINT_KINDS.map((item) => option(item))} onChange={(fromKind) => patchStreamEndpointKind(stream, 'from', fromKind)} /></td>
@@ -5229,7 +6456,7 @@ function PidX6Workspace() {
               })}
             </TableShell>
             <div className="pid-section-heading">
-              管段在线元件 / 阀门
+              管段在线元件 / 阀门 / 测点
               <Button icon={<PlusOutlined />} size="small" onClick={addInlineComponent}>插入阀门/元件</Button>
             </div>
             <TableShell columns={['位号', '类型', '名称', '所在管段', '位置关系', '常态', '执行机构/驱动', '控制信号', '说明', '']}>
@@ -5240,12 +6467,12 @@ function PidX6Workspace() {
                   return (
                     <tr key={component.id}>
                       <td><Input value={component.tag} onChange={(event) => patchInlineComponent(component.id, { tag: event.target.value })} /></td>
-                      <td><Select value={component.type} options={INLINE_COMPONENT_TYPES.map((item) => option(item))} onChange={(type) => patchInlineComponent(component.id, { type })} /></td>
+                      <td><Select value={normalizeInlineComponentType(component.type)} options={INLINE_COMPONENT_TYPES.map((item) => option(item))} onChange={(type) => patchInlineComponent(component.id, inlineComponentTypePatch(component, type))} /></td>
                       <td><Input value={component.name} onChange={(event) => patchInlineComponent(component.id, { name: event.target.value })} /></td>
-                      <td><Select value={component.segmentId} options={groupSegments.map((stream) => option(stream.id, `${stream.tag} ${stream.branchType}`))} onChange={(segmentId) => patchInlineComponent(component.id, { segmentId, order: nextTopologyOrder(project, segmentId, '__start__', `inline:${component.id}`), x: undefined, y: undefined })} /></td>
+                      <td><Select value={component.segmentId} options={groupSegments.map((stream) => option(stream.id, streamOptionLabel(stream)))} onChange={(segmentId) => patchInlineComponent(component.id, { segmentId, order: nextTopologyOrder(project, segmentId, '__start__', `inline:${component.id}`), x: undefined, y: undefined })} /></td>
                       <td><Select value={currentTopologyAnchor(component.segmentId, `inline:${component.id}`)} options={topologyAnchorOptions(component.segmentId, `inline:${component.id}`)} onChange={(afterKey) => moveInlineComponentAfter(component.id, afterKey)} /></td>
-                      <td><Select value={component.normalState} options={INLINE_COMPONENT_STATES.map((item) => option(item))} onChange={(normalState) => patchInlineComponent(component.id, { normalState })} /></td>
-                      <td><Input value={component.actuator} onChange={(event) => patchInlineComponent(component.id, { actuator: event.target.value })} /></td>
+                      <td><Select disabled={isMeasurementInlineType(component.type)} value={inlineNormalState(component)} options={INLINE_COMPONENT_STATES.map((item) => option(item))} onChange={(normalState) => patchInlineComponent(component.id, { normalState })} /></td>
+                      <td><Input disabled={isMeasurementInlineType(component.type)} value={inlineActuator(component)} onChange={(event) => patchInlineComponent(component.id, { actuator: event.target.value })} /></td>
                       <td><Input value={component.controlSignal} onChange={(event) => patchInlineComponent(component.id, { controlSignal: event.target.value })} /></td>
                       <td><Input value={component.description} onChange={(event) => patchInlineComponent(component.id, { description: event.target.value })} /></td>
                       <td><Button danger size="small" onClick={() => deleteInlineComponentById(component.id)}>删除</Button></td>
@@ -5267,7 +6494,7 @@ function PidX6Workspace() {
                       <td><Input value={node.tag} onChange={(event) => patchPipeNode(node.id, { tag: event.target.value })} /></td>
                       <td><Select value={node.kind} options={PIPE_NODE_KINDS.map((item) => option(item))} onChange={(kind) => patchPipeNode(node.id, { kind })} /></td>
                       <td><Input value={node.name} onChange={(event) => patchPipeNode(node.id, { name: event.target.value })} /></td>
-                      <td><Select value={node.segmentId} options={groupSegments.map((stream) => option(stream.id, `${stream.tag} ${stream.branchType}`))} onChange={(segmentId) => patchPipeNode(node.id, { segmentId, order: nextTopologyOrder(project, segmentId, '__start__', `pipe:${node.id}`), x: undefined, y: undefined })} /></td>
+                      <td><Select value={node.segmentId} options={groupSegments.map((stream) => option(stream.id, streamOptionLabel(stream)))} onChange={(segmentId) => patchPipeNode(node.id, { segmentId, order: nextTopologyOrder(project, segmentId, '__start__', `pipe:${node.id}`), x: undefined, y: undefined })} /></td>
                       <td><Select value={currentTopologyAnchor(node.segmentId, `pipe:${node.id}`)} options={topologyAnchorOptions(node.segmentId, `pipe:${node.id}`)} onChange={(afterKey) => movePipeNodeAfter(node.id, afterKey)} /></td>
                       <td><Input value={node.description} onChange={(event) => patchPipeNode(node.id, { description: event.target.value })} /></td>
                       <td><Button danger size="small" onClick={() => setProject((prev) => ({ ...prev, pipeNodes: prev.pipeNodes.filter((item) => item.id !== node.id) }))}>删除</Button></td>
@@ -5348,6 +6575,21 @@ function PidX6Workspace() {
     if (activeTab === 'controls') return renderControlsTab();
     if (activeTab === 'narrative') return renderNarrativeTab();
     if (activeTab === 'llm') return <pre className="pid-output">{markdown}</pre>;
+    if (activeTab === 'projectJson') return <pre className="pid-output">{JSON.stringify(project, null, 2)}</pre>;
+    if (activeTab === 'semanticIr') return <pre className="pid-output">{agentPackage.files['semantic-ir.json']}</pre>;
+    if (activeTab === 'agentPackage') return <pre className="pid-output">{agentPackageSummary}</pre>;
+    if (activeTab === 'equipmentContext') {
+      return equipmentAgentContext
+        ? <pre className="pid-output">{equipmentAgentMarkdown}</pre>
+        : <div className="pid-empty">请选择一个设备以生成设备上下文。</div>;
+    }
+    if (activeTab === 'streamContext') {
+      return streamAgentContext
+        ? <pre className="pid-output">{streamAgentMarkdown}</pre>
+        : <div className="pid-empty">请选择一条管线以生成管线上下文。</div>;
+    }
+    if (activeTab === 'completeness') return <pre className="pid-output">{completenessMarkdown}</pre>;
+    if (activeTab === 'flowPaths') return <pre className="pid-output">{flowPathsMarkdown}</pre>;
     return <pre className="pid-output">{JSON.stringify(project, null, 2)}</pre>;
   };
 
@@ -5363,7 +6605,12 @@ function PidX6Workspace() {
           <Button icon={<CopyOutlined />} disabled={!selectedEquipment} onClick={duplicateEquipment}>复制设备</Button>
           <Button danger icon={<DeleteOutlined />} disabled={!selectedEquipment} onClick={deleteEquipment}>删除设备</Button>
           <Button icon={<SaveOutlined />} onClick={saveLocal}>保存本地</Button>
-          <Button icon={<ExportOutlined />} onClick={exportProject}>导出</Button>
+          <Button icon={<ExportOutlined />} onClick={exportProject}>导出工程</Button>
+          <Button icon={<ExportOutlined />} onClick={exportAgentSemanticIR}>导出IR</Button>
+          <Button type="primary" icon={<ExportOutlined />} onClick={publishAgentPackageToDirectory}>发布到目录</Button>
+          <Button icon={<ExportOutlined />} onClick={exportAgentPackage}>下载发布包</Button>
+          <Button icon={<ExportOutlined />} disabled={!equipmentAgentContext} onClick={exportEquipmentAgentContext}>导出设备上下文</Button>
+          <Button icon={<ExportOutlined />} disabled={!streamAgentContext} onClick={exportStreamAgentContext}>导出管线上下文</Button>
           <Button onClick={importProject}>打开</Button>
           <Button danger onClick={resetProject}>重置示例</Button>
         </Space>
@@ -5381,7 +6628,13 @@ function PidX6Workspace() {
             { key: 'controls', label: '控制联锁' },
             { key: 'narrative', label: '工艺叙事' },
             { key: 'llm', label: 'LLM 预览' },
-            { key: 'json', label: 'JSON' },
+            { key: 'projectJson', label: '工程 JSON' },
+            { key: 'semanticIr', label: '语义 IR' },
+            { key: 'agentPackage', label: '发布包' },
+            { key: 'equipmentContext', label: '设备上下文' },
+            { key: 'streamContext', label: '管线上下文' },
+            { key: 'completeness', label: '完整性检查' },
+            { key: 'flowPaths', label: '路径追踪' },
           ]}
         />
       </div>
