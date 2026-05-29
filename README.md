@@ -1,224 +1,273 @@
-# Chemical P&ID Graph Editor 🏭⚛️
+# Chemical P&ID Graph Editor
 
-<div align="center">
+分层 P&ID 语义工作台，用于把化工 P&ID 图纸整理成适合工程师编辑、也适合 Agent 读取的结构化工程数据。
 
-**连接传统工业图纸与 AI 大模型的桥梁**  
-**A Bridge Between Traditional P&ID and Industrial AI Models**
+当前主线不再把“系统”作为工程师需要单独维护的一层。项目采用：
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![Tech](https://img.shields.io/badge/Tech-React%20%7C%20AntV%20X6%20%7C%20Neo4j-green)
-![AI-Ready](https://img.shields.io/badge/AI-Physics%20Aware%20Graph-orange)
+```text
+项目 -> 工段/系统 -> 图纸 -> 设备实例、管线、管件、控制联锁、工艺叙事
+```
 
-[English](#-english) | [中文](#-中文)
+其中“工段”就是系统边界；导出给 Agent 时会自动生成 `systems` 视图，但工程文件本身不再保存独立系统清单。
 
-</div>
+![Tech](https://img.shields.io/badge/Tech-React%20%7C%20AntV%20X6%20%7C%20Vite-green)
+![Agent Ready](https://img.shields.io/badge/Agent-Semantic%20IR-orange)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
----
-
-<a name="-english"></a>
-## 🇬🇧 English
-
-### 📖 The Story
-**This is an open-source project built entirely by a Chemical Industry Expert (with 0 coding background) paired with Google Gemini 3.**
-
-In the digital transformation of the process industry, general LLMs often struggle to understand the complex physical semantics within P&ID drawings (images). For instance, AI finds it difficult to distinguish whether a pipeline connects to the "Shell Side" or "Tube Side" of a heat exchanger, or whether the medium is in a "Vapor" or "Liquid" phase.
-
-This project is not just a drawing tool, but an **Industrial Knowledge Graph Generator**. By utilizing high-fidelity semantic modeling, it converts graphics into structured data containing **Physical Topology** and **Process Logic**, serving as a high-quality data foundation for Industrial RAG (Retrieval-Augmented Generation) and intelligent diagnostics.
-
-### ✨ Core Features
-
-#### 1. 🎨 Professional Visual Editor
-*   **Powered by AntV X6**: Delivers a Web-based drag-and-drop experience similar to AutoCAD/Visio.
-*   **Smart Routing**: Manhattan orthogonal routing algorithm supporting automatic obstacle avoidance and non-overlapping crossings.
-*   **Smart Interaction**: Auto-split pipelines when dragging valves; auto-generate Tapping Points for instruments.
-
-#### 2. 🧠 AI-Native Semantics `NEW`
-The graph data generated is designed specifically for AI reasoning, embedding deep physical semantics:
-*   **Internal Structure Definition**:
-    *   Explicitly distinguishes internal spaces, e.g., **ShellSide** vs. **TubeSide**, **InnerVessel** vs. **Jacket**.
-    *   *AI Scenario*: Analyzing heat exchange efficiency or mixing logic.
-*   **Phase Awareness**:
-    *   Ports carry phase information, e.g., **ShellSide:Vapor** vs. **ShellSide:Liquid**.
-    *   *AI Scenario*: Detecting "Dry Run" risks (e.g., ensuring heaters are submerged in liquid) or validating venting/draining logic.
-*   **Strict Taxonomy**:
-    *   Strictly distinguishes between **Equipment** and **Instrument** in the graph database.
-    *   *AI Scenario*: Rapid control loop extraction or asset statistics.
-
-#### 3. 🔗 Graph Database Sync
-One-click synchronization to Neo4j, generating an industrial-standard Knowledge Graph:
-*   **Node Labels**: `:Thing`, `:Equipment`, `:Instrument`
-*   **Relationship Props**: Includes `fromRegion`, `toRegion`, `fluid`, `material`, etc.
-
-### 🧠 AI Reasoning Examples
-Once data is stored in Neo4j, you can use Cypher or LLMs to answer complex engineering questions:
-
-1.  **Material Balance Analysis**:
-    > "Query E-13 Evaporator: which pipelines are connected to the Liquid Phase area, and which to the Vapor Phase area?"
-2.  **Safety Logic Verification**:
-    > "Check all heater connections to verify if their corresponding shell-side region is Liquid Phase (to prevent dry heating)."
-3.  **Control Loop Extraction**:
-    > "Find all temperature control instruments on R-101 Reactor and their associated control valves."
-
-### 🚀 Quick Start
-
-1.  **Prerequisites**: Node.js (v16+) and Neo4j Desktop.
-2.  **Clone Repo**:
-    ```bash
-    git clone https://github.com/ssnchenfeng-ai/chemical-graph-editor.git
-    cd chemical-graph-editor
-    ```
-3.  **Install Dependencies**:
-    ```bash
-    npm install
-    ```
-4.  **Configuration**:
-    Copy the example env file:
-    ```bash
-    # Mac/Linux
-    cp .env.example .env
-
-    # Windows (CMD)
-    copy .env.example .env
-    ```
-    Edit `.env` and fill in your Neo4j credentials.
-5.  **Run**:
-    ```bash
-    npm run dev
-    ```
+[中文](#中文) | [English](#english)
 
 ---
 
-<a name="-中文"></a>
-## 🇨🇳 中文
+## 中文
 
-### 📖 项目背景
-**这是一个由化工行业资深从业者（0 编程基础），在 Google Gemini 3 全程辅助下完成的开源项目。**
+### 项目定位
 
-在工业智能化转型中，通用的 AI 大模型（LLM）往往难以理解 P&ID 图纸中复杂的物理含义。例如，AI 很难区分一条管线是连接到了换热器的“壳程”还是“管程”，也无法判断介质是“气相”还是“液相”。
+这个项目的目标不是只做一个画图工具，而是把 P&ID 图纸里的工程语义沉淀成结构化数据：
 
-本项目不仅仅是一个绘图工具，更是一个**工业知识图谱生成器**。它通过高保真的语义建模，将图形转化为包含**物理拓扑**和**工艺逻辑**的结构化数据，为工业 RAG（检索增强生成）和智能诊断提供高质量的数据底座。
+- 工程师在画布上维护设备、连接桩、管线、阀门、测点、管段接点和控制联锁。
+- 工段直接作为系统边界，避免“工段”和“系统”两套层级同时存在造成困扰。
+- 同一设备位号可以出现在多张图纸或多个位置，导出时按设备位号归一为一个设备实体，并保留所有画布实例。
+- 本地工程可以导入为新的网络工程，也可以追加到当前网络工程，作为新的图纸挂到当前工段下。
+- 输出工程 JSON、语义 IR、设备上下文、管线上下文、完整性检查、路径追踪和 Agent 发布包。
 
-### ✨ 核心功能
+### 主要功能
 
-#### 1. 🎨 专业级可视化绘图
-*   **基于 AntV X6**: 实现了类似 AutoCAD/Visio 的 Web 端拖拽体验。
-*   **智能路由**: Manhattan 正交路由算法，支持管线自动避让、跨越不穿模。
-*   **智能交互**: 拖拽阀门自动打断管线、拖拽仪表自动生成测点（Tapping Point）。
+#### 画布编辑
 
-#### 2. 🧠 AI 语义增强 (AI-Native Semantics) `NEW`
-本项目生成的图谱数据专为 AI 推理设计，包含深度的物理语义：
-*   **精细化腔室定义 (Internal Structure)**:
-    *   明确区分设备的内部空间，如 **壳程 (ShellSide)** vs **管程 (TubeSide)**，**釜内 (InnerVessel)** vs **夹套 (Jacket)**。
-    *   *AI 应用场景*: 分析热交换效率、判断物料是否混合。
-*   **相态感知 (Phase Awareness)**:
-    *   端口携带相态信息，如 **气相区 (ShellSide:Vapor)** vs **液相区 (ShellSide:Liquid)**。
-    *   *AI 应用场景*: 自动检测“干烧”风险（如加热器未浸没在液相中）、验证排污/放空逻辑。
-*   **严格的分类体系 (Strict Taxonomy)**:
-    *   在图数据库中严格区分 **设备 (Equipment)** 与 **仪表 (Instrument)**。
-    *   *AI 应用场景*: 快速提取控制回路，或进行全厂设备资产统计。
+- 基于 React、Ant Design 和 AntV X6。
+- 支持设备拖拽、复制同位号、删除设备、调整设备连接桩位置。
+- 支持正交管线路由、跨图引用、界外来源/去向、支管点、汇入点、分出点、管线元件和测点。
+- 设备移动后会重算相关管线路由和管线元件位置，减少残影和错位。
 
-#### 3. 🔗 图数据库同步 (Graph Sync)
-一键将画布内容同步至 Neo4j，生成符合工业标准的知识图谱：
-*   **节点标签**: `:Thing`, `:Equipment`, `:Instrument`
-*   **关系属性**: 包含 `fromRegion` (来源腔室), `toRegion` (目标腔室), `fluid` (介质), `material` (材质) 等。
+#### 工段与图纸
 
-### 🧠 AI 推理示例
-当数据存入 Neo4j 后，您可以使用 Cypher 或让 AI 模型回答以下复杂问题：
+- 每张图纸选择所属工段。
+- 工段即系统，不再单独维护系统列表。
+- 新增、删除、重命名工段和图纸。
+- 图纸移动到其他工段后，该图纸上的设备会同步归入目标工段。
 
-1.  **物料平衡分析**:
-    > "查询 E-13 蒸发器中，哪些管线连接到了液相区 (ShellSide:Liquid)，哪些连接到了气相区 (ShellSide:Vapor)？"
-2.  **安全逻辑验证**:
-    > "检查所有加热器接口，确认其对应的壳程区域是否为液相？(防止干烧)"
-3.  **控制回路提取**:
-    > "找出 R-101 反应釜上所有的温度控制仪表及其关联的调节阀。"
+#### 网络工程
 
-## 🔗 生态系统与应用 (Ecosystem)
+网络工程是一个轻量文件式协作层，适合在局域网或同一台开发机上多人轮流编辑：
 
-本项目是**工业 AI 数据的生产者**。
-This project serves as the **Data Producer** for Industrial AI.
+- `保存网络`：保存当前工程到服务端文件夹。
+- `本地导入为新工程`：把本地 JSON 工程作为一个新的网络工程。
+- `导入到当前工程`：把另一个本地工程追加为当前工程的新图纸。
+- 保存时会记录版本，避免直接覆盖已更新的网络工程。
 
-如果您想了解如何利用生成的图谱数据进行 **RAG（检索增强生成）**、**智能问答**或**工艺推理**，请查看我们的配套开源项目：
+网络工程文件保存在：
 
-👉 **[Industrial GraphRAG Chatbot](https://github.com/ssnchenfeng-ai/my_rag_project)**
-*(基于 Python + Streamlit + LangChain + Neo4j 的工业问答系统)*
+```text
+network-projects/<project-id>/
+  metadata.json
+  project.pid-project.json
+  versions/
+```
 
-<div align="center">
-  <table>
-    <tr>
-      <td align="center"><b>Step 1: Data Production</b></td>
-      <td align="center"><b>Step 2: Data Consumption</b></td>
-    </tr>
-    <tr>
-      <td align="center">
-        <a href=".">
-          <b>Chemical Graph Editor</b><br/>
-          (React / AntV X6)
-        </a>
-      </td>
-      <td align="center">➡️ Data Sync ➡️</td>
-      <td align="center">
-        <a href="https://github.com/ssnchenfeng-ai/my_rag_project">
-          <b>GraphRAG Chatbot</b><br/>
-          (Python / LangChain)
-        </a>
-      </td>
-    </tr>
-  </table>
-</div>
+这不是实时多人协同编辑引擎；当前没有在线光标、CRDT 合并或权限系统。
 
-### 🚀 快速开始
+#### Agent 导出
 
-1.  **环境准备**: 确保已安装 Node.js (v16+) 和 Neo4j Desktop。
-2.  **克隆项目**:
-    ```bash
-    git clone https://github.com/ssnchenfeng-ai/chemical-graph-editor.git
-    cd chemical-graph-editor
-    ```
-3.  **安装依赖**:
-    ```bash
-    npm install
-    ```
-4.  **配置数据库**:
-    复制环境变量模板文件：
-    ```bash
-    # Mac/Linux
-    cp .env.example .env
+当前更推荐把工程数据发布为 Agent 可读取的文件包，而不是让 Agent 直接读画布状态：
 
-    # Windows (CMD)
-    copy .env.example .env
-    ```
-    打开 `.env` 文件，填入你的 Neo4j 数据库连接信息：
-    ```ini
-    VITE_NEO4J_URI=bolt://localhost:7687
-    VITE_NEO4J_USER=neo4j
-    VITE_NEO4J_PASSWORD=你的数据库密码
-    ```
-5.  **启动项目**:
-    ```bash
-    npm run dev
-    ```
-    浏览器访问 `http://localhost:5173` 即可开始使用。
+- `semantic-ir.json`：精简语义 IR。
+- `relations.json`：实体关系。
+- `indexes/*.json`：设备、管线、系统、介质索引。
+- `contexts/equipment/*.md`：设备上下文。
+- `contexts/stream/*.md`：管线上下文。
+- `completeness.json`：完整性检查结果。
+- `flow-paths.json`：路径追踪结果。
 
-### 📸 演示截图 (Screenshots)
+发布包可以下载为 JSON，也可以通过本地开发服务写入：
+
+```text
+agent-packages/<package-name>/
+```
+
+### 截图
 
 <div align="center">
-    <!-- GitHub 读取图片的路径规则：相对路径指向 public 文件夹 -->
-    <img src="public/demo-editor.png" alt="Web Editor Interface" width="800"/>
-    <p><i>Web Editor Interface / 编辑器界面</i></p>
-    <br/>
-    <img src="public/demo-graph.png" alt="Neo4j Knowledge Graph" width="800"/>
-    <p><i>Generated Neo4j Graph / 生成的 Neo4j 知识图谱</i></p>
+  <img src="public/demo-editor.png" alt="P&ID semantic workspace canvas" width="900"/>
+  <p><i>当前画布、工段/图纸、网络工程和导出入口</i></p>
+  <br/>
+  <img src="public/demo-graph.png" alt="Agent package preview" width="900"/>
+  <p><i>Agent 发布包预览，不再是旧版 Neo4j 图谱截图</i></p>
 </div>
+
+### 快速开始
+
+#### 安装依赖
+
+```bash
+npm install
+```
+
+#### 本地启动
+
+```bash
+npm run dev
+```
+
+访问：
+
+```text
+http://localhost:5173
+```
+
+#### 局域网网络工程模式
+
+如果需要让同一局域网内的其他电脑访问当前开发服务：
+
+```bash
+npm run dev:network
+```
+
+终端会输出可访问地址，例如：
+
+```text
+http://<your-lan-ip>:5173
+```
+
+其他电脑打开该地址后，可以使用同一个 `network-projects` 文件目录进行工程加载和保存。
+
+### 常用工作流
+
+#### 从本地工程进入网络版
+
+1. 打开页面。
+2. 点击 `网络导入`。
+3. 选择 `本地导入为新工程`。
+4. 选择本地 `.json` 工程文件。
+5. 系统会创建一个新的网络工程并绑定当前页面。
+
+#### 把第二个本地项目追加到当前工程
+
+1. 先加载或导入第一个网络工程。
+2. 切换到目标工段。
+3. 点击 `网络导入`。
+4. 选择 `导入到当前工程`。
+5. 选择第二个本地 `.json` 工程文件。
+6. 导入内容会作为新图纸追加到当前工段，跨图引用由工程师后续手工接起来。
+
+#### 导出给 Agent
+
+1. 完成图纸、设备、管线、控制联锁和工艺叙事维护。
+2. 点击 `导出发布`。
+3. 选择 `导出 IR`、`下载发布包`、`发布到目录`、`导出设备上下文` 或 `导出管线上下文`。
+4. Agent 优先读取发布包里的索引和上下文文件，而不是直接理解画布截图。
+
+### 工程文件和存储位置
+
+| 类型 | 存储位置 | 说明 |
+| --- | --- | --- |
+| 浏览器本地保存 | 浏览器 `localStorage` | 点击 `工程文件 -> 保存本地` 后保存到当前浏览器 |
+| 导出工程 | 用户下载的 JSON 文件 | 可再次打开或导入到网络工程 |
+| 网络工程 | `network-projects/<project-id>/` | 开发服务端文件式存储，带版本快照 |
+| Agent 发布目录 | `agent-packages/<package-name>/` | 发布给 Agent/RAG 使用的上下文包 |
+
+### 关于 Neo4j
+
+仓库里仍保留了早期 Neo4j 相关模块和适配器，但当前主工作台的核心路径已经转向文件式工程、语义 IR 和 Agent 发布包。README 中旧版“一键同步 Neo4j 图数据库”的描述和截图已移除，避免误导当前使用。
+
+### 开发命令
+
+```bash
+npm run dev          # 本地开发
+npm run dev:network  # 局域网访问
+npm run build        # 类型检查和生产构建
+npm run lint         # ESLint 检查
+```
 
 ---
 
-## 🤝 Contribution / 贡献
+## English
 
-As a project initiated by a non-programmer, the code structure might not be perfect. Pull Requests and suggestions are warmly welcome!
-作为一个非程序员发起的项目，代码结构可能不够完美。非常欢迎专业的开发者提出建议或提交 PR！
+### What This Project Is
 
-Special thanks to **AntV X6** team and **Google Gemini**.
+Chemical P&ID Graph Editor is a semantic P&ID workspace for process engineering drawings. It helps engineers maintain P&ID topology as structured data, then exports Agent-readable semantic files.
 
-## 📄 License
+The current model is:
+
+```text
+Project -> Stage/System -> Drawing Sheet -> Equipment instances, streams, inline components, controls, narratives
+```
+
+The stage is the system boundary. Engineers no longer maintain a separate system layer. Agent exports still contain a derived `systems` view for compatibility and indexing.
+
+### Current Capabilities
+
+- Visual P&ID editing with React, Ant Design, and AntV X6.
+- Equipment, ports, pipe groups, streams, inline valves/meters, pipe nodes, external boundaries, and cross-sheet references.
+- Stage and drawing management: create, delete, rename, and move drawings between stages.
+- Same-tag equipment normalization: repeated drawing instances are exported as one canonical equipment entity.
+- Lightweight network project storage under `network-projects/`.
+- Local project import as a new network project.
+- Local project append into the current network project as additional drawing sheets.
+- Agent package export with semantic IR, relations, indexes, equipment contexts, stream contexts, completeness checks, and flow paths.
+
+### Network Project Storage
+
+Network projects are stored as files by the Vite dev server:
+
+```text
+network-projects/<project-id>/
+  metadata.json
+  project.pid-project.json
+  versions/
+```
+
+This is a lightweight file-based collaboration mode, not a full real-time collaborative editor. It does not currently include presence, live cursors, CRDT merging, authentication, or permission control.
+
+### Agent Package
+
+Agent-oriented output is available from `导出发布`:
+
+```text
+manifest.json
+semantic-ir.json
+relations.json
+indexes/
+contexts/equipment/
+contexts/stream/
+completeness.json
+flow-paths.json
+```
+
+Agents should read these structured files instead of relying on screenshots.
+
+### Screenshots
+
+<div align="center">
+  <img src="public/demo-editor.png" alt="P&ID semantic workspace canvas" width="900"/>
+  <p><i>Current semantic P&ID workspace</i></p>
+  <br/>
+  <img src="public/demo-graph.png" alt="Agent package preview" width="900"/>
+  <p><i>Agent package preview</i></p>
+</div>
+
+### Quick Start
+
+```bash
+npm install
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:5173
+```
+
+For LAN access:
+
+```bash
+npm run dev:network
+```
+
+### Notes About Neo4j
+
+Some legacy Neo4j modules still exist in the repository, but the current primary workflow is file-based project storage plus semantic IR and Agent package export. The old Neo4j-centric screenshots and documentation have been removed from this README.
+
+## License
 
 MIT License
