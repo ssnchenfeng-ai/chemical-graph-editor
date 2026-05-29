@@ -1,12 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Input, Select, Space, Tabs, message } from 'antd';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Button, Dropdown, Input, Select, Space, Tabs, message } from 'antd';
+import type { MenuProps } from 'antd';
 import { Graph, type Cell, type Edge, type Node } from '@antv/x6';
 import { Selection } from '@antv/x6-plugin-selection';
 import { Transform } from '@antv/x6-plugin-transform';
 import {
-  ApartmentOutlined,
   CopyOutlined,
   DeleteOutlined,
+  DownOutlined,
   ExportOutlined,
   PlusOutlined,
   SaveOutlined,
@@ -20,13 +21,13 @@ import {
   renderEquipmentAgentContextMarkdown,
   renderFlowPathsMarkdown,
   renderStreamAgentContextMarkdown,
+  projectToAgentSemanticIR,
 } from './agentExports';
 import './index.css';
 
 type WorkspaceTab =
   | 'canvas'
   | 'project'
-  | 'systems'
   | 'equipment'
   | 'streams'
   | 'controls'
@@ -99,18 +100,6 @@ interface ProcessArea {
   sheets: DrawingSheet[];
 }
 
-interface ProcessSystem {
-  id: string;
-  name: string;
-  areaId: string;
-  purpose: string;
-  boundaryIn: string;
-  boundaryOut: string;
-  operationModes: string;
-  utilityDependency: string;
-  notes: string;
-}
-
 interface InternalPart {
   id: string;
   category: PartCategory;
@@ -149,7 +138,7 @@ interface EquipmentProfile {
 interface Equipment {
   id: string;
   sheetId: string;
-  systemId: string;
+  areaId: string;
   type: EquipmentType;
   tag: string;
   name: string;
@@ -283,7 +272,7 @@ interface ControlInterlock {
 
 interface ProcessNarrativeItem {
   id: string;
-  level: '工段' | '系统' | '物流' | '控制联锁' | '开停车';
+  level: '工段' | '物流' | '控制联锁' | '开停车';
   subject: string;
   generated: string;
   reviewed: string;
@@ -334,7 +323,6 @@ interface PidSemanticProject {
   currentAreaId: string;
   currentSheetId: string;
   areas: ProcessArea[];
-  systems: ProcessSystem[];
   equipments: Equipment[];
   lineGroups: PipeGroup[];
   streams: Stream[];
@@ -342,6 +330,35 @@ interface PidSemanticProject {
   inlineComponents: InlinePipeComponent[];
   controls: ControlInterlock[];
   narratives: ProcessNarrativeItem[];
+}
+
+interface NetworkProjectSummary {
+  id: string;
+  name: string;
+  drawingNo: string;
+  createdAt: string;
+  updatedAt: string;
+  version: number;
+}
+
+interface NetworkProjectPayload {
+  success: boolean;
+  message?: string;
+  projects?: NetworkProjectSummary[];
+  metadata?: NetworkProjectSummary;
+  project?: PidSemanticProject;
+}
+
+interface AppendProjectResult {
+  project: PidSemanticProject;
+  firstSheetId: string;
+  firstEquipmentId: string;
+  firstLineGroupId: string;
+  firstStreamId: string;
+  firstControlId: string;
+  addedSheetCount: number;
+  addedEquipmentCount: number;
+  addedStreamCount: number;
 }
 
 const STORAGE_KEY = 'pid-layered-semantic-project.v1';
@@ -388,7 +405,7 @@ const INLINE_COMPONENT_STATES = ['常开', '常闭', '调节', '止回', '备用
 const PIPE_NODE_KINDS: PipeNodeKind[] = ['支管点', '汇入点', '分出点', '变径点', '取样点', '排净点'];
 const CONTROL_KINDS: ControlKind[] = ['控制回路', '联锁保护', '启停顺序', '跨设备动作'];
 const EQUIPMENT_GUIDE_STEPS: Array<{ key: EquipmentGuideStep; title: string; hint: string }> = [
-  { key: 'identity', title: '1 设备身份', hint: '确认设备类型、位号、名称、系统归属和边界描述。' },
+  { key: 'identity', title: '1 设备身份', hint: '确认设备类型、位号、名称、工段归属和边界描述。' },
   { key: 'profile', title: '2 功能与原理', hint: '补充该设备为什么存在、如何工作，供 LLM 理解设备画像。' },
   { key: 'parts', title: '3 内部组成', hint: '描述流体空间、功能元件和测控元件。' },
   { key: 'ports', title: '4 对外连接桩', hint: '定义设备与外部管线连接的端口和介质。' },
@@ -453,8 +470,8 @@ const inlineComponentTypePatch = (component: InlinePipeComponent, type: InlinePi
     actuator: measurement ? '' : component.actuator || defaultInlineActuator(type),
   };
 };
-const partLabel = (equipment: Equipment | undefined, partId: string) => equipment?.parts.find((part) => part.id === partId)?.name || partId || '-';
-const portLabel = (equipment: Equipment | undefined, portId: string) => equipment?.ports.find((port) => port.id === portId)?.name || portId || '-';
+const partLabel = (equipment: Pick<Equipment, 'parts'> | undefined, partId: string) => equipment?.parts.find((part) => part.id === partId)?.name || partId || '-';
+const portLabel = (equipment: Pick<Equipment, 'ports'> | undefined, portId: string) => equipment?.ports.find((port) => port.id === portId)?.name || portId || '-';
 
 const isReferenceEndpoint = (kind: PipeEndpointKind) => kind === '跨图引用' || kind === '界外来源' || kind === '界外去向';
 const referenceTypeLabels = new Set(['界外来源', '界外去向', '跨图引用', '来自界外', '去往界外']);
@@ -462,7 +479,7 @@ const referenceDisplayName = (label: string) => (referenceTypeLabels.has(label.t
 const referencePlaceholder = (kind: PipeEndpointKind, side: 'from' | 'to') => {
   if (kind === '界外来源') return '原料总管 / 蒸汽总管 / 上游装置';
   if (kind === '界外去向') return '下游装置 / 外排系统 / 公用工程总管';
-  return side === 'from' ? '其他分段设备或连接桩' : '其他分段设备或连接桩';
+  return side === 'from' ? '其他图纸设备或连接桩' : '其他图纸设备或连接桩';
 };
 
 type Point = { x: number; y: number };
@@ -1763,17 +1780,6 @@ const defaultProject = (): PidSemanticProject => ({
       { id: 'sheet_feed', name: '萘进料与混合', description: '进料、混合、预热和切断边界。' },
     ],
   }],
-  systems: [{
-    id: 'sys_molten_salt',
-    areaId: 'area_oxidation',
-    name: '熔盐移热系统',
-    purpose: '稳定移除反应器放热，维持催化剂床层温度窗口。',
-    boundaryIn: '反应器壳程熔盐出口',
-    boundaryOut: '冷却后熔盐返回反应器壳程',
-    operationModes: '正常运行时连续循环；开车阶段先建立熔盐循环后引入反应物料。',
-    utilityDependency: '冷却水、电源、温度测点和循环泵启停信号。',
-    notes: '系统级联锁负责超温时切断进料并保持冷却能力。',
-  }],
   equipments: [],
   lineGroups: [],
   streams: [],
@@ -1783,11 +1789,11 @@ const defaultProject = (): PidSemanticProject => ({
   narratives: [],
 });
 
-const equipmentTemplate = (type: EquipmentType, tag: string, sheetId: string, systemId: string, x: number, y: number): Equipment => {
+const equipmentTemplate = (type: EquipmentType, tag: string, sheetId: string, areaId: string, x: number, y: number): Equipment => {
   const base: Equipment = {
     id: uid('eq'),
     sheetId,
-    systemId,
+    areaId,
     type,
     tag,
     name: EQUIPMENT_LABELS[type],
@@ -1922,11 +1928,11 @@ const equipmentTemplate = (type: EquipmentType, tag: string, sheetId: string, sy
 const createSeedProject = () => {
   const project = defaultProject();
   const sheetId = project.currentSheetId;
-  const systemId = project.systems[0].id;
-  const reactor = equipmentTemplate('reactor', 'R-001', sheetId, systemId, 270, 170);
-  const exchanger = equipmentTemplate('exchanger', 'E-001', sheetId, systemId, 570, 185);
+  const areaId = project.currentAreaId;
+  const reactor = equipmentTemplate('reactor', 'R-001', sheetId, areaId, 270, 170);
+  const exchanger = equipmentTemplate('exchanger', 'E-001', sheetId, areaId, 570, 185);
   exchanger.name = '熔盐冷却器';
-  const pump = equipmentTemplate('pump', 'P-001', sheetId, systemId, 425, 390);
+  const pump = equipmentTemplate('pump', 'P-001', sheetId, areaId, 425, 390);
   pump.name = '熔盐循环泵';
   project.equipments = [reactor, exchanger, pump];
   const moltenSaltGroup: PipeGroup = {
@@ -2077,8 +2083,8 @@ const createSeedProject = () => {
   project.narratives = [
     {
       id: uid('nar'),
-      level: '系统',
-      subject: '熔盐移热系统',
+      level: '工段',
+      subject: '氧化工段',
       generated: '反应器产生的热量由熔盐循环带出，经熔盐冷却器移热后由循环泵送回反应器。',
       reviewed: '',
     },
@@ -2096,7 +2102,9 @@ const loadProject = () => {
 };
 
 const normalizeProject = (project: PidSemanticProject) => {
-  const next = { ...project } as PidSemanticProject;
+  const { systems: _legacySystems, ...projectWithoutSystems } = project as PidSemanticProject & { systems?: unknown };
+  void _legacySystems;
+  const next = { ...projectWithoutSystems } as PidSemanticProject;
   const resetLegacyPipeLayout = next.pipeModelVersion !== 'centerline-v4';
   next.pipeModelVersion = 'centerline-v4';
   const fallbackGroup: PipeGroup = {
@@ -2114,11 +2122,18 @@ const normalizeProject = (project: PidSemanticProject) => {
     notes: '',
   };
   next.lineGroups = Array.isArray(next.lineGroups) && next.lineGroups.length ? next.lineGroups : [fallbackGroup];
-  next.equipments = Array.isArray(next.equipments) ? next.equipments.map((equipment) => ({
-    ...equipment,
-    width: Math.min(Math.max(typeof equipment.width === 'number' ? equipment.width : 140, EQUIPMENT_MIN_WIDTH), equipmentWidthLimit(equipment.type)),
-    height: Math.min(Math.max(typeof equipment.height === 'number' ? equipment.height : 70, EQUIPMENT_MIN_HEIGHT), EQUIPMENT_MAX_HEIGHT),
-  })) : [];
+  const sheetAreaIdMap = new Map(next.areas.flatMap((area) => area.sheets.map((sheet) => [sheet.id, area.id] as const)));
+  next.equipments = Array.isArray(next.equipments) ? next.equipments.map((equipment) => {
+    const legacyEquipment = equipment as Equipment & { systemId?: string; areaId?: string };
+    const { systemId: _legacySystemId, ...equipmentWithoutSystem } = legacyEquipment;
+    void _legacySystemId;
+    return {
+      ...equipmentWithoutSystem,
+      areaId: sheetAreaIdMap.get(legacyEquipment.sheetId) || legacyEquipment.areaId || next.currentAreaId || next.areas[0]?.id || '',
+      width: Math.min(Math.max(typeof equipment.width === 'number' ? equipment.width : 140, EQUIPMENT_MIN_WIDTH), equipmentWidthLimit(equipment.type)),
+      height: Math.min(Math.max(typeof equipment.height === 'number' ? equipment.height : 70, EQUIPMENT_MIN_HEIGHT), EQUIPMENT_MAX_HEIGHT),
+    };
+  }) : [];
   next.streams = next.streams.map((stream) => ({
     ...stream,
     groupId: stream.groupId || next.lineGroups.find((group) => group.sheetId === stream.sheetId)?.id || next.lineGroups[0].id,
@@ -2228,8 +2243,217 @@ const normalizeProject = (project: PidSemanticProject) => {
   return next;
 };
 
+const appendProjectAsSheets = (base: PidSemanticProject, importedProject: PidSemanticProject): AppendProjectResult => {
+  const imported = normalizeProject(JSON.parse(JSON.stringify(importedProject)) as PidSemanticProject);
+  const sourceLabel = imported.project.drawingNo || imported.project.name || '导入工程';
+  const fallbackArea: ProcessArea = { id: uid('area'), name: '工段 1', objective: '', sheets: [] };
+  const targetArea = base.areas.find((area) => area.id === base.currentAreaId) || base.areas[0] || fallbackArea;
+  const baseAreas = base.areas.length ? base.areas : [targetArea];
+
+  const sheetEntries = imported.areas.flatMap((area) => area.sheets.map((sheet) => ({ area, sheet })));
+  const sourceSheets = sheetEntries.length
+    ? sheetEntries
+    : [{ area: imported.areas[0], sheet: { id: imported.currentSheetId || uid('sheet'), name: '图纸 1', description: '' } }];
+  const sheetIdMap = new Map<string, string>();
+  const addedSheets = sourceSheets.map(({ area, sheet }, index) => {
+    const id = uid('sheet');
+    sheetIdMap.set(sheet.id, id);
+    const nameParts = sourceSheets.length > 1
+      ? [sourceLabel, area?.name, sheet.name || `图纸 ${index + 1}`]
+      : [sourceLabel, sheet.name || '导入图纸'];
+    return {
+      id,
+      name: nameParts.filter(Boolean).join(' / '),
+      description: sheet.description || `从本地工程 ${sourceLabel} 导入。`,
+    };
+  });
+  const firstSheetId = addedSheets[0]?.id || targetArea.sheets[0]?.id || base.currentSheetId;
+
+  const equipmentIdMap = new Map(imported.equipments.map((equipment) => [equipment.id, uid('eq')]));
+  const lineGroupIdMap = new Map(imported.lineGroups.map((group) => [group.id, uid('pipe_group')]));
+  const streamIdMap = new Map(imported.streams.map((stream) => [stream.id, uid('line')]));
+  const pipeNodeIdMap = new Map(imported.pipeNodes.map((node) => [node.id, uid('pipe_node')]));
+  const inlineComponentIdMap = new Map(imported.inlineComponents.map((component) => [component.id, uid('inline')]));
+
+  const remapSheet = (sheetId: string) => sheetIdMap.get(sheetId) || firstSheetId;
+  const remapEquipmentReference = (reference: string) => equipmentIdMap.get(reference) || reference;
+  const remapStreamReference = (streamId: string) => streamIdMap.get(streamId) || '';
+  const remapPipeNodeReference = (nodeId: string | undefined) => (nodeId ? pipeNodeIdMap.get(nodeId) || '' : '');
+
+  const addedEquipments = imported.equipments.map((equipment) => ({
+    ...equipment,
+    id: equipmentIdMap.get(equipment.id) || uid('eq'),
+    sheetId: remapSheet(equipment.sheetId),
+    areaId: targetArea.id,
+  }));
+
+  const addedLineGroups = imported.lineGroups.map((group) => ({
+    ...group,
+    id: lineGroupIdMap.get(group.id) || uid('pipe_group'),
+    sheetId: remapSheet(group.sheetId),
+  }));
+  const fallbackGroupId = addedLineGroups[0]?.id || base.lineGroups[0]?.id || '';
+
+  const addedStreams = imported.streams.map((stream) => ({
+    ...stream,
+    id: streamIdMap.get(stream.id) || uid('line'),
+    groupId: lineGroupIdMap.get(stream.groupId) || fallbackGroupId,
+    sheetId: remapSheet(stream.sheetId),
+    fromEquipmentId: equipmentIdMap.get(stream.fromEquipmentId) || '',
+    toEquipmentId: equipmentIdMap.get(stream.toEquipmentId) || '',
+    fromSegmentId: remapStreamReference(stream.fromSegmentId),
+    toSegmentId: remapStreamReference(stream.toSegmentId),
+    fromPipeNodeId: remapPipeNodeReference(stream.fromPipeNodeId),
+    toPipeNodeId: remapPipeNodeReference(stream.toPipeNodeId),
+    fromReferenceSheet: stream.fromReferenceSheet ? sheetIdMap.get(stream.fromReferenceSheet) || stream.fromReferenceSheet : '',
+    toReferenceSheet: stream.toReferenceSheet ? sheetIdMap.get(stream.toReferenceSheet) || stream.toReferenceSheet : '',
+    fromReferenceEquipment: remapEquipmentReference(stream.fromReferenceEquipment),
+    toReferenceEquipment: remapEquipmentReference(stream.toReferenceEquipment),
+  }));
+
+  const addedPipeNodes = imported.pipeNodes.map((node) => ({
+    ...node,
+    id: pipeNodeIdMap.get(node.id) || uid('pipe_node'),
+    groupId: lineGroupIdMap.get(node.groupId) || fallbackGroupId,
+    segmentId: streamIdMap.get(node.segmentId) || '',
+    inlineComponentId: node.inlineComponentId ? inlineComponentIdMap.get(node.inlineComponentId) || '' : undefined,
+  })).filter((node) => node.segmentId);
+
+  const addedInlineComponents = imported.inlineComponents.map((component) => ({
+    ...component,
+    id: inlineComponentIdMap.get(component.id) || uid('inline'),
+    segmentId: streamIdMap.get(component.segmentId) || '',
+  })).filter((component) => component.segmentId);
+
+  const addedControls = imported.controls.map((control) => ({
+    ...control,
+    id: uid('ctl'),
+    scope: control.scope || sourceLabel,
+    triggerEquipmentId: equipmentIdMap.get(control.triggerEquipmentId) || '',
+    actionEquipmentId: equipmentIdMap.get(control.actionEquipmentId) || '',
+  }));
+
+  const addedNarratives = imported.narratives.map((item) => ({
+    ...item,
+    id: uid('nar'),
+    subject: item.subject ? `${sourceLabel} / ${item.subject}` : sourceLabel,
+  }));
+
+  return {
+    project: {
+      ...base,
+      currentAreaId: targetArea.id,
+      currentSheetId: firstSheetId,
+      areas: baseAreas.map((area) => (
+        area.id === targetArea.id
+          ? { ...area, sheets: [...area.sheets, ...addedSheets] }
+          : area
+      )),
+      equipments: [...base.equipments, ...addedEquipments],
+      lineGroups: [...base.lineGroups, ...addedLineGroups],
+      streams: [...base.streams, ...addedStreams],
+      pipeNodes: [...base.pipeNodes, ...addedPipeNodes],
+      inlineComponents: [...base.inlineComponents, ...addedInlineComponents],
+      controls: [...base.controls, ...addedControls],
+      narratives: [...base.narratives, ...addedNarratives],
+    },
+    firstSheetId,
+    firstEquipmentId: addedEquipments[0]?.id || '',
+    firstLineGroupId: addedLineGroups[0]?.id || '',
+    firstStreamId: addedStreams[0]?.id || '',
+    firstControlId: addedControls[0]?.id || '',
+    addedSheetCount: addedSheets.length,
+    addedEquipmentCount: addedEquipments.length,
+    addedStreamCount: addedStreams.length,
+  };
+};
+
+const readProjectFile = () => new Promise<PidSemanticProject | null>((resolve, reject) => {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json';
+  input.onchange = async () => {
+    const file = input.files?.[0];
+    if (!file) {
+      resolve(null);
+      return;
+    }
+    try {
+      const project = normalizeProject(JSON.parse(await file.text()) as PidSemanticProject);
+      if (project.version !== 'pid-layered-semantic/v1') throw new Error('version mismatch');
+      resolve(project);
+    } catch (error) {
+      reject(error);
+    }
+  };
+  input.click();
+});
+
+const requestNetworkProject = async (url: string, options?: RequestInit) => {
+  const response = await fetch(url, options);
+  const text = await response.text();
+  let payload: NetworkProjectPayload;
+  try {
+    payload = JSON.parse(text) as NetworkProjectPayload;
+  } catch {
+    payload = { success: false, message: text };
+  }
+  if (!response.ok || !payload.success) throw new Error(payload.message || `HTTP ${response.status}`);
+  return payload;
+};
+
+const collectEquipmentRerouteStreamIds = (project: PidSemanticProject, equipmentIds: Set<string>) => {
+  const streamIds = new Set<string>();
+  project.streams.forEach((stream) => {
+    const touchesEquipment = (
+      (stream.fromKind === '设备端口' && equipmentIds.has(stream.fromEquipmentId))
+      || (stream.toKind === '设备端口' && equipmentIds.has(stream.toEquipmentId))
+    );
+    if (touchesEquipment) streamIds.add(stream.id);
+  });
+
+  let changed = true;
+  while (changed) {
+    changed = false;
+    project.streams.forEach((stream) => {
+      if (streamIds.has(stream.id)) return;
+      const dependsOnMovedRoute = (
+        (stream.fromKind === '管段接点' && streamIds.has(stream.fromSegmentId))
+        || (stream.toKind === '管段接点' && streamIds.has(stream.toSegmentId))
+      );
+      if (!dependsOnMovedRoute) return;
+      streamIds.add(stream.id);
+      changed = true;
+    });
+  }
+  return streamIds;
+};
+
+const resetRoutesForMovedEquipment = (project: PidSemanticProject, equipmentId: string) => {
+  const streamIds = collectEquipmentRerouteStreamIds(project, new Set([equipmentId]));
+  if (streamIds.size === 0) return project;
+  return {
+    ...project,
+    streams: project.streams.map((stream) => (
+      streamIds.has(stream.id)
+        ? { ...stream, manualWaypoints: [], pieceWaypoints: {} }
+        : stream
+    )),
+    pipeNodes: project.pipeNodes.map((node) => (
+      streamIds.has(node.segmentId) ? { ...node, x: undefined, y: undefined } : node
+    )),
+    inlineComponents: project.inlineComponents.map((component) => (
+      streamIds.has(component.segmentId) ? { ...component, x: undefined, y: undefined } : component
+    )),
+  };
+};
+
 const buildMarkdown = (project: PidSemanticProject) => {
-  const equipmentById = Object.fromEntries(project.equipments.map((equipment) => [equipment.id, equipment]));
+  const semanticIr = projectToAgentSemanticIR(project);
+  const canonicalEquipmentByInstanceId = new Map(
+    semanticIr.equipments.flatMap((equipment) => equipment.instanceIds.map((instanceId) => [instanceId, equipment] as const)),
+  );
+  const equipmentById = Object.fromEntries(project.equipments.map((equipment) => [equipment.id, canonicalEquipmentByInstanceId.get(equipment.id) || equipment]));
   const streamById = Object.fromEntries(project.streams.map((stream) => [stream.id, stream]));
   const sheetById = Object.fromEntries(project.areas.flatMap((area) => area.sheets.map((sheet) => [sheet.id, { area, sheet }])));
   const referenceEquipmentLabel = (equipmentRef: string, portRef: string) => {
@@ -2257,7 +2481,7 @@ const buildMarkdown = (project: PidSemanticProject) => {
       const locationInfo = sheetById[sheet];
       const location = locationInfo ? `${locationInfo.area.name}/${locationInfo.sheet.name}` : [area, sheet].filter(Boolean).join('/');
       const fallback = referencePlaceholder(kind, side);
-      return [label || fallback, target, location ? `分段：${location}` : ''].filter(Boolean).join('，');
+      return [label || fallback, target, location ? `图纸：${location}` : ''].filter(Boolean).join('，');
     }
     const equipment = equipmentById[side === 'from' ? stream.fromEquipmentId : stream.toEquipmentId];
     const portId = side === 'from' ? stream.fromPortId : stream.toPortId;
@@ -2295,7 +2519,7 @@ const buildMarkdown = (project: PidSemanticProject) => {
   lines.push('');
   lines.push('## 建模原则');
   lines.push('- 结构化语义是事实来源，画布只是几何视图。');
-  lines.push('- 按项目/区域/系统/设备/物流/控制联锁/工艺叙事分层组织。');
+  lines.push('- 按项目/工段/图纸/设备/物流/控制联锁/工艺叙事分层组织，工段即系统边界。');
   lines.push('- JSON 用于精确解析，Markdown 用于大模型快速阅读。');
   lines.push('');
   lines.push('## 图纸信息');
@@ -2304,31 +2528,19 @@ const buildMarkdown = (project: PidSemanticProject) => {
   lines.push(`- 责任方：${project.project.owner}`);
   lines.push(`- 设计边界：${project.project.designBasis || '-'}`);
   lines.push('');
-  lines.push('## 工艺区域');
+  lines.push('## 工段');
   project.areas.forEach((area) => {
     lines.push(`### ${area.name}`);
-    lines.push(`- 工艺目标：${area.objective || '-'}`);
-    area.sheets.forEach((sheet) => lines.push(`- 分段画布：${sheet.name}。${sheet.description || '-'}`));
-  });
-  lines.push('');
-  lines.push('## 工段/系统');
-  project.systems.forEach((system) => {
-    const area = project.areas.find((item) => item.id === system.areaId);
-    lines.push(`### ${system.name}`);
-    lines.push(`- 所属区域：${area?.name || '-'}`);
-    lines.push(`- 系统目的：${system.purpose || '-'}`);
-    lines.push(`- 边界入口：${system.boundaryIn || '-'}`);
-    lines.push(`- 边界出口：${system.boundaryOut || '-'}`);
-    lines.push(`- 操作模式：${system.operationModes || '-'}`);
-    lines.push(`- 公用工程依赖：${system.utilityDependency || '-'}`);
+    lines.push(`- 工艺范围：${area.objective || '-'}`);
+    area.sheets.forEach((sheet) => lines.push(`- 图纸：${sheet.name}。${sheet.description || '-'}`));
   });
   lines.push('');
   lines.push('## 设备');
-  project.equipments.forEach((equipment) => {
-    const system = project.systems.find((item) => item.id === equipment.systemId);
+  semanticIr.equipments.forEach((equipment) => {
     lines.push(`### ${equipment.tag} ${equipment.name}`);
     lines.push(`- 类型：${EQUIPMENT_LABELS[equipment.type]}`);
-    lines.push(`- 所属系统：${system?.name || '-'}`);
+    lines.push(`- 所属工段/系统：${equipment.systemName || '-'}`);
+    lines.push(`- 画布实例：${equipment.drawingInstances.map((instance) => `${instance.areaName}/${instance.sheetName}`).join('；') || '-'}`);
     lines.push(`- 材质：${equipment.material || '-'}`);
     lines.push(`- 描述：${equipment.description || '-'}`);
     lines.push(`- 核心功能：${equipment.profile.coreFunction || '-'}`);
@@ -2482,6 +2694,11 @@ function PidSemanticX6Canvas({
   const snappingPipeNodeRef = useRef(false);
   const resizingEquipmentRef = useRef('');
   const transformPluginRef = useRef<Transform | null>(null);
+  const clearCanvasCellViews = useCallback(() => {
+    containerRef.current
+      ?.querySelectorAll('.x6-graph-svg .x6-cell')
+      .forEach((element) => element.remove());
+  }, []);
   const clearCanvasTransientUi = useCallback((includeTransform = false) => {
     const graph = graphRef.current;
     graph?.getEdges().forEach((edge) => edge.removeTools());
@@ -2735,8 +2952,9 @@ function PidSemanticX6Canvas({
     if (!graph) return;
     syncingRef.current = true;
 	    try {
-	      clearCanvasTransientUi(true);
-	      graph.clearCells();
+		      clearCanvasTransientUi(true);
+		      graph.clearCells();
+		      clearCanvasCellViews();
 
     const referenceNodeId = (stream: CanvasStream, side: 'from' | 'to') => `ref:${stream.id}:${side}`;
     const equipmentIdSet = new Set(sheetEquipments.map((equipment) => equipment.id));
@@ -3002,7 +3220,7 @@ function PidSemanticX6Canvas({
     } finally {
       syncingRef.current = false;
     }
-  }, [project, sheetEquipments, sheetStreams, selectedEquipmentId, selectedStreamId, getStreamRoute, referenceEndpointText, clearCanvasTransientUi]);
+  }, [project, sheetEquipments, sheetStreams, selectedEquipmentId, selectedStreamId, getStreamRoute, referenceEndpointText, clearCanvasCellViews, clearCanvasTransientUi]);
 
   useEffect(() => {
     const graph = graphRef.current;
@@ -4195,10 +4413,10 @@ function PidSemanticX6Canvas({
           {(editingReferenceKind || editingReferenceFallbackKind) === '跨图引用' ? (
             <>
               <label>
-                <span>目标分段</span>
+                <span>目标图纸</span>
                 <Select
                   size="small"
-                  placeholder="选择分段画布"
+                  placeholder="选择图纸"
                   value={editingReferenceSheet || undefined}
                   options={referenceSheetOptions.filter((item) => item.value !== editingReferenceStream.sheetId)}
                   onChange={(sheetId: string) => patchEditingReferenceEndpoint(editingReferenceSide === 'from'
@@ -4247,7 +4465,7 @@ function PidSemanticX6Canvas({
           ) : (
             <>
               <label>
-                <span>目标设备/系统</span>
+                <span>目标设备/边界</span>
                 <Input
                   size="small"
                   value={editingReferenceEquipment || ''}
@@ -4389,10 +4607,32 @@ function PidX6Workspace() {
   const [selectedEquipmentId, setSelectedEquipmentId] = useState(project.equipments[0]?.id || '');
   const [selectedLineGroupId, setSelectedLineGroupId] = useState(project.lineGroups[0]?.id || '');
   const [selectedStreamId, setSelectedStreamId] = useState(project.streams[0]?.id || '');
-  const [selectedSystemId, setSelectedSystemId] = useState(project.systems[0]?.id || '');
   const [selectedControlId, setSelectedControlId] = useState(project.controls[0]?.id || '');
   const [newEquipmentType, setNewEquipmentType] = useState<EquipmentType>('reactor');
   const [equipmentGuideStep, setEquipmentGuideStep] = useState<EquipmentGuideStep>('identity');
+  const [networkProjects, setNetworkProjects] = useState<NetworkProjectSummary[]>([]);
+  const [networkProjectId, setNetworkProjectId] = useState('');
+  const [networkVersion, setNetworkVersion] = useState<number | null>(null);
+  const [networkLoading, setNetworkLoading] = useState(false);
+  const [sheetMoveTargetAreaId, setSheetMoveTargetAreaId] = useState('');
+  const [newAreaName, setNewAreaName] = useState('');
+  const [newSheetName, setNewSheetName] = useState('');
+
+  const refreshNetworkProjects = useCallback(async () => {
+    setNetworkLoading(true);
+    try {
+      const payload = await requestNetworkProject('/_api/network-projects');
+      setNetworkProjects(payload.projects || []);
+    } catch (error) {
+      message.warning(`网络工程列表不可用：${(error as Error).message}`);
+    } finally {
+      setNetworkLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshNetworkProjects();
+  }, [refreshNetworkProjects]);
 
   useEffect(() => {
     setProject((prev) => {
@@ -4417,8 +4657,13 @@ function PidX6Workspace() {
 
   const currentArea = project.areas.find((area) => area.id === project.currentAreaId) || project.areas[0];
   const currentSheet = currentArea?.sheets.find((sheet) => sheet.id === project.currentSheetId) || currentArea?.sheets[0];
+  const sheetMoveTargetAreas = project.areas;
   const sheetEquipments = project.equipments.filter((equipment) => equipment.sheetId === project.currentSheetId);
-  const selectedSystem = project.systems.find((system) => system.id === selectedSystemId) || project.systems[0];
+
+  useEffect(() => {
+    setSheetMoveTargetAreaId(currentArea?.id || '');
+  }, [currentArea?.id, currentSheet?.id]);
+
   const findEquipmentByReference = (reference: string) => {
     const trimmed = reference.trim();
     if (!trimmed) return undefined;
@@ -4539,27 +4784,6 @@ function PidX6Workspace() {
   const selectedLineGroup = project.lineGroups.find((group) => group.id === selectedLineGroupId) || sheetLineGroups[0] || project.lineGroups[0];
   const selectedStream = project.streams.find((stream) => stream.id === selectedStreamId);
   const selectedControl = project.controls.find((control) => control.id === selectedControlId);
-  const markdown = useMemo(() => buildMarkdown(project), [project]);
-  const agentPackage = useMemo(() => buildAgentPublishPackage(project), [project]);
-  const agentPackageSummary = useMemo(() => renderAgentPackageSummaryMarkdown(agentPackage), [agentPackage]);
-  const completenessMarkdown = useMemo(() => renderCompletenessMarkdown(agentPackage.completeness), [agentPackage]);
-  const flowPathsMarkdown = useMemo(() => renderFlowPathsMarkdown(agentPackage.flowPaths), [agentPackage]);
-  const equipmentAgentContext = useMemo(
-    () => (selectedEquipment ? buildEquipmentAgentContext(project, selectedEquipment.id) : undefined),
-    [project, selectedEquipment],
-  );
-  const streamAgentContext = useMemo(
-    () => (selectedStream ? buildStreamAgentContext(project, selectedStream.id) : undefined),
-    [project, selectedStream],
-  );
-  const equipmentAgentMarkdown = useMemo(
-    () => (equipmentAgentContext ? renderEquipmentAgentContextMarkdown(equipmentAgentContext) : ''),
-    [equipmentAgentContext],
-  );
-  const streamAgentMarkdown = useMemo(
-    () => (streamAgentContext ? renderStreamAgentContextMarkdown(streamAgentContext) : ''),
-    [streamAgentContext],
-  );
 
   const patchProject = (patch: Partial<PidSemanticProject['project']>) => {
     setProject((prev) => ({ ...prev, project: { ...prev.project, ...patch } }));
@@ -4577,10 +4801,6 @@ function PidX6Workspace() {
         sheets: area.sheets.map((sheet) => (sheet.id === sheetId ? { ...sheet, ...patch } : sheet)),
       })),
     }));
-  };
-
-  const patchSystem = (id: string, patch: Partial<ProcessSystem>) => {
-    setProject((prev) => ({ ...prev, systems: prev.systems.map((system) => (system.id === id ? { ...system, ...patch } : system)) }));
   };
 
   const patchEquipment = (id: string, patch: Partial<Equipment>) => {
@@ -4737,30 +4957,30 @@ function PidX6Workspace() {
 	  };
 
   const moveEquipmentAndReroute = (id: string, x: number, y: number) => {
-    setProject((prev) => ({
+    setProject((prev) => resetRoutesForMovedEquipment({
       ...prev,
       equipments: prev.equipments.map((equipment) => (equipment.id === id ? { ...equipment, x, y } : equipment)),
-    }));
+    }, id));
   };
 
   const resizeEquipmentAndReroute = (id: string, x: number, y: number, width: number, height: number) => {
-    setProject((prev) => ({
+    setProject((prev) => resetRoutesForMovedEquipment({
       ...prev,
       equipments: prev.equipments.map((equipment) => (
         equipment.id === id ? { ...equipment, x, y, width, height } : equipment
       )),
-    }));
+    }, id));
   };
 
   const moveEquipmentPortAndReroute = (equipmentId: string, portId: string, x: number, y: number) => {
-    setProject((prev) => ({
+    setProject((prev) => resetRoutesForMovedEquipment({
       ...prev,
       equipments: prev.equipments.map((equipment) => (
         equipment.id === equipmentId
           ? { ...equipment, ports: equipment.ports.map((port) => (port.id === portId ? { ...port, x, y } : port)) }
           : equipment
       )),
-    }));
+    }, equipmentId));
   };
 
   const patchPipeNode = (id: string, patch: Partial<PipeNode>) => {
@@ -4905,8 +5125,9 @@ function PidX6Workspace() {
       ...prev,
       currentAreaId: id,
       currentSheetId: sheetId,
-      areas: [...prev.areas, { id, name: `工艺区域 ${prev.areas.length + 1}`, objective: '', sheets: [{ id: sheetId, name: '分段画布 1', description: '' }] }],
+      areas: [...prev.areas, { id, name: newAreaName.trim() || `工段 ${prev.areas.length + 1}`, objective: '', sheets: [{ id: sheetId, name: '图纸 1', description: '' }] }],
     }));
+    setNewAreaName('');
   };
 
   const addSheet = () => {
@@ -4916,16 +5137,17 @@ function PidX6Workspace() {
       currentSheetId: id,
       areas: prev.areas.map((area) => (
         area.id === prev.currentAreaId
-          ? { ...area, sheets: [...area.sheets, { id, name: `分段画布 ${area.sheets.length + 1}`, description: '' }] }
+          ? { ...area, sheets: [...area.sheets, { id, name: newSheetName.trim() || `图纸 ${area.sheets.length + 1}`, description: '' }] }
           : area
       )),
     }));
+    setNewSheetName('');
   };
 
   const deleteCurrentArea = () => {
     if (!currentArea) return;
     if (project.areas.length <= 1) {
-      message.warning('至少需要保留一个区域。');
+      message.warning('至少需要保留一个工段。');
       return;
     }
     const deletedSheetIds = new Set(currentArea.sheets.map((sheet) => sheet.id));
@@ -4939,7 +5161,6 @@ function PidX6Workspace() {
       currentAreaId: nextArea.id,
       currentSheetId: nextSheet.id,
       areas: remainingAreas,
-      systems: prev.systems.filter((system) => system.areaId !== currentArea.id),
       equipments: prev.equipments.filter((equipment) => !deletedEquipmentIds.has(equipment.id)),
       lineGroups: prev.lineGroups.filter((group) => !deletedSheetIds.has(group.sheetId)),
       streams: prev.streams.filter((stream) => !deletedStreamIds.has(stream.id)),
@@ -4955,7 +5176,7 @@ function PidX6Workspace() {
   const deleteCurrentSheet = () => {
     if (!currentArea || !currentSheet) return;
     if (currentArea.sheets.length <= 1) {
-      message.warning('当前区域至少需要保留一个分段。');
+      message.warning('当前工段至少需要保留一张图纸。');
       return;
     }
     const nextSheet = currentArea.sheets.find((sheet) => sheet.id !== currentSheet.id);
@@ -4982,14 +5203,48 @@ function PidX6Workspace() {
     setSelectedStreamId('');
   };
 
-  const addSystem = () => {
-    const id = uid('sys');
+  const changeCurrentSheetArea = (targetAreaId: string) => {
+    if (!currentSheet) {
+      message.warning('请先选择一张图纸。');
+      return;
+    }
+    const sourceArea = project.areas.find((area) => area.sheets.some((sheet) => sheet.id === currentSheet.id));
+    const targetArea = project.areas.find((area) => area.id === targetAreaId);
+    if (!sourceArea || !targetArea) {
+      message.warning('请选择图纸所属工段。');
+      return;
+    }
+    if (sourceArea.id === targetArea.id) {
+      setSheetMoveTargetAreaId(targetArea.id);
+      return;
+    }
+    const placeholderSheet: DrawingSheet = {
+      id: uid('sheet'),
+      name: '待规划图纸',
+      description: '调整图纸所属工段时自动保留，后续可重命名或删除。',
+    };
+
     setProject((prev) => ({
       ...prev,
-      systems: [...prev.systems, { id, areaId: prev.currentAreaId, name: `系统 ${prev.systems.length + 1}`, purpose: '', boundaryIn: '', boundaryOut: '', operationModes: '', utilityDependency: '', notes: '' }],
+      currentAreaId: targetArea.id,
+      currentSheetId: currentSheet.id,
+      areas: prev.areas.map((area) => {
+        if (area.id === sourceArea.id) {
+          const remainingSheets = area.sheets.filter((sheet) => sheet.id !== currentSheet.id);
+          return { ...area, sheets: remainingSheets.length > 0 ? remainingSheets : [placeholderSheet] };
+        }
+        if (area.id === targetArea.id) {
+          const sheets = area.sheets.filter((sheet) => sheet.id !== currentSheet.id);
+          return { ...area, sheets: [...sheets, currentSheet] };
+        }
+        return area;
+      }),
+      equipments: prev.equipments.map((equipment) => (
+        equipment.sheetId === currentSheet.id ? { ...equipment, areaId: targetArea.id } : equipment
+      )),
     }));
-    setSelectedSystemId(id);
-    setActiveTab('systems');
+    setSheetMoveTargetAreaId(targetArea.id);
+    message.success(`图纸已归入 ${targetArea.name}。`);
   };
 
   const nextTag = (type: EquipmentType) => {
@@ -5003,7 +5258,7 @@ function PidX6Workspace() {
       newEquipmentType,
       nextTag(newEquipmentType),
       project.currentSheetId,
-      project.systems[0]?.id || '',
+      project.currentAreaId || currentArea?.id || '',
       180 + sheetEquipments.length * 36,
       140 + sheetEquipments.length * 28,
     );
@@ -5017,7 +5272,6 @@ function PidX6Workspace() {
     const copy: Equipment = {
       ...structuredClone(selectedEquipment),
       id: uid('eq'),
-      tag: `${selectedEquipment.tag}-COPY`,
       x: selectedEquipment.x + 30,
       y: selectedEquipment.y + 30,
     };
@@ -5578,7 +5832,7 @@ function PidX6Workspace() {
   };
 
   const addNarrative = () => {
-    const item: ProcessNarrativeItem = { id: uid('nar'), level: '系统', subject: currentArea?.name || '工艺系统', generated: '', reviewed: '' };
+    const item: ProcessNarrativeItem = { id: uid('nar'), level: '工段', subject: currentArea?.name || '工艺工段', generated: '', reviewed: '' };
     setProject((prev) => ({ ...prev, narratives: [...prev.narratives, item] }));
     setActiveTab('narrative');
   };
@@ -5586,6 +5840,93 @@ function PidX6Workspace() {
   const saveLocal = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(project));
     message.success('已保存到浏览器本地。');
+  };
+
+  const applyLoadedProject = (next: PidSemanticProject) => {
+    setProject(next);
+    setSelectedEquipmentId(next.equipments[0]?.id || '');
+    setSelectedLineGroupId(next.lineGroups[0]?.id || '');
+    setSelectedStreamId(next.streams[0]?.id || '');
+    setSelectedControlId(next.controls[0]?.id || '');
+    setActiveTab('canvas');
+  };
+
+  const saveProjectToNetwork = async (projectToSave: PidSemanticProject, successText = '网络工程已保存。', forceCreate = false) => {
+    setNetworkLoading(true);
+    try {
+      const activeProjectId = forceCreate ? '' : networkProjectId;
+      const payload = await requestNetworkProject(
+        activeProjectId ? `/_api/network-projects/${encodeURIComponent(activeProjectId)}` : '/_api/network-projects',
+        {
+          method: activeProjectId ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(activeProjectId
+            ? { project: projectToSave, expectedVersion: networkVersion ?? undefined }
+            : { project: projectToSave }),
+        },
+      );
+      if (!payload.metadata) throw new Error('Missing network project metadata');
+      setNetworkProjectId(payload.metadata.id);
+      setNetworkVersion(payload.metadata.version);
+      await refreshNetworkProjects();
+      message.success(`${successText} v${payload.metadata.version}`);
+    } catch (error) {
+      message.error(`网络保存失败：${(error as Error).message}`);
+    } finally {
+      setNetworkLoading(false);
+    }
+  };
+
+  const saveNetworkProject = async () => {
+    await saveProjectToNetwork(project);
+  };
+
+  const loadNetworkProject = async (id: string) => {
+    if (!id) return;
+    setNetworkLoading(true);
+    try {
+      const payload = await requestNetworkProject(`/_api/network-projects/${encodeURIComponent(id)}`);
+      if (!payload.project || !payload.metadata) throw new Error('Network project payload incomplete');
+      const next = normalizeProject(payload.project);
+      applyLoadedProject(next);
+      setNetworkProjectId(payload.metadata.id);
+      setNetworkVersion(payload.metadata.version);
+      message.success(`已加载网络工程：${payload.metadata.name || payload.metadata.id}`);
+    } catch (error) {
+      message.error(`加载网络工程失败：${(error as Error).message}`);
+    } finally {
+      setNetworkLoading(false);
+    }
+  };
+
+  const importLocalAsNetworkProject = async () => {
+    try {
+      const next = await readProjectFile();
+      if (!next) return;
+      applyLoadedProject(next);
+      setNetworkProjectId('');
+      setNetworkVersion(null);
+      await saveProjectToNetwork(next, '本地工程已导入为网络工程。', true);
+    } catch {
+      message.error('项目文件格式不正确。');
+    }
+  };
+
+  const appendLocalProjectToCurrent = async () => {
+    try {
+      const imported = await readProjectFile();
+      if (!imported) return;
+      const result = appendProjectAsSheets(project, imported);
+      setProject(result.project);
+      setSelectedEquipmentId(result.firstEquipmentId || selectedEquipmentId);
+      setSelectedLineGroupId(result.firstLineGroupId || selectedLineGroupId);
+      setSelectedStreamId(result.firstStreamId || selectedStreamId);
+      setSelectedControlId(result.firstControlId || selectedControlId);
+      setActiveTab('canvas');
+      await saveProjectToNetwork(result.project, `已追加 ${result.addedSheetCount} 张图纸、${result.addedEquipmentCount} 台设备、${result.addedStreamCount} 条管段。`);
+    } catch {
+      message.error('追加导入失败，请确认选择的是工程项目 JSON。');
+    }
   };
 
   const exportDataFile = async (options: {
@@ -5660,13 +6001,13 @@ function PidX6Workspace() {
     await writable.write(new Blob([content], { type: fileName.endsWith('.md') ? 'text/markdown' : 'application/json' }));
     await writable.close();
   };
-  const publishAgentPackageWithDevServer = async () => {
+  const publishAgentPackageWithDevServer = async (packageFiles: Record<string, string>) => {
     const response = await fetch('/_api/publish-agent-package', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         directoryName: publishDirectoryName,
-        files: agentPackage.files,
+        files: packageFiles,
       }),
     });
     const text = await response.text();
@@ -5680,8 +6021,9 @@ function PidX6Workspace() {
     return body;
   };
   const publishAgentPackageToDirectory = async () => {
+    const packageFiles = buildAgentPublishPackage(project).files;
     try {
-      const result = await publishAgentPackageWithDevServer();
+      const result = await publishAgentPackageWithDevServer(packageFiles);
       message.success(`已发布到 ${result.directory || `agent-packages/${publishDirectoryName}`}`);
       return;
     } catch {
@@ -5698,7 +6040,7 @@ function PidX6Workspace() {
     try {
       const root = await directoryPicker({ id: 'pid-agent-packages', mode: 'readwrite' });
       const packageDirectory = await root.getDirectoryHandle(publishDirectoryName, { create: true });
-      await Promise.all(Object.entries(agentPackage.files).map(([filePath, content]) => writeFileToDirectory(packageDirectory, filePath, content)));
+      await Promise.all(Object.entries(packageFiles).map(([filePath, content]) => writeFileToDirectory(packageDirectory, filePath, content)));
       message.success(`已发布到目录：${publishDirectoryName}`);
     } catch (error) {
       if ((error as Error).name === 'AbortError') return;
@@ -5718,9 +6060,10 @@ function PidX6Workspace() {
   };
 
   const exportAgentSemanticIR = async () => {
+    const packageFiles = buildAgentPublishPackage(project).files;
     await exportDataFile({
       fileName: `${project.project.drawingNo || 'pid-semantic-project'}.semantic-ir.json`,
-      content: agentPackage.files['semantic-ir.json'],
+      content: packageFiles['semantic-ir.json'],
       mimeType: 'application/json',
       description: '智能体语义 IR JSON',
       extensions: ['.json'],
@@ -5729,9 +6072,10 @@ function PidX6Workspace() {
   };
 
   const exportAgentPackage = async () => {
+    const packageFiles = buildAgentPublishPackage(project).files;
     await exportDataFile({
       fileName: `${project.project.drawingNo || 'pid-semantic-project'}.agent-package.json`,
-      content: agentPackage.files['agent-package.json'],
+      content: packageFiles['agent-package.json'],
       mimeType: 'application/json',
       description: '智能体发布资料包 JSON',
       extensions: ['.json'],
@@ -5740,13 +6084,14 @@ function PidX6Workspace() {
   };
 
   const exportEquipmentAgentContext = async () => {
+    const equipmentAgentContext = selectedEquipment ? buildEquipmentAgentContext(project, selectedEquipment.id) : undefined;
     if (!equipmentAgentContext) {
       message.warning('请先选择一个设备。');
       return;
     }
     await exportDataFile({
       fileName: `${equipmentAgentContext.focus.tag || equipmentAgentContext.focus.equipmentId}.equipment-context.md`,
-      content: equipmentAgentMarkdown,
+      content: renderEquipmentAgentContextMarkdown(equipmentAgentContext),
       mimeType: 'text/markdown',
       description: '设备智能体上下文 Markdown',
       extensions: ['.md'],
@@ -5755,13 +6100,14 @@ function PidX6Workspace() {
   };
 
   const exportStreamAgentContext = async () => {
+    const streamAgentContext = selectedStream ? buildStreamAgentContext(project, selectedStream.id) : undefined;
     if (!streamAgentContext) {
       message.warning('请先选择一条管线。');
       return;
     }
     await exportDataFile({
       fileName: `${streamAgentContext.focus.tag || streamAgentContext.focus.streamId}.stream-context.md`,
-      content: streamAgentMarkdown,
+      content: renderStreamAgentContextMarkdown(streamAgentContext),
       mimeType: 'text/markdown',
       description: '管线智能体上下文 Markdown',
       extensions: ['.md'],
@@ -5897,11 +6243,11 @@ function PidX6Workspace() {
     if (kind === '界外去向') return label || target || '去往界外';
     if (kind === '跨图引用') {
       const resolved = referenceEquipmentLabel(equipment, port);
-      const text = resolved || label || target || '其他分段';
+      const text = resolved || label || target || '其他图纸';
       return side === 'from' ? `来自 ${text}` : `去 ${text}`;
     }
     if (label) return label;
-    return side === 'from' ? `来自 ${target || '其他分段'}` : `去 ${target || '其他分段'}`;
+    return side === 'from' ? `来自 ${target || '其他图纸'}` : `去 ${target || '其他图纸'}`;
   };
 
   const renderCanvas = () => (
@@ -5987,74 +6333,46 @@ function PidX6Workspace() {
         <LabeledText label="设计边界" value={project.project.designBasis} onChange={(designBasis) => patchProject({ designBasis })} />
       </section>
       <section className="pid-editor-card">
-        <div className="pid-section-heading">区域与分段</div>
-        <Space wrap>
-          <Select value={project.currentAreaId} options={project.areas.map((area) => option(area.id, area.name))} onChange={(currentAreaId) => setProject((prev) => ({ ...prev, currentAreaId, currentSheetId: prev.areas.find((area) => area.id === currentAreaId)?.sheets[0]?.id || prev.currentSheetId }))} />
-          <Button icon={<PlusOutlined />} onClick={addArea}>新增区域</Button>
-          <Button danger icon={<DeleteOutlined />} disabled={project.areas.length <= 1} onClick={deleteCurrentArea}>删除区域</Button>
-          <Select value={project.currentSheetId} options={currentArea?.sheets.map((sheet) => option(sheet.id, sheet.name))} onChange={(currentSheetId) => setProject((prev) => ({ ...prev, currentSheetId }))} />
-          <Button icon={<PlusOutlined />} onClick={addSheet}>新增分段</Button>
-          <Button danger icon={<DeleteOutlined />} disabled={!currentArea || currentArea.sheets.length <= 1} onClick={deleteCurrentSheet}>删除分段</Button>
-        </Space>
-        {currentArea && <LabeledInput label="区域名称" value={currentArea.name} onChange={(name) => patchArea(currentArea.id, { name })} />}
-        {currentArea && <LabeledText label="区域目标" value={currentArea.objective} onChange={(objective) => patchArea(currentArea.id, { objective })} />}
-        {currentSheet && <LabeledInput label="分段名称" value={currentSheet.name} onChange={(name) => patchSheet(currentSheet.id, { name })} />}
-        {currentSheet && <LabeledText label="分段说明" value={currentSheet.description} onChange={(description) => patchSheet(currentSheet.id, { description })} />}
-      </section>
-    </div>
-  );
-
-  const renderSystemsTab = () => (
-    <div className="pid-panel-grid">
-      <section className="pid-editor-card">
-        <div className="pid-section-heading">工段/系统清单</div>
-        <Button icon={<PlusOutlined />} onClick={addSystem}>新增系统</Button>
-        <div className="pid-list">
-          {project.systems.map((system) => (
-            <button
-              key={system.id}
-              className={`pid-list-item ${selectedSystem?.id === system.id ? 'active' : ''}`}
-              onClick={() => setSelectedSystemId(system.id)}
-            >
-              <strong>{system.name}</strong>
-              <span>{project.areas.find((area) => area.id === system.areaId)?.name || '-'}</span>
-            </button>
-          ))}
+        <div className="pid-section-heading">工段与图纸</div>
+        <div className="pid-drawing-toolbar">
+          <label className="pid-field">
+            <span>当前工段</span>
+            <Select value={project.currentAreaId} options={project.areas.map((area) => option(area.id, area.name))} onChange={(currentAreaId) => setProject((prev) => ({ ...prev, currentAreaId, currentSheetId: prev.areas.find((area) => area.id === currentAreaId)?.sheets[0]?.id || prev.currentSheetId }))} />
+          </label>
+          <label className="pid-field">
+            <span>当前图纸</span>
+            <Select value={project.currentSheetId} options={currentArea?.sheets.map((sheet) => option(sheet.id, sheet.name))} onChange={(currentSheetId) => setProject((prev) => ({ ...prev, currentSheetId }))} />
+          </label>
+          <Button danger icon={<DeleteOutlined />} disabled={project.areas.length <= 1} onClick={deleteCurrentArea}>删除工段</Button>
+          <Button danger icon={<DeleteOutlined />} disabled={!currentArea || currentArea.sheets.length <= 1} onClick={deleteCurrentSheet}>删除图纸</Button>
         </div>
-      </section>
-      <section className="pid-editor-card">
-        <div className="pid-section-heading">系统语义</div>
-        {selectedSystem ? (
-          <div className="pid-semantic-form">
-            <section className="pid-editor-section">
-              <div className="pid-section-heading">{selectedSystem.name}</div>
-              <LabeledInput label="系统名称" value={selectedSystem.name} onChange={(name) => patchSystem(selectedSystem.id, { name })} />
-              <LabeledSelect
-                label="所属区域"
-                value={selectedSystem.areaId}
-                options={project.areas.map((area) => area.id)}
-                labels={Object.fromEntries(project.areas.map((area) => [area.id, area.name]))}
-                onChange={(areaId) => patchSystem(selectedSystem.id, { areaId })}
-              />
-              <LabeledText label="系统目的" value={selectedSystem.purpose} onChange={(purpose) => patchSystem(selectedSystem.id, { purpose })} />
-            </section>
-            <section className="pid-editor-section">
-              <div className="pid-section-heading">系统边界</div>
-              <div className="pid-two-cols">
-                <LabeledInput label="边界入口" value={selectedSystem.boundaryIn} onChange={(boundaryIn) => patchSystem(selectedSystem.id, { boundaryIn })} />
-                <LabeledInput label="边界出口" value={selectedSystem.boundaryOut} onChange={(boundaryOut) => patchSystem(selectedSystem.id, { boundaryOut })} />
-              </div>
-            </section>
-            <section className="pid-editor-section">
-              <div className="pid-section-heading">运行与依赖</div>
-              <LabeledText label="操作模式" value={selectedSystem.operationModes} onChange={(operationModes) => patchSystem(selectedSystem.id, { operationModes })} />
-              <LabeledText label="公用工程依赖" value={selectedSystem.utilityDependency} onChange={(utilityDependency) => patchSystem(selectedSystem.id, { utilityDependency })} />
-              <LabeledText label="备注" value={selectedSystem.notes} onChange={(notes) => patchSystem(selectedSystem.id, { notes })} />
-            </section>
-          </div>
-        ) : (
-          <div className="pid-empty">请选择或新增一个工段/系统。</div>
-        )}
+        <div className="pid-create-row">
+          <label className="pid-field">
+            <span>新工段名称</span>
+            <Input value={newAreaName} placeholder={`工段 ${project.areas.length + 1}`} onChange={(event) => setNewAreaName(event.target.value)} />
+          </label>
+          <Button icon={<PlusOutlined />} onClick={addArea}>新增工段</Button>
+          <label className="pid-field">
+            <span>新图纸名称</span>
+            <Input value={newSheetName} placeholder={`图纸 ${(currentArea?.sheets.length || 0) + 1}`} onChange={(event) => setNewSheetName(event.target.value)} />
+          </label>
+          <Button icon={<PlusOutlined />} disabled={!currentArea} onClick={addSheet}>新增图纸</Button>
+        </div>
+        <div className="pid-drawing-editor-grid">
+          {currentArea && <LabeledInput label="工段名称" value={currentArea.name} onChange={(name) => patchArea(currentArea.id, { name })} />}
+          {currentSheet && <LabeledInput label="图纸名称" value={currentSheet.name} onChange={(name) => patchSheet(currentSheet.id, { name })} />}
+          <label className="pid-field">
+            <span>图纸所属工段</span>
+            <Select
+              value={sheetMoveTargetAreaId || undefined}
+              disabled={!currentSheet || sheetMoveTargetAreas.length === 0}
+              options={sheetMoveTargetAreas.map((area) => option(area.id, area.name))}
+              onChange={changeCurrentSheetArea}
+            />
+          </label>
+        </div>
+        {currentArea && <LabeledText label="工段说明" value={currentArea.objective} onChange={(objective) => patchArea(currentArea.id, { objective })} />}
+        {currentSheet && <LabeledText label="图纸说明" value={currentSheet.description} onChange={(description) => patchSheet(currentSheet.id, { description })} />}
       </section>
     </div>
   );
@@ -6108,6 +6426,10 @@ function PidX6Workspace() {
     const partOptions = selectedEquipment.parts.map((part) => option(part.id, `${part.name}（${part.type}）`));
     const stepIndex = EQUIPMENT_GUIDE_STEPS.findIndex((step) => step.key === equipmentGuideStep);
     const activeGuideStep = EQUIPMENT_GUIDE_STEPS[stepIndex] || EQUIPMENT_GUIDE_STEPS[0];
+    const selectedTagKey = selectedEquipment.tag.trim().toUpperCase();
+    const sameTagInstanceCount = selectedTagKey
+      ? project.equipments.filter((equipment) => equipment.tag.trim().toUpperCase() === selectedTagKey).length
+      : 0;
     const goStep = (offset: number) => {
       const nextIndex = Math.max(0, Math.min(EQUIPMENT_GUIDE_STEPS.length - 1, stepIndex + offset));
       setEquipmentGuideStep(EQUIPMENT_GUIDE_STEPS[nextIndex].key);
@@ -6118,6 +6440,7 @@ function PidX6Workspace() {
           <div>
             <strong>{selectedEquipment.tag}</strong>
             <span>{selectedEquipment.name}</span>
+            {sameTagInstanceCount > 1 && <span>同位号实例：{sameTagInstanceCount} 处</span>}
           </div>
           {EQUIPMENT_GUIDE_STEPS.map((step) => (
             <button
@@ -6146,13 +6469,20 @@ function PidX6Workspace() {
         <section className="pid-editor-card">
           <div className="pid-section-heading">设备身份</div>
           <LabeledSelect label="设备类型" value={selectedEquipment.type} options={EQUIPMENT_OPTIONS.map((item) => item.value)} labels={EQUIPMENT_LABELS} onChange={(type) => {
-            const fresh = equipmentTemplate(type as EquipmentType, selectedEquipment.tag, selectedEquipment.sheetId, selectedEquipment.systemId, selectedEquipment.x, selectedEquipment.y);
+            const fresh = equipmentTemplate(type as EquipmentType, selectedEquipment.tag, selectedEquipment.sheetId, sheetAreaId(selectedEquipment.sheetId) || selectedEquipment.areaId, selectedEquipment.x, selectedEquipment.y);
             patchEquipment(selectedEquipment.id, { ...fresh, id: selectedEquipment.id, tag: selectedEquipment.tag });
           }} />
           <div className="pid-two-cols">
             <LabeledInput label="位号" value={selectedEquipment.tag} onChange={(tag) => patchEquipment(selectedEquipment.id, { tag })} />
             <LabeledInput label="名称" value={selectedEquipment.name} onChange={(name) => patchEquipment(selectedEquipment.id, { name })} />
-            <LabeledSelect label="所属系统" value={selectedEquipment.systemId} options={project.systems.map((system) => system.id)} labels={Object.fromEntries(project.systems.map((system) => [system.id, system.name]))} onChange={(systemId) => patchEquipment(selectedEquipment.id, { systemId })} />
+            <LabeledSelect
+              label="所属工段/系统"
+              value={sheetAreaId(selectedEquipment.sheetId) || selectedEquipment.areaId}
+              options={project.areas.map((area) => area.id)}
+              labels={Object.fromEntries(project.areas.map((area) => [area.id, area.name]))}
+              disabled
+              onChange={() => undefined}
+            />
             <LabeledSelect label="材质" value={selectedEquipment.material} options={MATERIALS} onChange={(material) => patchEquipment(selectedEquipment.id, { material })} />
           </div>
           <LabeledText label="描述" value={selectedEquipment.description} onChange={(description) => patchEquipment(selectedEquipment.id, { description })} />
@@ -6287,7 +6617,7 @@ function PidX6Workspace() {
                     return (
                       <div className="pid-reference-fields">
                         <Select
-                          placeholder="选择分段画布"
+                          placeholder="选择图纸"
                           value={referenceSheet || undefined}
                           options={sheetOptions.filter((item) => item.value !== stream.sheetId)}
                           onChange={(sheetId) => patchStream(stream.id, side === 'from'
@@ -6327,7 +6657,7 @@ function PidX6Workspace() {
                           onChange={(event) => patchStream(stream.id, side === 'from' ? { fromReferenceLabel: event.target.value } : { toReferenceLabel: event.target.value })}
                         />
                         <Input
-                          placeholder="目标设备/系统"
+                          placeholder="目标设备/边界"
                           value={side === 'from' ? stream.fromReferenceEquipment : stream.toReferenceEquipment}
                           onChange={(event) => patchStream(stream.id, side === 'from' ? { fromReferenceEquipment: event.target.value } : { toReferenceEquipment: event.target.value })}
                         />
@@ -6554,10 +6884,10 @@ function PidX6Workspace() {
         工艺叙事
         <Button icon={<PlusOutlined />} onClick={addNarrative}>新增叙事条目</Button>
       </div>
-      <p className="pid-help">先由结构化连接和系统边界生成草稿，再由工程师修正措辞。最终 LLM Markdown 优先使用修正后的叙事。</p>
+      <p className="pid-help">先由结构化连接和工段边界生成草稿，再由工程师修正措辞。最终 LLM Markdown 优先使用修正后的叙事。</p>
       {project.narratives.map((item) => (
         <div className="pid-narrative-row" key={item.id}>
-          <Select value={item.level} options={['工段', '系统', '物流', '控制联锁', '开停车'].map((value) => option(value))} onChange={(level) => setProject((prev) => ({ ...prev, narratives: prev.narratives.map((nar) => (nar.id === item.id ? { ...nar, level } : nar)) }))} />
+          <Select value={item.level} options={['工段', '物流', '控制联锁', '开停车'].map((value) => option(value))} onChange={(level) => setProject((prev) => ({ ...prev, narratives: prev.narratives.map((nar) => (nar.id === item.id ? { ...nar, level } : nar)) }))} />
           <Input value={item.subject} onChange={(event) => setProject((prev) => ({ ...prev, narratives: prev.narratives.map((nar) => (nar.id === item.id ? { ...nar, subject: event.target.value } : nar)) }))} />
           <Input.TextArea rows={2} placeholder={item.generated || '根据设备、物流和联锁写出工艺意图。'} value={item.reviewed} onChange={(event) => setProject((prev) => ({ ...prev, narratives: prev.narratives.map((nar) => (nar.id === item.id ? { ...nar, reviewed: event.target.value } : nar)) }))} />
           <Button danger onClick={() => setProject((prev) => ({ ...prev, narratives: prev.narratives.filter((nar) => nar.id !== item.id) }))}>删除</Button>
@@ -6569,51 +6899,114 @@ function PidX6Workspace() {
   const renderActivePanel = () => {
     if (activeTab === 'canvas') return renderCanvas();
     if (activeTab === 'project') return renderProjectTab();
-    if (activeTab === 'systems') return renderSystemsTab();
     if (activeTab === 'equipment') return renderEquipmentGuide();
     if (activeTab === 'streams') return renderStreamsTab();
     if (activeTab === 'controls') return renderControlsTab();
     if (activeTab === 'narrative') return renderNarrativeTab();
-    if (activeTab === 'llm') return <pre className="pid-output">{markdown}</pre>;
+    if (activeTab === 'llm') return <pre className="pid-output">{buildMarkdown(project)}</pre>;
     if (activeTab === 'projectJson') return <pre className="pid-output">{JSON.stringify(project, null, 2)}</pre>;
-    if (activeTab === 'semanticIr') return <pre className="pid-output">{agentPackage.files['semantic-ir.json']}</pre>;
-    if (activeTab === 'agentPackage') return <pre className="pid-output">{agentPackageSummary}</pre>;
+    if (activeTab === 'semanticIr') return <pre className="pid-output">{buildAgentPublishPackage(project).files['semantic-ir.json']}</pre>;
+    if (activeTab === 'agentPackage') return <pre className="pid-output">{renderAgentPackageSummaryMarkdown(buildAgentPublishPackage(project))}</pre>;
     if (activeTab === 'equipmentContext') {
+      const equipmentAgentContext = selectedEquipment ? buildEquipmentAgentContext(project, selectedEquipment.id) : undefined;
       return equipmentAgentContext
-        ? <pre className="pid-output">{equipmentAgentMarkdown}</pre>
+        ? <pre className="pid-output">{renderEquipmentAgentContextMarkdown(equipmentAgentContext)}</pre>
         : <div className="pid-empty">请选择一个设备以生成设备上下文。</div>;
     }
     if (activeTab === 'streamContext') {
+      const streamAgentContext = selectedStream ? buildStreamAgentContext(project, selectedStream.id) : undefined;
       return streamAgentContext
-        ? <pre className="pid-output">{streamAgentMarkdown}</pre>
+        ? <pre className="pid-output">{renderStreamAgentContextMarkdown(streamAgentContext)}</pre>
         : <div className="pid-empty">请选择一条管线以生成管线上下文。</div>;
     }
-    if (activeTab === 'completeness') return <pre className="pid-output">{completenessMarkdown}</pre>;
-    if (activeTab === 'flowPaths') return <pre className="pid-output">{flowPathsMarkdown}</pre>;
+    if (activeTab === 'completeness') return <pre className="pid-output">{renderCompletenessMarkdown(buildAgentPublishPackage(project).completeness)}</pre>;
+    if (activeTab === 'flowPaths') return <pre className="pid-output">{renderFlowPathsMarkdown(buildAgentPublishPackage(project).flowPaths)}</pre>;
     return <pre className="pid-output">{JSON.stringify(project, null, 2)}</pre>;
+  };
+
+  const fileMenuItems: MenuProps['items'] = [
+    { key: 'saveLocal', icon: <SaveOutlined />, label: '保存本地' },
+    { key: 'open', label: '打开工程' },
+    { type: 'divider' },
+    { key: 'reset', danger: true, label: '重置示例' },
+  ];
+  const exportMenuItems: MenuProps['items'] = [
+    { key: 'exportProject', icon: <ExportOutlined />, label: '导出工程' },
+    { key: 'exportIr', icon: <ExportOutlined />, label: '导出 IR' },
+    { key: 'publishDirectory', icon: <ExportOutlined />, label: '发布到目录' },
+    { key: 'downloadPackage', icon: <ExportOutlined />, label: '下载发布包' },
+    { type: 'divider' },
+    { key: 'exportEquipmentContext', icon: <ExportOutlined />, disabled: !selectedEquipment, label: '导出设备上下文' },
+    { key: 'exportStreamContext', icon: <ExportOutlined />, disabled: !selectedStream, label: '导出管线上下文' },
+  ];
+  const networkMenuItems: MenuProps['items'] = [
+    { key: 'refreshNetwork', label: '刷新列表' },
+    { key: 'importAsNetwork', icon: <ExportOutlined />, label: '本地导入为新工程' },
+    { key: 'appendToNetwork', icon: <ExportOutlined />, label: '导入到当前工程' },
+  ];
+  const handleFileMenuClick: MenuProps['onClick'] = ({ key }) => {
+    if (key === 'saveLocal') saveLocal();
+    if (key === 'open') importProject();
+    if (key === 'reset') resetProject();
+  };
+  const handleExportMenuClick: MenuProps['onClick'] = ({ key }) => {
+    if (key === 'exportProject') void exportProject();
+    if (key === 'exportIr') void exportAgentSemanticIR();
+    if (key === 'publishDirectory') void publishAgentPackageToDirectory();
+    if (key === 'downloadPackage') void exportAgentPackage();
+    if (key === 'exportEquipmentContext') void exportEquipmentAgentContext();
+    if (key === 'exportStreamContext') void exportStreamAgentContext();
+  };
+  const handleNetworkMenuClick: MenuProps['onClick'] = ({ key }) => {
+    if (key === 'refreshNetwork') void refreshNetworkProjects();
+    if (key === 'importAsNetwork') void importLocalAsNetworkProject();
+    if (key === 'appendToNetwork') void appendLocalProjectToCurrent();
   };
 
   return (
     <div className="pid-layered-workspace">
       <div className="pid-topbar">
-        <div className="pid-topbar-title"><ApartmentOutlined /> 分层 P&ID 语义工作台</div>
-        <Space wrap>
-          <Select value={project.currentAreaId} options={project.areas.map((area) => option(area.id, area.name))} onChange={(currentAreaId) => setProject((prev) => ({ ...prev, currentAreaId, currentSheetId: prev.areas.find((area) => area.id === currentAreaId)?.sheets[0]?.id || prev.currentSheetId }))} />
-          <Select value={project.currentSheetId} options={currentArea?.sheets.map((sheet) => option(sheet.id, sheet.name))} onChange={(currentSheetId) => setProject((prev) => ({ ...prev, currentSheetId }))} />
-          <Select value={newEquipmentType} options={EQUIPMENT_OPTIONS} onChange={setNewEquipmentType} />
-          <Button type="primary" icon={<PlusOutlined />} onClick={addEquipment}>新建设备</Button>
-          <Button icon={<CopyOutlined />} disabled={!selectedEquipment} onClick={duplicateEquipment}>复制设备</Button>
-          <Button danger icon={<DeleteOutlined />} disabled={!selectedEquipment} onClick={deleteEquipment}>删除设备</Button>
-          <Button icon={<SaveOutlined />} onClick={saveLocal}>保存本地</Button>
-          <Button icon={<ExportOutlined />} onClick={exportProject}>导出工程</Button>
-          <Button icon={<ExportOutlined />} onClick={exportAgentSemanticIR}>导出IR</Button>
-          <Button type="primary" icon={<ExportOutlined />} onClick={publishAgentPackageToDirectory}>发布到目录</Button>
-          <Button icon={<ExportOutlined />} onClick={exportAgentPackage}>下载发布包</Button>
-          <Button icon={<ExportOutlined />} disabled={!equipmentAgentContext} onClick={exportEquipmentAgentContext}>导出设备上下文</Button>
-          <Button icon={<ExportOutlined />} disabled={!streamAgentContext} onClick={exportStreamAgentContext}>导出管线上下文</Button>
-          <Button onClick={importProject}>打开</Button>
-          <Button danger onClick={resetProject}>重置示例</Button>
-        </Space>
+        <div className="pid-toolbar-groups">
+          <div className="pid-toolbar-group pid-toolbar-context">
+            <Select value={project.currentAreaId} options={project.areas.map((area) => option(area.id, area.name))} onChange={(currentAreaId) => setProject((prev) => ({ ...prev, currentAreaId, currentSheetId: prev.areas.find((area) => area.id === currentAreaId)?.sheets[0]?.id || prev.currentSheetId }))} />
+            <Select value={project.currentSheetId} options={currentArea?.sheets.map((sheet) => option(sheet.id, sheet.name))} onChange={(currentSheetId) => setProject((prev) => ({ ...prev, currentSheetId }))} />
+          </div>
+          <div className="pid-toolbar-group">
+            <Select value={newEquipmentType} options={EQUIPMENT_OPTIONS} onChange={setNewEquipmentType} />
+            <Button type="primary" icon={<PlusOutlined />} onClick={addEquipment}>新建设备</Button>
+            <Button icon={<CopyOutlined />} disabled={!selectedEquipment} onClick={duplicateEquipment}>复制同位号</Button>
+            <Button danger icon={<DeleteOutlined />} disabled={!selectedEquipment} onClick={deleteEquipment}>删除设备</Button>
+          </div>
+          <div className="pid-toolbar-group pid-toolbar-network">
+            <Select
+              allowClear
+              placeholder="选择网络工程"
+              value={networkProjectId || undefined}
+              loading={networkLoading}
+              options={networkProjects.map((item) => option(item.id, `${item.name}${item.drawingNo ? ` (${item.drawingNo})` : ''} / v${item.version}`))}
+              onChange={(id?: string) => {
+                if (id) void loadNetworkProject(id);
+                else {
+                  setNetworkProjectId('');
+                  setNetworkVersion(null);
+                }
+              }}
+            />
+            <Button type="primary" icon={<SaveOutlined />} loading={networkLoading} onClick={() => void saveNetworkProject()}>保存网络</Button>
+            <Dropdown menu={{ items: networkMenuItems, onClick: handleNetworkMenuClick }} trigger={['click']}>
+              <Button loading={networkLoading}>网络导入 <DownOutlined /></Button>
+            </Dropdown>
+            <span className="pid-network-status">{networkProjectId ? `v${networkVersion ?? '-'}` : '未绑定'}</span>
+          </div>
+          <div className="pid-toolbar-group pid-toolbar-actions">
+            <Dropdown menu={{ items: fileMenuItems, onClick: handleFileMenuClick }} trigger={['click']}>
+              <Button icon={<SaveOutlined />}>工程文件 <DownOutlined /></Button>
+            </Dropdown>
+            <Dropdown menu={{ items: exportMenuItems, onClick: handleExportMenuClick }} trigger={['click']}>
+              <Button icon={<ExportOutlined />}>导出发布 <DownOutlined /></Button>
+            </Dropdown>
+          </div>
+        </div>
       </div>
       <div className="pid-page-tabs">
         <Tabs
@@ -6622,7 +7015,6 @@ function PidX6Workspace() {
           items={[
             { key: 'canvas', label: '画布' },
             { key: 'project', label: '图纸信息' },
-            { key: 'systems', label: '工段系统' },
             { key: 'equipment', label: '设备语义' },
             { key: 'streams', label: '物流管线' },
             { key: 'controls', label: '控制联锁' },
@@ -6670,18 +7062,20 @@ function LabeledSelect<T extends string>({
   value,
   options,
   labels,
+  disabled = false,
   onChange,
 }: {
   label: string;
   value: T;
   options: T[];
   labels?: Record<string, string>;
+  disabled?: boolean;
   onChange: (value: T) => void;
 }) {
   return (
     <label className="pid-field">
       <span>{label}</span>
-      <Select value={value} options={options.map((item) => option(item, labels?.[item] || item))} onChange={onChange} />
+      <Select disabled={disabled} value={value} options={options.map((item) => option(item, labels?.[item] || item))} onChange={onChange} />
     </label>
   );
 }

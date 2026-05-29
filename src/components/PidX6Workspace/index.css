@@ -8,27 +8,56 @@
 
 .pid-topbar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
+  justify-content: flex-end;
   gap: 12px;
-  min-height: 54px;
   padding: 8px 12px;
   border-bottom: 1px solid #dbe3ee;
   background: #ffffff;
 }
 
-.pid-topbar-title {
+.pid-toolbar-groups {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  min-width: 0;
+}
+
+.pid-toolbar-group {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 220px;
-  color: #12342b;
-  font-size: 16px;
-  font-weight: 800;
+  gap: 6px;
+  min-width: 0;
+  padding: 0 8px;
+  border-left: 1px solid #e2e8f0;
+}
+
+.pid-toolbar-group:first-child {
+  border-left: 0;
 }
 
 .pid-topbar .ant-select {
   min-width: 132px;
+}
+
+.pid-toolbar-context .ant-select {
+  min-width: 170px;
+}
+
+.pid-toolbar-network .ant-select {
+  min-width: 260px;
+}
+
+.pid-toolbar-actions {
+  padding-right: 0;
+}
+
+.pid-network-status {
+  color: #64748b;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 .pid-work-grid {
@@ -734,6 +763,26 @@
   gap: 10px;
 }
 
+.pid-drawing-toolbar,
+.pid-create-row,
+.pid-drawing-editor-grid {
+  display: grid;
+  gap: 8px;
+  align-items: end;
+}
+
+.pid-drawing-toolbar {
+  grid-template-columns: minmax(160px, 220px) minmax(180px, 260px) auto auto;
+}
+
+.pid-create-row {
+  grid-template-columns: minmax(180px, 1fr) auto minmax(180px, 1fr) auto;
+}
+
+.pid-drawing-editor-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .pid-field {
   display: grid;
   gap: 5px;
@@ -755,6 +804,13 @@
   display: grid;
   gap: 8px;
   align-content: start;
+}
+
+.pid-list-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  align-items: stretch;
 }
 
 .pid-list-item {
@@ -851,5 +907,31 @@
 @media (max-width: 1180px) {
   .pid-work-grid {
     grid-template-columns: 1fr;
+  }
+
+  .pid-topbar,
+  .pid-toolbar-groups,
+  .pid-toolbar-group {
+    align-items: stretch;
+  }
+
+  .pid-topbar {
+    flex-direction: column;
+  }
+
+  .pid-toolbar-groups {
+    justify-content: flex-start;
+  }
+
+  .pid-toolbar-group {
+    flex-wrap: wrap;
+    padding: 0;
+    border-left: 0;
+  }
+
+  .pid-drawing-toolbar,
+  .pid-create-row,
+  .pid-drawing-editor-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

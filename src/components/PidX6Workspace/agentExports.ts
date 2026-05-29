@@ -108,7 +108,7 @@ interface EquipmentProfile {
 interface Equipment {
   id: string;
   sheetId: string;
-  systemId: string;
+  areaId: string;
   type: EquipmentType;
   tag: string;
   name: string;
@@ -229,7 +229,7 @@ interface ControlInterlock {
 
 interface ProcessNarrativeItem {
   id: string;
-  level: '工段' | '系统' | '物流' | '控制联锁' | '开停车';
+  level: '工段' | '物流' | '控制联锁' | '开停车';
   subject: string;
   generated: string;
   reviewed: string;
@@ -247,7 +247,6 @@ export interface PidSemanticProjectForAgent {
   currentAreaId: string;
   currentSheetId: string;
   areas: ProcessArea[];
-  systems: ProcessSystem[];
   equipments: Equipment[];
   lineGroups: PipeGroup[];
   streams: Stream[];
@@ -308,6 +307,7 @@ export interface AgentRelation {
 interface AgentEndpoint {
   kind: PipeEndpointKind;
   equipmentId?: string;
+  equipmentInstanceId?: string;
   equipmentTag?: string;
   equipmentName?: string;
   portId?: string;
@@ -348,6 +348,24 @@ export interface AgentSemanticIR {
   systems: ProcessSystem[];
   sheets: Array<DrawingSheet & { areaId: string; areaName: string }>;
   equipments: Array<Omit<Equipment, 'x' | 'y' | 'width' | 'height'> & {
+    canonicalTag: string;
+    instanceIds: string[];
+    systemId: string;
+    systemIds: string[];
+    sheetIds: string[];
+    drawingInstances: Array<{
+      id: string;
+      sheetId: string;
+      sheetName: string;
+      areaId: string;
+      areaName: string;
+      systemId: string;
+      systemName: string;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+    }>;
     areaId: string;
     areaName: string;
     sheetName: string;
@@ -378,7 +396,7 @@ export interface AgentSemanticIR {
   narratives: ProcessNarrativeItem[];
   relations: AgentRelation[];
   indexes: {
-    equipments: Array<{ id: string; tag: string; name: string; type: EquipmentType; systemId: string; systemName: string; sheetId: string; coreFunction: string }>;
+    equipments: Array<{ id: string; tag: string; name: string; type: EquipmentType; systemId: string; systemName: string; systemIds: string[]; sheetId: string; instanceIds: string[]; sheetIds: string[]; coreFunction: string }>;
     streams: Array<{ id: string; tag: string; name: string; groupId: string; medium: string; from: string; to: string; topology: string; intent: string }>;
     systems: Array<{ id: string; name: string; equipmentIds: string[]; streamIds: string[] }>;
   };
@@ -508,6 +526,7 @@ export interface AgentPublishPackage {
 const present = (value: unknown) => value !== undefined && value !== null && String(value).trim() !== '';
 const isDefined = <T,>(value: T | undefined | null): value is T => value !== undefined && value !== null;
 const completionState = (value: unknown): 'provided' | 'pending' => (present(value) ? 'provided' : 'pending');
+const normalizeEquipmentTag = (tag = '') => tag.trim().replace(/\s+/g, '').toUpperCase();
 
 const ref = (kind: AgentEntityKind, id: string, tag?: string): AgentEntityRef => ({ kind, id, ...(tag ? { tag } : {}) });
 
@@ -521,6 +540,115 @@ const findSheet = (project: PidSemanticProjectForAgent, sheetId: string) => {
     if (sheet) return { area, sheet };
   }
   return undefined;
+};
+
+const projectSystems = (project: PidSemanticProjectForAgent): ProcessSystem[] => project.areas.map((area) => ({
+  id: area.id,
+  name: area.name,
+  areaId: area.id,
+  purpose: area.objective,
+  boundaryIn: '',
+  boundaryOut: '',
+  operationModes: '',
+  utilityDependency: '',
+  notes: '由工段自动作为系统边界。',
+}));
+
+const uniqueValues = (values: string[]) => Array.from(new Set(values.filter(Boolean)));
+
+const firstPresent = (...values: string[]) => values.find((value) => present(value)) || '';
+
+const semanticScore = (equipment: Equipment) => [
+  equipment.profile.coreFunction,
+  equipment.profile.workingPrinciple,
+  equipment.description,
+  equipment.material,
+  equipment.name,
+  ...equipment.parts.map((part) => `${part.type}${part.name}${part.role}`),
+  ...equipment.ports.map((port) => `${port.id}${port.name}${port.medium}`),
+].filter(present).length;
+
+const mergeById = <T extends { id: string }>(items: T[]) => {
+  const merged = new Map<string, T>();
+  items.forEach((item) => {
+    if (!merged.has(item.id)) merged.set(item.id, item);
+  });
+  return Array.from(merged.values());
+};
+
+const buildCanonicalEquipmentRegistry = (project: PidSemanticProjectForAgent) => {
+  const systemById = new Map(projectSystems(project).map((system) => [system.id, system]));
+  const groups = new Map<string, Equipment[]>();
+  project.equipments.forEach((equipment) => {
+    const key = normalizeEquipmentTag(equipment.tag) || `ID:${equipment.id}`;
+    groups.set(key, [...(groups.get(key) || []), equipment]);
+  });
+
+  const instanceToCanonicalId = new Map<string, string>();
+  const equipments = Array.from(groups.entries()).map(([canonicalTag, group]) => {
+    const sorted = [...group].sort((a, b) => semanticScore(b) - semanticScore(a));
+    const primary = sorted[0];
+    const id = primary.tag.trim() || primary.id;
+    group.forEach((equipment) => instanceToCanonicalId.set(equipment.id, id));
+    const sheetInfo = findSheet(project, primary.sheetId);
+    const drawingInstances = group.map((equipment) => {
+      const instanceSheetInfo = findSheet(project, equipment.sheetId);
+      const systemId = instanceSheetInfo?.area.id || equipment.areaId || '';
+      const system = systemById.get(systemId);
+      return {
+        id: equipment.id,
+        sheetId: equipment.sheetId,
+        sheetName: instanceSheetInfo?.sheet.name || '',
+        areaId: instanceSheetInfo?.area.id || '',
+        areaName: instanceSheetInfo?.area.name || '',
+        systemId,
+        systemName: system?.name || '',
+        x: equipment.x,
+        y: equipment.y,
+        width: equipment.width,
+        height: equipment.height,
+      };
+    });
+    const { x: _x, y: _y, width: _width, height: _height, ...semanticEquipment } = primary;
+    void _x; void _y; void _width; void _height;
+    const profile: EquipmentProfile = {
+      coreFunction: firstPresent(...sorted.map((equipment) => equipment.profile.coreFunction)),
+      workingPrinciple: firstPresent(...sorted.map((equipment) => equipment.profile.workingPrinciple)),
+      operatingModes: mergeById(sorted.flatMap((equipment) => equipment.profile.operatingModes)),
+      operatingParameters: mergeById(sorted.flatMap((equipment) => equipment.profile.operatingParameters)),
+    };
+    const canonicalEquipment: AgentSemanticIR['equipments'][number] = {
+      ...semanticEquipment,
+      id,
+      tag: firstPresent(primary.tag, ...sorted.map((equipment) => equipment.tag)) || id,
+      name: firstPresent(primary.name, ...sorted.map((equipment) => equipment.name)),
+      material: firstPresent(primary.material, ...sorted.map((equipment) => equipment.material)),
+      description: firstPresent(primary.description, ...sorted.map((equipment) => equipment.description)),
+      attributes: sorted.reduce((attributes, equipment) => ({ ...equipment.attributes, ...attributes }), {}),
+      profile,
+      parts: mergeById(sorted.flatMap((equipment) => equipment.parts)),
+      ports: mergeById(sorted.flatMap((equipment) => equipment.ports)),
+      relations: mergeById(sorted.flatMap((equipment) => equipment.relations)),
+      canonicalTag,
+      instanceIds: group.map((equipment) => equipment.id),
+      systemId: sheetInfo?.area.id || primary.areaId || '',
+      systemIds: uniqueValues(group.map((equipment) => findSheet(project, equipment.sheetId)?.area.id || equipment.areaId || '')),
+      sheetIds: uniqueValues(group.map((equipment) => equipment.sheetId)),
+      drawingInstances,
+      areaId: sheetInfo?.area.id || '',
+      areaName: sheetInfo?.area.name || '',
+      sheetName: sheetInfo?.sheet.name || '',
+      systemName: systemById.get(sheetInfo?.area.id || primary.areaId || '')?.name || '',
+      completeness: {
+        coreFunction: completionState(profile.coreFunction),
+        workingPrinciple: completionState(profile.workingPrinciple),
+      },
+    };
+    return canonicalEquipment;
+  });
+
+  const canonicalById = new Map(equipments.map((equipment) => [equipment.id, equipment]));
+  return { equipments, instanceToCanonicalId, canonicalById };
 };
 
 const equipmentLabel = (equipment?: Pick<Equipment, 'tag' | 'name' | 'id'>) => (
@@ -580,6 +708,7 @@ const resolveEndpoint = (
   project: PidSemanticProjectForAgent,
   stream: Stream,
   side: 'from' | 'to',
+  canonicalEquipmentByInstanceId = new Map<string, string>(),
 ): AgentEndpoint => {
   const equipmentById = new Map(project.equipments.map((equipment) => [equipment.id, equipment]));
   const streamById = new Map(project.streams.map((item) => [item.id, item]));
@@ -593,7 +722,8 @@ const resolveEndpoint = (
     const port = equipment?.ports.find((candidate) => candidate.id === portId);
     return {
       kind,
-      equipmentId,
+      equipmentId: canonicalEquipmentByInstanceId.get(equipmentId) || equipmentId,
+      equipmentInstanceId: equipmentId,
       equipmentTag: equipment?.tag,
       equipmentName: equipment?.name,
       portId,
@@ -713,9 +843,17 @@ const streamTouchesEquipment = (stream: AgentSemanticIR['streams'][number] | Str
 
 const relationTouchesIds = (relation: AgentRelation, ids: Set<string>) => ids.has(relation.source.id) || ids.has(relation.target.id);
 
+const findAgentEquipment = (ir: AgentSemanticIR, equipmentIdOrTag: string) => ir.equipments.find((item) => (
+  item.id === equipmentIdOrTag
+  || item.tag === equipmentIdOrTag
+  || item.instanceIds.includes(equipmentIdOrTag)
+));
+
 export const projectToAgentSemanticIR = (project: PidSemanticProjectForAgent): AgentSemanticIR => {
-  const systemById = new Map(project.systems.map((system) => [system.id, system]));
-  const equipmentById = new Map(project.equipments.map((equipment) => [equipment.id, equipment]));
+  const systems = projectSystems(project);
+  const systemById = new Map(systems.map((system) => [system.id, system]));
+  const equipmentRegistry = buildCanonicalEquipmentRegistry(project);
+  const equipmentById = equipmentRegistry.canonicalById;
   const groupById = new Map(project.lineGroups.map((group) => [group.id, group]));
   const streamById = new Map(project.streams.map((stream) => [stream.id, stream]));
   const pipeNodeById = new Map(project.pipeNodes.map((node) => [node.id, node]));
@@ -736,7 +874,7 @@ export const projectToAgentSemanticIR = (project: PidSemanticProjectForAgent): A
     });
   });
 
-  project.systems.forEach((system) => {
+  systems.forEach((system) => {
     const area = project.areas.find((item) => item.id === system.areaId);
     addRelation({
       id: relationId('AREA_HAS_SYSTEM', system.areaId, system.id),
@@ -746,20 +884,24 @@ export const projectToAgentSemanticIR = (project: PidSemanticProjectForAgent): A
     });
   });
 
-  project.equipments.forEach((equipment) => {
-    const system = systemById.get(equipment.systemId);
-    const sheetInfo = findSheet(project, equipment.sheetId);
-    addRelation({
-      id: relationId('SYSTEM_CONTAINS_EQUIPMENT', equipment.systemId, equipment.id),
-      type: 'SYSTEM_CONTAINS_EQUIPMENT',
-      source: ref('system', equipment.systemId, system?.name),
-      target: ref('equipment', equipment.id, equipment.tag),
+  equipmentRegistry.equipments.forEach((equipment) => {
+    equipment.systemIds.forEach((systemId) => {
+      const system = systemById.get(systemId);
+      addRelation({
+        id: relationId('SYSTEM_CONTAINS_EQUIPMENT', systemId, equipment.id),
+        type: 'SYSTEM_CONTAINS_EQUIPMENT',
+        source: ref('system', systemId, system?.name),
+        target: ref('equipment', equipment.id, equipment.tag),
+      });
     });
-    addRelation({
-      id: relationId('SHEET_CONTAINS_EQUIPMENT', equipment.sheetId, equipment.id),
-      type: 'SHEET_CONTAINS_EQUIPMENT',
-      source: ref('sheet', equipment.sheetId, sheetInfo?.sheet.name),
-      target: ref('equipment', equipment.id, equipment.tag),
+    equipment.drawingInstances.forEach((instance) => {
+      addRelation({
+        id: relationId('SHEET_CONTAINS_EQUIPMENT', instance.sheetId, equipment.id, instance.id),
+        type: 'SHEET_CONTAINS_EQUIPMENT',
+        source: ref('sheet', instance.sheetId, instance.sheetName),
+        target: ref('equipment', equipment.id, equipment.tag),
+        properties: { instanceId: instance.id },
+      });
     });
     equipment.parts.forEach((part) => {
       addRelation({
@@ -810,7 +952,7 @@ export const projectToAgentSemanticIR = (project: PidSemanticProjectForAgent): A
     });
 
     (['from', 'to'] as const).forEach((side) => {
-      const endpoint = resolveEndpoint(project, stream, side);
+      const endpoint = resolveEndpoint(project, stream, side, equipmentRegistry.instanceToCanonicalId);
       if (endpoint.kind === '设备端口' && endpoint.equipmentId && endpoint.portId) {
         addRelation({
           id: relationId('STREAM_CONNECTS_PORT', stream.id, `${endpoint.equipmentId}.${endpoint.portId}`, side),
@@ -879,57 +1021,44 @@ export const projectToAgentSemanticIR = (project: PidSemanticProjectForAgent): A
   });
 
   project.controls.forEach((control) => {
-    const triggerEquipment = equipmentById.get(control.triggerEquipmentId);
-    const actionEquipment = equipmentById.get(control.actionEquipmentId);
+    const triggerEquipmentId = equipmentRegistry.instanceToCanonicalId.get(control.triggerEquipmentId) || control.triggerEquipmentId;
+    const actionEquipmentId = equipmentRegistry.instanceToCanonicalId.get(control.actionEquipmentId) || control.actionEquipmentId;
+    const triggerEquipment = equipmentById.get(triggerEquipmentId);
+    const actionEquipment = equipmentById.get(actionEquipmentId);
     if (control.triggerEquipmentId) {
       addRelation({
-        id: relationId('CONTROL_MEASURES', control.id, `${control.triggerEquipmentId}.${control.triggerPartId}`),
+        id: relationId('CONTROL_MEASURES', control.id, `${triggerEquipmentId}.${control.triggerPartId}`),
         type: 'CONTROL_MEASURES',
         source: ref('control', control.id, control.tag),
-        target: ref('part', `${control.triggerEquipmentId}.${control.triggerPartId}`, partLabel(triggerEquipment, control.triggerPartId)),
-        properties: { condition: control.condition },
+        target: ref('part', `${triggerEquipmentId}.${control.triggerPartId}`, partLabel(triggerEquipment, control.triggerPartId)),
+        properties: { condition: control.condition, equipmentInstanceId: control.triggerEquipmentId },
       });
     }
     if (control.actionEquipmentId) {
       addRelation({
-        id: relationId('CONTROL_ACTS_ON', control.id, `${control.actionEquipmentId}.${control.actionTargetId}`),
+        id: relationId('CONTROL_ACTS_ON', control.id, `${actionEquipmentId}.${control.actionTargetId}`),
         type: 'CONTROL_ACTS_ON',
         source: ref('control', control.id, control.tag),
-        target: ref('part', `${control.actionEquipmentId}.${control.actionTargetId}`, partLabel(actionEquipment, control.actionTargetId)),
-        properties: { action: control.action },
+        target: ref('part', `${actionEquipmentId}.${control.actionTargetId}`, partLabel(actionEquipment, control.actionTargetId)),
+        properties: { action: control.action, equipmentInstanceId: control.actionEquipmentId },
       });
       addRelation({
-        id: relationId('INTERLOCK_PROTECTS', control.id, control.actionEquipmentId),
+        id: relationId('INTERLOCK_PROTECTS', control.id, actionEquipmentId),
         type: 'INTERLOCK_PROTECTS',
         source: ref('control', control.id, control.tag),
-        target: ref('equipment', control.actionEquipmentId, actionEquipment?.tag),
-        properties: { purpose: control.purpose, reset: control.reset },
+        target: ref('equipment', actionEquipmentId, actionEquipment?.tag),
+        properties: { purpose: control.purpose, reset: control.reset, equipmentInstanceId: control.actionEquipmentId },
       });
     }
   });
 
   const sheets = project.areas.flatMap((area) => area.sheets.map((sheet) => ({ ...sheet, areaId: area.id, areaName: area.name })));
-  const equipments = project.equipments.map((equipment) => {
-    const sheetInfo = findSheet(project, equipment.sheetId);
-    const system = systemById.get(equipment.systemId);
-    const { x: _x, y: _y, width: _width, height: _height, ...semanticEquipment } = equipment;
-    return {
-      ...semanticEquipment,
-      areaId: sheetInfo?.area.id || '',
-      areaName: sheetInfo?.area.name || '',
-      sheetName: sheetInfo?.sheet.name || '',
-      systemName: system?.name || '',
-      completeness: {
-        coreFunction: completionState(equipment.profile.coreFunction),
-        workingPrinciple: completionState(equipment.profile.workingPrinciple),
-      },
-    };
-  });
+  const equipments = equipmentRegistry.equipments;
   const semanticEquipmentById = new Map(equipments.map((equipment) => [equipment.id, equipment]));
   const streams = project.streams.map((stream) => {
     const group = groupById.get(stream.groupId);
-    const from = resolveEndpoint(project, stream, 'from');
-    const to = resolveEndpoint(project, stream, 'to');
+    const from = resolveEndpoint(project, stream, 'from', equipmentRegistry.instanceToCanonicalId);
+    const to = resolveEndpoint(project, stream, 'to', equipmentRegistry.instanceToCanonicalId);
     const topologySequence = buildStreamTopologySequence(project, stream, from, to);
     const {
       fromReferenceX: _fromReferenceX,
@@ -942,8 +1071,12 @@ export const projectToAgentSemanticIR = (project: PidSemanticProjectForAgent): A
       toContinuationY: _toContinuationY,
       ...semanticStream
     } = stream;
+    void _fromReferenceX; void _fromReferenceY; void _toReferenceX; void _toReferenceY;
+    void _fromContinuationX; void _fromContinuationY; void _toContinuationX; void _toContinuationY;
     return {
       ...semanticStream,
+      fromEquipmentId: stream.fromKind === '设备端口' ? equipmentRegistry.instanceToCanonicalId.get(stream.fromEquipmentId) || stream.fromEquipmentId : stream.fromEquipmentId,
+      toEquipmentId: stream.toKind === '设备端口' ? equipmentRegistry.instanceToCanonicalId.get(stream.toEquipmentId) || stream.toEquipmentId : stream.toEquipmentId,
       groupTag: group?.tag || '',
       groupName: group?.name || '',
       from,
@@ -959,6 +1092,11 @@ export const projectToAgentSemanticIR = (project: PidSemanticProjectForAgent): A
       },
     };
   });
+  const controls = project.controls.map((control) => ({
+    ...control,
+    triggerEquipmentId: equipmentRegistry.instanceToCanonicalId.get(control.triggerEquipmentId) || control.triggerEquipmentId,
+    actionEquipmentId: equipmentRegistry.instanceToCanonicalId.get(control.actionEquipmentId) || control.actionEquipmentId,
+  }));
 
   return {
     version: 'pid-agent-semantic-ir/v1',
@@ -969,13 +1107,13 @@ export const projectToAgentSemanticIR = (project: PidSemanticProjectForAgent): A
     },
     project: project.project,
     areas: project.areas,
-    systems: project.systems,
+    systems,
     sheets,
     equipments,
     streams,
     pipeNodes: project.pipeNodes.map((node) => ({ ...node, tag: node.tag || pipeNodeById.get(node.id)?.tag || node.id })),
     inlineComponents: project.inlineComponents,
-    controls: project.controls,
+    controls,
     narratives: project.narratives,
     relations,
     indexes: {
@@ -986,7 +1124,10 @@ export const projectToAgentSemanticIR = (project: PidSemanticProjectForAgent): A
         type: equipment.type,
         systemId: equipment.systemId,
         systemName: equipment.systemName,
+        systemIds: equipment.systemIds,
         sheetId: equipment.sheetId,
+        instanceIds: equipment.instanceIds,
+        sheetIds: equipment.sheetIds,
         coreFunction: equipment.profile.coreFunction,
       })),
       streams: streams.map((stream) => ({
@@ -1000,14 +1141,14 @@ export const projectToAgentSemanticIR = (project: PidSemanticProjectForAgent): A
         topology: stream.flowDirectionText,
         intent: stream.intent,
       })),
-      systems: project.systems.map((system) => ({
+      systems: systems.map((system) => ({
         id: system.id,
         name: system.name,
-        equipmentIds: project.equipments.filter((equipment) => equipment.systemId === system.id).map((equipment) => equipment.id),
+        equipmentIds: equipments.filter((equipment) => equipment.systemIds.includes(system.id)).map((equipment) => equipment.id),
         streamIds: project.streams.filter((stream) => {
-          const fromEquipment = stream.fromKind === '设备端口' ? semanticEquipmentById.get(stream.fromEquipmentId) : undefined;
-          const toEquipment = stream.toKind === '设备端口' ? semanticEquipmentById.get(stream.toEquipmentId) : undefined;
-          return fromEquipment?.systemId === system.id || toEquipment?.systemId === system.id;
+          const fromEquipment = stream.fromKind === '设备端口' ? semanticEquipmentById.get(equipmentRegistry.instanceToCanonicalId.get(stream.fromEquipmentId) || stream.fromEquipmentId) : undefined;
+          const toEquipment = stream.toKind === '设备端口' ? semanticEquipmentById.get(equipmentRegistry.instanceToCanonicalId.get(stream.toEquipmentId) || stream.toEquipmentId) : undefined;
+          return fromEquipment?.systemIds.includes(system.id) || toEquipment?.systemIds.includes(system.id);
         }).map((stream) => stream.id),
       })),
     },
@@ -1019,10 +1160,10 @@ export const buildEquipmentAgentContext = (
   equipmentIdOrTag: string,
 ): AgentEquipmentContext | undefined => {
   const ir = projectToAgentSemanticIR(project);
-  const equipment = ir.equipments.find((item) => item.id === equipmentIdOrTag || item.tag === equipmentIdOrTag);
+  const equipment = findAgentEquipment(ir, equipmentIdOrTag);
   if (!equipment) return undefined;
   const sheetInfo = findSheet(project, equipment.sheetId);
-  const system = project.systems.find((item) => item.id === equipment.systemId);
+  const system = ir.systems.find((item) => item.id === equipment.systemId);
   const connectedStreams = ir.streams.filter((stream) => streamTouchesEquipment(stream, equipment.id));
   const connectedStreamIds = new Set(connectedStreams.map((stream) => stream.id));
   const inlineComponents = project.inlineComponents.filter((component) => connectedStreamIds.has(component.segmentId));
@@ -1031,8 +1172,9 @@ export const buildEquipmentAgentContext = (
     if (stream.fromKind === '设备端口' && stream.fromEquipmentId !== equipment.id) neighborIds.add(stream.fromEquipmentId);
     if (stream.toKind === '设备端口' && stream.toEquipmentId !== equipment.id) neighborIds.add(stream.toEquipmentId);
   });
-  const controls = project.controls.filter((control) => (
-    control.triggerEquipmentId === equipment.id || control.actionEquipmentId === equipment.id
+  const controls = ir.controls.filter((control) => (
+    control.triggerEquipmentId === equipment.id
+    || control.actionEquipmentId === equipment.id
   ));
   const touchedIds = new Set<string>([
     equipment.id,
@@ -1074,7 +1216,10 @@ export const buildStreamAgentContext = (
   const pipeNodes = project.pipeNodes.filter((node) => (
     node.segmentId === stream.id || node.id === stream.from.pipeNodeId || node.id === stream.to.pipeNodeId
   ));
-  const controls = project.controls.filter((control) => endpointEquipmentIds.includes(control.triggerEquipmentId) || endpointEquipmentIds.includes(control.actionEquipmentId));
+  const controls = ir.controls.filter((control) => (
+    endpointEquipmentIds.includes(control.triggerEquipmentId)
+    || endpointEquipmentIds.includes(control.actionEquipmentId)
+  ));
   const touchedIds = new Set<string>([
     stream.id,
     ...endpointEquipmentIds,
@@ -1115,10 +1260,10 @@ export const buildSystemAgentContext = (
   systemIdOrName: string,
 ): AgentSystemContext | undefined => {
   const ir = projectToAgentSemanticIR(project);
-  const system = project.systems.find((item) => item.id === systemIdOrName || item.name === systemIdOrName);
+  const system = ir.systems.find((item) => item.id === systemIdOrName || item.name === systemIdOrName);
   if (!system) return undefined;
   const area = project.areas.find((item) => item.id === system.areaId);
-  const equipments = ir.equipments.filter((equipment) => equipment.systemId === system.id);
+  const equipments = ir.equipments.filter((equipment) => equipment.systemIds.includes(system.id));
   const equipmentIds = new Set(equipments.map((equipment) => equipment.id));
   const streams = ir.streams.filter((stream) => (
     (stream.from.equipmentId && equipmentIds.has(stream.from.equipmentId))
@@ -1126,8 +1271,11 @@ export const buildSystemAgentContext = (
   ));
   const streamIds = new Set(streams.map((stream) => stream.id));
   const lineGroups = project.lineGroups.filter((group) => streams.some((stream) => stream.groupId === group.id));
-  const controls = project.controls.filter((control) => equipmentIds.has(control.triggerEquipmentId) || equipmentIds.has(control.actionEquipmentId));
-  const narratives = project.narratives.filter((item) => item.subject === system.name || item.level === '系统');
+  const controls = ir.controls.filter((control) => (
+    equipmentIds.has(control.triggerEquipmentId)
+    || equipmentIds.has(control.actionEquipmentId)
+  ));
+  const narratives = project.narratives.filter((item) => item.subject === system.name || item.level === '工段');
   const touchedIds = new Set<string>([
     system.id,
     ...equipmentIds,
@@ -1162,7 +1310,7 @@ export const renderEquipmentAgentContextMarkdown = (context: AgentEquipmentConte
   lines.push(`# 设备上下文 ${equipment.tag} ${equipment.name}`);
   lines.push('');
   lines.push(`- 系统：${context.system?.name || '-'}`);
-  lines.push(`- 区域/分段：${context.area?.name || '-'} / ${context.sheet?.name || '-'}`);
+  lines.push(`- 工段/图纸：${context.area?.name || '-'} / ${context.sheet?.name || '-'}`);
   lines.push(`- 类型：${equipment.type}`);
   lines.push(`- 核心功能：${equipment.profile.coreFunction || '待补全'}`);
   lines.push(`- 工作原理：${equipment.profile.workingPrinciple || '待补全'}`);
@@ -1228,7 +1376,7 @@ export const renderStreamAgentContextMarkdown = (context: AgentStreamContext) =>
   lines.push('');
   lines.push(`- 管线组：${context.lineGroup?.tag || '-'} ${context.lineGroup?.name || ''}`);
   lines.push(`- 管段名称：${stream.name || '-'}`);
-  lines.push(`- 分段：${context.sheet?.name || '-'}`);
+  lines.push(`- 图纸：${context.sheet?.name || '-'}`);
   lines.push(`- 介质：${stream.medium || context.lineGroup?.medium || '-'}`);
   lines.push(`- 流向：${stream.fromLabel} -> ${stream.toLabel}`);
   lines.push(`- 沿流向顺序：${stream.flowDirectionText || '待补全'}`);
@@ -1285,7 +1433,7 @@ export const renderSystemAgentContextMarkdown = (context: AgentSystemContext) =>
   const lines: string[] = [];
   lines.push(`# 系统上下文 ${context.system.name}`);
   lines.push('');
-  lines.push(`- 所属区域：${context.area?.name || '-'}`);
+  lines.push(`- 所属工段：${context.area?.name || '-'}`);
   lines.push(`- 系统目的：${context.system.purpose || '待补全'}`);
   lines.push(`- 边界入口：${context.system.boundaryIn || '待补全'}`);
   lines.push(`- 边界出口：${context.system.boundaryOut || '待补全'}`);
@@ -1351,15 +1499,12 @@ export const buildCompletenessIssues = (project: PidSemanticProjectForAgent, ir 
   };
   const equipmentById = new Map(project.equipments.map((equipment) => [equipment.id, equipment]));
   const streamById = new Map(project.streams.map((stream) => [stream.id, stream]));
-  project.systems.forEach((system) => {
+  ir.systems.forEach((system) => {
     if (!present(system.purpose)) {
-      pushIssue({ level: 'warning', code: 'SYSTEM_PURPOSE_PENDING', message: `${system.name} 缺少系统目的。`, entity: ref('system', system.id, system.name), field: 'purpose' });
-    }
-    if (!present(system.boundaryIn) || !present(system.boundaryOut)) {
-      pushIssue({ level: 'warning', code: 'SYSTEM_BOUNDARY_PENDING', message: `${system.name} 缺少入口或出口边界。`, entity: ref('system', system.id, system.name), field: 'boundaryIn/boundaryOut' });
+      pushIssue({ level: 'warning', code: 'AREA_OBJECTIVE_PENDING', message: `${system.name} 缺少工段说明。`, entity: ref('system', system.id, system.name), field: 'objective' });
     }
   });
-  project.equipments.forEach((equipment) => {
+  ir.equipments.forEach((equipment) => {
     if (!present(equipment.profile.coreFunction)) {
       pushIssue({ level: 'warning', code: 'EQUIPMENT_CORE_FUNCTION_PENDING', message: `${equipment.tag} 缺少核心功能。`, entity: ref('equipment', equipment.id, equipment.tag), field: 'profile.coreFunction' });
     }
@@ -1412,7 +1557,7 @@ export const buildCompletenessIssues = (project: PidSemanticProjectForAgent, ir 
         pushIssue({ level: 'error', code: 'STREAM_PIPE_NODE_SEGMENT_MISSING', message: `${stream.tag} 的管段接点缺少有效挂接管段。`, entity: ref('stream', stream.id, stream.tag), field: `${side}SegmentId` });
       }
       if (endpoint.kind === '跨图引用' && !present(endpoint.referenceSheet)) {
-        pushIssue({ level: 'warning', code: 'CROSS_SHEET_REFERENCE_PENDING', message: `${stream.tag} 的跨图引用缺少目标分段。`, entity: ref('stream', stream.id, stream.tag), field: `${side}ReferenceSheet` });
+        pushIssue({ level: 'warning', code: 'CROSS_SHEET_REFERENCE_PENDING', message: `${stream.tag} 的跨图引用缺少目标图纸。`, entity: ref('stream', stream.id, stream.tag), field: `${side}ReferenceSheet` });
       }
     });
   });
@@ -1583,7 +1728,7 @@ export const buildAgentIndexes = (project: PidSemanticProjectForAgent, ir = proj
     const entity = ref('stream', stream.id, stream.tag);
     [stream.id, stream.tag, stream.name, stream.medium, stream.groupTag, stream.groupName, stream.intent, stream.fromLabel, stream.toLabel, stream.flowDirectionText].forEach((key) => addLookup(lookup, key || '', entity));
   });
-  project.systems.forEach((system) => {
+  ir.systems.forEach((system) => {
     const entity = ref('system', system.id, system.name);
     [system.id, system.name, system.purpose, system.boundaryIn, system.boundaryOut].forEach((key) => addLookup(lookup, key || '', entity));
   });
@@ -1601,7 +1746,7 @@ export const buildAgentIndexes = (project: PidSemanticProjectForAgent, ir = proj
       streamIds: Array.from(value.streamIds),
       inlineComponentIds: Array.from(value.inlineComponentIds),
     })),
-    controls: project.controls.map((control) => ({
+    controls: ir.controls.map((control) => ({
       id: control.id,
       tag: control.tag,
       kind: control.kind,
@@ -1624,6 +1769,12 @@ const readableEquipmentView = (equipment: AgentSemanticIR['equipments'][number])
   system: equipment.systemName,
   area: equipment.areaName,
   sheet: equipment.sheetName,
+  instanceCount: equipment.instanceIds.length,
+  drawingInstances: equipment.drawingInstances.map((instance) => ({
+    sheet: instance.sheetName,
+    area: instance.areaName,
+    system: instance.systemName,
+  })),
   material: equipment.material,
   description: equipment.description,
   coreFunction: equipment.profile.coreFunction || '待补全',
@@ -1730,8 +1881,11 @@ const readableControlView = (
   control: ControlInterlock,
   equipmentById: Map<string, AgentSemanticIR['equipments'][number]>,
 ) => {
-  const triggerEquipment = equipmentById.get(control.triggerEquipmentId);
-  const actionEquipment = equipmentById.get(control.actionEquipmentId);
+  const equipments = Array.from(equipmentById.values());
+  const triggerEquipment = equipmentById.get(control.triggerEquipmentId)
+    || equipments.find((equipment) => equipment.instanceIds.includes(control.triggerEquipmentId));
+  const actionEquipment = equipmentById.get(control.actionEquipmentId)
+    || equipments.find((equipment) => equipment.instanceIds.includes(control.actionEquipmentId));
   return {
     tag: control.tag,
     kind: control.kind,
@@ -1787,7 +1941,7 @@ export const buildAgentReadableSemanticIR = (
     streams: ir.streams.map(readableStreamView),
     pipeNodes: project.pipeNodes.map((node) => readablePipeNodeView(node, streamById)),
     inlineComponents: project.inlineComponents.map((component) => readableInlineComponentView(component, streamById)),
-    controls: project.controls.map((control) => readableControlView(control, equipmentById)),
+    controls: ir.controls.map((control) => readableControlView(control, equipmentById)),
     narratives: ir.narratives.map((item) => ({
       level: item.level,
       subject: item.subject,
@@ -1801,6 +1955,7 @@ export const buildAgentReadableSemanticIR = (
         name: equipment.name,
         type: equipment.type,
         system: equipment.systemName,
+        instanceCount: equipment.instanceIds.length,
         coreFunction: equipment.coreFunction || '待补全',
       })),
       streams: ir.indexes.streams.map((stream) => ({
@@ -1939,6 +2094,7 @@ const readableIndexFiles = (
       name: equipment.name,
       type: equipment.type,
       system: equipment.systemName,
+      instanceCount: equipment.instanceIds.length,
       coreFunction: equipment.coreFunction || '待补全',
     })),
     streams: indexes.streams.map((stream) => ({
@@ -1961,7 +2117,7 @@ const readableIndexFiles = (
       streams: medium.streamIds.map((id) => streamById.get(id)).filter(isDefined).map((stream) => stream.tag),
       inlineComponents: medium.inlineComponentIds.map((id) => inlineById.get(id)).filter(isDefined).map(inlineComponentLabel),
     })),
-    controls: project.controls.map((control) => readableControlView(control, equipmentById)),
+    controls: ir.controls.map((control) => readableControlView(control, equipmentById)),
     lookup: Object.fromEntries(
       Object.entries(indexes.lookup)
         .filter(([key]) => !internalLookupKeyPattern.test(key))
@@ -1985,7 +2141,7 @@ export const buildAgentPublishPackage = (project: PidSemanticProjectForAgent): A
     stream: {} as Record<string, { json: string; markdown: string }>,
     system: {} as Record<string, { json: string; markdown: string }>,
   };
-  project.equipments.forEach((equipment) => {
+  semanticIR.equipments.forEach((equipment) => {
     const context = buildEquipmentAgentContext(project, equipment.id);
     if (!context) return;
     const contextKey = equipment.tag || equipment.id;
@@ -2011,7 +2167,7 @@ export const buildAgentPublishPackage = (project: PidSemanticProjectForAgent): A
       markdown: `contexts/stream/${safeFileName(contextKey)}.md`,
     };
   });
-  project.systems.forEach((system) => {
+  semanticIR.systems.forEach((system) => {
     const context = buildSystemAgentContext(project, system.id);
     if (!context) return;
     const contextKey = system.name || system.id;

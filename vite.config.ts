@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { randomUUID } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import type { IncomingMessage, ServerResponse } from 'node:http'
@@ -37,6 +38,82 @@ const resolvePackageFilePath = (packageRoot: string, filePath: string) => {
   const resolved = path.resolve(packageRoot, ...parts)
   if (!resolved.startsWith(`${packageRoot}${path.sep}`) && resolved !== packageRoot) throw new Error(`Invalid file path: ${filePath}`)
   return resolved
+}
+
+interface NetworkProjectMetadata {
+  id: string
+  name: string
+  drawingNo: string
+  createdAt: string
+  updatedAt: string
+  version: number
+}
+
+const networkProjectsRoot = path.resolve(__dirname, 'network-projects')
+
+const safeNetworkProjectId = (input: string) => {
+  if (!/^[a-zA-Z0-9._-]+$/.test(input)) throw new Error('Invalid network project id')
+  return input
+}
+
+const networkProjectDir = (projectId: string) => path.resolve(networkProjectsRoot, safeNetworkProjectId(projectId))
+const networkProjectFile = (projectId: string) => path.join(networkProjectDir(projectId), 'project.pid-project.json')
+const networkProjectMetaFile = (projectId: string) => path.join(networkProjectDir(projectId), 'metadata.json')
+
+const safeTimestamp = () => new Date().toISOString().replace(/[:.]/g, '-')
+
+const readJsonFile = <T>(filePath: string): T => JSON.parse(fs.readFileSync(filePath, 'utf-8')) as T
+
+const writeJsonFile = (filePath: string, payload: unknown) => {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true })
+  fs.writeFileSync(filePath, `${JSON.stringify(payload, null, 2)}\n`, 'utf-8')
+}
+
+const validatePidProject = (project: unknown) => {
+  if (!project || typeof project !== 'object') throw new Error('Invalid project payload')
+  const typedProject = project as { version?: string; project?: { name?: string; drawingNo?: string } }
+  if (typedProject.version !== 'pid-layered-semantic/v1') throw new Error('Unsupported project version')
+  if (!typedProject.project || typeof typedProject.project !== 'object') throw new Error('Invalid project metadata')
+  return typedProject
+}
+
+const metadataFromProject = (id: string, project: unknown, previous?: NetworkProjectMetadata): NetworkProjectMetadata => {
+  const typedProject = validatePidProject(project)
+  const now = new Date().toISOString()
+  return {
+    id,
+    name: typedProject.project?.name || previous?.name || id,
+    drawingNo: typedProject.project?.drawingNo || previous?.drawingNo || '',
+    createdAt: previous?.createdAt || now,
+    updatedAt: now,
+    version: previous ? previous.version + 1 : 1,
+  }
+}
+
+const writeNetworkProject = (projectId: string, project: unknown, previous?: NetworkProjectMetadata) => {
+  const meta = metadataFromProject(projectId, project, previous)
+  const projectDir = networkProjectDir(projectId)
+  const versionFile = path.join(projectDir, 'versions', `v${String(meta.version).padStart(4, '0')}-${safeTimestamp()}.pid-project.json`)
+  writeJsonFile(networkProjectFile(projectId), project)
+  writeJsonFile(networkProjectMetaFile(projectId), meta)
+  writeJsonFile(versionFile, project)
+  return meta
+}
+
+const listNetworkProjects = () => {
+  fs.mkdirSync(networkProjectsRoot, { recursive: true })
+  return fs.readdirSync(networkProjectsRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .flatMap((entry) => {
+      const metaPath = networkProjectMetaFile(entry.name)
+      if (!fs.existsSync(metaPath)) return []
+      try {
+        return [readJsonFile<NetworkProjectMetadata>(metaPath)]
+      } catch {
+        return []
+      }
+    })
+    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
 }
 
 // 自定义中间件：处理文件保存请求
@@ -85,6 +162,71 @@ const saveFilePlugin = () => ({
         })
       } else {
         next()
+      }
+    })
+    server.middlewares.use('/_api/network-projects', async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
+      try {
+        const urlPath = (req.url || '/').split('?')[0]
+        const parts = urlPath.split('/').filter(Boolean).map((part) => decodeURIComponent(part))
+        const projectId = parts[0]
+
+        if (req.method === 'GET' && !projectId) {
+          jsonResponse(res, 200, { success: true, projects: listNetworkProjects() })
+          return
+        }
+
+        if (req.method === 'POST' && !projectId) {
+          const body = await readJsonBody(req) as { project?: unknown }
+          if (!body.project) throw new Error('Missing project payload')
+          const id = randomUUID()
+          const metadata = writeNetworkProject(id, body.project)
+          console.log(`[Vite] Created network project: network-projects/${id}`)
+          jsonResponse(res, 200, { success: true, metadata, project: body.project })
+          return
+        }
+
+        if (req.method === 'GET' && projectId && parts.length === 1) {
+          const projectFile = networkProjectFile(projectId)
+          const metaFile = networkProjectMetaFile(projectId)
+          if (!fs.existsSync(projectFile) || !fs.existsSync(metaFile)) {
+            jsonResponse(res, 404, { success: false, message: 'Network project not found' })
+            return
+          }
+          jsonResponse(res, 200, {
+            success: true,
+            metadata: readJsonFile<NetworkProjectMetadata>(metaFile),
+            project: readJsonFile(projectFile),
+          })
+          return
+        }
+
+        if (req.method === 'PUT' && projectId && parts.length === 1) {
+          const body = await readJsonBody(req) as { project?: unknown; expectedVersion?: number }
+          if (!body.project) throw new Error('Missing project payload')
+          const metaFile = networkProjectMetaFile(projectId)
+          if (!fs.existsSync(metaFile)) {
+            jsonResponse(res, 404, { success: false, message: 'Network project not found' })
+            return
+          }
+          const previous = readJsonFile<NetworkProjectMetadata>(metaFile)
+          if (typeof body.expectedVersion === 'number' && body.expectedVersion !== previous.version) {
+            jsonResponse(res, 409, {
+              success: false,
+              message: `NETWORK_PROJECT_WRITE_CONFLICT: expected v${body.expectedVersion}, got v${previous.version}`,
+              metadata: previous,
+            })
+            return
+          }
+          const metadata = writeNetworkProject(projectId, body.project, previous)
+          console.log(`[Vite] Saved network project: network-projects/${projectId} v${metadata.version}`)
+          jsonResponse(res, 200, { success: true, metadata, project: body.project })
+          return
+        }
+
+        next()
+      } catch (error) {
+        console.error('[Vite] Network project error:', error)
+        jsonResponse(res, 500, { success: false, message: (error as Error).message })
       }
     })
     server.middlewares.use('/_api/publish-agent-package', async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
